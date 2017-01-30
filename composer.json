@@ -1,7 +1,7 @@
 {
   "name":              "spwashi/sm",
   "description":       "This is a simple PHP Framework aimed to accomodate for legacy code while also laying the groundwork for newer development.",
-  "minimum-stability": "alpha",
+  "minimum-stability": "stable",
   "license":           "proprietary",
   "authors":           [
     {

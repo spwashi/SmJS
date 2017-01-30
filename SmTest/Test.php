@@ -22,11 +22,5 @@ class Test extends \PHPUnit_Framework_TestCase {
         
         $App = App::init($Config);
         $this->assertEquals('Sm', $App->name);
-        
-        $entry_point = $App->resolve('entry_point');
-        $this->assertNotNull($entry_point);
-        
-        $Router = $App->resolve('router', $entry_point);
-        $this->assertNotNull($entry_point);
     }
 }

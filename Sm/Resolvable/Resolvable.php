@@ -8,8 +8,6 @@
 namespace Sm\Resolvable;
 
 
-use Sm\Resolvable\Error\UnresolvableError;
-
 abstract class Resolvable implements \Sm\Abstraction\Resolvable\Resolvable {
     const RESOLUTION_MODE_STD   = 1;
     const RESOLUTION_MODE_ARRAY = 2;
@@ -19,11 +17,16 @@ abstract class Resolvable implements \Sm\Abstraction\Resolvable\Resolvable {
     public function __construct($subject) {
         $this->subject = $subject;
     }
-    
+    public function __invoke($_ = null) {
+        return $this->resolve(func_get_args());
+    }
     public function reset() {
         return $this;
     }
-    public function resolve($arguments = null) {
-        throw new UnresolvableError("No specified way to interpret this information.");
+    public static function init($item = null) {
+        return new static($item);
+    }
+    public static function coerce($item) {
+        return self::init($item);
     }
 }

@@ -19,6 +19,17 @@ class StringResolvable extends NativeResolvable {
         parent::__construct($subject);
     }
     
+    public static function coerce($item) {
+        if (static::itemCanBeString($item)) {
+            return new static("{$item}");
+        } else {
+            throw new UnresolvableError("Cannot resolve resources that aren't stringifiable!");
+        }
+    }
+    
+    public function resolve($arguments = null) {
+        return '' . $this->subject;
+    }
     /**
      * Function to determine whether something can be a string
      * ::UTIL::

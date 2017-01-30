@@ -12,13 +12,6 @@ use Sm\Abstraction\Resolvable\Resolvable;
 use Sm\Resolvable\Error\UnresolvableError;
 
 class ResolvableFactory extends \Sm\Factory\Factory {
-    public static function init() {
-        return new static;
-    }
-    public static function coerce($item) {
-        if ($item instanceof ResolvableFactory) return $item;
-        return static::init();
-    }
     public function build($subject) {
         if ($subject instanceof Resolvable) return $subject;
         if (!is_callable($subject)) {
@@ -30,7 +23,11 @@ class ResolvableFactory extends \Sm\Factory\Factory {
         var_dump($subject);
         throw new UnresolvableError("Could not resolve resource");
     }
-    public function register($callback, $name = null) {
-        // TODO: Implement register() method.
+    public static function init() {
+        return new static;
+    }
+    public static function coerce($item) {
+        if ($item instanceof ResolvableFactory) return $item;
+        return static::init();
     }
 }

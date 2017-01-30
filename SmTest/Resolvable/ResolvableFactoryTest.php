@@ -50,6 +50,7 @@ class ResolvableFactoryTest extends \PHPUnit_Framework_TestCase {
      * @dataProvider genericSubjectProvider
      * @depends      testCanCreateResolvableFactory
      *
+     * @param                   $subject
      * @param ResolvableFactory $ResolvableFactory
      */
     public function testCanBuildNativeResolvable($subject, $ResolvableFactory) {

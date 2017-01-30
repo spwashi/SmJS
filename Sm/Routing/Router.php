@@ -16,13 +16,13 @@ class Router implements Registry {
         if (isset($this->app))
             $this->app = $App;
     }
-    public static function init(App $App = null) {
-        return new static($App);
-    }
     public function register($identifier, $registrand=null) {
         // TODO: Implement register() method.
     }
-    public function resolve($identifier) {
+    public function resolve($identifier, $_ = null) {
         // TODO: Implement resolve() method.
+    }
+    public static function init(App $App = null) {
+        return new static($App);
     }
 }

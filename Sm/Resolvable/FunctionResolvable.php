@@ -16,7 +16,6 @@ class FunctionResolvable extends Resolvable {
      * FunctionResolvable constructor.
      *
      * @param Resolvable|string|array|Arguments $subject
-     * @param null                              $resolution_mode
      *
      * @throws \Sm\Resolvable\Error\UnresolvableError
      */

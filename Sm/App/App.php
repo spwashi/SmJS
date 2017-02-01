@@ -8,7 +8,6 @@
 namespace Sm\App;
 
 
-use Sm\Abstraction\Registry;
 use Sm\App\Module\Module;
 use Sm\IoC\IoC;
 use Sm\Resolvable\NativeResolvable;
@@ -22,16 +21,34 @@ use Sm\Resolvable\NativeResolvable;
  * @property string $app_path
  */
 class PathContainer extends IoC {
+    public $App = null;
+    /**
+     * @return null
+     */
+    public function getApp() {
+        return $this->App;
+    }
     /**
      * @param null $name
      *
      * @return null|string
      */
     public function resolve($name = null) {
-        $string = parent::resolve($name, $this);
+        $string = parent::resolve($name, $this, $this->App);
         if (!is_string($string)) return $string;
         return rtrim($string, '/') . '/';
     }
+    /**
+     * @param null $App
+     *
+     * @return PathContainer
+     */
+    public function setApp($App) {
+        $this->App = $App;
+        return $this;
+    }
+
+
 }
 
 /**
@@ -45,7 +62,7 @@ class App extends IoC {
     #-----------------------------------------------------------------------------------
     public function __construct() {
         parent::__construct();
-        $this->register('Paths', PathContainer::init());
+        $this->register('Paths', PathContainer::init()->setApp($this));
     }
     public function cloneRegistry() {
         $registry = parent::cloneRegistry();
@@ -58,7 +75,7 @@ class App extends IoC {
     }
     public function duplicate() {
         $Duplicate = parent::duplicate();
-        $Duplicate->register('Paths', $this->resolve('Paths')->duplicate());
+        $Duplicate->register('Paths', $this->resolve('Paths')->duplicate()->setApp($Duplicate));
         return $Duplicate;
     }
     public static function init() {
@@ -93,26 +110,20 @@ class App extends IoC {
         
         if (!$arguments_class_exists || !($arguments instanceof \Sm\Abstraction\Resolvable\Arguments)) {
             $arguments = func_get_args();
-            $arguments = array_shift($arguments);
+            $a         = [ ];
+            $one       = 0;
+            foreach ($arguments as $index => $argument) {
+                if (!$one++) continue;
+                $a[] = $argument;
+            }
             if (class_exists('\Sm\Abstraction\Resolvable\Arguments')) {
-                $arguments = \Sm\Abstraction\Resolvable\Arguments::coerce($arguments);
+                $arguments = \Sm\Abstraction\Resolvable\Arguments::coerce($a);
             }
         }
         
         return $this->canResolve($identifier)
             ? parent::resolve($identifier, $arguments)
-            : $this->$identifier ?? null;
-    }
-    /**
-     * Normalize the way that this App is being configured
-     *
-     * @param $AppConfig
-     *
-     * @return Registry
-     */
-    protected function normalizeAppConfig(Registry $AppConfig) {
-        $this->inherit($AppConfig);
-        return $AppConfig;
+            : null;
     }
     
     

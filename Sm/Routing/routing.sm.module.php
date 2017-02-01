@@ -21,14 +21,8 @@ return [
     'dispatch' => function (App $App, Arguments $Arguments) {
         /** @var Request $Request */
         $Request = $Arguments->getParameter('Request') ?? $Arguments->getArgument(0);
-        if (!($Request instanceof \Sm\Abstraction\Request\Request)) {
-            if (class_exists('\Sm\Request\Request')) {
-                $Request = \Sm\Request\Request::coerce($Request);
-                $Request->setApp($App);
-            } else {
-                throw new UnresolvableError("Cannot resolve request - (unkown format)");
-            }
-        };
+        $Request = $App->resolve('request', $Request);
+        $Request->setApp($App);
         $Router = $App->resolve('router');
         if (!$Router instanceof Registry) throw new UnresolvableError("Invalid Router");
         return $Router->resolve($Request);

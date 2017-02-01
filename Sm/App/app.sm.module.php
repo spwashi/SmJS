@@ -10,7 +10,7 @@ use Sm\App\Module\Module;
 use Sm\Resolvable\SingletonFunctionResolvable;
 
 return [
-    'init' => /**
+    'init'     => /**
      * @param \Sm\App\App $App
      */
         function (App $App) {
@@ -18,12 +18,18 @@ return [
                                            BASE_PATH);
             
             $App->Paths->register_defaults('app_path',
-                                           $App->name ? $App->name : 'Sm');
+                                           SingletonFunctionResolvable::coerce(function ($Paths, $App) {
+                                               return $App->name;
+                                           }));
             
             $App->Paths->register_defaults('config_path',
                                            SingletonFunctionResolvable::coerce(function ($Paths) {
                                                return $Paths->app_path . 'config/default/';
                                            }));
+    
+            $App->register_defaults('request', SingletonFunctionResolvable::coerce(function ($url) {
+                return \Sm\Request\Request::coerce($url);
+            }));
             
             $autoload_file = $App->Paths->config_path . 'autoload.php';
             if (is_file($autoload_file)) require_once $autoload_file;
@@ -34,5 +40,9 @@ return [
                 $Routing = Module::init(include $routing_module ?? [ ], $App);
                 $App->register('routing.module', $Routing);
             }
+            return $App;
         },
+    'dispatch' => function (App $App) {
+        return $App;
+    },
 ];

@@ -44,8 +44,9 @@ class IoC implements Registry {
      * @return static
      */
     public function duplicate() {
-        $IoC      = static::init();
-        $registry = $this->cloneRegistry();
+        $IoC                       = static::init();
+        $registry                  = $this->cloneRegistry();
+        $IoC->_registered_defaults = $this->_registered_defaults;
         $IoC->register($registry);
         return $IoC;
     }
@@ -57,7 +58,7 @@ class IoC implements Registry {
             foreach ($name as $index => $item) {
                 $this->register_defaults($index, $item);
             }
-        } else if (!$this->canResolve($name)) {
+        } else if (!$this->canResolve($name) && !array_key_exists($name, $this->_registered_defaults)) {
             $this->register($name, $registrand);
             $this->_registered_defaults[] = $name;
         }

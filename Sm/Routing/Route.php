@@ -109,7 +109,7 @@ class Route implements Resolvable, Coercable {
                 $resolution = $item[ $k ];
                 $pattern    = $k;
             }
-            if (!($resolution && $pattern)) throw new MalformedRouteException("Malformed route configuration {$pattern}");
+            if (!($resolution && $pattern)) throw new MalformedRouteException("Malformed route configuration '{$pattern}''");
             $Route = new static($resolution, $pattern);
             if ($default) $Route->setDefaultResolution($default);
         } else if (is_string($item)) {
@@ -121,7 +121,6 @@ class Route implements Resolvable, Coercable {
         }
         return $Route;
     }
-    
     
     #  protected
     ##############################################################################################
@@ -185,14 +184,5 @@ class Route implements Resolvable, Coercable {
         }
         if (count($matches)) $Arguments->push($matches);
         return $Arguments;
-    }
-    private static function enforce_length($len, $str) {
-        $_strlen = strlen($str);
-        if ($_strlen < $len) {
-            $str .= str_repeat(' ', $len - $_strlen);
-        } else if ($_strlen > $len) {
-            $str = substr($str, 0, $len);
-        }
-        return $str;
     }
 }

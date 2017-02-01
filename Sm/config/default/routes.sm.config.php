@@ -1,7 +1,6 @@
 <?php
 
 use Sm\App\App;
-use Sm\App\Module\Module;
 use Sm\Request\Request;
 use Sm\Resolvable\FunctionResolvable;
 use Sm\Resolvable\StringResolvable;
@@ -19,13 +18,20 @@ return [
         
           FunctionResolvable::init(function (Request $Request) {
               /** @var App $App */
-              $App       = $Request->getApp()->duplicate();
-              $App->name = 'ExampleApp';
-              $App->Paths->register([ 'app_path' => 'ExampleApp/', ]);
-              $App->resolve('app.module')->dispatch($App);
-              /** @var Module $RoutingModule */
-              $RoutingModule = $App->resolve('routing.module')->initialize();
-              return $RoutingModule->dispatch($App, $Request);
+              $App                  = $Request->getApp()->duplicate();
+              $App->name            = 'ExampleApp';
+              $App->Paths->app_path = BASE_PATH . 'SmTest/ExampleApp/';
+              var_dump($App->Paths->app_path);
+              $Request->setChangePath(FunctionResolvable::coerce(function ($path) {
+                  return preg_replace('~(localhost/Sm/fs)/?~', '', $path);
+              }));
+              $App = $App
+                  ->resolve('app.module')
+                  ->dispatch($App);
+              return $App
+                  ->resolve('routing.module')
+                  ->initialize()
+                  ->dispatch($App, $Request);
           }),
     ],
 ];

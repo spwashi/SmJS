@@ -10,6 +10,7 @@ namespace Sm\Request;
 use Sm\Abstraction\Coercable;
 use Sm\App\App;
 use Sm\Error\UnimplementedError;
+use Sm\Resolvable\FunctionResolvable;
 
 /**
  * Class Request
@@ -19,11 +20,14 @@ use Sm\Error\UnimplementedError;
  * @package Sm\Request
  */
 class Request implements \Sm\Abstraction\Request\Request, Coercable, \JsonSerializable {
-    protected $url    = null;
-    protected $path   = null;
-    protected $method = null;
+    protected $url                    = null;
+    protected $path                   = null;
+    protected $method                 = null;
+    protected $requested_content_type = null;
     /** @var App $app */
     protected $app = null;
+    /** @var null|FunctionResolvable $ChangePathResolvable */
+    protected $ChangePathResolvable = null;
     public function getBody() {
         throw new UnimplementedError();
     }
@@ -71,7 +75,12 @@ class Request implements \Sm\Abstraction\Request\Request, Coercable, \JsonSerial
      * @return null
      */
     public function getUrlPath() {
+        if ($this->ChangePathResolvable) return $this->ChangePathResolvable->resolve($this->path);
         return $this->path ?? null;
+    }
+    public function setChangePath(FunctionResolvable $functionResolvable) {
+        $this->ChangePathResolvable = $functionResolvable;
+        return $this;
     }
     public function __toString() {
         return json_encode($this);
@@ -97,6 +106,21 @@ class Request implements \Sm\Abstraction\Request\Request, Coercable, \JsonSerial
      */
     public function setApp(App $app): Request {
         $this->app = $app;
+        return $this;
+    }
+    /**
+     * @return null
+     */
+    public function getRequestedContentType() {
+        return $this->requested_content_type;
+    }
+    /**
+     * @param null $requested_content_type
+     *
+     * @return Request
+     */
+    public function setRequestedContentType($requested_content_type) {
+        $this->requested_content_type = $requested_content_type;
         return $this;
     }
     public static function init() { return new static; }

@@ -12,6 +12,7 @@ use Sm\Abstraction\Factory\Factory;
 use Sm\Abstraction\Registry;
 use Sm\Abstraction\Resolvable\Arguments;
 use Sm\Abstraction\Resolvable\Resolvable;
+use Sm\Resolvable\ResolvableFactory;
 
 /**
  * Class IoC
@@ -24,46 +25,53 @@ class IoC implements Registry {
     /**
      * @var \Sm\Abstraction\Factory\Factory
      */
-    protected $ResolvableFactory = null;
+    protected $ResolvableFactory    = null;
+    protected $_registered_defaults = [ ];
     
-    
+    public function __construct() {
+        $this->ResolvableFactory = new ResolvableFactory;
+    }
     #  Constructors/Initializers
     #-----------------------------------------------------------------------------------
     
-    public function __construct(Factory $ResolvableFactory = null) { $this->ResolvableFactory = $ResolvableFactory; }
-    /**
-     * Static Constructor for the IoC class
-     *
-     * @param Factory|null $ResolvableFactory
-     *
-     * @return static
-     */
-    public static function init(Factory $ResolvableFactory = null) { return new static($ResolvableFactory); }
-    
+    public function setResolvableFactory(Factory $ResolvableFactory) {
+        $this->ResolvableFactory = $ResolvableFactory;
+        return $this;
+    }
     /**
      * Return a new instance of this class that inherits this registry
      *
-     * @return IoC
+     * @return static
      */
     public function duplicate() {
-        $IoC      = static::init($this->ResolvableFactory);
+        $IoC      = static::init();
         $registry = $this->cloneRegistry();
         $IoC->register($registry);
         return $IoC;
     }
-    
-    protected function cloneRegistry() {
-        $registry     = $this->registry;
-        $new_registry = [ ];
-        foreach ($registry as $identifier => $item) {
-            $new_registry[ $identifier ] = $item instanceof \Sm\Resolvable\Resolvable ? $item->reset() : $item;
+    public function inherit(IoC $registry) {
+        $this->register($registry->cloneRegistry());
+    }
+    public function register_defaults($name, $registrand = null) {
+        if (is_array($name)) {
+            foreach ($name as $index => $item) {
+                $this->register_defaults($index, $item);
+            }
+        } else if (!$this->canResolve($name)) {
+            $this->register($name, $registrand);
+            $this->_registered_defaults[] = $name;
         }
-        return $new_registry;
+        return $this;
+    }
+    public function __get($name) {
+        return $this->resolve($name);
+    }
+    public function __set($name, $value) {
+        $this->register($name, $value);
     }
     
     #  Public Methods
     #-----------------------------------------------------------------------------------
-    
     /**
      * Register an item or an array of items (indexed by name) as being things that are going to get resolved by this IoC container
      *
@@ -72,10 +80,10 @@ class IoC implements Registry {
      *
      * @return $this
      */
-    public function register($name, $registrand = null) {
+    public function register($name = null, $registrand = null) {
         if (is_array($name)) {
-            foreach ($name as $index => $registrand) {
-                $this->addToRegistry($index, $this->standardizeRegistrand($registrand, $index));
+            foreach ($name as $index => $item) {
+                $this->addToRegistry($index, $this->standardizeRegistrand($item, $index));
             }
         } else {
             $this->addToRegistry($name, $this->standardizeRegistrand($registrand, $name));
@@ -88,22 +96,31 @@ class IoC implements Registry {
      *
      * @return mixed|null
      */
-    public function resolve($name, $arguments = null) {
-        $arguments = $arguments instanceof Arguments ? $arguments : new Arguments(func_get_args());
+    public function resolve($name = null, $arguments = null) {
+        $args = func_get_args();
+        array_shift($args);
+        $arguments = $arguments instanceof Arguments ? $arguments : new Arguments($args);
         $item      = $this->getItem($name);
         
         if (!($item instanceof Resolvable)) return $item;
         
         return $item->resolve($arguments);
     }
-    
     public function canResolve($name) {
         return null !== ($this->getItem($name));
+    }
+    public static function init() { return new static; }
+    protected function cloneRegistry() {
+        $registry     = $this->registry;
+        $new_registry = [ ];
+        foreach ($registry as $identifier => $item) {
+            $new_registry[ $identifier ] = $item instanceof \Sm\Resolvable\Resolvable ? $item->reset() : $item;
+        }
+        return $new_registry;
     }
     
     #  Private/Protected methods
     #-----------------------------------------------------------------------------------
-    
     /**
      * @param mixed $registrand   Whatever is being registered
      * @param null  $name         The name of whatever is being registered.
@@ -122,6 +139,9 @@ class IoC implements Registry {
      */
     protected function addToRegistry($name, $item) {
         $this->registry[ $name ] = $item;
+        if (($index = array_search($name, $this->_registered_defaults)) > -1) {
+            unset($this->_registered_defaults[ $index ]);
+        }
         return $this;
     }
     /**

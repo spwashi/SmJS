@@ -32,7 +32,14 @@ class Arguments implements \JsonSerializable {
     public function getParameter($name) {
         return $this->parameters[ $name ] ?? null;
     }
-    
+    public function getArgument($index) {
+        return $this->arguments[ $index ] ?? null;
+    }
+    public function unshift($argument, $name = null) {
+        array_unshift($this->arguments, $argument);
+        if (isset($name)) $this->setParameter($name, $argument);
+        return $this;
+    }
     public function push($argument, $name = null) {
         $this->arguments[] = $argument;
         if (isset($name)) $this->setParameter($name, $argument);
@@ -51,9 +58,10 @@ class Arguments implements \JsonSerializable {
             'parameters' => count($this->parameters) ? $this->parameters : null,
         ];
     }
-    public static function coerce($arguments) {
+    public static function coerce($arguments = null) {
         if ($arguments instanceof Arguments) return $arguments;
-        $arguments = is_array($arguments) ? $arguments : func_get_args();
+        if (isset($arguments))
+            $arguments = is_array($arguments) ? $arguments : func_get_args();
         return new static($arguments);
     }
     

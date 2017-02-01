@@ -12,10 +12,13 @@ abstract class Resolvable implements \Sm\Abstraction\Resolvable\Resolvable {
     const RESOLUTION_MODE_STD   = 1;
     const RESOLUTION_MODE_ARRAY = 2;
     
-    protected $subject;
+    protected $value;
     
     public function __construct($subject) {
-        $this->subject = $subject;
+        $this->value = $subject;
+    }
+    public function __toString() {
+        return json_encode($this);
     }
     public function __invoke($_ = null) {
         return $this->resolve(func_get_args());
@@ -26,7 +29,7 @@ abstract class Resolvable implements \Sm\Abstraction\Resolvable\Resolvable {
     public static function init($item = null) {
         return new static($item);
     }
-    public static function coerce($item) {
+    public static function coerce($item = null) {
         return self::init($item);
     }
 }

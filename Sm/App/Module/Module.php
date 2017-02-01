@@ -8,28 +8,54 @@
 namespace Sm\App\Module;
 
 
+use Sm\Abstraction\Resolvable\Arguments;
 use Sm\Abstraction\Resolvable\Resolvable;
 use Sm\App\App;
 use Sm\Resolvable\Error\UnresolvableError;
 
 class Module implements \Sm\Abstraction\Module\Module {
-    /**
-     * @var Resolvable
-     */
-    protected $DispatchResolvable = null;
-    public static function init() {
-        return new static;
+    /** @var Resolvable */
+    protected $Dispatch = null;
+    /** @var Resolvable */
+    protected $Init = null;
+    /** @var bool $is_init */
+    protected $is_init = false;
+    
+    protected function __construct() { }
+    public function dispatch(App $app = null, $arguments = null) {
+        $arguments = Arguments::coerce($arguments);
+        if (!$this->is_init) $this->initialize($app);
+        if (isset($this->Dispatch)) {
+            return $this->Dispatch->resolve($app, $arguments);
+        } else {
+            throw new UnresolvableError("Cannot resolve module");
+        }
+    }
+    public function reset() {
+        $this->is_init = false;
+    }
+    public function setDispatch(Resolvable $resolvable) {
+        $this->Dispatch = $resolvable;
+        return $this;
+    }
+    public function initialize(App $app = null) {
+        if ($this->is_init) return $this;
+        if ($this->Init instanceof Resolvable) $this->Init->resolve($app);
+        $this->is_init = true;
+        return $this;
     }
     /**
-     * @param          $item
-     * @param App|null $app
+     * @param null             $item
+     * @param \Sm\App\App|null $app
      *
-     * @return Module
-     * @throws UnresolvableError
+     * @return static
+     * @throws \Sm\Resolvable\Error\UnresolvableError
      */
-    public static function coerce($item, App $app = null) {
-        if ($item instanceof \Sm\Abstraction\Module\Module) return $item;
+    public static function init($item = null, App $app = null) {
+        if ($item instanceof Module) return $item;
+        $init = null;
         if (is_array($item)) {
+            $init = $item['init'] ?? null;
             $item = $item['dispatch'] ?? null;
         }
         if (class_exists('\Sm\Resolvable\ResolvableFactory')) {
@@ -39,21 +65,27 @@ class Module implements \Sm\Abstraction\Module\Module {
                 $ResolvableFactory = null;
             }
             $item = \Sm\Resolvable\ResolvableFactory::coerce($ResolvableFactory)->build($item);
+            $init = \Sm\Resolvable\ResolvableFactory::coerce($ResolvableFactory)->build($init);
         }
         if (!($item instanceof Resolvable)) {
-            throw new UnresolvableError("Cannot dispatch module");
+            throw new UnresolvableError("Cannot resolve module");
         }
-        return static::init()->setDispatch($item);
-    }
-    public function dispatch(App $app = null) {
-        if (isset($this->DispatchResolvable)) {
-            $this->DispatchResolvable->resolve($app);
-        } else {
-            throw new UnresolvableError("Cannot dispatch module");
+        $Module = new static;
+        if ($init instanceof Resolvable) {
+            $Module->Init = $init;
         }
+        $Module->setDispatch($item);
+        $Module->initialize($app);
+        return $Module;
     }
-    public function setDispatch(Resolvable $resolvable) {
-        $this->DispatchResolvable = $resolvable;
-        return $this;
+    /**
+     * @param          $item
+     * @param App|null $app
+     *
+     * @return Module
+     * @throws UnresolvableError
+     */
+    public static function coerce($item, App $app = null) {
+        return static::init($item, $app);
     }
 }

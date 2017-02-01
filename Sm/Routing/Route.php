@@ -8,24 +8,27 @@
 namespace Sm\Routing;
 
 
+use Sm\Abstraction\Coercable;
 use Sm\Abstraction\Request\Request;
 use Sm\Abstraction\Resolvable\Arguments;
 use Sm\Abstraction\Resolvable\Resolvable;
 use Sm\Resolvable\Error\UnresolvableError;
+use Sm\Resolvable\StringResolvable;
 
-class Route implements Resolvable {
+class Route implements Resolvable, Coercable {
     /** @var  Resolvable $DefaultResolvable */
     protected $DefaultResolvable;
-    /** @var  Resolvable $subject */
-    protected $subject;
+    /** @var  Resolvable $Resolution */
+    protected $Resolution;
     protected $pattern;
     protected $parameters = [ ];
     
-    public function __construct($pattern = null) {
-        if (is_string($pattern)) $this->setStringPattern($pattern);
+    public function __construct($resolution = null, $pattern = null) {
+        if (is_string($pattern) || is_numeric($pattern)) $this->setStringPattern($pattern);
+        if ($resolution instanceof Resolvable) {
+            $this->setResolution($resolution);
+        }
     }
-    
-    
     /**
      * @param string|Request $item
      *
@@ -42,24 +45,19 @@ class Route implements Resolvable {
         }
         return false;
     }
-    public function getArgumentsFromString(string $item) {
-        preg_match("~^{$this->pattern}~x", $item, $matches);
-        if (!count($matches)) return new Arguments();
-        array_shift($matches);
-        $Arguments = new Arguments;
-        foreach ($this->parameters as $parameter_name) {
-            if (!count($matches)) continue;
-            $Arguments->push(array_shift($matches), $parameter_name);
-        }
-        if (count($matches)) $Arguments->push($matches);
-        return $Arguments;
-    }
-    public function setDefaultResolvable(Resolvable $DefaultResolvable) {
+    /**
+     * Set the Resolvable that is to be used in case this function conks out
+     *
+     * @param \Sm\Abstraction\Resolvable\Resolvable $DefaultResolvable
+     *
+     * @return \Sm\Routing\Route
+     */
+    public function setDefaultResolution(Resolvable $DefaultResolvable) :Route {
         $this->DefaultResolvable = $DefaultResolvable;
         return $this;
     }
-    public function setSubject(Resolvable $resolvable = null) {
-        $this->subject = $resolvable;
+    public function setResolution(Resolvable $resolvable = null) :Route {
+        $this->Resolution = $resolvable;
         return $this;
     }
     /**
@@ -71,26 +69,65 @@ class Route implements Resolvable {
      *
      * @return mixed
      */
-    public function resolve($request = null) {
+    public function resolve(Request $request = null) {
         try {
             if (!($request instanceof Request)) {
-                throw new UnresolvableError("Cannot resolve request.");
-            } else if (!($this->subject instanceof Resolvable)) {
+                throw new MalformedRouteException("Cannot resolve request.");
+            } else if (!($this->Resolution instanceof Resolvable)) {
                 throw new UnresolvableError("No way to resolve request.");
             }
-            
-            if ($this->matches($request))
-                return $this->subject->resolve($this->getArgumentsFromString($request->getUrlPath()));
-        } catch (\Exception $e) {
-        } finally {
-            if (isset($this->DefaultResolvable)) {
-                return $this->DefaultResolvable->resolve($request);
+    
+            if ($this->matches($request)) {
+                $Arguments = $this->getArgumentsFromString($request->getUrlPath());
+                $Arguments->unshift($request, 'Request');
+                return $this->Resolution->resolve($Arguments);
+            } else {
+                throw new UnresolvableError("Cannot match the route");
             }
+        } catch (\Exception $e) {
+            if ($e instanceof MalformedRouteException) throw $e;
+            if (isset($this->DefaultResolvable)) return $this->DefaultResolvable->resolve($request);
+            if ($e instanceof UnresolvableError) throw $e;
         }
-        return null;
+        throw new UnresolvableError("Cannot resolve route");
+    }
+    public function __debugInfo() {
+        return [
+            $this->pattern,
+            is_object($this->Resolution) ? get_class($this->Resolution) : $this->Resolution,
+            StringResolvable::coerce($this->Resolution),
+        ];
+    }
+    public static function coerce($item) {
+        if ($item instanceof Route) return $item;
+        if (is_array($item)) {
+            $resolution = $item['resolution'] ?? null;
+            $pattern    = $item['pattern'] ?? null;
+            $default    = $item['default'] ?? null;
+            if (count($item) === 1 && !$resolution && !$pattern) {
+                $k          = key($item);
+                $resolution = $item[ $k ];
+                $pattern    = $k;
+            }
+            if (!($resolution && $pattern)) throw new MalformedRouteException("Malformed route configuration {$pattern}");
+            $Route = new static($resolution, $pattern);
+            if ($default) $Route->setDefaultResolution($default);
+        } else if (is_string($item)) {
+            $Route = new static(null, $item);
+        } else if ($item instanceof Resolvable) {
+            $Route = new static($item);
+        } else {
+            throw new MalformedRouteException("Cannot coerce route");
+        }
+        return $Route;
     }
     
     
+    #  protected
+    ##############################################################################################
+    public static function init($resolution = null, $pattern = null) {
+        return new static($resolution, $pattern);
+    }
     /**
      * This is a setter used when we want to set the "pattern" of the class to be a string.
      * This has to be used with a URL-like route pattern.
@@ -136,6 +173,18 @@ class Route implements Resolvable {
             ++$count;
         }
         return $this->pattern = $fixed_pattern;
+    }
+    private function getArgumentsFromString(string $item) {
+        preg_match("~^{$this->pattern}~x", $item, $matches);
+        if (!count($matches)) return new Arguments();
+        array_shift($matches);
+        $Arguments = new Arguments;
+        foreach ($this->parameters as $parameter_name) {
+            if (!count($matches)) continue;
+            $Arguments->push(array_shift($matches), $parameter_name);
+        }
+        if (count($matches)) $Arguments->push($matches);
+        return $Arguments;
     }
     private static function enforce_length($len, $str) {
         $_strlen = strlen($str);

@@ -7,6 +7,8 @@
 
 namespace Sm\Request;
 
+use Sm\Abstraction\Coercable;
+use Sm\App\App;
 use Sm\Error\UnimplementedError;
 
 /**
@@ -16,10 +18,12 @@ use Sm\Error\UnimplementedError;
  *
  * @package Sm\Request
  */
-class Request implements \Sm\Abstraction\Request\Request {
+class Request implements \Sm\Abstraction\Request\Request, Coercable, \JsonSerializable {
     protected $url    = null;
     protected $path   = null;
     protected $method = null;
+    /** @var App $app */
+    protected $app = null;
     public function getBody() {
         throw new UnimplementedError();
     }
@@ -69,7 +73,41 @@ class Request implements \Sm\Abstraction\Request\Request {
     public function getUrlPath() {
         return $this->path ?? null;
     }
+    public function __toString() {
+        return json_encode($this);
+    }
+    function jsonSerialize() {
+        return [
+            '_type'    => 'Request',
+            'url'      => $this->getUrl(),
+            'url_path' => $this->getUrlPath(),
+            'method'   => $this->getMethod(),
+        ];
+    }
+    /**
+     * @return App
+     */
+    public function getApp(): App {
+        return $this->app;
+    }
+    /**
+     * @param App $app
+     *
+     * @return Request
+     */
+    public function setApp(App $app): Request {
+        $this->app = $app;
+        return $this;
+    }
     public static function init() { return new static; }
+    public static function coerce($item = null) {
+        if ($item instanceof Request) return $item;
+        if (is_string($item)) {
+            return static::init()->setUrl($item);
+        } else {
+            return new static;
+        }
+    }
     /**
      * Get the URL of however we entered
      *

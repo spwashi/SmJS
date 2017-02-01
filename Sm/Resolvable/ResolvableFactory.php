@@ -9,7 +9,6 @@ namespace Sm\Resolvable;
 
 
 use Sm\Abstraction\Resolvable\Resolvable;
-use Sm\Resolvable\Error\UnresolvableError;
 
 class ResolvableFactory extends \Sm\Factory\Factory {
     public function build($subject) {
@@ -20,8 +19,7 @@ class ResolvableFactory extends \Sm\Factory\Factory {
         } else {
             return new FunctionResolvable($subject);
         }
-        var_dump($subject);
-        throw new UnresolvableError("Could not resolve resource");
+        return new NativeResolvable($subject);
     }
     public static function init() {
         return new static;

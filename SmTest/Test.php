@@ -10,17 +10,16 @@ namespace SmTest;
 
 use Sm\App\App;
 use Sm\IoC\IoC;
-use Sm\Resolvable\ResolvableFactory;
 
 class Test extends \PHPUnit_Framework_TestCase {
     public function testCanCreateApp() {
-        $Config = IoC::init(ResolvableFactory::init());
+        $Config = IoC::init();
         $Config->register([
                               'name'    => 'Sm',
                               'version' => 1,
                           ]);
-        
-        $App = App::init($Config);
+    
+        $App = App::coerce($Config);
         $this->assertEquals('Sm', $App->name);
     }
 }

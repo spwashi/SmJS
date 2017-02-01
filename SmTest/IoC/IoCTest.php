@@ -13,7 +13,7 @@ use Sm\Resolvable\ResolvableFactory;
 
 class IoCTest extends \PHPUnit_Framework_TestCase {
     public function setUp() { ; }
-    
+    public function tearDown() { }
     public function testCanCreate() {
         $IoC = new IoC;
         $this->assertInstanceOf(IoC::class, $IoC);
@@ -21,7 +21,6 @@ class IoCTest extends \PHPUnit_Framework_TestCase {
         $this->assertInstanceOf(IoC::class, $IoC);
         return $IoC;
     }
-    
     /**
      * @depends      testCanCreate
      * @dataProvider IoC_Provider
@@ -38,14 +37,13 @@ class IoCTest extends \PHPUnit_Framework_TestCase {
      * @return array
      */
     public function IoC_Provider() {
-        $IoC = IoC::init(new ResolvableFactory());
+        $IoC = IoC::init();
         $this->_register_default($IoC);
         return [
             'original'  => [ $IoC ],
             'duplicate' => [ $IoC->duplicate() ],
         ];
     }
-    
     /**
      * @dataProvider IoC_Provider
      *
@@ -54,6 +52,9 @@ class IoCTest extends \PHPUnit_Framework_TestCase {
     public function testCanResolve(IoC $IoC) {
         $string_result = $IoC->resolve('test_string');
         $this->assertEquals("string", $string_result);
+    
+        $string_result = $IoC->resolve('other_test_string');
+        $this->assertEquals('This is a thing', $string_result);
         
         $fn_result = $IoC->resolve('test_fn');
         $this->assertEquals("fn", $fn_result);
@@ -65,7 +66,6 @@ class IoCTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals("2", $test_arr_2_result);
         
     }
-    
     /**
      * @depends testCanCreate
      *
@@ -76,8 +76,6 @@ class IoCTest extends \PHPUnit_Framework_TestCase {
     public function testCanCopy(IoC $IoC) {
         return $IoC->duplicate();
     }
-    
-    public function tearDown() { }
     /**
      * @param \Sm\IoC\IoC $IoC
      *
@@ -85,6 +83,8 @@ class IoCTest extends \PHPUnit_Framework_TestCase {
      */
     protected function _register_default(IoC $IoC) {
         $IoC->register('test_string', 'string');
+        $IoC->register_defaults('test_string', 'This is a thing');
+        $IoC->register_defaults('other_test_string', 'This is a thing');
         $IoC->register('test_fn', function () { return 'fn'; });
         $IoC->register([
                            'test_arr_1' => 1,

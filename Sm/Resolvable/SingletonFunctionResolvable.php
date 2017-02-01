@@ -18,7 +18,11 @@ class SingletonFunctionResolvable extends FunctionResolvable {
      */
     public $has_been_called = false;
     public $last_value      = null;
-    
+    public function reset() {
+        $this->has_been_called = false;
+        $this->last_value      = null;
+        return $this;
+    }
     public function resolve($arguments = null) {
         $arguments = $arguments instanceof Arguments ? $arguments : new Arguments(func_get_args());
         
@@ -27,9 +31,9 @@ class SingletonFunctionResolvable extends FunctionResolvable {
             return $this->last_value;
         } else {
             $new_result            = call_user_func([
-                                                              $this,
-                                                              'parent::resolve',
-                                                          ], $arguments);
+                                                        $this,
+                                                        'parent::resolve',
+                                                    ], $arguments);
             $this->has_been_called = true;
             return ($this->last_value = $new_result);
         }

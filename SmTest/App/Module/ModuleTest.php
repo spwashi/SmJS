@@ -8,13 +8,25 @@
 namespace SmTest\App\Module;
 
 
+use Sm\App\App;
 use Sm\App\Module\Module;
+use Sm\IoC\IoC;
+use Sm\Resolvable\StringResolvable;
 
 class ModuleTest extends \PHPUnit_Framework_TestCase {
     public function testCanCoerce() {
-        $ResFact   = Module::init();
-        $ResFact_3 = [ ];
-        $this->assertEquals($ResFact, Module::coerce($ResFact));
-        $this->assertInstanceOf(Module::class, Module::coerce($ResFact_3));
+        $Module     = Module::init();
+        $Module_two = [ ];
+        $this->assertEquals($Module, Module::coerce($Module));
+        $this->assertInstanceOf(Module::class, Module::coerce($Module_two));
+        $number = 0;
+        $Module = Module::coerce([
+                                     'init'     => function () use (&$number) { ++$number; },
+                                     'dispatch' => StringResolvable::coerce('Hello') ]);
+    
+        $result = $Module->dispatch(App::init(IoC::init()));
+    
+        $this->assertEquals('Hello', $result);
+        $this->assertEquals(1, $number);
     }
 }

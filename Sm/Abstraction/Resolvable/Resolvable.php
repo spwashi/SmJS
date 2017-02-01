@@ -10,9 +10,9 @@ namespace Sm\Abstraction\Resolvable;
 
 interface  Resolvable {
     /**
-     * @param Arguments|null|mixed $arguments,..
+     * @param Arguments|null|mixed $_ ,..
      *
      * @return mixed
      */
-    public function resolve($arguments = null);
+    public function resolve();
 }

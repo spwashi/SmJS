@@ -9,40 +9,86 @@ namespace Sm\App;
 
 
 use Sm\Abstraction\Registry;
+use Sm\App\Module\Module;
+use Sm\IoC\IoC;
+use Sm\Resolvable\NativeResolvable;
 
-class App implements Registry {
-    protected $AppConfig = null;
-    
+/**
+ * Class PathContainer
+ *
+ * @package Sm\App
+ * @property string $base_path
+ * @property string $config_path
+ * @property string $app_path
+ */
+class PathContainer extends IoC {
+    /**
+     * @param null $name
+     *
+     * @return null|string
+     */
+    public function resolve($name = null) {
+        $string = parent::resolve($name, $this);
+        if (!is_string($string)) return $string;
+        return rtrim($string, '/') . '/';
+    }
+}
+
+/**
+ * Class App
+ *
+ * @property PathContainer $Paths
+ * @property string        $name
+ */
+class App extends IoC {
     #  Constructors/Initializers
     #-----------------------------------------------------------------------------------
-    
-    public function __construct(Registry $AppConfig) {
-        $this->AppConfig = $this->normalizeAppConfig($AppConfig);
+    public function __construct() {
+        parent::__construct();
+        $this->register('Paths', PathContainer::init());
     }
-    public static function init(Registry $AppConfig = null) {
-        return new static($AppConfig);
+    public function cloneRegistry() {
+        $registry = parent::cloneRegistry();
+        foreach ($registry as $index => $item) {
+            if ($item instanceof NativeResolvable && $item->resolve() instanceof Module) {
+                $item->resolve()->reset();
+            }
+        }
+        return $registry;
     }
-    
-    #  Getters and Setters
-    #-----------------------------------------------------------------------------------
-    
-    public function __get($name) {
-        return $this->resolve($name);
+    public function duplicate() {
+        $Duplicate = parent::duplicate();
+        $Duplicate->register('Paths', $this->resolve('Paths')->duplicate());
+        return $Duplicate;
+    }
+    public static function init() {
+        return new static;
     }
     public function register($identifier, $registrand = null) {
         if (is_array($identifier)) {
-            foreach ($identifier as $key => $value) {
-                $this->AppConfig ? $this->AppConfig->register($identifier, $registrand) : null;
-            }
+            return parent::register($identifier);
         } else if (!property_exists($this, $identifier)) {
-            $this->AppConfig ? $this->AppConfig->register($identifier, $registrand) : null;
+            return parent::register($identifier, $registrand);
         } else {
             $this->$identifier = $registrand;
         }
         return $this;
     }
-    
-    public function resolve($identifier, $arguments = null) {
+    public function __debugInfo() {
+        $return          = $this->registry;
+        $return['Paths'] = $this->Paths;
+        return $return;
+    }
+    public static function coerce($item) {
+        $instance = new static();
+        if ($item instanceof IoC)
+            $instance->inherit($item);
+        else if (is_array($item)) {
+            $instance->register($item);
+        }
+        return $instance;
+    }
+    public function resolve($identifier = null, $arguments = null) {
         $arguments_class_exists = class_exists('\Sm\Abstraction\Resolvable\Arguments');
         
         if (!$arguments_class_exists || !($arguments instanceof \Sm\Abstraction\Resolvable\Arguments)) {
@@ -53,13 +99,10 @@ class App implements Registry {
             }
         }
         
-        if (isset($this->AppConfig)) return $this->AppConfig->resolve($identifier, $arguments);
-        return $this->$identifier ?? null;
+        return $this->canResolve($identifier)
+            ? parent::resolve($identifier, $arguments)
+            : $this->$identifier ?? null;
     }
-    
-    #  Protected/private methods
-    #-----------------------------------------------------------------------------------
-    
     /**
      * Normalize the way that this App is being configured
      *
@@ -67,9 +110,10 @@ class App implements Registry {
      *
      * @return Registry
      */
-    protected function normalizeAppConfig($AppConfig) {
-        if (class_exists('\Sm\IoC\IoC') && !isset($AppConfig)) $AppConfig = \Sm\IoC\IoC::init();
-        
+    protected function normalizeAppConfig(Registry $AppConfig) {
+        $this->inherit($AppConfig);
         return $AppConfig;
     }
+    
+    
 }

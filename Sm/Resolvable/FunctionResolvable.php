@@ -22,9 +22,12 @@ class FunctionResolvable extends Resolvable {
     public function __construct($subject) {
         if ($subject instanceof \Sm\Abstraction\Resolvable\Arguments) {
             $subject = $subject->getListedArguments();
+            $subject = count($subject) === 1 ? $subject[0] : $subject;
         }
         if (is_string($subject) && strpos($subject, '::')) $subject = explode('::', $subject);
-        if (!is_callable($subject)) throw  new UnresolvableError("Must be a callable function");
+        if (!is_callable($subject)) {
+            throw  new UnresolvableError("Must be a callable function");
+        }
         parent::__construct($subject);
     }
     public function resolve($arguments = [ ]) {
@@ -32,6 +35,6 @@ class FunctionResolvable extends Resolvable {
             $arguments instanceof \Sm\Abstraction\Resolvable\Arguments
                 ? $arguments
                 : new \Sm\Abstraction\Resolvable\Arguments(func_get_args());
-        return call_user_func_array($this->subject, $arguments->getListedArguments());
+        return call_user_func_array($this->value, $arguments->getListedArguments());
     }
 }

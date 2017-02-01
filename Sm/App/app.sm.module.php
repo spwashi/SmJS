@@ -7,6 +7,7 @@
 
 use Sm\App\App;
 use Sm\App\Module\Module;
+use Sm\Request\Request;
 use Sm\Resolvable\SingletonFunctionResolvable;
 
 return [
@@ -19,7 +20,7 @@ return [
             
             $App->Paths->register_defaults('app_path',
                                            SingletonFunctionResolvable::coerce(function ($Paths, $App) {
-                                               return $App->name;
+                                               return $Paths->base_path . ($App->name??'Sm');
                                            }));
             
             $App->Paths->register_defaults('config_path',
@@ -27,8 +28,8 @@ return [
                                                return $Paths->app_path . 'config/default/';
                                            }));
     
-            $App->register_defaults('request', SingletonFunctionResolvable::coerce(function ($url) {
-                return \Sm\Request\Request::coerce($url);
+            $App->register_defaults('request', SingletonFunctionResolvable::coerce(function ($url = null) {
+                return \Sm\Request\Request::coerce($url??Request::getRequestUrl());
             }));
             
             $autoload_file = $App->Paths->config_path . 'autoload.php';

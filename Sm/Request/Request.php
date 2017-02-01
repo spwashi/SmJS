@@ -138,7 +138,9 @@ class Request implements \Sm\Abstraction\Request\Request, Coercable, \JsonSerial
      * @return string
      */
     public static function getRequestUrl() {
-        return "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+        $host        = $_SERVER['HTTP_HOST']??'';
+        $request_uri = $_SERVER['REQUEST_URI']??'';
+        return "{$host}{$request_uri}";
     }
     /**
      * Get the Request Method that was used to make the request initially

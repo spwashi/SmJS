@@ -28,7 +28,7 @@ $App->name             = 'Sm';
 $App->Paths->base_path = BASE_PATH;
 $app_module_path       = $App->Paths->base_path . 'Sm/App/app.sm.module.php';
 $AppModule             = Module::init(include $app_module_path ??[ ], $App);
-$App->register('app.module', $AppModule);
+$App                   = $App->register('app.module', $AppModule);
 
 /** @var Module $RoutingModule */
 $RoutingModule = $App->resolve('routing.module');

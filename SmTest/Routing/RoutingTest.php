@@ -8,31 +8,25 @@
 namespace Routing;
 
 
-use Sm\Abstraction\Resolvable\Arguments;
 use Sm\App\App;
 use Sm\App\Module\Module;
 use Sm\Request\Request;
 
 class RoutingTest extends \PHPUnit_Framework_TestCase {
     public function testModule() {
-        $App = App::init();
-        $App->Paths;
-        $App->Paths->register(
-            [
-                'base_path'   => BASE_PATH,
-                'config_path' => BASE_PATH . 'Sm/config/default/',
-            ]);
+        $App                   = App::init();
+        $App->Paths->base_path = BASE_PATH;
+        $app_module_path       = $App->Paths->base_path . 'Sm/App/app.sm.module.php';
+        $AppModule             = Module::init(include $app_module_path ??[ ], $App);
+        $App                   = $App->register('app.module', $AppModule);
+    
+        $App->register('request', Request::coerce('http://spwashi.com/test_test_test_test_test'));
         $routing_module = $App->Paths->base_path . 'Sm/Routing/routing.sm.module.php';
         $config         = include $routing_module;
         
-        $Request   = Request::coerce('http://spwashi.com/test_test_test_test_test');
-        $Arguments =
-            Arguments::coerce()
-                     ->setParameter('Request', $Request);
-        
         $result =
             Module::init($config, $App)
-                  ->dispatch($App, $Arguments);
+                  ->dispatch($App, 'http://spwashi.com/test_test_test_test_test');
         
         $this->assertEquals('TestFunction', $result);
     }

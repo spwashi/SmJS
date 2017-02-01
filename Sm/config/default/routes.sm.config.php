@@ -21,7 +21,7 @@ return [
               $App                  = $Request->getApp()->duplicate();
               $App->name            = 'ExampleApp';
               $App->Paths->app_path = BASE_PATH . 'SmTest/ExampleApp/';
-              var_dump($App->Paths->app_path);
+    
               $Request->setChangePath(FunctionResolvable::coerce(function ($path) {
                   return preg_replace('~(localhost/Sm/fs)/?~', '', $path);
               }));

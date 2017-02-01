@@ -9,17 +9,33 @@ namespace SmTest;
 
 
 use Sm\App\App;
-use Sm\IoC\IoC;
+use Sm\App\Module\Module;
+use Sm\Routing\Router;
 
 class Test extends \PHPUnit_Framework_TestCase {
     public function testCanCreateApp() {
-        $Config = IoC::init();
-        $Config->register([
-                              'name'    => 'Sm',
-                              'version' => 1,
-                          ]);
-    
-        $App = App::coerce($Config);
+        $App          = App::init();
+        $App->name    = 'Sm';
+        $App->version = 1;
         $this->assertEquals('Sm', $App->name);
+    }
+    public function testCanRegisterApp() {
+        $App                   = App::init();
+        $App->Paths->base_path = BASE_PATH;
+        $app_module_path       = $App->Paths->base_path . 'Sm/App/app.sm.module.php';
+        $AppModule             = Module::init(include $app_module_path ??[ ], $App);
+        $App                   = $App->register('app.module', $AppModule);
+        return $App;
+    }
+    /**
+     * @param $App
+     *
+     * @depends testCanRegisterApp
+     */
+    public function testDefaultHasRouter(App $App) {
+        $this->assertInstanceOf(Module::class, $App->resolve('routing.module'));
+        $this->assertInstanceOf(Router::class, $App->resolve('router'));
+        $output = $App->resolve('routing.module')->dispatch($App, 'http://spwashi.com/localhost/Sm/fs/Hello');
+        $this->assertEquals($output, 'Hey there!');
     }
 }

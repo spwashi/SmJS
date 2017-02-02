@@ -8,8 +8,10 @@
 namespace SmTest\IoC;
 
 
+use Sm\App\Module\Module;
 use Sm\IoC\IoC;
 use Sm\Resolvable\ResolvableFactory;
+use Sm\Resolvable\SingletonFunctionResolvable;
 
 class IoCTest extends \PHPUnit_Framework_TestCase {
     public function setUp() { ; }
@@ -74,7 +76,27 @@ class IoCTest extends \PHPUnit_Framework_TestCase {
      * @return \Sm\IoC\IoC
      */
     public function testCanCopy(IoC $IoC) {
-        return $IoC->duplicate();
+        $IoC->register('test.1', SingletonFunctionResolvable::init(function ($argument) {
+            return $argument + 1;
+        }));
+        $variable   = 0;
+        $testModule = Module::coerce([
+                                         'init'     => function () use (&$variable) {
+                                             ++$variable;
+                                         },
+                                         'dispatch' => function () { },
+                                     ]);
+        $IoC->register('test.module', $testModule);
+        $IoC->resolve('test.module');
+        $IoC->resolve('test.module');
+        $this->assertEquals(1, $variable);
+        $this->assertEquals(3, $IoC->resolve('test.1', 2));
+    
+        $NewIoC = $IoC->duplicate();
+        $NewIoC->resolve('test.module');
+        $NewIoC->resolve('test.module');
+        $this->assertEquals(2, $variable);
+        $this->assertEquals(6, $NewIoC->resolve('test.1', 5));
     }
     /**
      * @param \Sm\IoC\IoC $IoC

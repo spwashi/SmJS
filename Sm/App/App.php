@@ -29,6 +29,15 @@ class PathContainer extends IoC {
         return $this->App;
     }
     /**
+     * @param null $App
+     *
+     * @return PathContainer
+     */
+    public function setApp($App) {
+        $this->App = $App;
+        return $this;
+    }
+    /**
      * @param null $name
      *
      * @return null|string
@@ -38,17 +47,8 @@ class PathContainer extends IoC {
         if (!is_string($string)) return $string;
         return rtrim($string, '/') . '/';
     }
-    /**
-     * @param null $App
-     *
-     * @return PathContainer
-     */
-    public function setApp($App) {
-        $this->App = $App;
-        return $this;
-    }
-
-
+    
+    
 }
 
 /**
@@ -82,14 +82,12 @@ class App extends IoC {
         return new static;
     }
     public function register($identifier, $registrand = null) {
-        if (is_array($identifier)) {
-            return parent::register($identifier);
-        } else if (!property_exists($this, $identifier)) {
-            return parent::register($identifier, $registrand);
-        } else {
-            $this->$identifier = $registrand;
+        if ($registrand instanceof NativeResolvable) $registrand = $registrand->resolve();
+        if (is_string($identifier) && strpos($identifier, '.module') !== false) {
+            $registrand = Module::coerce($registrand);
         }
-        return $this;
+        if ($registrand instanceof Module) $registrand->setApp($this)->initialize();
+        return parent::register($identifier, $registrand);
     }
     public function __debugInfo() {
         $return          = $this->registry;
@@ -107,8 +105,8 @@ class App extends IoC {
     }
     public function resolve($identifier = null, $arguments = null) {
         $arguments_class_exists = class_exists('\Sm\Abstraction\Resolvable\Arguments');
-        
-        if (!$arguments_class_exists || !($arguments instanceof \Sm\Abstraction\Resolvable\Arguments)) {
+    
+        if ($arguments_class_exists && !($arguments instanceof \Sm\Abstraction\Resolvable\Arguments)) {
             $arguments = func_get_args();
             $a         = [ ];
             $one       = 0;
@@ -120,7 +118,15 @@ class App extends IoC {
                 $arguments = \Sm\Abstraction\Resolvable\Arguments::coerce($a);
             }
         }
-        
+        if (strpos($identifier, '.module') !== false) {
+            if ($Module = $this->getItem($identifier)) {
+                if (!($Module instanceof Module)) {
+                    $Module = $Module->resolve();
+                }
+                if ($Module instanceof Module)
+                    return $Module->setApp($this);
+            }
+        }
         return $this->canResolve($identifier)
             ? parent::resolve($identifier, $arguments)
             : null;

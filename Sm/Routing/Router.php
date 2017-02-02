@@ -43,7 +43,9 @@ class Router implements Registry {
         }
         foreach ($this->routes as $index => $route) {
             $__does_match = $route->matches($identifier);
-            if ($__does_match) return $route->resolve($identifier);
+            if ($__does_match) {
+                return $route->resolve($identifier);
+            }
         }
         throw new UnresolvableError("No matching routes");
     }

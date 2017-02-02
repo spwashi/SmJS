@@ -11,6 +11,7 @@ namespace SmTest\App;
 use Sm\App\App;
 use Sm\App\Module\Module;
 use Sm\IoC\IoC;
+use Sm\Resolvable\FunctionResolvable;
 use Sm\Routing\Router;
 
 class AppTest extends \PHPUnit_Framework_TestCase {
@@ -21,13 +22,27 @@ class AppTest extends \PHPUnit_Framework_TestCase {
         $App = App::init();
         $this->assertInstanceOf(App::class, $App);
     }
+    public function testCanOwnModules() {
+        $App    = App::init();
+        $Module = Module::init([
+                                   'init'     => FunctionResolvable::coerce(function () { }),
+                                   'dispatch' => FunctionResolvable::coerce(function () { }),
+                               ]);
+        $App->register('test.module', $Module);
+        /** @var Module $Module */
+        $Module = $App->resolve('test.module');
+        $this->assertInstanceOf(Module::class, $Module);
+        $this->assertInstanceOf(App::class, $Module->getApp());
+    }
     public function testCanBoot() {
         $App                   = App::init();
         $App->Paths->base_path = BASE_PATH;
         
         $app_module = $App->Paths->base_path . 'Sm/App/app.sm.module.php';
         $config     = include $app_module;
-        Module::init($config, $App);
+        $Module     = Module::init($config)->setApp($App);
+        $this->assertNull($App->resolve('router'));
+        $Module->initialize();
         $this->assertInstanceOf(Router::class, $App->resolve('router'));
         $this->assertInstanceOf(Module::class, $App->resolve('routing.module'));
     }

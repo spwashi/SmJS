@@ -115,7 +115,12 @@ class IoC implements Registry {
         $registry     = $this->registry;
         $new_registry = [ ];
         foreach ($registry as $identifier => $item) {
-            $new_registry[ $identifier ] = $item instanceof \Sm\Resolvable\Resolvable ? $item->reset() : $item;
+            if ($identifier)
+                if ($item instanceof \Sm\Resolvable\Resolvable) {
+                    $new_registry[ $identifier ] = $item->reset();
+                } else {
+                    $new_registry[ $identifier ] = $item;
+                }
         }
         return $new_registry;
     }

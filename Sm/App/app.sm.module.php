@@ -38,7 +38,7 @@ return [
             
             $routing_module = BASE_PATH . 'Sm/Routing/routing.sm.module.php';
             if (is_file($routing_module)) {
-                $Routing = Module::init(include $routing_module ?? [ ], $App);
+                $Routing = Module::init(include $routing_module ?? [ ])->setApp($App)->initialize();
                 $App->register('routing.module', $Routing);
             }
             return $App;

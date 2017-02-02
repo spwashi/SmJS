@@ -10,6 +10,7 @@ namespace SmTest;
 
 use Sm\App\App;
 use Sm\App\Module\Module;
+use Sm\Request\Request;
 use Sm\Routing\Router;
 
 class Test extends \PHPUnit_Framework_TestCase {
@@ -23,6 +24,7 @@ class Test extends \PHPUnit_Framework_TestCase {
         $App                   = App::init();
         $App->Paths->base_path = BASE_PATH;
         $app_module_path       = $App->Paths->base_path . 'Sm/App/app.sm.module.php';
+        $App->request          = Request::coerce('http://spwashi.com/localhost/Sm/fs/Hello');
         $AppModule             = Module::init(include $app_module_path ??[ ], $App);
         $App                   = $App->register('app.module', $AppModule);
         return $App;
@@ -35,7 +37,8 @@ class Test extends \PHPUnit_Framework_TestCase {
     public function testDefaultHasRouter(App $App) {
         $this->assertInstanceOf(Module::class, $App->resolve('routing.module'));
         $this->assertInstanceOf(Router::class, $App->resolve('router'));
-        $output = $App->resolve('routing.module')->dispatch($App, 'http://spwashi.com/localhost/Sm/fs/Hello');
+        $module = $App->resolve('routing.module');
+        $output = $module->dispatch($App);
         $this->assertEquals($output, 'Hey there!');
     }
 }

@@ -25,13 +25,17 @@ return [
               $Request->setChangePath(FunctionResolvable::coerce(function ($path) {
                   return preg_replace('~(localhost/Sm/fs)/?~', '', $path);
               }));
+    
               $App = $App
                   ->resolve('app.module')
                   ->dispatch($App);
-              return $App
-                  ->resolve('routing.module')
-                  ->initialize()
-                  ->dispatch($App, $Request);
+    
+              $Module = $App
+                  ->resolve('routing.module');
+    
+    
+              return $Module->initialize()
+                            ->dispatch($App, $Request);
           }),
     ],
 ];

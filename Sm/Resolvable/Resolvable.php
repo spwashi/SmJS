@@ -14,7 +14,7 @@ abstract class Resolvable implements \Sm\Abstraction\Resolvable\Resolvable {
     
     protected $value;
     
-    public function __construct($subject) {
+    public function __construct($subject = null) {
         $this->value = $subject;
     }
     public function __toString() {
@@ -30,6 +30,7 @@ abstract class Resolvable implements \Sm\Abstraction\Resolvable\Resolvable {
         return new static($item);
     }
     public static function coerce($item = null) {
-        return self::init($item);
+        if (is_a($item, static::class)) return $item;
+        return static::init($item);
     }
 }

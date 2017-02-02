@@ -15,7 +15,7 @@ use Sm\Abstraction\Resolvable\Resolvable;
 use Sm\Resolvable\Error\UnresolvableError;
 use Sm\Resolvable\StringResolvable;
 
-class Route implements Resolvable, Coercable {
+class Route implements Resolvable, Coercable, \JsonSerializable {
     /** @var  Resolvable $DefaultResolvable */
     protected $DefaultResolvable;
     /** @var  Resolvable $Resolution */
@@ -92,6 +92,9 @@ class Route implements Resolvable, Coercable {
         throw new UnresolvableError("Cannot resolve route");
     }
     public function __debugInfo() {
+        return $this->jsonSerialize();
+    }
+    public function jsonSerialize() {
         return [
             $this->pattern,
             is_object($this->Resolution) ? get_class($this->Resolution) : $this->Resolution,

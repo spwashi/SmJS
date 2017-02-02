@@ -13,45 +13,53 @@ use Sm\Abstraction\Resolvable\Resolvable;
 use Sm\App\App;
 use Sm\Resolvable\Error\UnresolvableError;
 
-class Module implements \Sm\Abstraction\Module\Module {
+class Module extends \Sm\Resolvable\Resolvable implements \Sm\Abstraction\Module\Module {
     /** @var Resolvable */
     protected $Dispatch = null;
     /** @var Resolvable */
     protected $Init = null;
     /** @var bool $is_init */
     protected $is_init = false;
+    protected $App;
     
-    protected function __construct() { }
-    public function dispatch(App $app = null, $arguments = null) {
+    public function dispatch($arguments = null) {
         $arguments = Arguments::coerce($arguments);
-        if (!$this->is_init) $this->initialize($app);
+        if (!$this->is_init) $this->initialize();
         if (isset($this->Dispatch)) {
-            return $this->Dispatch->resolve($app, $arguments);
+            return $this->Dispatch->resolve($this->App??null, $arguments);
         } else {
             throw new UnresolvableError("Cannot resolve module");
         }
     }
-    public function reset() {
-        $this->is_init = false;
+    /**
+     * @return mixed
+     */
+    public function getApp() {
+        return $this->App;
+    }
+    public function setApp(App $app) {
+        $this->App = $app;
+        return $this;
     }
     public function setDispatch(Resolvable $resolvable) {
         $this->Dispatch = $resolvable;
         return $this;
     }
-    public function initialize(App $app = null) {
+    public function initialize() {
         if ($this->is_init) return $this;
-        if ($this->Init instanceof Resolvable) $this->Init->resolve($app);
-        $this->is_init = true;
+        if ($this->Init instanceof Resolvable) {
+            $this->Init->resolve($this->App ?? null);
+            $this->is_init = true;
+        }
         return $this;
     }
     /**
-     * @param null             $item
-     * @param \Sm\App\App|null $app
+     * @param null $item
      *
      * @return static
      * @throws \Sm\Resolvable\Error\UnresolvableError
      */
-    public static function init($item = null, App $app = null) {
+    public static function init($item = null) {
         if ($item instanceof Module) return $item;
         $init = null;
         if (is_array($item)) {
@@ -59,13 +67,8 @@ class Module implements \Sm\Abstraction\Module\Module {
             $item = $item['dispatch'] ?? null;
         }
         if (class_exists('\Sm\Resolvable\ResolvableFactory')) {
-            try {
-                $ResolvableFactory = isset($app) ? $app->resolve('ResolvableFactory') : null;
-            } catch (UnresolvableError $e) {
-                $ResolvableFactory = null;
-            }
-            $item = \Sm\Resolvable\ResolvableFactory::coerce($ResolvableFactory)->build($item);
-            $init = \Sm\Resolvable\ResolvableFactory::coerce($ResolvableFactory)->build($init);
+            $item = \Sm\Resolvable\ResolvableFactory::init()->build($item);
+            $init = \Sm\Resolvable\ResolvableFactory::init()->build($init);
         }
         if (!($item instanceof Resolvable)) {
             throw new UnresolvableError("Cannot resolve module");
@@ -75,17 +78,19 @@ class Module implements \Sm\Abstraction\Module\Module {
             $Module->Init = $init;
         }
         $Module->setDispatch($item);
-        $Module->initialize($app);
         return $Module;
     }
+    public function reset() {
+        $this->is_init = false;
+        return $this;
+    }
     /**
-     * @param          $item
-     * @param App|null $app
+     * @param Arguments|null|mixed $_ ,..
      *
-     * @return Module
-     * @throws UnresolvableError
+     * @return mixed
      */
-    public static function coerce($item, App $app = null) {
-        return static::init($item, $app);
+    public function resolve() {
+        $this->initialize();
+        return $this;
     }
 }

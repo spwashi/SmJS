@@ -10,7 +10,7 @@ namespace Sm\Abstraction\Resolvable;
 
 interface  Resolvable {
     /**
-     * @param Arguments|null|mixed $_ ,..
+     * Return the final result of the Resolvable (as of now)
      *
      * @return mixed
      */

@@ -8,8 +8,6 @@
 namespace Sm\Factory;
 
 
-use Sm\Error\UnimplementedError;
-
 abstract class Factory implements \Sm\Abstraction\Factory\Factory {
     /** @noinspection PhpDocMissingThrowsInspection */
     /**
@@ -19,7 +17,5 @@ abstract class Factory implements \Sm\Abstraction\Factory\Factory {
      *
      * @return mixed
      */
-    public function build($operand) {
-        throw new UnimplementedError("Incomplete definition of a Factory");
-    }
+    abstract public function build($operand);
 }

@@ -8,9 +8,13 @@
 namespace SmTest\Resolvable;
 
 use Sm\Abstraction\Resolvable\Arguments;
+use Sm\App\App;
 use Sm\Resolvable\FunctionResolvable;
 
 class FunctionResolvableTest_Support {
+    public function __construct(App $app) {
+        
+    }
     public function fn() {
         return "FN";
     }
@@ -45,12 +49,7 @@ class FunctionResolvableTest extends ResolvableTest {
         $this->assertTrue($subject === $Resolvable->resolve());
     }
     
-    /**
-     * @depends testCanCreate
-     *
-     * @param FunctionResolvable $Resolvable
-     */
-    public function testCanResolveClasses($Resolvable) {
+    public function testCanResolveClasses() {
         $Resolvable = new FunctionResolvable('\SmTest\Resolvable\FunctionResolvableTest_Support::fn');
         $this->assertTrue('FN' === $Resolvable->resolve());
     }

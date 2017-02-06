@@ -12,6 +12,7 @@ use Sm\Abstraction\Resolvable\Arguments;
 use Sm\Abstraction\Resolvable\Resolvable;
 use Sm\App\App;
 use Sm\Resolvable\Error\UnresolvableError;
+use Sm\Resolvable\ResolvableFactory;
 
 class Module extends \Sm\Resolvable\Resolvable implements \Sm\Abstraction\Module\Module {
     /** @var Resolvable */
@@ -22,21 +23,26 @@ class Module extends \Sm\Resolvable\Resolvable implements \Sm\Abstraction\Module
     protected $is_init = false;
     protected $App;
     
-    public function dispatch($arguments = null) {
-        $arguments = Arguments::coerce($arguments);
+    public function dispatch() {
+        $arguments = Arguments::coerce(func_get_args());
         if (!$this->is_init) $this->initialize();
         if (isset($this->Dispatch)) {
-            return $this->Dispatch->resolve($this->App??null, $arguments);
+            return $this->Dispatch->resolve($this->App, ...$arguments->_list());
         } else {
             throw new UnresolvableError("Cannot resolve module");
         }
     }
     /**
-     * @return mixed
+     * @return App
      */
     public function getApp() {
         return $this->App;
     }
+    /**
+     * @param \Sm\App\App $app
+     *
+     * @return $this
+     */
     public function setApp(App $app) {
         $this->App = $app;
         return $this;
@@ -45,12 +51,12 @@ class Module extends \Sm\Resolvable\Resolvable implements \Sm\Abstraction\Module
         $this->Dispatch = $resolvable;
         return $this;
     }
-    public function initialize() {
+    public function initialize(App $App = null) {
         if ($this->is_init) return $this;
         if ($this->Init instanceof Resolvable) {
-            $this->Init->resolve($this->App ?? null);
-            $this->is_init = true;
+            $this->Init->resolve($this->App ?? $App ?? null);
         }
+        $this->is_init = true;
         return $this;
     }
     /**
@@ -67,8 +73,8 @@ class Module extends \Sm\Resolvable\Resolvable implements \Sm\Abstraction\Module
             $item = $item['dispatch'] ?? null;
         }
         if (class_exists('\Sm\Resolvable\ResolvableFactory')) {
-            $item = \Sm\Resolvable\ResolvableFactory::init()->build($item);
-            $init = \Sm\Resolvable\ResolvableFactory::init()->build($init);
+            $item = ResolvableFactory::init()->build($item);
+            $init = ResolvableFactory::init()->build($init);
         }
         if (!($item instanceof Resolvable)) {
             throw new UnresolvableError("Cannot resolve module");
@@ -84,11 +90,6 @@ class Module extends \Sm\Resolvable\Resolvable implements \Sm\Abstraction\Module
         $this->is_init = false;
         return $this;
     }
-    /**
-     * @param Arguments|null|mixed $_ ,..
-     *
-     * @return mixed
-     */
     public function resolve() {
         $this->initialize();
         return $this;

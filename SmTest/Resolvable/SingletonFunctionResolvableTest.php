@@ -7,7 +7,7 @@
 
 namespace SmTest\Resolvable;
 
-use Sm\Resolvable\FunctionResolvable;
+
 use Sm\Resolvable\SingletonFunctionResolvable;
 
 /**
@@ -16,11 +16,6 @@ use Sm\Resolvable\SingletonFunctionResolvable;
  * @package SmTest\Resolvable
  */
 class SingletonFunctionResolvableTest extends FunctionResolvableTest {
-	public function testCanCreate() {
-		$Resolvable = new SingletonFunctionResolvable(function () { });
-		$this->assertInstanceOf(SingletonFunctionResolvable::class, $Resolvable);
-		return $Resolvable;
-	}
 	public function genericSubjectProvider() {
 		return [
 			["test"],
@@ -29,11 +24,10 @@ class SingletonFunctionResolvableTest extends FunctionResolvableTest {
 			[[]],
 		];
 	}
-	public function testOnlyResolvesOnce() {
-		$Resolvable = new SingletonFunctionResolvable(function ($subject) { return $subject; });
-		$Resolvable->resolve("one");
-		$result = $Resolvable->resolve("two");
-		$this->assertEquals("one", $result);
+    public function testCanCreate() {
+        $Resolvable = new SingletonFunctionResolvable(function () { });
+        $this->assertInstanceOf(SingletonFunctionResolvable::class, $Resolvable);
+        return $Resolvable;
 	}
 	/**
 	 * @dataProvider genericSubjectProvider
@@ -43,5 +37,11 @@ class SingletonFunctionResolvableTest extends FunctionResolvableTest {
 	public function testCanResolveCorrectly($subject) {
 		$Resolvable = new SingletonFunctionResolvable(function () use ($subject) { return $subject; });
 		$this->assertTrue($subject === $Resolvable->resolve());
+    }
+    public function testOnlyResolvesOnce() {
+        $Resolvable = new SingletonFunctionResolvable(function ($subject) { return $subject; });
+        $Resolvable->resolve("one");
+        $result = $Resolvable->resolve("two");
+        $this->assertEquals("one", $result);
 	}
 }

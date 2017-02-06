@@ -10,27 +10,34 @@ namespace Sm\Resolvable;
 
 use Sm\Resolvable\Error\UnresolvableError;
 
+/**
+ * Class StringResolvable
+ *
+ * Resolvable that references strings, or ultimately resolves to a string
+ *
+ * @package Sm\Resolvable
+ */
 class StringResolvable extends NativeResolvable implements \JsonSerializable {
     /** @var */
-    protected $value;
+    protected $subject;
     public function __construct($subject = null) {
         if (!static::itemCanBeString($subject)) throw new UnresolvableError("Could not resolve subject");
         parent::__construct($subject);
     }
     public function __debugInfo() {
-        return [ 'value' => $this->value ?? null ];
+        return [ 'value' => $this->subject ?? null ];
     }
     public function __toString() {
-        return $this->value;
+        return $this->resolve();
     }
     public static function coerce($item = null) {
         return static::itemCanBeString($item) ? new static("{$item}") : new static;
     }
-    public function resolve($arguments = null) {
-        return '' . $this->value;
+    public function resolve() {
+        return "$this->subject";
     }
     public function jsonSerialize() {
-        return 'Hello';
+        return "$this";
     }
     /**
      * Function to determine whether something can be a string

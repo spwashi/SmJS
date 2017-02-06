@@ -10,6 +10,13 @@ namespace Sm\Resolvable;
 
 use Sm\Abstraction\Resolvable\Arguments;
 
+/**
+ * Class SingletonFunctionResolvable
+ *
+ * Resolvable that runs a function, but only once
+ *
+ * @package Sm\Resolvable
+ */
 class SingletonFunctionResolvable extends FunctionResolvable {
     /**
      * Has the Function already been run?
@@ -18,13 +25,20 @@ class SingletonFunctionResolvable extends FunctionResolvable {
      */
     public $has_been_called = false;
     public $last_value      = null;
+    
+    /**
+     * Method for what happens when the Singleton Function is cloned
+     */
+    public function __clone() {
+        $this->reset();
+    }
     public function reset() {
         $this->has_been_called = false;
         $this->last_value      = null;
         return $this;
     }
     public function resolve($arguments = null) {
-        $arguments = $arguments instanceof Arguments ? $arguments : new Arguments(func_get_args());
+        $arguments = Arguments::coerce($arguments, func_get_args());
         
         # If we've already called this function, we don't need to bother trying to call it again
         if ($this->has_been_called) {

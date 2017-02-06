@@ -10,6 +10,6 @@ namespace Sm\Resolvable;
 
 class NativeResolvable extends Resolvable {
     public function resolve($arguments = null) {
-        return $this->value;
+        return $this->subject;
     }
 }

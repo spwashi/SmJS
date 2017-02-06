@@ -6,7 +6,7 @@
  */
 use Sm\App\App;
 use Sm\App\Module\Module;
-use Sm\Request\Request;
+use Sm\Resolvable\StringResolvable;
 
 //<editor-fold desc="TESTING PURPOSES ONLY">
 ini_set('display_errors', 1);
@@ -21,17 +21,19 @@ error_reporting(-1);
 
 ob_start();
 define('BASE_PATH', __DIR__ . '/');
+define('APP_MODULE', BASE_PATH . 'Sm/App/app.sm.module.php');
+define('SM_PATH', BASE_PATH . 'Sm/');
 require_once BASE_PATH . 'Sm/config/autoload.php';
 
-$App                   = App::init();
-$App->name             = 'Sm';
-$App->Paths->base_path = BASE_PATH;
-$app_module_path       = $App->Paths->base_path . 'Sm/App/app.sm.module.php';
-$AppModule             = Module::init(include $app_module_path ??[ ], $App);
-$App                   = $App->register('app.module', $AppModule);
+/** @var App $App */
+$App                = App::init();
+$App->Modules->_app = include APP_MODULE ??[ ];
 
 /** @var Module $RoutingModule */
-$RoutingModule = $App->resolve('routing.module');
-if (!$RoutingModule) die("Malformed site configuration!");
+$RoutingModule = $App->Modules->routing;
+if (!$App->Modules->routing) die("Malformed site configuration!");
 
-echo $RoutingModule->dispatch($App, Request::getRequestUrl());
+$output = $App->Modules->routing($App->Request);
+
+
+echo StringResolvable::coerce($output)->resolve();

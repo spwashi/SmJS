@@ -3,6 +3,9 @@
  * User: Sam Washington
  * Date: 1/25/17
  * Time: 7:09 PM
+ *
+ * @package Sm
+ *
  */
 
 namespace Sm\IoC;
@@ -27,6 +30,7 @@ class IoC implements Registry {
      */
     protected $ResolvableFactory    = null;
     protected $_registered_defaults = [ ];
+    protected $app_resolved         = [ ];
     
     public function __construct() {
         $this->ResolvableFactory = new ResolvableFactory;
@@ -41,12 +45,14 @@ class IoC implements Registry {
     /**
      * Return a new instance of this class that inherits this registry
      *
-     * @return static
+     * @return static|$this
      */
     public function duplicate() {
         $IoC                       = static::init();
         $registry                  = $this->cloneRegistry();
         $IoC->_registered_defaults = $this->_registered_defaults;
+    
+    
         $IoC->register($registry);
         return $IoC;
     }
@@ -78,6 +84,8 @@ class IoC implements Registry {
      *
      * @param string|array                   $name       Could also be an associative array of whatever we are registering
      * @param Resolvable|callable|mixed|null $registrand Whatever is being registered. Null if we are registering an array
+     *
+     * @param bool                           $register_with_app
      *
      * @return $this
      */
@@ -115,12 +123,13 @@ class IoC implements Registry {
         $registry     = $this->registry;
         $new_registry = [ ];
         foreach ($registry as $identifier => $item) {
-            if ($identifier)
-                if ($item instanceof \Sm\Resolvable\Resolvable) {
-                    $new_registry[ $identifier ] = $item->reset();
+            if ($identifier) {
+                if (is_object($item)) {
+                    $new_registry[ $identifier ] = clone $item;
                 } else {
                     $new_registry[ $identifier ] = $item;
                 }
+            }
         }
         return $new_registry;
     }
@@ -128,13 +137,11 @@ class IoC implements Registry {
     #  Private/Protected methods
     #-----------------------------------------------------------------------------------
     /**
-     * @param mixed $registrand   Whatever is being registered
-     * @param null  $name         The name of whatever is being registered.
-     *                            This is the second argument because we don't necessarily have to provide it. It can be left off.
+     * @param mixed $registrand Whatever is being registered
      *
      * @return null|\Sm\Abstraction\Resolvable\Resolvable
      */
-    protected function standardizeRegistrand($registrand, $name = null) {
+    protected function standardizeRegistrand($registrand) {
         return isset($this->ResolvableFactory) ? $this->ResolvableFactory->build($registrand) : null;
     }
     /**

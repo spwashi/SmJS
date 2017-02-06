@@ -9,8 +9,9 @@ namespace Sm\Resolvable;
 
 
 use Sm\Abstraction\Resolvable\Resolvable;
+use Sm\Factory\Factory;
 
-class ResolvableFactory extends \Sm\Factory\Factory {
+class ResolvableFactory extends Factory {
     public function build($subject) {
         if ($subject instanceof Resolvable) return $subject;
         if (!is_callable($subject)) {

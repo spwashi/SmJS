@@ -1,7 +1,7 @@
 {
   "name":              "spwashi/sm",
   "description":       "This is a simple PHP Framework aimed to accomodate for legacy code while also laying the groundwork for newer development.",
-  "minimum-stability": "stable",
+  "minimum-stability": "dev",
   "license":           "proprietary",
   "authors":           [
     {
@@ -13,6 +13,7 @@
   },
   "require":           {
     "squizlabs/php_codesniffer": "3.0.x-dev",
-    "phpunit/phpunit":           "5.7.9"
+    "phpunit/phpunit":           "5.7.9",
+    "twig/twig":                 "1.6.5"
   }
 }

@@ -1,0 +1,65 @@
+<?php
+/**
+ * User: Sam Washington
+ * Date: 2/4/17
+ * Time: 10:27 PM
+ */
+
+namespace Sm\App;
+
+use Sm\IoC\IoC;
+
+
+/**
+ * Class PathContainer
+ *
+ * @package Sm\App
+ * @property string $base_path
+ * @property string $config_path
+ * @property string $app_path
+ * @property string $template_path
+ *
+ * @method string|boolean base_path (string $path, boolean $do_verify = false)
+ * @method string|boolean to_base (string $path, boolean $do_verify = false)
+ * @method string|boolean to_config (string $path, boolean $do_verify = false)
+ * @method string|boolean to_template (string $path, boolean $do_verify = false)
+ */
+class PathContainer extends IoC {
+    public $App = null;
+    /**
+     * @return null
+     */
+    public function getApp() {
+        return $this->App;
+    }
+    /**
+     * @param null $App
+     *
+     * @return PathContainer
+     */
+    public function setApp($App) {
+        $this->App = $App;
+        return $this;
+    }
+    /**
+     * @param null $name
+     *
+     * @return null|string
+     */
+    public function resolve($name = null) {
+        $string = parent::resolve($name, $this, $this->App);
+        if (!is_string($string)) return $string;
+        return rtrim($string, '/') . '/';
+    }
+    function __call($name, $arguments) {
+        $name = str_replace('to_', '', $name);
+        if ($this->canResolve($name)) {
+            $path = $this->resolve($name) . $arguments[0];
+            if ($arguments[1]??false && !file_exists($path)) return false;
+            return $path;
+        } else if ($this->canResolve("{$name}_path")) {
+            return $this->__call("{$name}_path", $arguments);
+        }
+        return null;
+    }
+}

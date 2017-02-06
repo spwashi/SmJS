@@ -8,9 +8,7 @@
 namespace SmTest\App\Module;
 
 
-use Sm\App\App;
 use Sm\App\Module\Module;
-use Sm\IoC\IoC;
 use Sm\Resolvable\StringResolvable;
 
 class ModuleTest extends \PHPUnit_Framework_TestCase {
@@ -20,12 +18,13 @@ class ModuleTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals($Module, Module::coerce($Module));
         $this->assertInstanceOf(Module::class, Module::coerce($Module_two));
         $number = 0;
+    
         $Module = Module::coerce([
                                      'init'     => function () use (&$number) { ++$number; },
                                      'dispatch' => StringResolvable::coerce('Hello') ]);
     
-        $result = $Module->dispatch(App::init(IoC::init()));
-    
+        $result = $Module->dispatch();
+        
         $this->assertEquals('Hello', $result);
         $this->assertEquals(1, $number);
     }

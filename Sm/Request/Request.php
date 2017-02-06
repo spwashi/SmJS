@@ -11,6 +11,7 @@ use Sm\Abstraction\Coercable;
 use Sm\App\App;
 use Sm\Error\UnimplementedError;
 use Sm\Resolvable\FunctionResolvable;
+use Sm\Response\Response;
 
 /**
  * Class Request
@@ -20,12 +21,12 @@ use Sm\Resolvable\FunctionResolvable;
  * @package Sm\Request
  */
 class Request implements \Sm\Abstraction\Request\Request, Coercable, \JsonSerializable {
-    protected $url                    = null;
-    protected $path                   = null;
+    protected $url                    = '*';
+    protected $path                   = '*';
     protected $method                 = null;
-    protected $requested_content_type = null;
-    /** @var App $app */
-    protected $app = null;
+    protected $requested_content_type = Response::TYPE_TEXT_HTML;
+    /** @var App $App */
+    protected $App = null;
     /** @var null|FunctionResolvable $ChangePathResolvable */
     protected $ChangePathResolvable = null;
     public function getBody() {
@@ -43,6 +44,8 @@ class Request implements \Sm\Abstraction\Request\Request, Coercable, \JsonSerial
         return $this->method ?? 'get';
     }
     /**
+     * Set the HTTP Request Method that will be or has been used to make this request
+     *
      * @param string $method The request method that will be used or has been used to make this request
      *
      * @return $this
@@ -78,7 +81,26 @@ class Request implements \Sm\Abstraction\Request\Request, Coercable, \JsonSerial
         if ($this->ChangePathResolvable) return $this->ChangePathResolvable->resolve($this->path);
         return $this->path ?? null;
     }
-    public function setChangePath(FunctionResolvable $functionResolvable) {
+    /**
+     * Set a function that changes the UrlPath when we "get" it
+     *
+     * If we set this to be a string, we will just remove that string from the url path.
+     * This is useful for when we want all of an app's url paths to be relative to something we strip
+     * from the URL
+     *
+     * @see Request::getUrlPath
+     *
+     *
+     * @param FunctionResolvable|string $functionResolvable ($url):string
+     *
+     * @return $this
+     */
+    public function setChangePath($functionResolvable) {
+        if (is_string($functionResolvable)) {
+            $functionResolvable = FunctionResolvable::coerce(function ($path) use ($functionResolvable) {
+                return preg_replace("~({$functionResolvable})/?~", '', $path);
+            });
+        }
         $this->ChangePathResolvable = $functionResolvable;
         return $this;
     }
@@ -97,15 +119,15 @@ class Request implements \Sm\Abstraction\Request\Request, Coercable, \JsonSerial
      * @return App
      */
     public function getApp(): App {
-        return $this->app;
+        return $this->App;
     }
     /**
-     * @param App $app
+     * @param App $App
      *
      * @return Request
      */
-    public function setApp(App $app): Request {
-        $this->app = $app;
+    public function setApp(App $App): Request {
+        $this->App = $App;
         return $this;
     }
     /**
@@ -140,7 +162,7 @@ class Request implements \Sm\Abstraction\Request\Request, Coercable, \JsonSerial
     public static function getRequestUrl() {
         $host        = $_SERVER['HTTP_HOST']??'';
         $request_uri = $_SERVER['REQUEST_URI']??'';
-        return "{$host}{$request_uri}";
+        return "//{$host}{$request_uri}";
     }
     /**
      * Get the Request Method that was used to make the request initially

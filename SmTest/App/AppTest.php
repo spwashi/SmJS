@@ -10,7 +10,7 @@ namespace SmTest\App;
 
 use Sm\App\App;
 use Sm\App\Module\Module;
-use Sm\IoC\IoC;
+use Sm\App\PathContainer;
 use Sm\Resolvable\FunctionResolvable;
 use Sm\Routing\Router;
 
@@ -18,59 +18,56 @@ class AppTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreate() {
         $App = App::init();
         $this->assertInstanceOf(App::class, $App);
-    
-        $App = App::init();
+        $App = new App;
         $this->assertInstanceOf(App::class, $App);
     }
     public function testCanOwnModules() {
-        $App    = App::init();
-        $Module = Module::init([
-                                   'init'     => FunctionResolvable::coerce(function () { }),
-                                   'dispatch' => FunctionResolvable::coerce(function () { }),
-                               ]);
-        $App->register('test.module', $Module);
+        $App                = App::init();
+        $Module             = Module::init([
+                                               'init'     => FunctionResolvable::coerce(function () { }),
+                                               'dispatch' => FunctionResolvable::coerce(function () { }),
+                                           ]);
+        $App->Modules->test = $Module;
         /** @var Module $Module */
-        $Module = $App->resolve('test.module');
+        $Module = $App->Modules->test;
         $this->assertInstanceOf(Module::class, $Module);
         $this->assertInstanceOf(App::class, $Module->getApp());
     }
     public function testCanBoot() {
-        $App                   = App::init();
-        $App->Paths->base_path = BASE_PATH;
-        
-        $app_module = $App->Paths->base_path . 'Sm/App/app.sm.module.php';
-        $config     = include $app_module;
-        $Module     = Module::init($config)->setApp($App);
-        $this->assertNull($App->resolve('router'));
-        $Module->initialize();
-        $this->assertInstanceOf(Router::class, $App->resolve('router'));
-        $this->assertInstanceOf(Module::class, $App->resolve('routing.module'));
+        $App = App::init();
+        Module::init(include APP_MODULE)->initialize($App);
+    
+        $this->assertInstanceOf(Router::class, $App->Router);
+        $this->assertInstanceOf(Module::class, $App->Modules->routing);
     }
     
     public function testCanGetProperty() {
-        $IoC = IoC::init();
-        $IoC->register('name', 'Test');
-        $IoC->register('identifier', function () { return 'Test2'; });
         $App = App::init()->register([
                                          'name'       => 'Test',
                                          'identifier' => function () { return 'Test2'; },
                                      ]);
         $this->assertEquals('Test', $App->name);
         $this->assertEquals('Test2', $App->resolve('identifier'));
-        $resolved_path = $App->Paths->resolve('base_path');
-        $this->assertEquals(null, $resolved_path);
-    
-    
-        $IoC   = IoC::init();
-        $Paths = IoC::init()->register([ 'base_path' => __DIR__ ]);
-        $IoC->register('Paths', $Paths);
-        $App           = App::coerce($IoC);
-        $resolved_path = $App->Paths->resolve('base_path');
-        $this->assertEquals(__DIR__, $resolved_path);
+        /** @var PathContainer $Paths */
+        $Paths         = $App->Paths;
+        $resolved_path = $Paths->resolve('base_path');
+        $this->assertEquals(BASE_PATH, $resolved_path);
     }
-    public function testCanRegisterDefalts() {
+    public function testCanRegisterDefaults() {
         $App                   = App::init();
+        $App->name             = 'Test';
         $App->Paths->base_path = 'hello';
+        $App->register_defaults('test',
+                                FunctionResolvable::coerce(function ($App) {
+                                    return $App->name;
+                                }),
+                                true);
+        $App->test_2 = 'hello';
+        $App->register_defaults('test_2', FunctionResolvable::coerce(function ($App) { return $App->name; }), true);
+        $this->assertEquals($App->name,
+                            $App->test);
+        $this->assertEquals('hello', $App->test_2);
         $this->assertEquals('hello/', $App->Paths->base_path);
+        
     }
 }

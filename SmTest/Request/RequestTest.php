@@ -35,8 +35,11 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
         
         $Request->setUrl('//spwashi.com/this/is/a/thing');
         $this->assertEquals('this/is/a/thing', $Request->getUrlPath());
+        $Request->setChangePath('this/is');
+        $this->assertEquals('a/thing', $Request->getUrlPath());
+    
+        $Request->setUrl('one/two/three/four');
+        $this->assertEquals('one/two/three/four', $Request->getUrlPath());
         
-        $Request->setUrl('this/is/a/thing');
-        $this->assertEquals('this/is/a/thing', $Request->getUrlPath());
     }
 }

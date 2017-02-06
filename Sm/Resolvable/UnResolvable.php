@@ -8,18 +8,26 @@
 namespace Sm\Resolvable;
 
 
-use Sm\Abstraction\Resolvable\Arguments;
 use Sm\Resolvable\Error\UnresolvableError;
 
+/**
+ * Class UnResolvable
+ *
+ * Throws an error on resolve
+ *
+ * @package Sm\Resolvable
+ */
 class UnResolvable extends Resolvable {
     
     /**
-     * @param Arguments|null|mixed $arguments ,..
+     * @param null $_
      *
      * @return mixed
      * @throws \Sm\Resolvable\Error\UnresolvableError
+     * @internal param mixed|null|\Sm\Abstraction\Resolvable\Arguments $arguments ,..
+     *
      */
-    public function resolve() {
+    public function resolve($_ = null) {
         throw new UnresolvableError("Cannot resolve");
     }
 }

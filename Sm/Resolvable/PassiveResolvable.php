@@ -10,6 +10,14 @@ namespace Sm\Resolvable;
 
 use Sm\Abstraction\Resolvable\Arguments;
 
+/**
+ * Class PassiveResolvable
+ *
+ * This just returns the first argument of whatever we are talking about.
+ * It returns the first one because We don't know what else to do.
+ *
+ * @package Sm\Resolvable
+ */
 class PassiveResolvable extends Resolvable {
     
     /**

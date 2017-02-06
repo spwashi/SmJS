@@ -10,13 +10,13 @@ use Sm\Resolvable\StringResolvable;
 
 return [
     [
-        'localhost/Sm/fs/Hello' => StringResolvable::coerce("HELLO"),
+        'Sm/fs/Hello' => StringResolvable::coerce("HELLO"),
     ],
     [
         'Hello' => StringResolvable::coerce("Hey there!"),
     ],
     [
-        'localhost/Sm/fs$' => FunctionResolvable::init(function (Request $Request) {
+        '$' => FunctionResolvable::init(function (Request $Request) {
             return ($Request);
         }),
     ],

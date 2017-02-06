@@ -30,6 +30,13 @@ class ArgumentsTest extends \PHPUnit_Framework_TestCase {
      * @param Arguments $Arguments
      */
     public function testCanGetArguments($Arguments) {
-        $this->assertInternalType('array', $Arguments->getListedArguments());
+        $this->assertInternalType('array', $Arguments->_list());
+    }
+    
+    public function testCanShift() {
+        $Arguments = new Arguments([ 'hello', 'there' ]);
+        $this->assertEquals('hello', $Arguments->shift());
+        $this->assertEquals('there', $Arguments->_list()[0]);
+        
     }
 }

@@ -65,28 +65,30 @@ class Route implements Resolvable, Coercable, \JsonSerializable {
      * This takes either an "Arguments" object or just the arguments passed in as arguments.
      * The First argument is assumed to be a Request
      *
-     * @param \Sm\Abstraction\Request\Request $request ,..
+     * @param \Sm\Abstraction\Request\Request $Request ,..
      *
      * @return mixed
+     * @throws \Sm\Resolvable\Error\UnresolvableError
+     * @throws \Sm\Routing\MalformedRouteException
      */
-    public function resolve(Request $request = null) {
+    public function resolve($Request = null) {
         try {
-            if (!($request instanceof Request)) {
+            if (!($Request instanceof Request)) {
                 throw new MalformedRouteException("Cannot resolve request.");
             } else if (!($this->Resolution instanceof Resolvable)) {
                 throw new UnresolvableError("No way to resolve request.");
             }
     
-            if ($this->matches($request)) {
-                $Arguments = $this->getArgumentsFromString($request->getUrlPath());
-                $Arguments->unshift($request, 'Request');
+            if ($this->matches($Request)) {
+                $Arguments = $this->getArgumentsFromString($Request->getUrlPath());
+                $Arguments->unshift($Request, 'Request');
                 return $this->Resolution->resolve($Arguments);
             } else {
                 throw new UnresolvableError("Cannot match the route");
             }
         } catch (\Exception $e) {
             if ($e instanceof MalformedRouteException) throw $e;
-            if (isset($this->DefaultResolvable)) return $this->DefaultResolvable->resolve($request);
+            if (isset($this->DefaultResolvable)) return $this->DefaultResolvable->resolve($Request);
             if ($e instanceof UnresolvableError) throw $e;
         }
         throw new UnresolvableError("Cannot resolve route");

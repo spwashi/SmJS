@@ -21,12 +21,12 @@ class Test extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('Sm', $App->name);
     }
     public function testCanRegisterApp() {
+        /** @var App $App */
         $App                   = App::init();
         $App->Paths->base_path = BASE_PATH;
         $app_module_path       = $App->Paths->base_path . 'Sm/App/app.sm.module.php';
-        $App->request          = Request::coerce('http://spwashi.com/localhost/Sm/fs/Hello');
-        $AppModule             = Module::init(include $app_module_path ??[ ], $App);
-        $App                   = $App->register('app.module', $AppModule);
+        $App->Request          = Request::coerce('http://spwashi.com/Sm/fs/Hello');
+        $App->Modules->_app    = include $app_module_path ??[ ];
         return $App;
     }
     /**
@@ -35,10 +35,10 @@ class Test extends \PHPUnit_Framework_TestCase {
      * @depends testCanRegisterApp
      */
     public function testDefaultHasRouter(App $App) {
-        $this->assertInstanceOf(Module::class, $App->resolve('routing.module'));
-        $this->assertInstanceOf(Router::class, $App->resolve('router'));
-        $module = $App->resolve('routing.module');
-        $output = $module->dispatch($App);
-        $this->assertEquals($output, 'Hey there!');
+        $this->assertInstanceOf(Module::class, $App->Modules->routing);
+        $this->assertInstanceOf(Router::class, $App->Router);
+    
+        $this->assertEquals($App->Modules->routing($App->Request),
+                            'Hey there!');
     }
 }

@@ -6,7 +6,6 @@
  */
 
 use Sm\Abstraction\Registry;
-use Sm\Abstraction\Resolvable\Arguments;
 use Sm\App\App;
 use Sm\Request\Request;
 use Sm\Resolvable\Error\UnresolvableError;
@@ -14,17 +13,32 @@ use Sm\Routing\Router;
 
 return [
     'init'     => function (App $App) {
-        $config_path = $App->Paths->config_path . 'routes.sm.config.php';
-        $config_arr  = file_exists($config_path) ? include $config_path : [ ];
-        $App->register('router', Router::init($App)->register($config_arr));
+    
+        # Default path to routes configuration is relative to the config path
+        $config_path = "{$App->Paths->config_path}routes.sm.config.php";
+    
+    
+        # Get an array representative of the configuration
+        $config_arr = file_exists($config_path) ? include $config_path : [ ];
+    
+    
+        # Define a router to use, register routes
+        $App->Router = Router::init($App)
+                             ->register($config_arr);
     },
-    'dispatch' => function (App $App, Arguments $Arguments) {
-        /** @var Request $Request */
-        $Request = $Arguments->getParameter('Request') ?? $Arguments->getArgument(0);
-        $Request = $App->resolve('request', $Request);
-        $Request->setApp($App);
-        $Router = $App->resolve('router');
+
+    'dispatch' => function (App $App, Request $Request = null) {
+    
+        # Standardize the request
+        $Request = $App->Request = Request::coerce($Request)->setApp($App);
+    
+        /** @var Router $Router */
+        $Router = $App->Router;
+    
+        # All we require is that the router is a registry
         if (!$Router instanceof Registry) throw new UnresolvableError("Invalid Router");
+    
+        # This should return an "output" from the Route that was matched
         return $Router->resolve($Request);
     },
 ];

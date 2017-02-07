@@ -24,6 +24,7 @@ use Sm\Routing\Router;
  * @property string          $name
  * @property Request         $Request
  * @property Router          $Router
+ * @property string          $controller_namespace
  */
 class App extends IoC {
     #  Constructors/Initializers
@@ -45,8 +46,8 @@ class App extends IoC {
                         return $Paths->app_path . 'templates/';
                     }),
                 'config_path' =>
-                    FunctionResolvable::coerce(function ($Paths) {
-                        return $Paths->app_path . 'config/default/';
+                    FunctionResolvable::coerce(function ($Paths, $App) {
+                        return $Paths->app_path . 'config/';
                     }),
             ]);
     }
@@ -66,9 +67,6 @@ class App extends IoC {
         $Duplicate->Modules = $this->Modules->duplicate($Duplicate);
         return $Duplicate;
     }
-    public static function init() {
-        return new static;
-    }
     public function register($identifier, $registrand = null, $register_with_app = false) {
         if ($register_with_app) $this->app_resolved[] = $identifier;
         if ($registrand instanceof NativeResolvable) $registrand = $registrand->resolve();
@@ -84,7 +82,7 @@ class App extends IoC {
                 $this->app_resolved[ $name ] = true;
             }
         }
-        return parent::register_defaults($name, $registrand, $register_with_app);
+        return parent::register_defaults($name, $registrand);
     }
     /**
      * @param null            $identifier
@@ -108,6 +106,9 @@ class App extends IoC {
         $return          = $this->registry;
         $return['Paths'] = $this->Paths;
         return $return;
+    }
+    public static function init() {
+        return new static;
     }
     public static function coerce($item) {
         $instance = new static();

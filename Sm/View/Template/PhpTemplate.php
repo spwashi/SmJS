@@ -9,8 +9,13 @@ namespace Sm\View\Template;
 
 
 class PhpTemplate extends Template {
+    /**
+     * @param array $variables
+     *
+     * @return string
+     */
     protected function _include($variables = [ ]) :string {
-        $_path_ = $this->subject;
+        $_path_ = $this->resolved_path;
         # This really is only here to be available to the included script
         $App = $this->App ?? null;
         

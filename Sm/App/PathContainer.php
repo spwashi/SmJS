@@ -53,11 +53,16 @@ class PathContainer extends IoC {
     }
     function __call($name, $arguments) {
         $name = str_replace('to_', '', $name);
+    
+        # If we can resolve the name or something based on the name, assume that we are
+        # just trying to append whatever to the path. We can also check if it's a file.
         if ($this->canResolve($name)) {
+    
             $path = $this->resolve($name) . $arguments[0];
-            if ($arguments[1]??false && !file_exists($path)) return false;
-            return $path;
+    
+            return isset($arguments[1]) && (!file_exists($path)) ? false : $path;
         } else if ($this->canResolve("{$name}_path")) {
+    
             return $this->__call("{$name}_path", $arguments);
         }
         return null;

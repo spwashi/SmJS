@@ -46,20 +46,20 @@ class Router implements Registry {
             $this->routes[] = $registrand;
         return $this;
     }
-    public function resolve($identifier = null) {
-        if (class_exists('\Sm\Request\Request') && !($identifier instanceof \Sm\Abstraction\Request\Request)) {
-            $identifier = Request::coerce($identifier);
+    public function resolve($Request = null) {
+        if (class_exists('\Sm\Request\Request') && !($Request instanceof \Sm\Abstraction\Request\Request)) {
+            $Request = Request::coerce($Request);
         }
         foreach ($this->routes as $index => $route) {
-            $__does_match = $route->matches($identifier);
+            $__does_match = $route->matches($Request);
             if ($__does_match) {
-                return $route->resolve($identifier);
+                return $route->resolve($Request);
             }
         }
         $msg = "No matching routes";
-    
+        
         if ($this->App) $msg .= " in {$this->App->name}";
-    
+        
         throw new UnresolvableError($msg);
     }
     public static function init(App $App = null) {

@@ -9,10 +9,12 @@ namespace Sm\Routing;
 
 
 use Sm\Abstraction\Coercable;
-use Sm\Abstraction\Request\Request;
 use Sm\Abstraction\Resolvable\Arguments;
 use Sm\Abstraction\Resolvable\Resolvable;
+use Sm\Request\Request;
 use Sm\Resolvable\Error\UnresolvableError;
+use Sm\Resolvable\FunctionResolvable;
+use Sm\Resolvable\ResolvableFactory;
 use Sm\Resolvable\StringResolvable;
 
 class Route implements Resolvable, Coercable, \JsonSerializable {
@@ -25,9 +27,33 @@ class Route implements Resolvable, Coercable, \JsonSerializable {
     
     public function __construct($resolution = null, $pattern = null) {
         if (is_string($pattern) || is_numeric($pattern)) $this->setStringPattern($pattern);
-        if ($resolution instanceof Resolvable) {
-            $this->setResolution($resolution);
+    
+        if (is_string($resolution) && strpos($resolution, '#') !== false && strpos($resolution, '::') !== false) {
+            $resolution = FunctionResolvable::coerce(function ($Request = null) use ($pattern, $resolution) {
+                if ($Request instanceof Request) {
+                    $App        = $Request->getApp();
+                    $resolution = str_replace('#', $App ? $App->controller_namespace : '', $resolution);
+                }
+                $resolution_expl = explode('::', $resolution);
+                $class_name      = $resolution_expl[0];
+                $method_name     = $resolution_expl[1] ?? null;
+            
+                # If the class doesn't have the requested method, skip it
+                if ((!$class_name || !$method_name) || !(class_exists($class_name) || !method_exists($class_name, $method_name))) {
+                    throw new UnresolvableError("Malformed method- {$resolution}");
+                }
+            
+                $resolution = [
+                    new $class_name($App ?? null),
+                    $method_name,
+                ];
+                return FunctionResolvable::coerce($resolution)->resolve(...func_get_args());
+            });
+        } else {
+            $resolution = ResolvableFactory::init()->build($resolution);
         }
+    
+        if ($resolution instanceof Resolvable) $this->setResolution($resolution);
     }
     /**
      * @param string|Request $item
@@ -41,7 +67,9 @@ class Route implements Resolvable, Coercable, \JsonSerializable {
         if (is_string($item) && is_string($this->pattern)) {
             preg_match("~^{$this->pattern}~x", $item, $matches);
             $this->getArgumentsFromString($item);
-            if (!empty($matches)) return true;
+            if (!empty($matches)) {
+                return true;
+            }
         }
         return false;
     }
@@ -82,7 +110,8 @@ class Route implements Resolvable, Coercable, \JsonSerializable {
             if ($this->matches($Request)) {
                 $Arguments = $this->getArgumentsFromString($Request->getUrlPath());
                 $Arguments->unshift($Request, 'Request');
-                return $this->Resolution->resolve($Arguments);
+                $res = $this->Resolution->resolve($Arguments);
+                return $res;
             } else {
                 throw new UnresolvableError("Cannot match the route");
             }

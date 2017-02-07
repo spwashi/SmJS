@@ -50,6 +50,10 @@ class Response extends Resolvable {
                 break;
         }
     }
+    public function __toString() {
+        $result = $this->resolve();
+        return Util::canBeString($result) ? $result : json_encode($result);
+    }
     /**
      * Get the time that this Response was initially created
      *

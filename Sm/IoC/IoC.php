@@ -64,9 +64,12 @@ class IoC implements Registry {
             foreach ($name as $index => $item) {
                 $this->register_defaults($index, $item);
             }
-        } else if (!$this->canResolve($name) && !array_key_exists($name, $this->_registered_defaults)) {
+            return $this;
+        }
+    
+        if (($this->_registered_defaults[ $name ] ?? false) || !($this->canResolve($name))) {
             $this->register($name, $registrand);
-            $this->_registered_defaults[] = $name;
+            $this->_registered_defaults[ $name ] = true;
         }
         return $this;
     }
@@ -152,8 +155,8 @@ class IoC implements Registry {
      */
     protected function addToRegistry($name, $item) {
         $this->registry[ $name ] = $item;
-        if (($index = array_search($name, $this->_registered_defaults)) > -1) {
-            unset($this->_registered_defaults[ $index ]);
+        if ($this->_registered_defaults[ $name ]??false) {
+            unset($this->_registered_defaults[ $name ]);
         }
         return $this;
     }

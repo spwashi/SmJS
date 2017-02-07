@@ -21,15 +21,24 @@ class FunctionResolvable extends Resolvable {
      */
     public function __construct($subject) {
         if ($subject instanceof Arguments) {
-            $subject = $subject->getListedArguments();
+            $subject = $subject->_list();
             $subject = count($subject) === 1 ? $subject[0] : $subject;
         }
-        if (is_string($subject) && strpos($subject, '::')) $subject = explode('::', $subject);
-        if (!is_callable($subject)) throw  new UnresolvableError("Must be a callable function");
         parent::__construct($subject);
+    }
+    public function __toString() {
+        return "[function]";
     }
     public function resolve($arguments = [ ]) {
         $arguments = Arguments::coerce($arguments, func_get_args());
+        $subject   = $this->subject;
+    
+        if (is_string($subject) && strpos($subject, '::'))
+            $subject = explode('::', $subject);
+    
+        if (!is_callable($subject))
+            throw  new UnresolvableError("Must be a callable function");
+        
         return call_user_func_array($this->subject, $arguments->_list());
     }
 }

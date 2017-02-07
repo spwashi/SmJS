@@ -14,6 +14,8 @@ use Sm\Resolvable\StringResolvable;
 
 abstract class Template extends Resolvable {
     protected $content_type;
+    protected $resolved_path    = null;
+    protected $path_is_absolute = false;
     protected $expected_variables;
     protected $error;
     /** @var  App $App */
@@ -40,16 +42,6 @@ abstract class Template extends Resolvable {
         $this->App = $app;
         return $this;
     }
-    
-    /**
-     * @param string           $item
-     * @param \Sm\App\App|null $App
-     *
-     * @return static
-     */
-    public static function init($item = null, App $App = null) {
-        return new static($item, $App);
-    }
     /**
      * Fill the template from an array of passed-in variables, return a string
      *
@@ -58,6 +50,7 @@ abstract class Template extends Resolvable {
      * @return string
      */
     public function resolve($variables = [ ]) {
+        $this->_resolvePath();
         if (isset($this->error)) {
             $e           = $this->error;
             $this->error = null;
@@ -74,29 +67,19 @@ abstract class Template extends Resolvable {
      * @return $this
      */
     public function setSubject($_path_, $_is_absolute_ = false) {
-        # We must have an app in order for the path to be relative to something!
-        if (!isset($this->App)) $_is_absolute_ = true;
-        
-        # If the path isn't a string, we don't know what to do with it
-        if (!is_string($_path_)) {
-            $_path_      = StringResolvable::coerce($_path_);
-            $this->error = new MalformedTemplateException("The requested route '{$_path_}' has not been created correctly");
-            return $this;
-        }
-        
-        # If the path is not absolute, make it relative to the "templates" path
-        if (!$_is_absolute_) $_path_ = $this->App->Paths->to_template($_path_);
-        
-        # If the path isn't existent, save an error to throw later
-        if (!is_file($_path_)) {
-            $_path_      = StringResolvable::coerce($_path_);
-            $this->error = new MalformedTemplateException("The requested template '{$_path_}' does not exist");
-            return $this;
-        }
-        $this->error   = null;
-        $this->subject = $_path_;
-        
+        $this->path_is_absolute = $_is_absolute_;
+        $this->subject          = $_path_;
+        $this->resolved_path    = null;
         return $this;
+    }
+    /**
+     * @param string           $item
+     * @param \Sm\App\App|null $App
+     *
+     * @return static
+     */
+    public static function init($item = null, App $App = null) {
+        return new static($item, $App);
     }
     /**
      * Fill the template with the passed-in array of variables, return the output as a string
@@ -106,4 +89,33 @@ abstract class Template extends Resolvable {
      * @return string
      */
     abstract protected function _include($variables = [ ]) :string;
+    /**
+     * Resolve the path now that everything else about the template is all good
+     *
+     * @return $this
+     */
+    private function _resolvePath() {
+        if (isset($this->resolved_path)) return $this->resolved_path;
+        $_path_ = $this->subject;
+        # We must have an app in order for the path to be relative to something!
+        if (!isset($this->App)) $this->path_is_absolute = true;
+        # If the path isn't a string, we don't know what to do with it
+        if (!is_string($_path_)) {
+            $_path_      = StringResolvable::coerce($_path_);
+            $this->error = new Error\MalformedTemplateError("The requested route '{$_path_}' has not been created correctly");
+            return $this->resolved_path = null;
+        }
+        
+        # If the path is not absolute, make it relative to the "templates" path
+        if (!$this->path_is_absolute) $_path_ = $this->App->Paths->to_template($_path_);
+        
+        # If the path isn't existent, save an error to throw later
+        if (!is_file($_path_)) {
+            $_path_      = StringResolvable::coerce($_path_);
+            $this->error = new Error\MalformedTemplateError("The requested template '{$_path_}' does not exist" . ($this->App ? "in {$this->App->name}" : '.'));
+            return $this->resolved_path = null;
+        }
+        $this->error = null;
+        return $this->resolved_path = $_path_;
+    }
 }

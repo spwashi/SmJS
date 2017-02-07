@@ -39,6 +39,7 @@ class AppTest extends \PHPUnit_Framework_TestCase {
     
         $this->assertInstanceOf(Router::class, $App->Router);
         $this->assertInstanceOf(Module::class, $App->Modules->routing);
+        $this->assertEquals('\\Sm\\Controller\\', $App->controller_namespace);
     }
     
     public function testCanGetProperty() {

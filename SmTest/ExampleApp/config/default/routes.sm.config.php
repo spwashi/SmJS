@@ -9,15 +9,14 @@ use Sm\Resolvable\FunctionResolvable;
 use Sm\Resolvable\StringResolvable;
 
 return [
+    [ 'test' => '#Home::item', ],
+    [ '{method}' => '#Home::test', ],
+    [ 'Sm/ea/Hello' => StringResolvable::coerce("HELLO"), ],
+    [ 'Hello' => StringResolvable::coerce("Hey there!"), ],
     [
-        'Sm/fs/Hello' => StringResolvable::coerce("HELLO"),
-    ],
-    [
-        'Hello' => StringResolvable::coerce("Hey there!"),
-    ],
-    [
-        '$' => FunctionResolvable::init(function (Request $Request) {
-            return ($Request);
-        }),
+        '$' =>
+            FunctionResolvable::init(function (Request $Request = null) {
+                return 'Hello!!';
+            }),
     ],
 ];

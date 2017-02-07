@@ -20,14 +20,20 @@ class Module extends \Sm\Resolvable\Resolvable implements \Sm\Abstraction\Module
     /** @var Resolvable */
     protected $Init = null;
     /** @var bool $is_init */
-    protected $is_init = false;
+    protected $is_init              = false;
+    protected $has_dispatched       = false;
+    protected $last_dispatch_result = null;
     protected $App;
     
     public function dispatch() {
         $arguments = Arguments::coerce(func_get_args());
         if (!$this->is_init) $this->initialize();
+    
+        if ($this->has_dispatched) return $this->last_dispatch_result;
+        
         if (isset($this->Dispatch)) {
-            return $this->Dispatch->resolve($this->App, ...$arguments->_list());
+            $this->has_dispatched = true;
+            return $this->last_dispatch_result = $this->Dispatch->resolve($this->App, ...$arguments->_list());
         } else {
             throw new UnresolvableError("Cannot resolve module");
         }
@@ -59,6 +65,15 @@ class Module extends \Sm\Resolvable\Resolvable implements \Sm\Abstraction\Module
         $this->is_init = true;
         return $this;
     }
+    public function reset() {
+        $this->is_init        = false;
+        $this->has_dispatched = false;
+        return $this;
+    }
+    public function resolve() {
+        $this->initialize();
+        return $this;
+    }
     /**
      * @param null $item
      *
@@ -85,13 +100,5 @@ class Module extends \Sm\Resolvable\Resolvable implements \Sm\Abstraction\Module
         }
         $Module->setDispatch($item);
         return $Module;
-    }
-    public function reset() {
-        $this->is_init = false;
-        return $this;
-    }
-    public function resolve() {
-        $this->initialize();
-        return $this;
     }
 }

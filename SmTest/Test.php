@@ -22,11 +22,12 @@ class Test extends \PHPUnit_Framework_TestCase {
     }
     public function testCanRegisterApp() {
         /** @var App $App */
-        $App                   = App::init();
-        $App->Paths->base_path = BASE_PATH;
-        $app_module_path       = $App->Paths->base_path . 'Sm/App/app.sm.module.php';
-        $App->Request          = Request::coerce('http://spwashi.com/Sm/fs/Hello');
-        $App->Modules->_app    = include $app_module_path ??[ ];
+        $App                  = App::init();
+        $App->name            = 'ExampleApp';
+        $App->Paths->app_path = BASE_PATH . 'SmTest/ExampleApp';
+        $app_module_path      = $App->Paths->base_path . 'Sm/App/app.sm.module.php';
+        $App->Request         = Request::coerce('http://spwashi.com/Sm/ea/Hello');
+        $App->Modules->_app   = include $app_module_path ??[ ];
         return $App;
     }
     /**
@@ -38,7 +39,7 @@ class Test extends \PHPUnit_Framework_TestCase {
         $this->assertInstanceOf(Module::class, $App->Modules->routing);
         $this->assertInstanceOf(Router::class, $App->Router);
     
-        $this->assertEquals($App->Modules->routing($App->Request),
-                            'Hey there!');
+        $this->assertEquals('Hey there!',
+                            $App->Modules->routing($App->Request));
     }
 }

@@ -38,12 +38,15 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
         $Router->register(
             [
                 Route::init(StringResolvable::init('hello'), 'hello/1'),
-                [
-                    'pattern'    => 'hello/2',
-                    'resolution' => StringResolvable::init('hello2'),
-                ],
-                [
-                    'api/(?:sections|dimensions|collections)' => StringResolvable::init('API example'),
+                [ 'pattern'    => 'hello/2',
+                  'resolution' => StringResolvable::init('hello2'), ],
+                [ 'api/(?:sections|dimensions|collections)' => StringResolvable::init('API example'), ],
+                [ 'test' => 'TEST' ],
+                [ '$' =>
+                      function () {
+                          var_dump('here');
+                          return 'Nothing';
+                      },
                 ],
                 [ '11' => FunctionResolvable::coerce('\\' . Example::class . '::returnEleven'), ],
             ]);
@@ -58,6 +61,10 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('eleven',
                             $Router->resolve(Request::init()->setUrl('11')));
     
+        $this->assertEquals('TEST',
+                            $Router->resolve(Request::init()->setUrl('test')));
+        
+        
         $this->assertEquals('API example',
                             $Router->resolve(Request::init()->setUrl('api/sections')));
     }

@@ -12,7 +12,7 @@ use Sm\App\App;
 use Sm\Request\Request;
 use Sm\Resolvable\ResolvableFactory;
 use Sm\Response\Response;
-use Sm\View\Template\MalformedTemplateException;
+use Sm\View\Template\Error\MalformedTemplateError;
 use Sm\View\Template\Template;
 use Sm\View\Template\TemplateFactory;
 
@@ -34,6 +34,8 @@ class View extends Response {
         parent::__construct($subject);
     }
     
+    #  Public methods
+    #-----------------------------------------------------------------------------------
     /**
      * Render the View, return a string representative of its contents (in response to a request)
      *
@@ -68,19 +70,20 @@ class View extends Response {
      * @param string          $content_type The content type of the Template that we are setting.
      *
      * @return $this
-     * @throws \Sm\View\Template\MalformedTemplateException
+     * @throws \Sm\View\Template\MalformedTemplateError
      */
     public function setTemplate($_template, $content_type = Response::TYPE_TEXT_HTML) {
         # If we don't know what to do with the template, throw an error
         if (!is_string($_template) && isset($_template) && !($_template instanceof Template)) {
-            throw new MalformedTemplateException("Unable to create View from Template");
+            throw new MalformedTemplateError("Unable to create View from Template");
         }
         
         # Convert the template into a Template
         $Template =
             $this->_getTemplateFactory()
-                 ->build($_template)
-                 ->setApp($this->getApp());
+                 ->build($_template);
+        if ($App = $this->getApp())
+            $Template->setApp($App);
         
         $this->templates[ $content_type ] = $Template;
         return $this;
@@ -100,6 +103,9 @@ class View extends Response {
         $this->App = $App;
         return $this;
     }
+    
+    #  Private/Protected methods
+    #-----------------------------------------------------------------------------------
     /**
      * Get the variables that are going to be passed to the template.
      * This function should return an array, indexed by variable name, that has

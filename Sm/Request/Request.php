@@ -116,9 +116,9 @@ class Request implements \Sm\Abstraction\Request\Request, Coercable, \JsonSerial
         ];
     }
     /**
-     * @return App
+     * @return App|null
      */
-    public function getApp(): App {
+    public function getApp() {
         return $this->App;
     }
     /**

@@ -20,7 +20,6 @@ abstract class Template extends Resolvable {
     protected $error;
     /** @var  App $App */
     protected $App;
-    
     /**
      * Template constructor.
      *
@@ -100,6 +99,7 @@ abstract class Template extends Resolvable {
         $_path_ = $this->subject;
         # We must have an app in order for the path to be relative to something!
         if (!isset($this->App)) $this->path_is_absolute = true;
+    
         # If the path isn't a string, we don't know what to do with it
         if (!is_string($_path_)) {
             $_path_      = StringResolvable::coerce($_path_);

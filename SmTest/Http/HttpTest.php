@@ -5,7 +5,7 @@
  * Time: 7:54 PM
  */
 
-namespace SmTest\Http;
+namespace Sm\Test\Http;
 
 
 class HttpTest extends \PHPUnit_Framework_TestCase {

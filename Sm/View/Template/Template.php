@@ -49,7 +49,7 @@ abstract class Template extends Resolvable {
      *
      * @return string
      */
-    public function resolve($variables = [ ]) {
+    public function resolve($variables = []) {
         $this->_resolvePath();
         if (isset($this->error)) {
             $e           = $this->error;
@@ -88,14 +88,15 @@ abstract class Template extends Resolvable {
      *
      * @return string
      */
-    abstract protected function _include($variables = [ ]) :string;
+    abstract protected function _include($variables = []): string;
     /**
      * Resolve the path now that everything else about the template is all good
      *
-     * @return $this
+     * @return string
      */
     private function _resolvePath() {
         if (isset($this->resolved_path)) return $this->resolved_path;
+        /** @var string $_path_ */
         $_path_ = $this->subject;
         # We must have an app in order for the path to be relative to something!
         if (!isset($this->App)) $this->path_is_absolute = true;

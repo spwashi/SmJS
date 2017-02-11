@@ -6,7 +6,7 @@
  */
 use Sm\App\App;
 use Sm\App\Module\Module;
-use Sm\Resolvable\StringResolvable;
+use Sm\Output\Output;
 
 //<editor-fold desc="TESTING PURPOSES ONLY">
 ini_set('display_errors', 1);
@@ -33,7 +33,9 @@ $App->Modules->_app = include APP_MODULE ??[ ];
 $RoutingModule = $App->Modules->routing;
 if (!$App->Modules->routing) die("Malformed site configuration!");
 
-$output = $App->Modules->routing($App->Request);
 
+# route the app to a controller method/function, retrieve that response
+$response = $App->Modules->routing($App->Request);
 
-echo StringResolvable::coerce($output)->resolve();
+# todo make an output module
+Output::out($response);

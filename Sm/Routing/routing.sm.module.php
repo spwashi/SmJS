@@ -20,7 +20,7 @@ return [
         if (!$config_path) throw new UnresolvableError("There are no routes configured for this App ($App->name)");
         
         # Get an array representative of the configuration
-        $config_arr = file_exists($config_path) ? include $config_path : [ ];
+        $config_arr = file_exists($config_path) ? include $config_path : [];
         
         
         # Define a router to use, register routes

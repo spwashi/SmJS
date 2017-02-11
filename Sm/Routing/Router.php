@@ -15,7 +15,7 @@ use Sm\Resolvable\Error\UnresolvableError;
 
 class Router implements Registry {
     /** @var Route[] $routes */
-    protected $routes = [ ];
+    protected $routes = [];
     /** @var \Sm\App\App $App */
     protected $App;
     

@@ -5,7 +5,7 @@
  * Time: 7:11 PM
  */
 
-namespace SmTest\IoC;
+namespace Sm\Test\IoC;
 
 
 use Sm\IoC\IoC;
@@ -80,6 +80,7 @@ class IoCTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(3, $IoC->resolve('test.1', 2));
         $NewIoC = $IoC->duplicate();
         $this->assertEquals(6, $NewIoC->resolve('test.1', 5));
+        return $NewIoC;
     }
     /**
      * @param \Sm\IoC\IoC $IoC

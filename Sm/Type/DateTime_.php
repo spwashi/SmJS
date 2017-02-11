@@ -5,7 +5,7 @@
  * Time: 5:16 PM
  */
 
-namespace Sm\Types;
+namespace Sm\Type;
 
 
 use Sm\Resolvable\DateResolvable;

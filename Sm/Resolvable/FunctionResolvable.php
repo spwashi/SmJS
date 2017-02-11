@@ -29,13 +29,13 @@ class FunctionResolvable extends Resolvable {
     public function __toString() {
         return "[function]";
     }
-    public function resolve($arguments = [ ]) {
+    public function resolve($arguments = []) {
         $arguments = Arguments::coerce($arguments, func_get_args());
         $subject   = $this->subject;
-    
+        
         if (is_string($subject) && strpos($subject, '::'))
             $subject = explode('::', $subject);
-    
+        
         if (!is_callable($subject))
             throw  new UnresolvableError("Must be a callable function");
         

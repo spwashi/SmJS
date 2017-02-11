@@ -23,7 +23,7 @@ class Route implements Resolvable, Coercable, \JsonSerializable {
     /** @var  Resolvable $Resolution */
     protected $Resolution;
     protected $pattern;
-    protected $parameters = [ ];
+    protected $parameters = [];
     
     public function __construct($resolution = null, $pattern = null) {
         if (is_string($pattern) || is_numeric($pattern)) $this->setStringPattern($pattern);
@@ -37,12 +37,12 @@ class Route implements Resolvable, Coercable, \JsonSerializable {
                 $resolution_expl = explode('::', $resolution);
                 $class_name      = $resolution_expl[0];
                 $method_name     = $resolution_expl[1] ?? null;
-            
+    
                 # If the class doesn't have the requested method, skip it
                 if ((!$class_name || !$method_name) || !(class_exists($class_name) || !method_exists($class_name, $method_name))) {
                     throw new UnresolvableError("Malformed method- {$resolution}");
                 }
-            
+    
                 $resolution = [
                     new $class_name($App ?? null),
                     $method_name,
@@ -80,11 +80,11 @@ class Route implements Resolvable, Coercable, \JsonSerializable {
      *
      * @return \Sm\Routing\Route
      */
-    public function setDefaultResolution(Resolvable $DefaultResolvable) :Route {
+    public function setDefaultResolution(Resolvable $DefaultResolvable): Route {
         $this->DefaultResolvable = $DefaultResolvable;
         return $this;
     }
-    public function setResolution(Resolvable $resolvable = null) :Route {
+    public function setResolution(Resolvable $resolvable = null): Route {
         $this->Resolution = $resolvable;
         return $this;
     }

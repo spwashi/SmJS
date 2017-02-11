@@ -16,7 +16,7 @@ return [
               $App =
                   $Request->setChangePath("Sm/fs")->getApp()->duplicate()
                           ->register([ 'name' => 'Factshift' ]);
-        
+    
               return $App->Modules->routing->dispatch($Request);
           }),
     ],

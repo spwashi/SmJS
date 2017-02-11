@@ -9,7 +9,7 @@ namespace Sm\Response;
 
 
 use Sm\Resolvable\Resolvable;
-use Sm\Types\DateTime_;
+use Sm\Type\DateTime_;
 use Sm\Util;
 
 class Response extends Resolvable {

@@ -5,7 +5,7 @@
  * Time: 5:18 PM
  */
 
-namespace Sm\Types;
+namespace Sm\Type;
 
 
 use Sm\Resolvable\NullResolvable;

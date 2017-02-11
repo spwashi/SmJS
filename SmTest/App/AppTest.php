@@ -5,7 +5,7 @@
  * Time: 11:29 AM
  */
 
-namespace SmTest\App;
+namespace Sm\Test\App;
 
 
 use Sm\App\App;

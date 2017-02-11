@@ -5,7 +5,7 @@
  * Time: 10:56 PM
  */
 
-namespace SmTest\Request;
+namespace Sm\Test\Request;
 
 
 use Sm\Request\Request;

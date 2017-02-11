@@ -5,7 +5,7 @@
  * Time: 8:58 PM
  */
 
-namespace SmTest\Abstraction\Resolvable;
+namespace Sm\Test\Abstraction\Resolvable;
 
 
 use Sm\Abstraction\Resolvable\Resolvable;

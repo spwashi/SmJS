@@ -24,9 +24,9 @@ use Sm\View\Template\TemplateFactory;
  * @package Sm\View
  */
 class View extends Response {
-    protected $variables = [ ];
+    protected $variables = [];
     /** @var Template[] */
-    protected $templates = [ ];
+    protected $templates = [];
     /** @var  App $App */
     protected $App;
     
@@ -70,7 +70,7 @@ class View extends Response {
      * @param string          $content_type The content type of the Template that we are setting.
      *
      * @return $this
-     * @throws \Sm\View\Template\MalformedTemplateError
+     * @throws MalformedTemplateError
      */
     public function setTemplate($_template, $content_type = Response::TYPE_TEXT_HTML) {
         # If we don't know what to do with the template, throw an error
@@ -114,7 +114,7 @@ class View extends Response {
      * @return array
      */
     protected function getVariables() {
-        $vars = [ ];
+        $vars = [];
         
         # Get the variables from the subject
         if (is_array($this->subject)) {

@@ -5,11 +5,11 @@
  * Time: 5:05 PM
  */
 
-namespace SmTest\Response;
+namespace Sm\Test\Response;
 
 
 use Sm\Response\Response;
-use Sm\Types\DateTime_;
+use Sm\Type\DateTime_;
 
 class ResponseTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreate() {

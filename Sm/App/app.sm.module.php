@@ -43,7 +43,7 @@ return [
         
         # Load the Routing module
         $routing_module = $App->Paths->to_base('Sm/Routing/routing.sm.module.php');
-        if (is_file($routing_module)) $App->Modules->routing = include $routing_module ?? [ ];
+        if (is_file($routing_module)) $App->Modules->routing = include $routing_module ?? [];
         
         
         return $App;

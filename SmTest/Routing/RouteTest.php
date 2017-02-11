@@ -5,7 +5,7 @@
  * Time: 11:56 AM
  */
 
-namespace SmTest\Routing;
+namespace Sm\Test\Routing;
 
 
 use Sm\Abstraction\Resolvable\Arguments;

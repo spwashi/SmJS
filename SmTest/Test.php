@@ -5,7 +5,7 @@
  * Time: 11:40 AM
  */
 
-namespace SmTest;
+namespace Sm\Test;
 
 
 use Sm\App\App;
@@ -27,7 +27,7 @@ class Test extends \PHPUnit_Framework_TestCase {
         $App->Paths->app_path = BASE_PATH . 'SmTest/ExampleApp';
         $app_module_path      = $App->Paths->base_path . 'Sm/App/app.sm.module.php';
         $App->Request         = Request::coerce('http://spwashi.com/Sm/ea/Hello');
-        $App->Modules->_app   = include $app_module_path ??[ ];
+        $App->Modules->_app   = include $app_module_path ??[];
         return $App;
     }
     /**

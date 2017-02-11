@@ -5,7 +5,7 @@
  * Time: 11:46 PM
  */
 
-namespace SmTest\View;
+namespace Sm\Test\View;
 
 
 use Sm\App\App;

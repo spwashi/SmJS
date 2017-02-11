@@ -21,6 +21,7 @@ class ViewFactory extends Factory {
      */
     public function build($operand) {
         if ($operand instanceof View) return $operand;
+        if ($operand instanceof Viewable) return $operand->toView();
         return View::init($operand);
     }
 }

@@ -5,7 +5,7 @@
  * Time: 8:36 PM
  */
 
-namespace SmTest\Resolvable;
+namespace Sm\Test\Resolvable;
 
 
 use Sm\Resolvable\NativeResolvable;
@@ -35,13 +35,13 @@ class ResolvableFactoryTest extends \PHPUnit_Framework_TestCase {
             [ "test" ],
             [ 1 ],
             [ null ],
-            [ [ ] ],
+            [ [] ],
         ];
     }
     
     public function testCanCoerce() {
         $ResFact   = ResolvableFactory::init();
-        $ResFact_3 = [ ];
+        $ResFact_3 = [];
         $this->assertEquals($ResFact, ResolvableFactory::coerce($ResFact));
         $this->assertInstanceOf(ResolvableFactory::class, ResolvableFactory::coerce($ResFact_3));
     }

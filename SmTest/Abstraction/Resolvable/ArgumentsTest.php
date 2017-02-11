@@ -5,7 +5,7 @@
  * Time: 9:02 PM
  */
 
-namespace SmTest\Abstraction\Resolvable;
+namespace Sm\Test\Abstraction\Resolvable;
 
 
 use Sm\Abstraction\Resolvable\Arguments;
@@ -37,6 +37,5 @@ class ArgumentsTest extends \PHPUnit_Framework_TestCase {
         $Arguments = new Arguments([ 'hello', 'there' ]);
         $this->assertEquals('hello', $Arguments->shift());
         $this->assertEquals('there', $Arguments->_list()[0]);
-        
     }
 }

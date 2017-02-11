@@ -5,7 +5,7 @@
  * Time: 2:27 PM
  */
 
-namespace SmTest\App\Module;
+namespace Sm\Test\App\Module;
 
 
 use Sm\App\Module\Module;
@@ -14,7 +14,7 @@ use Sm\Resolvable\StringResolvable;
 class ModuleTest extends \PHPUnit_Framework_TestCase {
     public function testCanCoerce() {
         $Module     = Module::init();
-        $Module_two = [ ];
+        $Module_two = [];
         $this->assertEquals($Module, Module::coerce($Module));
         $this->assertInstanceOf(Module::class, Module::coerce($Module_two));
         $number = 0;

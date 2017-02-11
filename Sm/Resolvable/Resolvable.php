@@ -97,6 +97,6 @@ abstract class Resolvable implements \Sm\Abstraction\Resolvable\Resolvable {
      */
     public static function coerce($item = null) {
         if (is_a($item, static::class)) return $item;
-        return static::init($item);
+        return static::init(...func_get_args());
     }
 }

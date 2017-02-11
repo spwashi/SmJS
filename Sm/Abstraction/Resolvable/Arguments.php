@@ -9,11 +9,11 @@ namespace Sm\Abstraction\Resolvable;
 
 
 class Arguments implements \JsonSerializable {
-    public $arguments  = [ ];
-    public $parameters = [ ];
+    public $arguments  = [];
+    public $parameters = [];
     public function __construct($arguments = null) {
         if ($arguments === null) {
-            $this->arguments = [ ];
+            $this->arguments = [];
         } else if (!is_array($arguments)) {
             $this->arguments = func_get_args();
         } else {

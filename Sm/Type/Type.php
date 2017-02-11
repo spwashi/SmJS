@@ -5,7 +5,7 @@
  * Time: 8:46 PM
  */
 
-namespace Sm\Types;
+namespace Sm\Type;
 
 
 use Sm\Abstraction\Resolvable\Arguments;

@@ -24,13 +24,13 @@ use Sm\Resolvable\ResolvableFactory;
  * @coupled \Sm\Abstraction\Resolvable\Resolvable
  */
 class IoC implements Registry {
-    protected $registry = [ ];
+    protected $registry = [];
     /**
      * @var \Sm\Abstraction\Factory\Factory
      */
     protected $ResolvableFactory    = null;
-    protected $_registered_defaults = [ ];
-    protected $app_resolved         = [ ];
+    protected $_registered_defaults = [];
+    protected $app_resolved         = [];
     
     public function __construct() {
         $this->ResolvableFactory = new ResolvableFactory;
@@ -111,7 +111,7 @@ class IoC implements Registry {
     public function resolve($name = null, $arguments = null) {
         $args = func_get_args();
         array_shift($args);
-        $arguments = $arguments instanceof Arguments ? $arguments : new Arguments($args);
+        $arguments = Arguments::coerce($arguments, $args);
         $item      = $this->getItem($name);
         
         if (!($item instanceof Resolvable)) return $item;
@@ -124,7 +124,7 @@ class IoC implements Registry {
     public static function init() { return new static; }
     protected function cloneRegistry() {
         $registry     = $this->registry;
-        $new_registry = [ ];
+        $new_registry = [];
         foreach ($registry as $identifier => $item) {
             if ($identifier) {
                 if (is_object($item)) {

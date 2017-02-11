@@ -14,7 +14,7 @@ class PhpTemplate extends Template {
      *
      * @return string
      */
-    protected function _include($variables = [ ]) :string {
+    protected function _include($variables = []): string {
         $_path_ = $this->resolved_path;
         # This really is only here to be available to the included script
         $App = $this->App ?? null;

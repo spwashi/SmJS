@@ -9,7 +9,7 @@ namespace Sm\Http;
 
 
 class Http {
-    public static $all_http_codes = [ ];
+    public static $all_http_codes = [];
     public static function ___init() {
         if (file_exists(__DIR__ . '/http_codes.json')) {
             $str                    = file_get_contents(__DIR__ . '/http_codes.json');
@@ -17,7 +17,7 @@ class Http {
         }
     }
     public static function message($code) {
-        $response = static::$all_http_codes[ $code ] ?? [ ];
+        $response = static::$all_http_codes[ $code ] ?? [];
         return $response['message'] ?? null;
     }
 }

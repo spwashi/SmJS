@@ -5,7 +5,7 @@
  * Time: 8:27 PM
  */
 
-namespace SmTest\Routing;
+namespace Sm\Test\Routing;
 
 
 use Sm\Request\Request;

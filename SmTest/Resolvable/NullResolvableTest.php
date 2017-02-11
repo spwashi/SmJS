@@ -5,14 +5,14 @@
  * Time: 10:11 AM
  */
 
-namespace SmTest\Resolvable;
+namespace Sm\Test\Resolvable;
 
 use Sm\Resolvable\NullResolvable;
 
 /**
  * Class NullResolvableTest
  *
- * @package SmTest\Resolvable
+ * @package Sm\Resolvable
  */
 class NullResolvableTest extends NativeResolvableTest {
     public function testCanCreate() {
@@ -25,7 +25,7 @@ class NullResolvableTest extends NativeResolvableTest {
             [ "test" ],
             [ 1 ],
             [ null ],
-            [ [ ] ],
+            [ [] ],
         ];
     }
     /**

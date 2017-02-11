@@ -8,11 +8,12 @@
 namespace Sm\Response;
 
 
+use Sm\Abstraction\Formatting\Formattable;
 use Sm\Resolvable\Resolvable;
 use Sm\Type\DateTime_;
 use Sm\Util;
 
-class Response extends Resolvable {
+class Response extends Resolvable implements Formattable {
     const TYPE_TEXT_HTML = 'text/html';
     const TYPE_JSON      = 'application/json';
     #
@@ -80,5 +81,9 @@ class Response extends Resolvable {
     public function setContentType(string $content_type): Response {
         $this->content_type = $content_type;
         return $this;
+    }
+    
+    public function getVariables(): array {
+        return [ 'Response' => $this, ];
     }
 }

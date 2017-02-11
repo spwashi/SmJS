@@ -16,7 +16,18 @@ abstract class _EqualityCondition extends Condition {
     protected $symbol;
     protected $left_side  = null;
     protected $right_side = null;
-    
+    public function __construct($left_side = null, $right_side = null) {
+        if (isset($left_side)) $this->left_side = $left_side;
+        if (isset($right_side)) $this->right_side = $right_side;
+        parent::__construct(null);
+    }
+    public function getVariables(): array {
+        return [
+            'left_side'  => $this->left_side,
+            'right_side' => $this->right_side,
+            'symbol'     => $this->symbol,
+        ];
+    }
     public static function init($left_side = null, $right_side = null) {
         $new = new static;
         
@@ -30,7 +41,6 @@ abstract class _EqualityCondition extends Condition {
     public static function coerce($left_side = null, $right_side = null) {
         return static::init($left_side, $right_side);
     }
-    
     /**
      * Function to see if two values are comparable
      *

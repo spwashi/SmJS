@@ -8,10 +8,10 @@
 namespace Sm\Condition;
 
 
+use Sm\Abstraction\Formatting\Formattable;
 use Sm\Resolvable\Resolvable;
 
-class Condition extends Resolvable {
-    
+abstract class Condition extends Resolvable implements Formattable {
     /**
      * Return the final result of the Resolvable (as of now)
      *

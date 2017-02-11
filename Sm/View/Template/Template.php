@@ -8,11 +8,12 @@
 namespace Sm\View\Template;
 
 
+use Sm\Abstraction\Formatting\Formatter;
 use Sm\App\App;
 use Sm\Resolvable\Resolvable;
 use Sm\Resolvable\StringResolvable;
 
-abstract class Template extends Resolvable {
+abstract class Template extends Resolvable implements Formatter {
     protected $content_type;
     protected $resolved_path    = null;
     protected $path_is_absolute = false;
@@ -48,7 +49,7 @@ abstract class Template extends Resolvable {
      *
      * @return string
      */
-    public function resolve($variables = []) {
+    public function resolve(array $variables = []) {
         $this->_resolvePath();
         if (isset($this->error)) {
             $e           = $this->error;
@@ -99,7 +100,7 @@ abstract class Template extends Resolvable {
         $_path_ = $this->subject;
         # We must have an app in order for the path to be relative to something!
         if (!isset($this->App)) $this->path_is_absolute = true;
-    
+        
         # If the path isn't a string, we don't know what to do with it
         if (!is_string($_path_)) {
             $_path_      = StringResolvable::coerce($_path_);

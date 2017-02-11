@@ -113,7 +113,7 @@ class View extends Response {
      *
      * @return array
      */
-    protected function getVariables() {
+    public function getVariables(): array {
         $vars = [];
         
         # Get the variables from the subject

@@ -9,7 +9,6 @@ namespace Sm\Routing;
 
 
 use Sm\Abstraction\Coercable;
-use Sm\Abstraction\Resolvable\Arguments;
 use Sm\Abstraction\Resolvable\Resolvable;
 use Sm\Request\Request;
 use Sm\Resolvable\Error\UnresolvableError;
@@ -33,6 +32,8 @@ class Route implements Resolvable, Coercable, \JsonSerializable {
                 if ($Request instanceof Request) {
                     $App        = $Request->getApp();
                     $resolution = str_replace('#', $App ? $App->controller_namespace : '', $resolution);
+                } else {
+                    var_dump($Request);
                 }
                 $resolution_expl = explode('::', $resolution);
                 $class_name      = $resolution_expl[0];
@@ -108,9 +109,9 @@ class Route implements Resolvable, Coercable, \JsonSerializable {
             }
     
             if ($this->matches($Request)) {
-                $Arguments = $this->getArgumentsFromString($Request->getUrlPath());
-                $Arguments->unshift($Request, 'Request');
-                $res = $this->Resolution->resolve($Arguments);
+                $arguments = $this->getArgumentsFromString($Request->getUrlPath());
+                array_unshift($arguments, $Request);
+                $res = $this->Resolution->resolve(...array_values($arguments));
                 return $res;
             } else {
                 throw new UnresolvableError("Cannot match the route");
@@ -209,14 +210,17 @@ class Route implements Resolvable, Coercable, \JsonSerializable {
     }
     private function getArgumentsFromString(string $item) {
         preg_match("~^{$this->pattern}~x", $item, $matches);
-        if (!count($matches)) return new Arguments();
+        if (!count($matches)) return [];
         array_shift($matches);
-        $Arguments = new Arguments;
+        $Arguments = [];
         foreach ($this->parameters as $parameter_name) {
             if (!count($matches)) continue;
-            $Arguments->push(array_shift($matches), $parameter_name);
+            $parameter_value = array_shift($matches);
+    
+            if ($parameter_name) $Arguments[ $parameter_name ] = $parameter_value;
+            else                 $Arguments[] = $parameter_value;
         }
-        if (count($matches)) $Arguments->push($matches);
+        if (count($matches)) $Arguments = array_merge($Arguments, $matches);
         return $Arguments;
     }
 }

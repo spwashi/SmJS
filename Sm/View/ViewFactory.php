@@ -19,7 +19,7 @@ class ViewFactory extends Factory {
      *
      * @return View
      */
-    public function build($operand) {
+    public function build($operand = null) {
         if ($operand instanceof View) return $operand;
         if ($operand instanceof Viewable) return $operand->toView();
         return View::init($operand);

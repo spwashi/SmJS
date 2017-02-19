@@ -13,7 +13,6 @@ namespace Sm\IoC;
 
 use Sm\Abstraction\Factory\Factory;
 use Sm\Abstraction\Registry;
-use Sm\Abstraction\Resolvable\Arguments;
 use Sm\Abstraction\Resolvable\Resolvable;
 use Sm\Resolvable\ResolvableFactory;
 
@@ -30,14 +29,12 @@ class IoC implements Registry {
      */
     protected $ResolvableFactory    = null;
     protected $_registered_defaults = [];
-    protected $app_resolved         = [];
     
     public function __construct() {
         $this->ResolvableFactory = new ResolvableFactory;
     }
     #  Constructors/Initializers
     #-----------------------------------------------------------------------------------
-    
     public function setResolvableFactory(Factory $ResolvableFactory) {
         $this->ResolvableFactory = $ResolvableFactory;
         return $this;
@@ -103,20 +100,18 @@ class IoC implements Registry {
         return $this;
     }
     /**
-     * @param string $name          The name of whatever we are going to resolve
-     * @param mixed  $arguments,... The arguments to whatever is being resolved (passed in as arguments after the first)
+     * @param string $name The name of whatever we are going to resolve
      *
      * @return mixed|null
      */
-    public function resolve($name = null, $arguments = null) {
+    public function resolve($name = null) {
         $args = func_get_args();
         array_shift($args);
-        $arguments = Arguments::coerce($arguments, $args);
-        $item      = $this->getItem($name);
+        $item = $this->getItem($name);
         
         if (!($item instanceof Resolvable)) return $item;
         
-        return $item->resolve($arguments);
+        return $item->resolve(...$args);
     }
     public function canResolve($name) {
         return null !== ($this->getItem($name));

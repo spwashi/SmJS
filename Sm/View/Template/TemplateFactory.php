@@ -11,7 +11,6 @@ namespace Sm\View\Template;
 use Sm\Factory\Factory;
 
 class TemplateFactory extends Factory {
-    
     /**
      * Return whatever this factory refers to based on some sort of operand
      *
@@ -19,7 +18,7 @@ class TemplateFactory extends Factory {
      *
      * @return Template
      */
-    public function build($operand) {
+    public function build($operand = null) {
         if ($operand instanceof Template) return $operand;
         return new PhpTemplate(is_string($operand) ? $operand : null);
     }

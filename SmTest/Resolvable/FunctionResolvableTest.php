@@ -7,7 +7,6 @@
 
 namespace Sm\Test\Resolvable;
 
-use Sm\Abstraction\Resolvable\Arguments;
 use Sm\App\App;
 use Sm\Resolvable\FunctionResolvable;
 
@@ -56,8 +55,6 @@ class FunctionResolvableTest extends ResolvableTest {
     
     public function testCanHandleArgumentsCorrectly() {
         $Resolvable = new FunctionResolvable(function ($one, $two, $three = 1) { return $one + $two + $three; });
-        $this->assertEquals(5, $Resolvable->resolve(new Arguments(1, 1, 3)));
-        $this->assertEquals(6, $Resolvable->resolve(new Arguments([ 2, 1, 3 ])));
         $this->assertEquals(6, $Resolvable->resolve(1, 2, 3));
     }
     

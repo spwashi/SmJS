@@ -31,17 +31,17 @@ class Router implements Registry {
     public function __get($name) {
         return $this->resolve($name);
     }
-    public function register($identifier, $registrand = null) {
-        if (is_array($identifier)) {
-            foreach ($identifier as $index => $item) {
+    public function register($name, $registrand = null) {
+        if (is_array($name)) {
+            foreach ($name as $index => $item) {
                 $this->register($index, $item);
             }
             return $this;
         } else if (!($registrand instanceof Route)) {
             $registrand = Route::coerce($registrand);
         }
-        if (is_string($identifier))
-            $this->routes[ $identifier ] = $registrand;
+        if (is_string($name))
+            $this->routes[ $name ] = $registrand;
         else
             $this->routes[] = $registrand;
         return $this;

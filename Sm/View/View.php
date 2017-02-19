@@ -10,7 +10,6 @@ namespace Sm\View;
 
 use Sm\App\App;
 use Sm\Request\Request;
-use Sm\Resolvable\ResolvableFactory;
 use Sm\Response\Response;
 use Sm\View\Template\Error\MalformedTemplateError;
 use Sm\View\Template\Template;
@@ -30,9 +29,6 @@ class View extends Response {
     /** @var  App $App */
     protected $App;
     
-    public function __construct($subject = null) {
-        parent::__construct($subject);
-    }
     
     #  Public methods
     #-----------------------------------------------------------------------------------
@@ -58,7 +54,7 @@ class View extends Response {
         
         # If we don't have a template, convert whatever it is into a string
         if (!$Template)
-            return "" . $this->_getResolvableFactory()->build($this->subject);
+            return "" . $this->getResolvableFactory()->build($this->subject);
         
         # Resolve the template with the variables this View should get
         return $Template->resolve($this->getVariables());
@@ -122,13 +118,14 @@ class View extends Response {
         } else if (is_object($this->subject)) {
             $vars = get_class_vars($this->subject);
         }
-        
         # Get the ViewFactory used to build the Views. This is dependent on the App;
         $ViewFactory = $this->_getViewFactory();
         
         # Create Views from the Values
-        foreach ($vars as $k => $val)
-            $vars[ $k ] = $ViewFactory->build($val)->resolve();
+        foreach ($vars as $k => $val) {
+            $built_view = $ViewFactory->build($val)->resolve();
+            if (strlen("{$built_view}")) $vars[ $k ] = $built_view;
+        }
         
         
         return $vars;
@@ -154,16 +151,5 @@ class View extends Response {
         if (isset($this->App)) $TemplateFactory = $this->App->resolve('template.factory');
         if (!isset($TemplateFactory)) $TemplateFactory = new TemplateFactory;
         return $TemplateFactory;
-    }
-    /**
-     * Get the ResolvableFactory that this instance of the Resolvable will use
-     *
-     * @return ResolvableFactory
-     */
-    private function _getResolvableFactory() {
-        /** @var ResolvableFactory $ResolvableFactory */
-        if (isset($this->App)) $ResolvableFactory = $this->App->resolve('resolvable.factory');
-        if (!isset($ResolvableFactory)) $ResolvableFactory = new ResolvableFactory;
-        return $ResolvableFactory;
     }
 }

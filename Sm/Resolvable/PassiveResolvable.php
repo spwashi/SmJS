@@ -21,14 +21,12 @@ use Sm\Abstraction\Resolvable\Arguments;
 class PassiveResolvable extends Resolvable {
     
     /**
-     * @param Arguments|null|mixed $arguments ,..
+     * @param null|mixed $arguments ,..
      *
      * @return mixed
      */
     public function resolve($arguments = null) {
-        if ($arguments instanceof Arguments && $arguments->length() === 1) {
-            return $arguments->getListedArguments()[0];
-        } else if (is_array($arguments) && count($arguments) === 1) {
+        if (is_array($arguments) && count($arguments) === 1) {
             return $arguments[ key($arguments) ];
         }
         return $arguments;

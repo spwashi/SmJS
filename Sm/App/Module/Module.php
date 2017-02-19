@@ -8,7 +8,6 @@
 namespace Sm\App\Module;
 
 
-use Sm\Abstraction\Resolvable\Arguments;
 use Sm\Abstraction\Resolvable\Resolvable;
 use Sm\App\App;
 use Sm\Resolvable\Error\UnresolvableError;
@@ -26,14 +25,14 @@ class Module extends \Sm\Resolvable\Resolvable implements \Sm\Abstraction\Module
     protected $App;
     
     public function dispatch() {
-        $arguments = Arguments::coerce(func_get_args());
+        $arguments = func_get_args();
         if (!$this->is_init) $this->initialize();
     
         if ($this->has_dispatched) return $this->last_dispatch_result;
         
         if (isset($this->Dispatch)) {
             $this->has_dispatched = true;
-            return $this->last_dispatch_result = $this->Dispatch->resolve($this->App, ...$arguments->_list());
+            return $this->last_dispatch_result = $this->Dispatch->resolve($this->App, ...$arguments);
         } else {
             throw new UnresolvableError("Cannot resolve module");
         }

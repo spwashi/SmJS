@@ -20,9 +20,12 @@ use Sm\Util;
  * @package Sm\Resolvable
  */
 abstract class Resolvable implements \Sm\Abstraction\Resolvable\Resolvable {
+    /** use this trait to create other Resolvables */
+    use ResolvableFactoryHaver;
+    
     const RESOLUTION_MODE_STD   = 1;
     const RESOLUTION_MODE_ARRAY = 2;
-    
+    /** @var  mixed $subject The thing that this Resolvable is wrapping */
     protected $subject;
     
     /**
@@ -32,6 +35,15 @@ abstract class Resolvable implements \Sm\Abstraction\Resolvable\Resolvable {
      */
     public function __construct($subject = null) {
         $this->setSubject($subject);
+    }
+    /**
+     * Get the subject of the Resolvable (The thing that this Resolvable is wrapping)
+     *
+     * @see Resolvable::$subject
+     * @return mixed
+     */
+    public function getSubject() {
+        return $this->subject;
     }
     /**
      * Set the subject that the Resolvable is going to use as a reference

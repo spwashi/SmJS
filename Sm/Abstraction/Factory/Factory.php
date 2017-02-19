@@ -12,9 +12,9 @@ interface Factory {
     /**
      * Return whatever this factory refers to based on some sort of operand
      *
-     * @param $operand
      *
      * @return mixed
      */
-    public function build($operand);
+    public function build();
+    public function register($item);
 }

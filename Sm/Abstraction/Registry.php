@@ -9,7 +9,7 @@ namespace Sm\Abstraction;
 
 
 interface Registry {
-    public function register($identifier, $registrand = null);
+    public function register($name, $registrand = null);
     public function resolve();
     public function __get($name);
 }

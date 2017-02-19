@@ -8,7 +8,6 @@
 namespace Sm\Type;
 
 
-use Sm\Abstraction\Resolvable\Arguments;
 use Sm\Resolvable\Resolvable;
 use Sm\Resolvable\ResolvableFactory;
 
@@ -20,7 +19,7 @@ class Type extends Resolvable implements \JsonSerializable {
         parent::__construct($subject);
     }
     /**
-     * @param Arguments|null|mixed $_ ,..
+     * @param null|mixed $_ ,..
      *
      * @return mixed
      */

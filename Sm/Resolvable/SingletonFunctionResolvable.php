@@ -8,8 +8,6 @@
 namespace Sm\Resolvable;
 
 
-use Sm\Abstraction\Resolvable\Arguments;
-
 /**
  * Class SingletonFunctionResolvable
  *
@@ -37,17 +35,17 @@ class SingletonFunctionResolvable extends FunctionResolvable {
         $this->last_value      = null;
         return $this;
     }
-    public function resolve($arguments = null) {
-        $arguments = Arguments::coerce($arguments, func_get_args());
+    public function resolve() {
+        $arguments = func_get_args();
         
         # If we've already called this function, we don't need to bother trying to call it again
         if ($this->has_been_called) {
             return $this->last_value;
         } else {
-            $new_result            = call_user_func([
-                                                        $this,
-                                                        'parent::resolve',
-                                                    ], $arguments);
+            $new_result            = call_user_func_array([
+                                                              $this,
+                                                              'parent::resolve',
+                                                          ], $arguments);
             $this->has_been_called = true;
             return ($this->last_value = $new_result);
         }

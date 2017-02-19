@@ -10,7 +10,6 @@ use Sm\Output\Output;
 
 //<editor-fold desc="TESTING PURPOSES ONLY">
 ini_set('display_errors', 1);
-
 ini_set('display_startup_errors', 1);
 ini_set('xdebug.var_display_max_depth', 10);
 ini_set('xdebug.var_display_max_children', 256);
@@ -27,7 +26,7 @@ require_once BASE_PATH . 'Sm/config/autoload.php';
 
 /** @var App $App */
 $App                = App::init();
-$App->Modules->_app = include APP_MODULE ??[ ];
+$App->Modules->_app = include APP_MODULE ??[];
 
 /** @var Module $RoutingModule */
 $RoutingModule = $App->Modules->routing;

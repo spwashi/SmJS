@@ -12,7 +12,7 @@ use Sm\Abstraction\Resolvable\Resolvable;
 use Sm\Factory\Factory;
 
 class ResolvableFactory extends Factory {
-    public function build($subject) {
+    public function build($subject = null) {
         if ($subject instanceof Resolvable) return $subject;
         if (!is_callable($subject)) {
             if (is_string($subject)) return new StringResolvable($subject);

@@ -5,10 +5,7 @@
  * Time: 2:42 PM
  */
 
-namespace Sm\Condition\Equality;
-
-
-use Sm\Condition\EqualityCondition\EqualToCondition;
+namespace Sm\Condition\EqualityCondition;
 
 
 class EqualToConditionTest extends \PHPUnit_Framework_TestCase {

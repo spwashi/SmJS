@@ -12,13 +12,6 @@ use Sm\Factory\Factory;
 
 class EntityFactory extends Factory {
     
-    /**
-     * Return whatever this factory refers to based on some sort of operand
-     *
-     * @param $operand
-     *
-     * @return mixed
-     */
     public function build($operand = null) {
         return new Entity;
     }

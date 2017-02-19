@@ -27,6 +27,7 @@ use Sm\Routing\Router;
  * @property string          $controller_namespace
  */
 class App extends IoC {
+    protected $app_resolved = [];
     #  Constructors/Initializers
     #-----------------------------------------------------------------------------------
     public function __construct() {
@@ -67,10 +68,10 @@ class App extends IoC {
         $Duplicate->Modules = $this->Modules->duplicate($Duplicate);
         return $Duplicate;
     }
-    public function register($identifier, $registrand = null, $register_with_app = false) {
-        if ($register_with_app) $this->app_resolved[] = $identifier;
+    public function register($name = null, $registrand = null, $register_with_app = false) {
+        if ($register_with_app) $this->app_resolved[] = $name;
         if ($registrand instanceof NativeResolvable) $registrand = $registrand->resolve();
-        return parent::register($identifier, $registrand);
+        return parent::register($name, $registrand);
     }
     public function register_defaults($name, $registrand = null, $register_with_app = false) {
         if ($register_with_app) {
@@ -85,21 +86,18 @@ class App extends IoC {
         return parent::register_defaults($name, $registrand);
     }
     /**
-     * @param null            $identifier
-     * @param Arguments|mixed $arguments
+     * @param null  $identifier
+     * @param mixed $arguments
      *
      * @return static|mixed|Module
      */
     public function resolve($identifier = null, $arguments = null) {
-        $arguments = Arguments::coerce(func_get_args());
-        $arguments->shift();
-        
-        if ($arguments instanceof Arguments) {
-            if (array_key_exists($identifier, $this->app_resolved)) $arguments->unshift($this, 'App');
-        }
-        
+        $arguments = func_get_args();
+        #If
+        if (array_key_exists($identifier, $this->app_resolved))
+            array_splice($arguments, 1, 0, [ $this ]);
         return $this->canResolve($identifier)
-            ? parent::resolve($identifier, $arguments)
+            ? parent::resolve(...$arguments)
             : null;
     }
     public function __debugInfo() {

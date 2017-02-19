@@ -8,7 +8,6 @@
 namespace Sm\Test\Routing;
 
 
-use Sm\Abstraction\Resolvable\Arguments;
 use Sm\Request\Request;
 use Sm\Resolvable\PassiveResolvable;
 use Sm\Resolvable\StringResolvable;
@@ -69,15 +68,6 @@ class RouteTest extends \PHPUnit_Framework_TestCase {
         $Route->setResolution(PassiveResolvable::init());
         $Request = Request::coerce('http://spwashi.com/api/pages/test/10');
         
-        
-        /** @var Arguments $result */
-        $result = $Route->resolve($Request);
-        
-        $this->assertInstanceOf(Arguments::class, $result);
-        $this->assertEquals('pages', $result->getParameter('test'));
-        $this->assertEquals('10', $result->getParameter('id'));
-    
-    
         $Route = Route::coerce([ '11' => StringResolvable::coerce('hello') ]);
         $Route->resolve(Request::coerce('11'));
         

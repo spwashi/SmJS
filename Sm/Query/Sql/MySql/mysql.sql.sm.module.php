@@ -26,15 +26,15 @@ $SqlModule = SqlModule::init(function (App $App, SqlModule $SqlModule) {
 $dispatch  = function (App $App, SqlModule $self) {
     /** @var EvaluableStatementFactory $_ */
     $_ = $App->Factories->resolve(EvaluableStatementFactory::class);
-    
-    # todo this is part of a test
-    
-    $Condition_One = $_(LessThanCondition::class)->set(1, Variable_::init("title"));
-    $Condition_Two = $_(GreaterThanCondition::class)->set(Variable_::init("name"), 5);
-    $And           = $_(And_::class)->set($Condition_One, $Condition_Two);
+    # region todo this is part of a test
+    $and           = function () use ($_) { return $_(And_::class)->set(...func_get_args()); };
+    $greater       = function () use ($_) { return $_(GreaterThanCondition::class)->set(...func_get_args()); };
+    $less          = function () use ($_) { return $_(LessThanCondition::class)->set(...func_get_args()); };
+    $Condition_One = $less(1, Variable_::init("title"));
+    $Condition_Two = $greater(Variable_::init("name"), 5);
+    $And           = $and($Condition_One, $Condition_Two);
     $result        = $self->format($And);
-    
-    
+    # endregion
 };
 $SqlModule->setDispatch(FunctionResolvable::coerce($dispatch));
 

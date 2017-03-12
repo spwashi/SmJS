@@ -5,10 +5,8 @@
  * Time: 8:58 PM
  */
 
-namespace Sm\Test\Abstraction\Resolvable;
+namespace Sm\Abstraction\Resolvable;
 
-
-use Sm\Abstraction\Resolvable\Resolvable;
 
 class ResolvableTest extends \PHPUnit_Framework_TestCase {
     public function testExists() {

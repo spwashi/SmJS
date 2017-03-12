@@ -9,10 +9,25 @@ namespace Sm\System_;
 
 
 use Sm\Factory\Factory;
+use Sm\Factory\FactoryContainer;
+use Sm\Logger\LoggerFactory;
 
 class System_ {
     protected static $log_buffers = [];
     protected static $factories   = [];
+    /** @var  \Sm\Factory\FactoryContainer $FactoryContainer */
+    protected static $FactoryContainer;
+    
+    /**
+     * Logging capabilities for the whole system.
+     *
+     * @return \Monolog\Logger
+     */
+    public static function Log() {
+        $args = func_get_args();
+        if (count($args)) array_unshift($args, 'System');
+        return static::Factory(LoggerFactory::class)->build(...$args);
+    }
     
     public static function reset_defaults() {
         if (file_exists(__DIR__ . '/_initialize.php')) {
@@ -30,55 +45,19 @@ class System_ {
      * @param \Sm\Factory\Factory $instance
      */
     public static function registerFactory(string $root_class, Factory $instance) {
-        if (!isset(static::$factories[ $root_class ])) static::$factories[ $root_class ] = [];
-        array_unshift(static::$factories[ $root_class ], $instance);
+        static::$FactoryContainer->register($root_class, $instance);
     }
+    
     public static function Factory(string $root_class): Factory {
-        /** @var Factory[] $Factories */
-        $Factories = static::$factories[ $root_class ] ?? [];
-        
-        /**
-         * Method to either return the completed Object or to return null;
-         *
-         * @return null
-         */
-        $attempt_build_method = function () use ($Factories) {
-            foreach ($Factories as $LastFactory) {
-                $result = $LastFactory->attempt_build(...func_get_args());
-                if ($result) return $result;
-            }
-            return null;
-        };
-        
-        /**
-         * Function to try to build something
-         *
-         * @return null
-         */
-        $build_method = function () use ($Factories, $attempt_build_method) {
-            $result = $attempt_build_method(...func_get_args());
-            if ($result) return $result;
-            $LastFactory = $Factories[ count($Factories) - 1 ] ?? null;
-            return $LastFactory ? $LastFactory->build(...func_get_args()) : null;
-        };
-        
-        /** @var Factory $Factory */
-        $Factory = new class($build_method, $attempt_build_method) extends Factory {
-            protected $build_method         = null;
-            protected $attempt_build_method = null;
-            public function __construct($build_method, $attempt_build_method) {
-                $this->build_method         = $build_method;
-                $this->attempt_build_method = $attempt_build_method;
-            }
-            public function build() {
-                return call_user_func_array($this->build_method, func_get_args());
-            }
-            public function attempt_build() {
-                return call_user_func_array($this->attempt_build_method, func_get_args());
-            }
-        };
-        return $Factory;
+        return static::$FactoryContainer->resolve($root_class);
+    }
+    /**
+     * @param \Sm\Factory\FactoryContainer $FactoryContainer
+     */
+    public static function setFactoryContainer(FactoryContainer $FactoryContainer) {
+        self::$FactoryContainer = $FactoryContainer;
     }
 }
 
+System_::setFactoryContainer(new FactoryContainer);
 System_::reset_defaults();

@@ -5,10 +5,9 @@
  * Time: 2:27 PM
  */
 
-namespace Sm\Test\App\Module;
+namespace Sm\App\Module;
 
 
-use Sm\App\Module\Module;
 use Sm\Resolvable\StringResolvable;
 
 class ModuleTest extends \PHPUnit_Framework_TestCase {
@@ -27,5 +26,11 @@ class ModuleTest extends \PHPUnit_Framework_TestCase {
         
         $this->assertEquals('Hello', $result);
         $this->assertEquals(1, $number);
+    
+        $Module = Module::coerce([
+                                     'init' => function ($App, $self) {
+                                         $this->assertInstanceOf(Module::class, $self);
+                                     } ]);
+        $Module->dispatch();
     }
 }

@@ -23,22 +23,32 @@ class FactoryTest extends \PHPUnit_Framework_TestCase {
         $Factory->register($return_eleven);
         $response = $Factory->build();
         $this->assertEquals(11, $response);
-        
-        $add_1   = function (int $int) { return $int + 1; };
+    
+    
         $Factory = new Factory();
+    
+        $add_1 = function (int $int) { return $int + 1; };
         $Factory->register($add_1);
-        $response = $Factory->build(2);
-        $this->assertEquals(3, $response);
-        $response = $Factory->build(1);
-        $this->assertNotEquals(3, $response);
+        $response_1 = $Factory->build(2);
+        $response_2 = $Factory->build(1);
+        $this->assertEquals(3, $response_1);
+        $this->assertNotEquals(3, $response_2);
         
         $Mock = $this->getMockBuilder(\stdClass::class)
                      ->setMethods([ 'test' ])->getMock();
         $Mock->method('test')->willReturn('test_works');
-        
+    
+        ###
         $Factory = new Factory();
         $Factory->register($Mock, \stdClass::class);
+    
         $MockFromFactory = $Factory->build(\stdClass::class);
         $this->assertEquals('test_works', $MockFromFactory->test());
+    
+        ###
+        $Factory = new Factory();
+        $Factory->register(function () { return 'hello'; }, \stdClass::class);
+        $this->assertEquals('hello', $Factory->build(new \stdClass));
+        
     }
 }

@@ -10,6 +10,7 @@ namespace Sm\App;
 
 use Sm\Abstraction\Resolvable\Arguments;
 use Sm\App\Module\Module;
+use Sm\Factory\FactoryContainer;
 use Sm\IoC\IoC;
 use Sm\Request\Request;
 use Sm\Resolvable\FunctionResolvable;
@@ -19,12 +20,13 @@ use Sm\Routing\Router;
 /**
  * Class App
  *
- * @property PathContainer   $Paths
- * @property ModuleContainer $Modules
- * @property string          $name
- * @property Request         $Request
- * @property Router          $Router
- * @property string          $controller_namespace
+ * @property PathContainer    $Paths
+ * @property ModuleContainer  $Modules
+ * @property string           $name
+ * @property Request          $Request
+ * @property Router           $Router
+ * @property string           $controller_namespace
+ * @property FactoryContainer $Factories
  */
 class App extends IoC {
     protected $app_resolved = [];
@@ -32,8 +34,9 @@ class App extends IoC {
     #-----------------------------------------------------------------------------------
     public function __construct() {
         parent::__construct();
-        $this->Paths   = PathContainer::init()->setApp($this);
-        $this->Modules = ModuleContainer::init()->setApp($this);
+        $this->Paths     = PathContainer::init()->setApp($this);
+        $this->Modules   = ModuleContainer::init()->setApp($this);
+        $this->Factories = FactoryContainer::init();
         $this->Paths->register_defaults(
             [
                 'base_path'   =>
@@ -63,9 +66,10 @@ class App extends IoC {
     }
     public function duplicate() {
         /** @var App $Duplicate */
-        $Duplicate          = parent::duplicate();
-        $Duplicate->Paths   = $this->Paths->duplicate()->setApp($Duplicate);
-        $Duplicate->Modules = $this->Modules->duplicate($Duplicate);
+        $Duplicate            = parent::duplicate();
+        $Duplicate->Paths     = $this->Paths->duplicate()->setApp($Duplicate);
+        $Duplicate->Modules   = $this->Modules->duplicate($Duplicate);
+        $Duplicate->Factories = $this->Factories->duplicate();
         return $Duplicate;
     }
     public function register($name = null, $registrand = null, $register_with_app = false) {

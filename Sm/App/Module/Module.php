@@ -27,7 +27,8 @@ class Module extends \Sm\Resolvable\Resolvable implements \Sm\Abstraction\Module
     public function dispatch() {
         $arguments = func_get_args();
         if (!$this->is_init) $this->initialize();
-    
+        $this->assertComplete();
+        
         if ($this->has_dispatched) return $this->last_dispatch_result;
         
         if (isset($this->Dispatch)) {
@@ -59,7 +60,7 @@ class Module extends \Sm\Resolvable\Resolvable implements \Sm\Abstraction\Module
     public function initialize(App $App = null) {
         if ($this->is_init) return $this;
         if ($this->Init instanceof Resolvable) {
-            $this->Init->resolve($this->App ?? $App ?? null);
+            $this->Init->resolve($this->App ?? $App ?? null, $this);
         }
         $this->is_init = true;
         return $this;
@@ -85,6 +86,8 @@ class Module extends \Sm\Resolvable\Resolvable implements \Sm\Abstraction\Module
         if (is_array($item)) {
             $init = $item['init'] ?? null;
             $item = $item['dispatch'] ?? null;
+        } else if (is_callable($item)) {
+            $init = $item;
         }
         if (class_exists('\Sm\Resolvable\ResolvableFactory')) {
             $item = ResolvableFactory::init()->build($item);
@@ -99,5 +102,14 @@ class Module extends \Sm\Resolvable\Resolvable implements \Sm\Abstraction\Module
         }
         $Module->setDispatch($item);
         return $Module;
+    }
+    /**
+     * Throw an error if this class is not complete.
+     *
+     * @throws \Sm\Resolvable\Error\UnresolvableError
+     * @return bool
+     */
+    protected function assertComplete() {
+        return true;
     }
 }

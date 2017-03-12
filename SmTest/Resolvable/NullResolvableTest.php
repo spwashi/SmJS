@@ -5,9 +5,7 @@
  * Time: 10:11 AM
  */
 
-namespace Sm\Test\Resolvable;
-
-use Sm\Resolvable\NullResolvable;
+namespace Sm\Resolvable;
 
 /**
  * Class NullResolvableTest

@@ -5,10 +5,10 @@
  * Time: 2:47 PM
  */
 
-namespace Sm\Test\Resolvable;
+namespace Sm\Resolvable;
 
 
-use Sm\Resolvable\Resolvable;
+use Sm\Factory\FactoryContainer;
 
 class ResolvableTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreate() {
@@ -25,6 +25,15 @@ class ResolvableTest extends \PHPUnit_Framework_TestCase {
                    ->will($this->returnValue('87'));
         
         $this->assertEquals('87', $Resolvable());
+    }
+    public function testCanMakeResolvableFactory() {
+        /** @var Resolvable $Resolvable */
+        $Resolvable = $this->getMockForAbstractClass(Resolvable::class, [ null ]);
+        $this->assertInstanceOf(FactoryContainer::class, $Resolvable->getFactoryContainer());
+        
+        $Resolvable = $this->getMockForAbstractClass(Resolvable::class, [ null ]);
+        $Resolvable->setFactoryContainer(new FactoryContainer);
+        $this->assertInstanceOf(FactoryContainer::class, $Resolvable->getFactoryContainer());
     }
     /**
      * @param Resolvable $Resolvable

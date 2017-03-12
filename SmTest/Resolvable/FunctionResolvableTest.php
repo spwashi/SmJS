@@ -5,10 +5,9 @@
  * Time: 10:11 AM
  */
 
-namespace Sm\Test\Resolvable;
+namespace Sm\Resolvable;
 
 use Sm\App\App;
-use Sm\Resolvable\FunctionResolvable;
 
 class FunctionResolvableTest_Support {
     public function __construct(App $app) {
@@ -49,7 +48,7 @@ class FunctionResolvableTest extends ResolvableTest {
     }
     
     public function testCanResolveClasses() {
-        $Resolvable = new FunctionResolvable('\Sm\Test\Resolvable\FunctionResolvableTest_Support::fn');
+        $Resolvable = new FunctionResolvable('\Sm\Resolvable\FunctionResolvableTest_Support::fn');
         $this->assertTrue('FN' === $Resolvable->resolve());
     }
     

@@ -13,9 +13,10 @@ use Sm\IoC\IoC;
 use Sm\Request\Request;
 
 /**
- * @property Module routing
- * @property Module $_app
- * @property Module test
+ * @property Module                  routing
+ * @property Module                  $_app
+ * @property Module                  test
+ * @property \Sm\Query\Sql\SqlModule sql
  *
  * @method   mixed routing(Request $request)
  */

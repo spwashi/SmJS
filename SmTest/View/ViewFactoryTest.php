@@ -5,10 +5,8 @@
  * Time: 11:23 PM
  */
 
-namespace Sm\Test\View;
+namespace Sm\View;
 
-
-use Sm\View\ViewFactory;
 
 class ViewFactoryTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreate() {

@@ -5,10 +5,8 @@
  * Time: 10:56 PM
  */
 
-namespace Sm\Test\Request;
+namespace Sm\Request;
 
-
-use Sm\Request\Request;
 
 class RequestTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreate() {

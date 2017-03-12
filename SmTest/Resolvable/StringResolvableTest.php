@@ -5,10 +5,8 @@
  * Time: 9:10 PM
  */
 
-namespace Sm\Test\Resolvable;
+namespace Sm\Resolvable;
 
-
-use Sm\Resolvable\StringResolvable;
 
 class StringResolvableTest extends NativeResolvableTest {
     public function testCanCreate() {

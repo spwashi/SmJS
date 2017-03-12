@@ -5,14 +5,12 @@
  * Time: 8:27 PM
  */
 
-namespace Sm\Test\Routing;
+namespace Sm\Routing;
 
 
 use Sm\Request\Request;
 use Sm\Resolvable\FunctionResolvable;
 use Sm\Resolvable\StringResolvable;
-use Sm\Routing\Route;
-use Sm\Routing\Router;
 
 class Example {
     public function returnEleven() {
@@ -44,7 +42,6 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
                 [ 'test' => 'TEST' ],
                 [ '$' =>
                       function () {
-                          var_dump('here');
                           return 'Nothing';
                       },
                 ],

@@ -5,14 +5,13 @@
  * Time: 11:56 AM
  */
 
-namespace Sm\Test\Routing;
+namespace Sm\Routing;
 
 
 use Sm\Request\Request;
 use Sm\Resolvable\PassiveResolvable;
 use Sm\Resolvable\StringResolvable;
 use Sm\Resolvable\UnResolvable;
-use Sm\Routing\Route;
 
 class RouteTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreate() {

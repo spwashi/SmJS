@@ -32,8 +32,6 @@ class Route implements Resolvable, Coercable, \JsonSerializable {
                 if ($Request instanceof Request) {
                     $App        = $Request->getApp();
                     $resolution = str_replace('#', $App ? $App->controller_namespace : '', $resolution);
-                } else {
-                    var_dump($Request);
                 }
                 $resolution_expl = explode('::', $resolution);
                 $class_name      = $resolution_expl[0];

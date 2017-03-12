@@ -10,6 +10,7 @@ namespace Sm\View;
 
 use Sm\App\App;
 use Sm\Request\Request;
+use Sm\Resolvable\ResolvableFactory;
 use Sm\Response\Response;
 use Sm\View\Template\Error\MalformedTemplateError;
 use Sm\View\Template\Template;
@@ -54,7 +55,8 @@ class View extends Response {
         
         # If we don't have a template, convert whatever it is into a string
         if (!$Template)
-            return "" . $this->getResolvableFactory()->build($this->subject);
+            return "" . $this->getFactoryContainer()->resolve(ResolvableFactory::class)
+                             ->build($this->subject);
         
         # Resolve the template with the variables this View should get
         return $Template->resolve($this->getVariables());
@@ -75,9 +77,11 @@ class View extends Response {
         }
         
         # Convert the template into a Template
+        /** @var Template $Template */
         $Template =
-            $this->_getTemplateFactory()
+            $this->getFactoryContainer()->resolve(TemplateFactory::class)
                  ->build($_template);
+    
         if ($App = $this->getApp())
             $Template->setApp($App);
         
@@ -119,7 +123,8 @@ class View extends Response {
             $vars = get_class_vars($this->subject);
         }
         # Get the ViewFactory used to build the Views. This is dependent on the App;
-        $ViewFactory = $this->_getViewFactory();
+        /** @var \Sm\View\ViewFactory $ViewFactory */
+        $ViewFactory = $this->getFactoryContainer()->resolve(ViewFactory::class);
         
         # Create Views from the Values
         foreach ($vars as $k => $val) {

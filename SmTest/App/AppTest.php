@@ -5,12 +5,10 @@
  * Time: 11:29 AM
  */
 
-namespace Sm\Test\App;
+namespace Sm\App;
 
 
-use Sm\App\App;
 use Sm\App\Module\Module;
-use Sm\App\PathContainer;
 use Sm\Resolvable\FunctionResolvable;
 use Sm\Routing\Router;
 

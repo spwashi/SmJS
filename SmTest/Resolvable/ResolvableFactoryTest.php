@@ -5,12 +5,8 @@
  * Time: 8:36 PM
  */
 
-namespace Sm\Test\Resolvable;
+namespace Sm\Resolvable;
 
-
-use Sm\Resolvable\NativeResolvable;
-use Sm\Resolvable\ResolvableFactory;
-use Sm\Resolvable\StringResolvable;
 
 class ResolvableFactoryTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreateResolvableFactory() {

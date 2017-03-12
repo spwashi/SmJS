@@ -5,10 +5,9 @@
  * Time: 7:11 PM
  */
 
-namespace Sm\Test\IoC;
+namespace Sm\IoC;
 
 
-use Sm\IoC\IoC;
 use Sm\Resolvable\SingletonFunctionResolvable;
 
 class IoCTest extends \PHPUnit_Framework_TestCase {

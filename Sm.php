@@ -5,6 +5,7 @@
  * Time: 6:39 PM
  */
 define('BASE_PATH', __DIR__ . '/');
+define('SYSTEM_LOG_PATH', __DIR__ . '/logs/');
 define('APP_MODULE', BASE_PATH . '/Sm/App/app.sm.module.php');
 spl_autoload_register(function ($class_string) {
     $class = explode('\\', $class_string);

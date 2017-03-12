@@ -8,9 +8,10 @@
 namespace Sm\System_;
 
 
-use Sm\Entity\EntityFactory;
+use Monolog\Logger;
 use Sm\Resolvable\Resolvable;
 use Sm\Resolvable\ResolvableFactory;
+
 
 class System_Test extends \PHPUnit_Framework_TestCase {
     public function testCanRegisterFactory() {
@@ -21,7 +22,10 @@ class System_Test extends \PHPUnit_Framework_TestCase {
         
         $this->assertInstanceOf(Resolvable::class,
                                 System_::Factory(ResolvableFactory::class)->build());
-        
-        $this->assertNull(System_::Factory(EntityFactory::class)->build());
+    }
+    public function testCanUseLogger() {
+        #todo this is more of an integration-testing thing
+        $Logger = System_::Log('System');
+        $this->assertInstanceOf(Logger::class, $Logger);
     }
 }

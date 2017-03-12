@@ -8,9 +8,9 @@
 namespace Sm\View\Template;
 
 
-use Sm\Factory\Factory;
+use Sm\Formatter\FormatterFactory;
 
-class TemplateFactory extends Factory {
+class TemplateFactory extends FormatterFactory {
     /**
      * Return whatever this factory refers to based on some sort of operand
      *

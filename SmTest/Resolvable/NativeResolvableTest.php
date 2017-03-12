@@ -5,9 +5,7 @@
  * Time: 10:11 AM
  */
 
-namespace Sm\Test\Resolvable;
-
-use Sm\Resolvable\NativeResolvable;
+namespace Sm\Resolvable;
 
 /**
  * Class NativeResolvableTest

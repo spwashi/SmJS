@@ -5,7 +5,7 @@
  * Time: 7:18 PM
  */
 
-namespace Sm\Storage\Query;
+namespace Sm\Query;
 
 
 abstract class Query {

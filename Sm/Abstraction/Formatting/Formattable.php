@@ -9,5 +9,10 @@ namespace Sm\Abstraction\Formatting;
 
 
 interface Formattable {
+    /**
+     * Return the variables that this class deems relevant to the formatter.
+     *
+     * @return array
+     */
     public function getVariables(): array;
 }

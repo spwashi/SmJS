@@ -5,10 +5,8 @@
  * Time: 5:29 PM
  */
 
-namespace Sm\Test\Resolvable;
+namespace Sm\Resolvable;
 
-
-use Sm\Resolvable\DateResolvable;
 
 class DateResolvableTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreate() {

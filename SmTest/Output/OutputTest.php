@@ -5,9 +5,7 @@
  * Time: 10:36 PM
  */
 
-namespace Sm\Test\Output;
-
-use Sm\Output\Output;
+namespace Sm\Output;
 
 ob_start();
 

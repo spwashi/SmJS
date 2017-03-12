@@ -21,7 +21,7 @@ use Sm\IoC\IoC;
  *
  * @method string|boolean base_path (string $path, boolean $do_verify = false)
  * @method string|boolean to_base (string $path, boolean $do_verify = false)
- * @method string|boolean to_config (string $path, boolean $do_verify = false)
+ * od@method string|boolean to_config (string $path, boolean $do_verify = false)
  * @method string|boolean to_template (string $path, boolean $do_verify = false)
  */
 class PathContainer extends IoC {

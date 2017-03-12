@@ -8,6 +8,7 @@
 namespace Sm\Resolvable;
 
 
+use Sm\Factory\FactoryContainer;
 use Sm\Util;
 
 /**
@@ -20,13 +21,13 @@ use Sm\Util;
  * @package Sm\Resolvable
  */
 abstract class Resolvable implements \Sm\Abstraction\Resolvable\Resolvable {
-    /** use this trait to create other Resolvables */
-    use ResolvableFactoryHaver;
     
     const RESOLUTION_MODE_STD   = 1;
     const RESOLUTION_MODE_ARRAY = 2;
     /** @var  mixed $subject The thing that this Resolvable is wrapping */
     protected $subject;
+    /** @var  FactoryContainer $FactoryContainer The FactoryContainer that will be used to resolve other class types */
+    protected $FactoryContainer;
     
     /**
      * Resolvable constructor.
@@ -88,6 +89,20 @@ abstract class Resolvable implements \Sm\Abstraction\Resolvable\Resolvable {
      * @return $this
      */
     public function reset() {
+        return $this;
+    }
+    /**
+     * @return FactoryContainer
+     */
+    public function getFactoryContainer(): FactoryContainer {
+        if ($this->FactoryContainer) {
+            return $this->FactoryContainer;
+        } else {
+            return $this->setFactoryContainer(new FactoryContainer)->getFactoryContainer();
+        }
+    }
+    public function setFactoryContainer(FactoryContainer $FactoryContainer) {
+        $this->FactoryContainer = $FactoryContainer;
         return $this;
     }
     /**

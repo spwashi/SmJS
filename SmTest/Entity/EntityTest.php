@@ -5,10 +5,8 @@
  * Time: 7:14 PM
  */
 
-namespace Sm\Test\Entity;
+namespace Sm\Entity;
 
-
-use Sm\Entity\Entity;
 
 class EntityTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreate() {

@@ -7,11 +7,12 @@
 
 namespace Sm\Query;
 
+use Sm\Abstraction\Factory\HasFactoryContainerTrait;
 use Sm\Error\Error;
 use Sm\Error\UnimplementedError;
 use Sm\Error\WrongArgumentException;
 use Sm\EvaluableStatement\EvaluableStatement;
-use Sm\Resolvable\Resolvable;
+use Sm\Query\Interpreter\QueryInterpreterFactory;
 use Sm\Storage\Source\Exception\UnauthorizedConnectionError;
 use Sm\Storage\Source\NullSource;
 use Sm\Storage\Source\SourceHaver;
@@ -27,12 +28,19 @@ use Sm\Storage\Source\SourceHaver;
  *
  * @method static Query select_(...$items)
  */
-class Query extends Resolvable {
-    protected $select_array = [];
-    protected $update       = [];
-    protected $delete       = [];
-    protected $create       = [];
+class Query {
     
+    use HasFactoryContainerTrait;
+    
+    const QUERY_TYPE_SELECT = 'select';
+    
+    
+    /** @var array $select_array An array of properties or whatever that we want to select */
+    protected $select_array = [];
+    /** @var array $update_array An array of properties that we want to update */
+    protected $update_array = [];
+    /** @var null|string $query_type This is the type of Query we are executing */
+    protected $query_type = null;
     
     protected $conditions = [];
     /**
@@ -44,6 +52,7 @@ class Query extends Resolvable {
      * @throws \Sm\Error\WrongArgumentException
      */
     public function select(...$items) {
+        $this->query_type = $this->query_type ?? static::QUERY_TYPE_SELECT;
         foreach ($items as $index => $item) {
             
             # todo vague error
@@ -78,26 +87,49 @@ class Query extends Resolvable {
         $this->conditions += $items;
         return $this;
     }
-    
-    
     /**
      * Run the Query, delegating subqueries to the proper source
      *
      * @return mixed
      * @throws \Sm\Error\UnimplementedError
      */
-    public function resolve() {
+    public function run() {
         $SourceArray = $this->getSourcesUsed();
         if (count($SourceArray) > 1) throw new UnimplementedError("Cannot query across root sources");
         
         /** @var \Sm\Storage\Source\Source $RootSource The Source that is going to be handling this Query */
-        $RootSource = $SourceArray[ key($SourceArray) ];
-        
-        
+        $RootSource              = $SourceArray[ key($SourceArray) ];
+        $Factories               = $this->getFactoryContainer();
+        $QueryInterpreterFactory = $Factories->resolve(QueryInterpreterFactory::class);
+        /** @var \Sm\Query\Interpreter\QueryInterpreter $QueryInterpreter */
+        $QueryInterpreter = $QueryInterpreterFactory->build($RootSource);
+        if (isset($QueryInterpreter)) return $QueryInterpreter->interpret($this);
         return $this;
     }
-    
-    
+    /**
+     * Get the type of Query we are going to be executing
+     *
+     * @return null|string
+     */
+    public function getQueryType() {
+        return $this->query_type;
+    }
+    /**
+     * Get the array of things that we want to select.
+     *
+     * @return array
+     */
+    public function getSelectArray(): array {
+        return $this->select_array;
+    }
+    /**
+     * Static constructor for Query
+     *
+     * @return static
+     */
+    public static function init() {
+        return new static;
+    }
     /**
      * Allow us to call the standard methods with a shortcut.
      * e.g. Query::init()->select   -->   Query::select()
@@ -159,7 +191,7 @@ class Query extends Resolvable {
      * @return array
      */
     protected function getSourcesUsed(): array {
-        $components = $this->select_array + $this->update + $this->conditions;
+        $components = $this->select_array + $this->update_array + $this->conditions;
         $Sources    = [];
         foreach ($components as $component) {
             if (!($component instanceof SourceHaver)) continue;

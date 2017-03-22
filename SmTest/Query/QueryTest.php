@@ -8,6 +8,7 @@
 namespace Sm\Query;
 
 
+use Sm\App\App;
 use Sm\Entity\EntityType;
 use Sm\Entity\EntityTypeMeta;
 use Sm\Entity\Property\Property;
@@ -59,9 +60,18 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
         $ET         = $this->createEntityTypes();
         $Section    = $ET['Section'];
         $Collection = $ET['Collection'];
-        $Query      = Query::select_($Collection->title,
-                                     $Section->Properties);
-        $Query->resolve();
+        
+        $App                  = App::init()->setName('ExampleApp');
+        $App->Paths->app_path = BASE_PATH . 'SmTest/ExampleApp/';
+        $App->Modules->_app   = include APP_MODULE ??[];
+        
+        
+        $Query = Query::select_($Collection->title,
+                                $Section->Properties)
+                      ->setFactoryContainer($App->Factories);
+        
+        
+        $Query->run();
     }
     protected function getDatabaseSource() {
         $Authentication = MysqlPdoAuthentication::init()

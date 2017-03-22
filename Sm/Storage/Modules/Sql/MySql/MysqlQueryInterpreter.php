@@ -9,7 +9,7 @@ namespace Sm\Storage\Modules\Sql\MySql;
 
 
 use Sm\Query\Query;
-use Sm\Query\QueryInterpreter;
+use Sm\Storage\Modules\Sql\SqlQueryInterpreter;
 
 /**
  * Class MysqlQueryInterpreter
@@ -18,8 +18,9 @@ use Sm\Query\QueryInterpreter;
  *
  * @package Sm\Storage\Modules\Sql\MySql
  */
-class MysqlQueryInterpreter extends QueryInterpreter {
-    public function interpret(Query $Query) {
-    
+class MysqlQueryInterpreter extends SqlQueryInterpreter {
+    protected static function interpret_select(Query $Query) {
+        $objects = [];
+        $Query->getSelectArray();
     }
 }

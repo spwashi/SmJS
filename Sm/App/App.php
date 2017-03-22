@@ -55,6 +55,17 @@ class App extends Container {
                     }),
             ]);
     }
+    /**
+     * Set the name of the Application
+     *
+     * @param $name
+     *
+     * @return $this
+     */
+    public function setName($name) {
+        $this->__set('name', $name);
+        return $this;
+    }
     public function cloneRegistry() {
         $registry = parent::cloneRegistry();
         foreach ($registry as $index => $item) {

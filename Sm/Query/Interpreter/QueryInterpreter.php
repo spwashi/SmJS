@@ -5,7 +5,9 @@
  * Time: 3:33 PM
  */
 
-namespace Sm\Query;
+namespace Sm\Query\Interpreter;
+
+use Sm\Query\Query;
 
 /**
  * Class QueryInterpreter

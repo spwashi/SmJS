@@ -32,6 +32,7 @@ class Factory implements \Sm\Abstraction\Factory\Factory {
      */
     public function attempt_build() {
         $args = func_get_args();
+    
         /** @var string $class_name */
         $class_name = $args[0] ?? null;
     
@@ -45,6 +46,7 @@ class Factory implements \Sm\Abstraction\Factory\Factory {
             } catch (WrongFactoryException $E) {
             }
         }
+    
     
         # Iterate through the other registry to see if there is some sort of different check
         #  being done
@@ -70,6 +72,7 @@ class Factory implements \Sm\Abstraction\Factory\Factory {
      * @param array  $args
      *
      * @return mixed|null
+     * @throws \Sm\Factory\WrongFactoryException
      * @throws \Sm\Resolvable\Error\UnresolvableError
      */
     public function create_class(string $class_name, array $args = []) {

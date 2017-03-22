@@ -12,9 +12,11 @@ use Sm\EvaluableStatement\EqualityCondition\GreaterThanCondition;
 use Sm\EvaluableStatement\EqualityCondition\LessThanCondition;
 use Sm\EvaluableStatement\EvaluableStatementFactory;
 use Sm\Formatter\FormatterFactory;
+use Sm\Query\Interpreter\QueryInterpreterFactory;
 use Sm\Resolvable\FunctionResolvable;
 use Sm\Storage\Modules\Sql\MySql\MysqlDatabaseSource;
 use Sm\Storage\Modules\Sql\MySql\MysqlPdoAuthentication;
+use Sm\Storage\Modules\Sql\MySql\MysqlQueryInterpreter;
 use Sm\Storage\Modules\Sql\SqlModule;
 use Sm\Storage\Source\Database\TableSource;
 use Sm\Type\Variable_\Variable_;
@@ -30,13 +32,16 @@ $SqlModule = SqlModule::init(function (App $App, SqlModule $SqlModule) {
                                                                      '^bzXfxDc!Dl6',
                                                                      'localhost',
                                                                      'factshift');
+    $Authentication->connect();
     $DatabaseSource = MysqlDatabaseSource::init();
     $DatabaseSource->authenticate($Authentication);
-    $fn = function () use ($DatabaseSource) {
-        var_dump($DatabaseSource);
-        return $DatabaseSource;
-    };
     $SqlModule->registerDatabaseSource($DatabaseSource);
+    
+    $App->Factories->resolve(QueryInterpreterFactory::class)->register(function ($item = null) use ($SqlModule) {
+        $Interpreter = new MysqlQueryInterpreter;
+        $Interpreter->setSqlModule($SqlModule);
+        return $Interpreter;
+    }, MysqlDatabaseSource::class);
 });
 $dispatch  = function (App $App, SqlModule $self) {
     /** @var EvaluableStatementFactory $_ */

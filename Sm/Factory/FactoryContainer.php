@@ -30,7 +30,10 @@ class FactoryContainer extends Container {
         if ($_factory_count === 1) return $Factories[0];
         else if ($_factory_count < 2 && class_exists($name)) {
             $_class = new $name;
-            if ($_class instanceof Factory) return new $name;
+            if ($_class instanceof Factory) {
+                if (!$_factory_count) $this->register($name, $_class);
+                return $_class;
+            }
         }
     
         return $this->createFactory($Factories);
@@ -49,11 +52,13 @@ class FactoryContainer extends Container {
         else if (class_exists($name)) return [];
         
         foreach ($this->registry as $index => $item) {
-            if (($exp = explode('\\', $index)) && end($exp) && $exp[ key($exp) ] === $name) {
+            $exp = explode('\\', $index);
+            end($exp);
+            $namespaceless_classname = $exp[ key($exp) ];
+            if ($namespaceless_classname === $name) {
                 return $item;
             }
         }
-        
         
         return [];
     }
@@ -100,6 +105,7 @@ class FactoryContainer extends Container {
                 $this->attempt_build_method = $attempt_build_method;
             }
             public function build() {
+                var_dump(func_get_args());
                 return call_user_func_array($this->build_method, func_get_args());
             }
             public function canCreateClass($item) {

@@ -26,6 +26,8 @@ use Sm\Storage\Source\Database\DatabaseSource;
 class SqlModule extends Module {
     /** @var  FormatterFactory $FormatterFactory */
     protected $FormatterFactory;
+    /** @var  \Sm\Query\Interpreter\QueryInterpreter $QueryInterpreter What's used to interpret Queries for Sql */
+    protected $QueryInterpreter;
     /** @var  \Sm\Container\Container $DatabaseSourceContainer */
     protected $DatabaseSourceContainer;
     /**
@@ -100,6 +102,14 @@ class SqlModule extends Module {
     public function registerDatabaseSource($DatabaseSource, $name = 'default') {
         $this->DatabaseSourceContainer->register($name, $DatabaseSource);
         return $this;
+    }
+    /**
+     * Get the QueryInterpreter used to interpret \Sm\Query\Query ies
+     *
+     * @return \Sm\Query\Interpreter\QueryInterpreter
+     */
+    public function getQueryInterpreter() {
+        return $this->QueryInterpreter;
     }
     protected function assertComplete() {
         if (!isset($this->FormatterFactory) || !($this->FormatterFactory instanceof FormatterFactory)) {

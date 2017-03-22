@@ -44,6 +44,9 @@ return [
         # Load the Routing module
         $routing_module = $App->Paths->to_base('Sm/Routing/routing.sm.module.php');
         if (is_file($routing_module)) $App->Modules->routing = include $routing_module ?? [];
+    
+        $sql_module = $App->Paths->to_base('Sm/Storage/Modules/Sql/MySql/mysql.sql.sm.module.php');
+        if (is_file($sql_module)) $App->Modules->sql = include $sql_module ?? [];
         
         
         return $App;

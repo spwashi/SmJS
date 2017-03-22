@@ -7,7 +7,7 @@
 
 namespace Sm\Logger;
 
-use Sm\IoC\IoC;
+use Sm\Container\Container;
 
 /**
  * Class LoggerContainer
@@ -17,7 +17,7 @@ use Sm\IoC\IoC;
  * @property
  * @package Sm\Logger
  */
-class LoggerContainer extends IoC {
+class LoggerContainer extends Container {
     /**
      * @param null|string|null $name
      *

@@ -10,12 +10,28 @@ namespace Sm\Type\Variable_;
 
 use Sm\Resolvable\Error\UnresolvableError;
 use Sm\Resolvable\Resolvable;
+use Sm\Resolvable\ResolvableFactory;
 
+/**
+ * Class Variable_
+ *
+ * @property string     $name      The name of the Variable_
+ * @property mixed      $value     The resolved value of this Variable_'s subject
+ * @property Resolvable $raw_value The raw, unresolved Resolvable that this Variable_ holds a reference to
+ *
+ * @package Sm\Type\Variable_
+ */
 class Variable_ extends Resolvable {
     /** @var  Resolvable $subject */
     protected $subject;
     protected $name;
     protected $potential_types = [];
+    public function __get($name) {
+        if ($name === 'name') return $this->name;
+        if ($name === 'value') return $this->resolve();
+        if ($name === 'raw_value') return $this->subject;
+        return null;
+    }
     /**
      * Make some things a little bit more convenient
      *
@@ -24,15 +40,9 @@ class Variable_ extends Resolvable {
      */
     public function __set($name, $value) {
         if ($name === 'name' && $value) $this->name = $value;
+        if ($name === 'value') $this->setValue($value);
     }
-    /**
-     * Get the name of the Variable
-     *
-     * @return string
-     */
-    public function __toString() {
-        return $this->name ?? '';
-    }
+    
     /**
      * Get an array of the potential types that this Variable can be
      *
@@ -52,6 +62,7 @@ class Variable_ extends Resolvable {
         $this->potential_types = $potential_types;
         return $this;
     }
+    
     /**
      * Set the value of this Variable. Subject must be
      *
@@ -63,6 +74,9 @@ class Variable_ extends Resolvable {
     public function setSubject($subject) {
         if ($subject === null) return $this;
         # Only deal with Resolvables
+    
+        $subject = $this->getFactoryContainer()->resolve(ResolvableFactory::class)->build($subject);
+        
         if (!($subject instanceof Resolvable)) {
             throw new UnresolvableError("Cannot set Subject to be something that is not resolvable");
         }
@@ -87,12 +101,12 @@ class Variable_ extends Resolvable {
     /**
      * Alias for "set subject"
      *
-     * @param $subject
+     * @param $value
      *
      * @return $this
      */
-    public function setValue($subject) {
-        return $this->setSubject($subject);
+    public function setValue($value) {
+        return $this->setSubject($value);
     }
     /**
      * Return the Value of the Variable or just return the Variable

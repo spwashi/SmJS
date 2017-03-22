@@ -10,8 +10,8 @@ namespace Sm\App;
 
 use Sm\Abstraction\Resolvable\Arguments;
 use Sm\App\Module\Module;
+use Sm\Container\Container;
 use Sm\Factory\FactoryContainer;
-use Sm\IoC\IoC;
 use Sm\Request\Request;
 use Sm\Resolvable\FunctionResolvable;
 use Sm\Resolvable\NativeResolvable;
@@ -28,7 +28,7 @@ use Sm\Routing\Router;
  * @property string           $controller_namespace
  * @property FactoryContainer $Factories
  */
-class App extends IoC {
+class App extends Container {
     protected $app_resolved = [];
     #  Constructors/Initializers
     #-----------------------------------------------------------------------------------
@@ -109,13 +109,16 @@ class App extends IoC {
         $return['Paths'] = $this->Paths;
         return $return;
     }
+    /**
+     * @return \Sm\App\App|static
+     */
     public static function init() {
         return new static;
     }
     public static function coerce($item) {
         $instance = new static();
     
-        if ($item instanceof IoC) $instance->inherit($item);
+        if ($item instanceof Container) $instance->inherit($item);
         else if (is_array($item)) $instance->register($item);
         
         return $instance;

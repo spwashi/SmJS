@@ -19,7 +19,7 @@ class Response extends Resolvable implements Formattable {
     #
     #
     #
-    /** @var DateTime_ $creation_dt The Date_ that this was created */
+    /** @var DateTime_ $creation_dt The Date_ that this response was created */
     public $creation_dt;
     /** @var DateTime_ $access_dt The Date_ that this was last accessed */
     public $access_dt;

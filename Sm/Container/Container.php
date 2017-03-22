@@ -8,22 +8,30 @@
  *
  */
 
-namespace Sm\IoC;
+namespace Sm\Container;
 
 
 use Sm\Abstraction\Factory\Factory;
+use Sm\Abstraction\Iterator\IteratorTrait;
 use Sm\Abstraction\Registry;
 use Sm\Abstraction\Resolvable\Resolvable;
 use Sm\Resolvable\ResolvableFactory;
 
 /**
- * Class IoC
+ * Class Container
  *
- * @package Sm\IoC
+ * @package Sm\Container
+ *
+ * @method Resolvable current()
+ *
+ *
  * @coupled \Sm\Abstraction\Resolvable\Resolvable
  */
-class IoC implements Registry {
+class Container implements Registry, \Iterator {
+    use IteratorTrait;
+    
     protected $registry = [];
+    
     /**
      * @var \Sm\Abstraction\Factory\Factory
      */
@@ -45,15 +53,15 @@ class IoC implements Registry {
      * @return static|$this
      */
     public function duplicate() {
-        $IoC                       = static::init();
-        $registry                  = $this->cloneRegistry();
-        $IoC->_registered_defaults = $this->_registered_defaults;
+        $Container                       = static::init();
+        $registry                        = $this->cloneRegistry();
+        $Container->_registered_defaults = $this->_registered_defaults;
     
     
-        $IoC->register($registry);
-        return $IoC;
+        $Container->register($registry);
+        return $Container;
     }
-    public function inherit(IoC $registry) {
+    public function inherit(Container $registry) {
         $this->register($registry->cloneRegistry());
     }
     public function register_defaults($name, $registrand = null) {
@@ -77,15 +85,24 @@ class IoC implements Registry {
         $this->register($name, $value);
     }
     
+    #  Iterator methods
+    #-----------------------------------------------------------------------------------
+    /**
+     * Get the Key that we are going to iterate on
+     *
+     * @return null|string
+     */
+    public function getRegistryName() {
+        return isset($this->registry) ? 'registry' : null;
+    }
+    
     #  Public Methods
     #-----------------------------------------------------------------------------------
     /**
-     * Register an item or an array of items (indexed by name) as being things that are going to get resolved by this IoC container
+     * Register an item or an array of items (indexed by name) as being things that are going to get resolved by this Container container
      *
      * @param string|array                   $name       Could also be an associative array of whatever we are registering
      * @param Resolvable|callable|mixed|null $registrand Whatever is being registered. Null if we are registering an array
-     *
-     * @param bool                           $register_with_app
      *
      * @return $this
      */
@@ -113,10 +130,27 @@ class IoC implements Registry {
         
         return $item->resolve(...$args);
     }
+    /**
+     * Can we resolve what we're trying to?
+     *
+     * @param $name
+     *
+     * @return bool
+     */
     public function canResolve($name) {
         return null !== ($this->getItem($name));
     }
+    #  Private/Protected methods
+    #-----------------------------------------------------------------------------------
+    /**
+     * @return \Sm\Container\Container|static
+     */
     public static function init() { return new static; }
+    /**
+     * Duplicate the registry for the sake of inheritance
+     *
+     * @return array
+     */
     protected function cloneRegistry() {
         $registry     = $this->registry;
         $new_registry = [];
@@ -131,9 +165,6 @@ class IoC implements Registry {
         }
         return $new_registry;
     }
-    
-    #  Private/Protected methods
-    #-----------------------------------------------------------------------------------
     /**
      * @param mixed $registrand Whatever is being registered
      *
@@ -143,6 +174,8 @@ class IoC implements Registry {
         return isset($this->ResolvableFactory) ? $this->ResolvableFactory->build($registrand) : null;
     }
     /**
+     * Add something to the registry (meant to represent the actual action)
+     *
      * @param string                                $name
      * @param \Sm\Abstraction\Resolvable\Resolvable $item
      *

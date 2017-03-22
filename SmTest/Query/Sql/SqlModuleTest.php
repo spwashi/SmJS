@@ -9,21 +9,39 @@ namespace Sm\Query\Sql;
 
 
 use Sm\App\App;
+use Sm\Storage\Source\Database\DatabaseSource;
 
 class SqlModuleTest extends \PHPUnit_Framework_TestCase {
-    /** @var  App $this ->App */
+    /** @var  App $App */
     protected $App;
     public function setUp() {
         $this->App  = App::init();
-        $sql_module = $this->App->Paths->to_base('Sm/Query/Sql/MySql/mysql.sql.sm.module.php');
+        $sql_module = $this->App->Paths->to_base('Sm/Storage/Modules/Sql/MySql/mysql.sql.sm.module.php');
         
         if (!is_file($sql_module)) return;
         
         $this->App->Modules->sql = include $sql_module ?? [];
     }
-    
+    public function testCanGetDatabaseSource() {
+        $this->assertInstanceOf(DatabaseSource::class,
+                                $this
+                                    ->App
+                                    ->Modules
+                                    ->sql
+                                    ->getDatabaseSource());
+        
+        $this->assertInstanceOf(DatabaseSource::class,
+                                $this
+                                    ->App
+                                    ->Modules
+                                    ->sql
+                                    ->DatabaseSource);
+    }
     public function testCanDispatch() {
-        $SqlModule = $this->App->Modules->sql;
-        $SqlModule->dispatch();
+        $this
+            ->App
+            ->Modules
+            ->sql
+            ->dispatch();
     }
 }

@@ -8,7 +8,7 @@
 namespace Sm\Factory;
 
 
-use Sm\IoC\IoC;
+use Sm\Container\Container;
 
 /**
  * Class FactoryContainer
@@ -16,7 +16,7 @@ use Sm\IoC\IoC;
  *
  * @package Sm\Factory
  */
-class FactoryContainer extends IoC {
+class FactoryContainer extends Container {
     public function register($name = null, $registrand = null, $overwrite = false) {
         # This class stores factories as an array of arrays
         $this->registry[ $name ]   = !$overwrite ? $this->registry[ $name ] ??[] : [];

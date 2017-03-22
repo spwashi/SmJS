@@ -4,3 +4,4 @@ composer.lock
 index.php
 logs/*.log
 logs/*.log.*
+Factshift

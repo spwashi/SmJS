@@ -7,7 +7,7 @@
 
 namespace Sm\App;
 
-use Sm\IoC\IoC;
+use Sm\Container\Container;
 
 
 /**
@@ -24,7 +24,7 @@ use Sm\IoC\IoC;
  * od@method string|boolean to_config (string $path, boolean $do_verify = false)
  * @method string|boolean to_template (string $path, boolean $do_verify = false)
  */
-class PathContainer extends IoC {
+class PathContainer extends Container {
     public $App = null;
     /**
      * @return null

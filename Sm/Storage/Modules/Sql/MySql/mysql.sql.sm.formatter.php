@@ -5,6 +5,7 @@
  * Time: 3:04 PM
  */
 
+use Sm\Entity\Property\Property;
 use Sm\EvaluableStatement\Constructs\ChainableConstruct;
 use Sm\EvaluableStatement\EqualityCondition\EqualityCondition_;
 use Sm\Type\Variable_\Variable_;
@@ -15,6 +16,11 @@ return [
         return null;
     },
     Variable_::class          => function ($item) { return ":$item"; },
+    Property::class           => function (Property $Property) {
+        $Source = $Property->getSource();
+        $name   = $Property->name;
+        return "{$name}";
+    },
     /**
      * AND_, OR_
      */

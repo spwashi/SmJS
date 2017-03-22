@@ -9,18 +9,18 @@ namespace Sm\App;
 
 
 use Sm\App\Module\Module;
-use Sm\IoC\IoC;
+use Sm\Container\Container;
 use Sm\Request\Request;
 
 /**
- * @property Module                  routing
- * @property Module                  $_app
- * @property Module                  test
- * @property \Sm\Query\Sql\SqlModule sql
+ * @property Module                            routing
+ * @property Module                            $_app
+ * @property Module                            test
+ * @property \Sm\Storage\Modules\Sql\SqlModule sql
  *
  * @method   mixed routing(Request $request)
  */
-class ModuleContainer extends IoC {
+class ModuleContainer extends Container {
     public $App = null;
     /**
      * @return null
@@ -45,13 +45,13 @@ class ModuleContainer extends IoC {
      * @return $this|static
      */
     public function duplicate(App $App = null) {
-        $IoC = static::init();
-        if (isset($App)) $IoC->setApp($App);
-        $registry                  = $this->cloneRegistry();
-        $IoC->_registered_defaults = $this->_registered_defaults;
-        $IoC->register($registry, null, false);
-        $IoC->reset();
-        return $IoC;
+        $Container = static::init();
+        if (isset($App)) $Container->setApp($App);
+        $registry                        = $this->cloneRegistry();
+        $Container->_registered_defaults = $this->_registered_defaults;
+        $Container->register($registry, null, false);
+        $Container->reset();
+        return $Container;
     }
     /**
      * @param array|null|string|null                                         $name

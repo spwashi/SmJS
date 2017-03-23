@@ -7,6 +7,9 @@
 
 namespace Sm\Entity;
 
+use Sm\Abstraction\Identifier\HasObjectIdentityTrait;
+use Sm\Abstraction\Identifier\Identifiable;
+use Sm\Abstraction\Identifier\Identifier;
 use Sm\Entity\Property\PropertyContainer;
 
 /**
@@ -16,17 +19,19 @@ use Sm\Entity\Property\PropertyContainer;
  *
  * @package Sm\Entity
  */
-class EntityTypeMeta {
+class EntityTypeMeta implements Identifiable {
+    use HasObjectIdentityTrait;
     /** @var  PropertyContainer $Properties Container for Prototypic properties */
     public $Properties;
     /** @var  string $name The name of the EntityType */
     public $name;
     
     protected function __construct() {
-        $this->Properties = new PropertyContainer;
+        $this->setObjectId(Identifier::generateIdentity($this));
+        $this->Properties = (new PropertyContainer)->setOwner(EntityVariable::init());
     }
     public function __clone() {
-        $this->Properties = clone $this->Properties;
+        $this->Properties = $this->cloneProperties();
     }
     /**
      * Clone the Properties of the EntityType
@@ -34,7 +39,9 @@ class EntityTypeMeta {
      * @return \Sm\Entity\Property\PropertyContainer
      */
     public function cloneProperties() {
-        return clone $this->Properties;
+        $Properties = clone $this->Properties;
+        $Properties->setOwner(EntityVariable::init());
+        return $Properties;
     }
     /**
      * Get the Properties of the EntityType

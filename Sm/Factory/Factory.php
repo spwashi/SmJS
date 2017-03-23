@@ -17,12 +17,24 @@ class Factory implements \Sm\Abstraction\Factory\Factory {
     protected $registry = [];
     /** @var array $class_registry */
     protected $class_registry = [];
+    
+    protected $do_create_missing = true;
+    
     /**
      * @return mixed
      */
     function __invoke() {
         $result = $this->build(...func_get_args());
         return $result;
+    }
+    
+    public function doNotCreateMissing() {
+        $this->do_create_missing = false;
+        return $this;
+    }
+    public function doCreateMissing() {
+        $this->do_create_missing = true;
+        return $this;
     }
     
     /**
@@ -35,6 +47,7 @@ class Factory implements \Sm\Abstraction\Factory\Factory {
     
         /** @var string $class_name */
         $class_name = $args[0] ?? null;
+    
     
         if (is_string($class_name)
             || is_object($class_name) && ($class_name = get_class($class_name))
@@ -50,6 +63,10 @@ class Factory implements \Sm\Abstraction\Factory\Factory {
     
         # Iterate through the other registry to see if there is some sort of different check
         #  being done
+        /**
+         * @var          $index
+         * @var callable $method
+         */
         foreach ($this->registry as $index => $method) {
             $result = $method(...$args);
             if ($result) return $result;
@@ -89,9 +106,9 @@ class Factory implements \Sm\Abstraction\Factory\Factory {
         else if (is_object($actual_class_name)) {
             return clone $actual_class_name;
         }
-        
-        
-        if (!$this->canCreateClass($class_name)) {
+    
+    
+        if (!$this->canCreateClass($class_name) || !$this->do_create_missing) {
             throw new WrongFactoryException("Not allowed to create class of type {$class_name}");
         }
         

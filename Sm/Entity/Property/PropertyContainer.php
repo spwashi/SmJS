@@ -10,6 +10,7 @@ namespace Sm\Entity\Property;
 
 use Sm\Abstraction\ReadonlyTrait;
 use Sm\Container\Container;
+use Sm\Error\Error;
 use Sm\Error\WrongArgumentException;
 
 /**
@@ -19,6 +20,7 @@ use Sm\Error\WrongArgumentException;
  *
  * @package Sm\Entity\Property
  * @method Property current()
+ * @property \Sm\Entity\Property\Property $id
  */
 class PropertyContainer extends Container {
     use ReadonlyTrait;
@@ -123,11 +125,19 @@ class PropertyContainer extends Container {
      */
     public function setOwner(PropertyHaver $PropertyHaver) {
         $this->Owner = $PropertyHaver;
-        
         # Add the owner to each property
-        foreach ($this as $name => $Property) $this->addOwnerToProperty($name);
+        foreach ($this as $name => $Property) {
+            $this->addOwnerToProperty($name);
+        }
         
         return $this;
+    }
+    public function getOwners() {
+        $owners = [];
+        foreach ($this as $index => $property) {
+            $owners = array_merge($owners, $property->getOwners());
+        }
+        return array_unique($owners);
     }
     /**
      * Add an owner to the Property with the following name
@@ -141,6 +151,7 @@ class PropertyContainer extends Container {
             $Property = $name instanceof Property ? $name : $this->resolve($name);
             
             if ($Property) $Property->addOwner($this->Owner);
+            else throw new Error("Cannot find property {$name}");
         }
         return $this;
     }

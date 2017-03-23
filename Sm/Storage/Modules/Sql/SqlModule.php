@@ -18,7 +18,7 @@ use Sm\Storage\Source\Database\DatabaseSource;
 /**
  * Class SqlModule
  *
- * @property-read FormatterFactory                                FormatterFactory
+ * @property-read FormatterFactory                                $FormatterFactory
  * @property-read \Sm\Storage\Source\Database\DatabaseSource|null $DatabaseSource
  *
  * @package Sm\Query\Sql
@@ -86,7 +86,7 @@ class SqlModule extends Module {
      *
      * @param string $name
      *
-     * @return mixed|null
+     * @return DatabaseSource
      */
     public function getDatabaseSource($name = 'default') {
         return $this->DatabaseSourceContainer->resolve($name);

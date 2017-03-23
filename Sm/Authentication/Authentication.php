@@ -35,6 +35,12 @@ abstract class Authentication {
      */
     abstract public function setCredentials();
     /**
+     * @return mixed
+     */
+    public function getConnection() {
+        return $this->connection;
+    }
+    /**
      * Static constructor
      *
      * @return static

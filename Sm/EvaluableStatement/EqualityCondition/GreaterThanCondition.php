@@ -11,7 +11,9 @@ class GreaterThanCondition extends EqualityCondition_ {
     protected $_symbol_ = '>';
     public function getDefaultEvaluator(): callable {
         return function ($vars) {
-            return $vars->left_side > $vars->right_side;
+            if (is_scalar($vars->left_side) && is_scalar($vars->right_side))
+                return $vars->left_side > $vars->right_side;
+            return null;
         };
     }
 }

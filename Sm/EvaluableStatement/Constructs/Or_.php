@@ -11,16 +11,16 @@ use Sm\EvaluableStatement\DeferredEvaluationStatement;
 use Sm\EvaluableStatement\EvaluableStatement;
 
 /**
- * Class And_
+ * Class Or_
  *
- * Represents the "AND" construct. Returns true only if all items return true
+ * Represents the "Or" construct. Returns true only if all items return true
  *
  * @package Sm\EvaluableStatement\Constructs
  */
-class And_ extends EvaluableStatement implements ChainableConstruct {
+class Or_ extends EvaluableStatement implements ChainableConstruct {
     use ChainableBooleanConstruct;
     protected $_items_;
-    protected $_construct_ = 'and';
+    protected $_construct_ = 'Or';
     /**
      * Give us a way to set the variables after we've initialized the class
      *
@@ -38,13 +38,13 @@ class And_ extends EvaluableStatement implements ChainableConstruct {
      */
     protected function getDefaultEvaluator(): callable {
         return function () {
-            $return_value = true;
-            # Iterate through the items to see if all of the statements evaluate to true
+            # Iterate through the items to see if one of the statements evaluate to true
             foreach ($this->_items_ as $item) {
-                if (!($item = $this->valueOf($item))) return false;
-                if ($item instanceof DeferredEvaluationStatement) $return_value = DeferredEvaluationStatement::init($this);
+                $item = $this->valueOf($item);
+                if ($item instanceof DeferredEvaluationStatement) return new DeferredEvaluationStatement($this);
+                else if ($item) return true;
             }
-            return $return_value;
+            return false;
         };
     }
 }

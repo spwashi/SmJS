@@ -26,7 +26,6 @@ class EntityTypeTest extends \PHPUnit_Framework_TestCase {
         $Section->first_name = "hello";
         
         $this->assertEquals("hello", $Section->first_name->value);
-        $this->assertEquals("hello", "$Section->first_name");
     }
     
     public function testCannotSetPropertiesDirectly() {

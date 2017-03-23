@@ -8,6 +8,9 @@
 namespace Sm\Type\Variable_;
 
 
+use Sm\Abstraction\Identifier\HasObjectIdentityTrait;
+use Sm\Abstraction\Identifier\Identifiable;
+use Sm\Abstraction\Identifier\Identifier;
 use Sm\Resolvable\Error\UnresolvableError;
 use Sm\Resolvable\Resolvable;
 use Sm\Resolvable\ResolvableFactory;
@@ -21,11 +24,22 @@ use Sm\Resolvable\ResolvableFactory;
  *
  * @package Sm\Type\Variable_
  */
-class Variable_ extends Resolvable {
+class Variable_ extends Resolvable implements Identifiable {
+    use HasObjectIdentityTrait;
     /** @var  Resolvable $subject */
     protected $subject;
     protected $name;
     protected $potential_types = [];
+    /**
+     * Variable_ constructor.
+     *
+     * @param mixed|null $subject
+     */
+    public function __construct($subject = null) {
+        $this->setObjectId(Identifier::generateIdentity($this));
+        parent::__construct($subject);
+    }
+    
     public function __get($name) {
         if ($name === 'name') return $this->name;
         if ($name === 'value') return $this->resolve();
@@ -74,7 +88,7 @@ class Variable_ extends Resolvable {
     public function setSubject($subject) {
         if ($subject === null) return $this;
         # Only deal with Resolvables
-    
+        
         $subject = $this->getFactoryContainer()->resolve(ResolvableFactory::class)->build($subject);
         
         if (!($subject instanceof Resolvable)) {
@@ -136,5 +150,8 @@ class Variable_ extends Resolvable {
         $Instance       = new static;
         $Instance->name = $name;
         return $Instance;
+    }
+    public static function _($name) {
+        return static::init($name);
     }
 }

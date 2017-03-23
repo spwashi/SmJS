@@ -19,7 +19,45 @@ class Util {
     public static function canBeString($var) {
         return $var === null || is_scalar($var) || is_callable([ $var, '__toString' ]);
     }
+    /**
+     * Get a string with just the characters of the alphabet
+     *
+     * @param bool $both_cases
+     *
+     * @return string
+     */
+    public static function getAlphaCharacters($both_cases = true) {
+        $alpha = 'abcdefghijjlmnopqrstuvwkyz';
+        
+        return $both_cases ? ($alpha . strtoupper($alpha)) : $alpha;
+    }
+    /**
+     * Generate a pseudo random string that is of the length provided using only the characters that are provided
+     *
+     * @param int    $length            The number of characters to make the string
+     * @param string $characters_to_use The characters that are allowed in the string
+     *
+     * @return string THe random string
+     */
+    static function generateRandomString($length, $characters_to_use = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-') {
+        $str   = '';
+        $count = strlen($characters_to_use);
+        while ($length--) {
+            /** Take the character string, pick out a random index between the start and the end, and choose the matching character to go along with it */
+            $str .= $characters_to_use[ mt_rand(0, $count - 1) ];
+        }
+        
+        return $str;
+    }
     
+    /**
+     * Get an array of the classes that an object inherits from. The first indices are the highest ancestors.
+     *
+     * @param      $class_name
+     * @param bool $append_interfaces
+     *
+     * @return array
+     */
     public static function getAncestorClasses($class_name, $append_interfaces = false) {
         $classes = [];
         $class   = $class_name;

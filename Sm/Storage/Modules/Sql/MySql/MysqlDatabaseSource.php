@@ -33,7 +33,6 @@ class MysqlDatabaseSource extends DatabaseSource {
         $this->database_name = $this->database_name ?? $Authentication->getDatabaseName();
         return parent::authenticate($Authentication);
     }
-    
     public function isAuthenticated() {
         return isset($this->Authentication) && $this->Authentication->isValid();
     }

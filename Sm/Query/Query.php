@@ -8,13 +8,14 @@
 namespace Sm\Query;
 
 use Sm\Abstraction\Factory\HasFactoryContainerTrait;
+use Sm\Entity\Property\PropertyContainer;
 use Sm\Error\Error;
 use Sm\Error\UnimplementedError;
 use Sm\Error\WrongArgumentException;
-use Sm\EvaluableStatement\EvaluableStatement;
 use Sm\Query\Interpreter\QueryInterpreterFactory;
 use Sm\Storage\Source\Exception\UnauthorizedConnectionError;
 use Sm\Storage\Source\NullSource;
+use Sm\Storage\Source\Source;
 use Sm\Storage\Source\SourceHaver;
 
 /**
@@ -29,11 +30,9 @@ use Sm\Storage\Source\SourceHaver;
  * @method static Query select_(...$items)
  */
 class Query {
-    
     use HasFactoryContainerTrait;
     
     const QUERY_TYPE_SELECT = 'select';
-    
     
     /** @var array $select_array An array of properties or whatever that we want to select */
     protected $select_array = [];
@@ -41,8 +40,8 @@ class Query {
     protected $update_array = [];
     /** @var null|string $query_type This is the type of Query we are executing */
     protected $query_type = null;
-    
-    protected $conditions = [];
+    /** @var  \Sm\Query\Where $where */
+    protected $where;
     /**
      * Set the Properties that we want to select
      *
@@ -66,13 +65,7 @@ class Query {
                     "Additionally, {$e->getMessage()}");
                 
             }
-            
-            if ($item instanceof SourceHaver) {
-                $this->select_array[] = $item;
-            } else if ($item instanceof \Traversable) {
-                # Append the iterated values
-                $this->select_array += iterator_to_array($item, false);
-            }
+            $this->select_array[] = $item;
         }
         return $this;
     }
@@ -83,21 +76,26 @@ class Query {
      *
      * @return $this
      */
-    public function where(EvaluableStatement ...$items) {
-        $this->conditions += $items;
+    public function where(Where $where) {
+        if (!isset($this->where)) $this->where = $where;
+        else $this->where->_and($where->getCondition());
+        
         return $this;
     }
     /**
      * Run the Query, delegating subqueries to the proper source
      *
      * @return mixed
+     * @throws \Sm\Error\Error
      * @throws \Sm\Error\UnimplementedError
      */
     public function run() {
         $SourceArray = $this->getSourcesUsed();
+    
         if (count($SourceArray) > 1) throw new UnimplementedError("Cannot query across root sources");
-        
-        /** @var \Sm\Storage\Source\Source $RootSource The Source that is going to be handling this Query */
+        else if (!count($SourceArray)) throw new Error("There is no Source to execute this Query.");
+    
+        /** @var Source $RootSource The Source that is going to be handling this Query */
         $RootSource              = $SourceArray[ key($SourceArray) ];
         $Factories               = $this->getFactoryContainer();
         $QueryInterpreterFactory = $Factories->resolve(QueryInterpreterFactory::class);
@@ -121,6 +119,14 @@ class Query {
      */
     public function getSelectArray(): array {
         return $this->select_array;
+    }
+    /**
+     * Get the Where clause of the Query
+     *
+     * @return Where
+     */
+    public function getWhere() {
+        return $this->where;
     }
     /**
      * Static constructor for Query
@@ -152,6 +158,17 @@ class Query {
             if (method_exists($Self, $name)) return call_user_func_array([ $Self, $name ], $arguments);
         }
         throw new Error("There is no method {$name} in this class.");
+    }
+    public static function getRootSourceFromSourceHaver(SourceHaver $SourceHaver) {
+        if (!($SourceHaver instanceof SourceHaver)) return null;
+        $RootSource = $SourceHaver->getSource()->getRootSource();
+        
+        # NullSources don't matter. Skip over them.
+        if ($RootSource instanceof NullSource) return null;
+        
+        
+        $Sources[ $RootSource->getName() ] = $RootSource;
+        return $RootSource;
     }
     /**
      * Functions to check to see if we an select an item.
@@ -191,18 +208,21 @@ class Query {
      * @return array
      */
     protected function getSourcesUsed(): array {
-        $components = $this->select_array + $this->update_array + $this->conditions;
-        $Sources    = [];
+        $components = $this->select_array;
+        /**
+         * @var Source[] $Sources An array, indexed by object_id, of the Sources used
+         */
+        $Sources = [];
         foreach ($components as $component) {
-            if (!($component instanceof SourceHaver)) continue;
-            $RootSource = $component->getSource()->getRootSource();
-            
-            # NullSources don't matter. Skip over them.
-            if ($RootSource instanceof NullSource) continue;
-            
-            # todo reconsider naming scheme for sources
-            ## todo IDENTIFIER
-            $Sources[ $RootSource->getName() ] = $RootSource;
+            if ($component instanceof PropertyContainer) {
+                foreach ($component as $property) {
+                    $RootSource = static::getRootSourceFromSourceHaver($property);
+                    if ($RootSource) $Sources[ $RootSource->getObjectId() ] = $RootSource;
+                }
+            } else {
+                $RootSource = static::getRootSourceFromSourceHaver($component);
+                if ($RootSource) $Sources[ $RootSource->getObjectId() ] = $RootSource;
+            }
         }
         $Sources = array_unique($Sources);
         return $Sources;

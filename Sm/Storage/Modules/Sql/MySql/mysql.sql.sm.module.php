@@ -23,11 +23,13 @@ use Sm\Type\Variable_\Variable_;
 
 
 $SqlModule = SqlModule::init(function (App $App, SqlModule $SqlModule) {
-    $FormatterFactory = new FormatterFactory();
+    $FormatterFactory = new FormatterFactory;
+    $path             = __DIR__ . '/mysql.sql.sm.formatter.php';
+    $FormatterFactory->register(include $path ?? []);
     $SqlModule->setFormatterFactory($FormatterFactory);
-    $path            = __DIR__ . '/mysql.sql.sm.formatter.php';
-    $formatter_array = include $path ?? [];
-    $FormatterFactory->register($formatter_array);
+    
+    
+    #region registerDatabaseSource
     $Authentication = MysqlPdoAuthentication::init()->setCredentials('codozsqq',
                                                                      '^bzXfxDc!Dl6',
                                                                      'localhost',
@@ -36,12 +38,16 @@ $SqlModule = SqlModule::init(function (App $App, SqlModule $SqlModule) {
     $DatabaseSource = MysqlDatabaseSource::init();
     $DatabaseSource->authenticate($Authentication);
     $SqlModule->registerDatabaseSource($DatabaseSource);
+    #endregion
     
-    $App->Factories->resolve(QueryInterpreterFactory::class)->register(function ($item = null) use ($SqlModule) {
+    
+    $get_mysql_interpreter_fn = function ($item = null) use ($SqlModule) {
         $Interpreter = new MysqlQueryInterpreter;
         $Interpreter->setSqlModule($SqlModule);
         return $Interpreter;
-    }, MysqlDatabaseSource::class);
+    };
+    $App->Factories->resolve(QueryInterpreterFactory::class)
+                   ->register($get_mysql_interpreter_fn, MysqlDatabaseSource::class);
 });
 $dispatch  = function (App $App, SqlModule $self) {
     /** @var EvaluableStatementFactory $_ */

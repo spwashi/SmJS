@@ -21,5 +21,7 @@ abstract class DatabaseSource extends Source {
     public function getName() {
         return $this->database_name;
     }
-    public function setModule() { }
+    public function getConnection() {
+        return isset($this->Authentication) ? $this->Authentication->getConnection() : null;
+    }
 }

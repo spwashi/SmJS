@@ -28,6 +28,7 @@ class TableSource extends DatabaseSource {
     public function __construct(DatabaseSource $DatabaseSource, $table_name) {
         $this->DatabaseSource = $DatabaseSource;
         $this->table_name     = $table_name;
+        parent::__construct();
     }
     
     public function authenticate(Authentication $authentication = null) {

@@ -105,7 +105,6 @@ class FactoryContainer extends Container {
                 $this->attempt_build_method = $attempt_build_method;
             }
             public function build() {
-                var_dump(func_get_args());
                 return call_user_func_array($this->build_method, func_get_args());
             }
             public function canCreateClass($item) {

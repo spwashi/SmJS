@@ -11,11 +11,8 @@ namespace Sm\EvaluableStatement;
 use Sm\Abstraction\Formatting\Formattable;
 use Sm\Formatter\FormatterFactory;
 use Sm\Formatter\FormatterFactoryHaver;
-use Sm\Resolvable\Error\UnresolvableError;
 use Sm\Resolvable\Resolvable;
-use Sm\Resolvable\StringResolvable;
 use Sm\Type\Variable_\Variable_;
-use Sm\Util;
 
 /**
  * Class EvaluableStatement
@@ -144,18 +141,8 @@ abstract class EvaluableStatement extends Resolvable implements Formattable, For
     public function valueOf($component, $format = false) {
         if ($component instanceof Resolvable) {
             $component->setFactoryContainer($this->getFactoryContainer());
-            if ($component instanceof EvaluableStatement && !isset($component->FormatterFactory) && isset($this->FormatterFactory)) {
-                $component->setFormatterFactory($this->FormatterFactory);
-            }
         }
         $result = $component instanceof Resolvable ? $component->resolve() : $component;
-        if ($format) {
-            $to_format = is_string($result) ? StringResolvable::coerce($result) : $result;
-            $Formatter = $this->format($to_format);
-            
-            if (strlen("$Formatter")) return $Formatter;
-            if (!Util::canBeString($result)) return "";
-        }
         return $result;
     }
     /**
@@ -167,9 +154,7 @@ abstract class EvaluableStatement extends Resolvable implements Formattable, For
         $registry    = $this->registry;
         $can_resolve = $this->resolvesToValue();
         if ($can_resolve !== true) {
-            if (!isset($this->FormatterFactory)) throw new UnresolvableError("Cannot resolve unresolved expression. No formatter was found.");
-            $Formatter = $this->FormatterFactory->build($this);
-            return DeferredEvaluationStatement::coerce($Formatter);
+            return DeferredEvaluationStatement::coerce($this);
         }
     
         $registry[] = \Closure::bind($this->getDefaultEvaluator(), $this);
@@ -197,25 +182,6 @@ abstract class EvaluableStatement extends Resolvable implements Formattable, For
         return $this;
     }
     
-    /**
-     * Using the FormatterFactory of this class, return a formatted version of this Evaluable Statement
-     *
-     * @param $item
-     *
-     * @return string|\Sm\Abstraction\Formatting\Formatter|null
-     * @throws \Sm\Resolvable\Error\UnresolvableError
-     */
-    protected function format($item) {
-        if (!isset($this->FormatterFactory)) {
-            $type = is_object($item) ? get_class($item) : gettype($item);
-            
-            if (Util::canBeString($item)) $str = "$item";
-            else return null;
-            
-            throw new UnresolvableError("Cannot resolve unresolved expression. No formatter was found for {$type} - \"{$str}\".");
-        }
-        return $this->FormatterFactory->build($item);
-    }
     /**
      * Method called in the constructor that returns the default function to use to evaluate the EvaluableStatement
      *

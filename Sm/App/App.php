@@ -12,6 +12,7 @@ use Sm\Abstraction\Resolvable\Arguments;
 use Sm\App\Module\Module;
 use Sm\Container\Container;
 use Sm\Factory\FactoryContainer;
+use Sm\Query\Query;
 use Sm\Request\Request;
 use Sm\Resolvable\FunctionResolvable;
 use Sm\Resolvable\NativeResolvable;
@@ -22,6 +23,7 @@ use Sm\Routing\Router;
  *
  * @property PathContainer    $Paths
  * @property ModuleContainer  $Modules
+ * @property Query            $Query
  * @property string           $name
  * @property Request          $Request
  * @property Router           $Router

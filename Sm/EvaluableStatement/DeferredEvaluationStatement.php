@@ -8,7 +8,7 @@
 namespace Sm\EvaluableStatement;
 
 
-use Sm\Resolvable\StringResolvable;
+use Sm\Resolvable\NativeResolvable;
 
 /**
  * Class DeferredEvaluationStatement
@@ -17,6 +17,6 @@ use Sm\Resolvable\StringResolvable;
  *
  * @package Sm\EvaluableStatement
  */
-class DeferredEvaluationStatement extends StringResolvable {
+class DeferredEvaluationStatement extends NativeResolvable {
     
 }

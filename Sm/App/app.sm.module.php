@@ -6,6 +6,7 @@
  */
 
 use Sm\App\App;
+use Sm\Query\Query;
 use Sm\Request\Request;
 use Sm\Resolvable\ResolvableFactory;
 use Sm\Resolvable\SingletonFunctionResolvable;
@@ -47,7 +48,10 @@ return [
     
         $sql_module = $App->Paths->to_base('Sm/Storage/Modules/Sql/MySql/mysql.sql.sm.module.php');
         if (is_file($sql_module)) $App->Modules->sql = include $sql_module ?? [];
-        
+    
+        $App->register('Query', function () use ($App) {
+            return Query::init()->setFactoryContainer($App->Factories);
+        });
         
         return $App;
     },

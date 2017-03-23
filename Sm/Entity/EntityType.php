@@ -7,10 +7,14 @@
 
 namespace Sm\Entity;
 
+use Sm\Abstraction\Identifier\HasObjectIdentityTrait;
+use Sm\Abstraction\Identifier\Identifiable;
+use Sm\Abstraction\Identifier\Identifier;
 use Sm\Entity\Property\NonexistentPropertyException;
 use Sm\Entity\Property\Property;
 use Sm\Entity\Property\PropertyContainer;
 use Sm\Entity\Property\PropertyHaver;
+use Sm\Factory\Factory;
 
 
 /**
@@ -23,18 +27,24 @@ use Sm\Entity\Property\PropertyHaver;
  *
  * This is what allows an entity to be represented by two different entity types
  *
- * @property-read PropertyContainer $Properties
- * @property-read Property          eg_title    example property used in testing syntax. In doc comments for autocomplete.
- * @property-read Property          eg_alias    example property used in testing syntax. In doc comments for autocomplete.
- * @property      Property          title
+ * @property-read PropertyContainer         $Properties
+ * @property-read \Sm\Entity\EntityTypeMeta $Meta
+ * @property-read Factory                   $IdentifyingConditionFactory
+ * @property-read Property                  eg_title    example property used in testing syntax. In doc comments for autocomplete.
+ * @property-read Property                  eg_alias    example property used in testing syntax. In doc comments for autocomplete.
+ * @property      Property                  title
  *
  * @package Sm\Entity
  */
-class EntityType implements PropertyHaver {
+class EntityType implements PropertyHaver, Identifiable {
+    use HasObjectIdentityTrait;
     /** @var  EntityTypeMeta $EntityTypeMeta Information about this EntityType */
     protected $EntityTypeMeta;
     /** @var  PropertyContainer */
     protected $Properties;
+    /** @var \Sm\Factory\Factory $IdentifyingConditionFactory */
+    protected $IdentifyingConditionFactory;
+    
     /**
      * EntityType constructor.
      *
@@ -42,6 +52,8 @@ class EntityType implements PropertyHaver {
      * @param PropertyContainer $Properties The Entity's Property
      */
     public function __construct(EntityTypeMeta $EntityTypeMeta, PropertyContainer $Properties = null) {
+        $this->setObjectId(Identifier::generateIdentity($this));
+        
         $this->EntityTypeMeta = $EntityTypeMeta;
         
         # Inherit the properties of the EntityMeta (serves as the prototype to this class)
@@ -53,10 +65,16 @@ class EntityType implements PropertyHaver {
         
         # Say that this EntityType is the owner of these Properties
         $this->Properties->setOwner($this);
+        
+        $this->IdentifyingConditionFactory = new Factory;
+        $this->IdentifyingConditionFactory->doNotCreateMissing();
+        $this->IdentifyingConditionFactory->register('default', function () { return false; });
     }
     
     public function __get($name) {
         if ($name === 'Properties') return $this->getProperties();
+        if ($name === 'Meta') return $this->EntityTypeMeta;
+        if ($name === 'IdentifyingConditionFactory') return $this->IdentifyingConditionFactory;
         /** @var Property $Property */
         if ($Property = $this->Properties->resolve($name)) {
             return $Property->markReadonly();
@@ -74,6 +92,9 @@ class EntityType implements PropertyHaver {
         }
     }
     
+    public function getIdentifyingCondition($context = 'default') {
+        return $this->IdentifyingConditionFactory->build($context);
+    }
     
     /**
      * Get the Properties of the EntityType

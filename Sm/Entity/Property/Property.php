@@ -9,6 +9,7 @@ namespace Sm\Entity\Property;
 
 
 use Sm\Abstraction\ReadonlyTrait;
+use Sm\Entity\EntityVariable;
 use Sm\Storage\Source\NullSource;
 use Sm\Storage\Source\Source;
 use Sm\Storage\Source\SourceHaver;
@@ -24,6 +25,7 @@ use Sm\Type\Variable_\Variable_;
  *
  * @package Sm\Entity\Property
  * @property-read string $name
+ * @property-read string $object_id
  */
 class Property extends Variable_ implements SourceHaver {
     
@@ -49,6 +51,10 @@ class Property extends Variable_ implements SourceHaver {
         
         parent::__construct(null);
     }
+    public function __get($name) {
+        if ($name === 'object_id') return $this->_object_id;
+        return parent::__get($name);
+    }
     /**
      * Setter for this Property
      *
@@ -70,7 +76,12 @@ class Property extends Variable_ implements SourceHaver {
      * @return $this
      */
     public function addOwner(PropertyHaver $Owner) {
+        if (($this->Owners[0] ?? false) instanceof EntityVariable) return $this->setOwner($Owner);
         if (!in_array($Owner, $this->Owners)) $this->Owners[] = $Owner;
+        return $this;
+    }
+    public function setOwner(PropertyHaver $Owner) {
+        $this->Owners = [ $Owner ];
         return $this;
     }
     /**

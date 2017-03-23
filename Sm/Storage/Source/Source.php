@@ -8,6 +8,9 @@
 namespace Sm\Storage\Source;
 
 
+use Sm\Abstraction\Identifier\HasObjectIdentityTrait;
+use Sm\Abstraction\Identifier\Identifiable;
+use Sm\Abstraction\Identifier\Identifier;
 use Sm\Authentication\Authentication;
 
 /**
@@ -17,9 +20,20 @@ use Sm\Authentication\Authentication;
  *
  * @package Sm\Storage\Source
  */
-abstract class Source {
+abstract class Source implements Identifiable {
+    use HasObjectIdentityTrait;
     /** @var  Authentication $Authentication Represents the Authenticated connection to whatever source */
     protected $Authentication;
+    /**
+     * Source constructor.
+     *
+     * @param Authentication $Authentication
+     */
+    public function __construct(Authentication $Authentication = null) {
+        if (isset($Authentication)) $this->Authentication = $Authentication;
+        $this->setObjectId(Identifier::generateIdentity($this));
+    }
+    
     abstract public function isAuthenticated();
     public function authenticate(Authentication $Authentication = null) {
         $this->Authentication = $Authentication;
@@ -37,9 +51,11 @@ abstract class Source {
     /**
      * Static constructor
      *
+     * @param null $Authentication
+     *
      * @return static
      */
-    public static function init() {
+    public static function init($Authentication = null) {
         return new static(...func_get_args());
     }
 }

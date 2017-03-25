@@ -93,7 +93,7 @@ class EntityType implements PropertyHaver, Identifiable {
     }
     
     public function getIdentifyingCondition($context = 'default') {
-        return $this->IdentifyingConditionFactory->build($context);
+        return $this->IdentifyingConditionFactory->build($context, $this);
     }
     
     /**

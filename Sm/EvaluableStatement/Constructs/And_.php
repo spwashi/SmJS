@@ -19,18 +19,8 @@ use Sm\EvaluableStatement\EvaluableStatement;
  */
 class And_ extends EvaluableStatement implements ChainableConstruct {
     use ChainableBooleanConstruct;
-    protected $_items_;
     protected $_construct_ = 'and';
-    /**
-     * Give us a way to set the variables after we've initialized the class
-     *
-     * @return mixed|\Sm\EvaluableStatement\EvaluableStatement
-     */
-    public function set(): EvaluableStatement {
-        $items         = func_get_args();
-        $this->_items_ = $items;
-        return $this;
-    }
+    
     /**
      * Method called in the constructor that returns the default function to use to evaluate the EvaluableStatement
      *

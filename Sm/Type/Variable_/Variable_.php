@@ -24,7 +24,7 @@ use Sm\Resolvable\ResolvableFactory;
  *
  * @package Sm\Type\Variable_
  */
-class Variable_ extends Resolvable implements Identifiable {
+class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
     use HasObjectIdentityTrait;
     /** @var  Resolvable $subject */
     protected $subject;
@@ -138,6 +138,9 @@ class Variable_ extends Resolvable implements Identifiable {
      */
     public function canResolve() {
         return isset($this->subject);
+    }
+    function jsonSerialize() {
+        return [ 'name' => $this->name, '_type' => Variable_::class ];
     }
     /**
      * Create a Variable

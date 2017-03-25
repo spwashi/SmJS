@@ -40,7 +40,11 @@ class EntityTypeMeta implements Identifiable {
      */
     public function cloneProperties() {
         $Properties = clone $this->Properties;
-        $Properties->setOwner(EntityVariable::init());
+        $owner      = EntityVariable::init();
+        $Properties->setOwner($owner);
+        foreach ($Properties as $property) {
+//            echo $property->getObjectId() . "\t owned by\t" . $owner->getObjectId() . "\n";
+        }
         return $Properties;
     }
     /**

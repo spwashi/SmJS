@@ -104,8 +104,8 @@ abstract class SqlQueryInterpreter extends QueryInterpreter {
         
         # Append the owners to the array
         foreach ($owners as $owner) {
-            $SourceArray[ $owner->getObjectId() ]   = $SourceArray[ $owner->getObjectId() ] ??[];
-            $SourceArray[ $owner->getObjectId() ][] = $Property;
+            $SourceArray[ $owner->getObjectId() ]                             = $SourceArray[ $owner->getObjectId() ] ??[];
+            $SourceArray[ $owner->getObjectId() ][ $Property->getObjectId() ] = $Property;
         }
     }
     

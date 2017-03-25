@@ -21,7 +21,7 @@ use Sm\Type\Variable_\Variable_;
  *
  * @package Sm\EvaluableStatement
  */
-abstract class EvaluableStatement extends Resolvable implements Formattable, FormatterFactoryHaver {
+abstract class EvaluableStatement extends Resolvable implements Formattable, \JsonSerializable, FormatterFactoryHaver {
     protected $registry = [];
     /** @var  FormatterFactory $FormatterFactory The FormatterFactory that is to be used in formatting this Evaluable statement */
     protected $FormatterFactory;
@@ -142,6 +142,7 @@ abstract class EvaluableStatement extends Resolvable implements Formattable, For
         if ($component instanceof Resolvable) {
             $component->setFactoryContainer($this->getFactoryContainer());
         }
+        if ($component instanceof Variable_) return $component;
         $result = $component instanceof Resolvable ? $component->resolve() : $component;
         return $result;
     }
@@ -181,7 +182,9 @@ abstract class EvaluableStatement extends Resolvable implements Formattable, For
         }
         return $this;
     }
-    
+    public function jsonSerialize() {
+        return $this->getVariables();
+    }
     /**
      * Method called in the constructor that returns the default function to use to evaluate the EvaluableStatement
      *

@@ -68,8 +68,11 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
             $ET = $EntityTypes[ $_name ]
                 = new EntityType(EntityTypeMeta::init()->setProperties($PropertyContainer)->setName($_name));
     
-            $ET->IdentifyingConditionFactory->register(function () use (&$ET) {
-                return Where::init()->equals($ET->Properties->id, $ET->Properties->id->raw_value);
+            $ET->IdentifyingConditionFactory->register(function ($classname, $ET) {
+                return [
+                    'Condition' => Where::equals_($ET->Properties->id, $ET->Properties->id->value),
+                    'Items'     => [ $ET->Properties->id ],
+                ];
             }, MysqlQueryInterpreter::class);
             
         }
@@ -86,15 +89,19 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
         $App                  = App::init()->setName('ExampleApp');
         $App->Paths->app_path = BASE_PATH . 'SmTest/ExampleApp/';
         $App->Modules->_app   = include APP_MODULE ??[];
+        $Collection->id       = 'collection_id';
+        $Section->id          = '1';
+        $id                   = clone  $Section->Meta->Properties;
     
-        $SectionMeta = clone  $Section->Meta;
-        $title       = $SectionMeta->Properties->title;
+        $WhereClause = Where::greater_(6, 1)
+                            ->or_($Section->id);
+    
+        $results = $App->Query->select($Section->title)
+                              ->where($WhereClause)->run();
     
     
-        $Query   = $App->Query->select($Section->title,
-                                       $Collection->Properties);
-        $results = $Query->run();
-        #var_dump($Section->content->value);
+        $results = $App->Query->insert($Section->title, $Section->alias)->run();
+        
     }
     protected function getDatabaseSource() {
         if (isset($this->DatabaseSource)) return $this->DatabaseSource;

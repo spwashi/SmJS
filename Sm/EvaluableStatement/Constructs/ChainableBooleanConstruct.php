@@ -18,5 +18,5 @@ namespace Sm\EvaluableStatement\Constructs;
  * @package Sm\EvaluableStatement\Constructs
  */
 trait ChainableBooleanConstruct {
-    
+    use ChainableConstructTrait;
 }

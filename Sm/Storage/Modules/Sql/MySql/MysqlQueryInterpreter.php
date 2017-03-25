@@ -44,16 +44,18 @@ class MysqlQueryInterpreter extends SqlQueryInterpreter {
             $name               = $Property->name;
             $propertyString     = "{$Property}";
             $property_object_id = $Property->getObjectId();
-            
-            $alias  = str_replace($propertyString,
-                                  $name,
-                                  $PropertyFragment->getAlias());
-            $owners = $owners_by_property[ $property_object_id ] ?? null;
-            $owners = $owners ? (is_array($owners) ? $owners : [ $owners ]) : null;
-            
-            foreach ($owners as $owner_id) {
-                $Owner = Identifier::identify($owner_id);
-                $value = $row[ $alias ] ?? null;
+    
+            $alias = str_replace($propertyString,
+                                 $name,
+                                 $PropertyFragment->getAlias());
+            /** @var \Sm\Abstraction\Identifier\Identifiable[] $owners */
+            $owners = $Property->getOwners();
+            $owners = $owners ? (is_array($owners) ? $owners : [ $owners ]) : [];
+    
+    
+            foreach ($owners as $Owner) {
+                $owner_id = $Owner->getObjectId();
+                $value    = $row[ $alias ] ?? null;
                 if ($Owner instanceof PropertyHaver) {
                     $OwnerProperty = $Owner->{$Property->name} = clone $Property;
                     $OwnerProperty->setValue($value);
@@ -161,32 +163,44 @@ class MysqlQueryInterpreter extends SqlQueryInterpreter {
     protected function createSelectFragment(Query $Query, $properties_by_owner_array) {
         /** @var array $source_aliases An array, indexed by owner_id, that contains the name of the tables being aliased. */
         $source_aliases    = [];
-        $property_aliases  = [];
         $PropertyFragments = [];
         $count             = 0;
+    
+        $count_by_source = [];
         /**
          * @var string                       $owner_id
          * @var \Sm\Entity\Property\Property $Property
          */
         foreach ($properties_by_owner_array as $owner_id => $property_array) {
+            $Owner = Identifier::identify($owner_id);
+            if ($Owner instanceof EntityType) {
+                $IC        = $Owner->getIdentifyingCondition(static::class);
+                $Condition = $IC['Condition'] ??null;
+                $Items     = $IC['Items'] ??[];
+                if ($IC) {
+                    $Query->where($Condition);
+                    foreach ($Items as $item) {
+                        if ($item instanceof Property) $property_array[ $item->getObjectId() ] = $item;
+                    }
+                }
+            }
             # The table alias is what we use to refer to a the same table.
             #   This is useful in situations when the table is being used to mean multiple different things.
             #   In cases such as "SELECT sections.*, sections_2.* FROM sections, sections s
             foreach ($property_array as $Property) {
+                $Source                         = $Property->getSource();
+                $_source_id                     = $Source->getObjectId();
+                $count_by_source[ $_source_id ] = $count_by_source[ $_source_id ] ??0;
+                $count                          = $count_by_source[ $_source_id ]++;
+                
                 $_PropertyFragment                                    = $this->createPropertyFragment($Property, $owner_id, $count);
                 $_SourceFragment                                      = $_PropertyFragment->getSourceFragment();
                 $PropertyFragments[ $Property->getObjectId() ]        = $_PropertyFragment;
                 $source_aliases[ $_SourceFragment->getSourceAlias() ] = $_SourceFragment->getSource();
             }
-            $Owner = Identifier::identify($owner_id);
-            if ($Owner instanceof EntityType) {
-                $IC = $Owner->getIdentifyingCondition(static::class);
-                if ($IC) $Query->where($IC);
-            }
         }
         $WhereFragment = $this->createWhereFragment($Query);
         $FromFragment  = FromFragment::init()->setAliases($source_aliases);
-        $this->SqlModule->FormatterFactory->Aliases->register($source_aliases);
         return SelectFragment::init()
                              ->setFrom($FromFragment)
                              ->setPropertyFragments($PropertyFragments)
@@ -201,9 +215,9 @@ class MysqlQueryInterpreter extends SqlQueryInterpreter {
      *
      * @return PropertyFragment
      */
-    protected function createPropertyFragment(Property $Property, $owner_id, &$count = 0) {
+    protected function createPropertyFragment(Property $Property, $owner_id, $count = 0) {
         $TableSource     = $Property->getSource();
-        $table_alias     = $count++ ? $TableSource->getName() : $this->SqlModule->format($owner_id);
+        $table_alias     = $this->SqlModule->format($owner_id);
         $table_alias     = "{$table_alias}";
         $_property_alias = self::getPropertyAlias($Property, $table_alias);
         

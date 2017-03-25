@@ -33,15 +33,48 @@ class Query {
     use HasFactoryContainerTrait;
     
     const QUERY_TYPE_SELECT = 'select';
+    const QUERY_TYPE_INSERT = 'insert';
     
     /** @var array $select_array An array of properties or whatever that we want to select */
     protected $select_array = [];
-    /** @var array $update_array An array of properties that we want to update */
-    protected $update_array = [];
+    /** @var array $insert_or_update_array An array of properties that we want to insert. Sorted from "Update" later. */
+    protected $insert_or_update_array = [];
     /** @var null|string $query_type This is the type of Query we are executing */
     protected $query_type = null;
-    /** @var  \Sm\Query\Where $where */
+    /** @var  \Sm\Query\Where $where The overall Where clause that accompanies this Query */
     protected $where;
+    
+    #
+    ##  Getters and Setters
+    #
+    /**
+     * Get the type of Query we are going to be executing
+     *
+     * @return null|string
+     */
+    public function getQueryType() {
+        return $this->query_type;
+    }
+    /**
+     * Get the array of things that we want to select.
+     *
+     * @return array
+     */
+    public function getSelectArray(): array {
+        return $this->select_array;
+    }
+    /**
+     * Get the Where clause of the Query
+     *
+     * @return Where
+     */
+    public function getWhere() {
+        return $this->where;
+    }
+    
+    #
+    ## Public Query methods
+    #
     /**
      * Set the Properties that we want to select
      *
@@ -72,14 +105,38 @@ class Query {
     /**
      * Set the Where clause of the query
      *
+     * @param \Sm\Query\Where $where
+     *
+     * @return $this
+     * @internal param array ...$items
+     *
+     */
+    public function where(Where $where) {
+        if (!isset($this->where)) $this->where = $where;
+        else $this->where->appendConditions($where->getRawConditionsArray());
+    
+        return $this;
+    }
+    /**
+     * Update the values of some properties on whatever platform
+     *
+     * @param array ...$items
+     *
+     * @return \Sm\Query\Query
+     */
+    public function update(...$items) {
+        return $this->insert(...$items);
+    }
+    /**
+     * Insert some properties (or update them) on whatever platform
+     *
      * @param array ...$items
      *
      * @return $this
      */
-    public function where(Where $where) {
-        if (!isset($this->where)) $this->where = $where;
-        else $this->where->_and($where->getCondition());
-        
+    public function insert(...$items) {
+        $this->query_type             = $this->query_type ?? static::QUERY_TYPE_INSERT;
+        $this->insert_or_update_array = array_merge($this->insert_or_update_array, array_filter($items));
         return $this;
     }
     /**
@@ -104,30 +161,10 @@ class Query {
         if (isset($QueryInterpreter)) return $QueryInterpreter->interpret($this);
         return $this;
     }
-    /**
-     * Get the type of Query we are going to be executing
-     *
-     * @return null|string
-     */
-    public function getQueryType() {
-        return $this->query_type;
-    }
-    /**
-     * Get the array of things that we want to select.
-     *
-     * @return array
-     */
-    public function getSelectArray(): array {
-        return $this->select_array;
-    }
-    /**
-     * Get the Where clause of the Query
-     *
-     * @return Where
-     */
-    public function getWhere() {
-        return $this->where;
-    }
+    
+    #
+    ## Class methods
+    #
     /**
      * Static constructor for Query
      *
@@ -158,17 +195,6 @@ class Query {
             if (method_exists($Self, $name)) return call_user_func_array([ $Self, $name ], $arguments);
         }
         throw new Error("There is no method {$name} in this class.");
-    }
-    public static function getRootSourceFromSourceHaver(SourceHaver $SourceHaver) {
-        if (!($SourceHaver instanceof SourceHaver)) return null;
-        $RootSource = $SourceHaver->getSource()->getRootSource();
-        
-        # NullSources don't matter. Skip over them.
-        if ($RootSource instanceof NullSource) return null;
-        
-        
-        $Sources[ $RootSource->getName() ] = $RootSource;
-        return $RootSource;
     }
     /**
      * Functions to check to see if we an select an item.
@@ -208,7 +234,7 @@ class Query {
      * @return array
      */
     protected function getSourcesUsed(): array {
-        $components = $this->select_array;
+        $components = array_merge($this->select_array, $this->insert_or_update_array);
         /**
          * @var Source[] $Sources An array, indexed by object_id, of the Sources used
          */
@@ -226,5 +252,23 @@ class Query {
         }
         $Sources = array_unique($Sources);
         return $Sources;
+    }
+    /**
+     * For everything that has a source, get the Root Source of that
+     *
+     * @param \Sm\Storage\Source\SourceHaver $SourceHaver
+     *
+     * @return null|\Sm\Storage\Source\Source
+     */
+    protected static function getRootSourceFromSourceHaver(SourceHaver $SourceHaver) {
+        if (!($SourceHaver instanceof SourceHaver)) return null;
+        $RootSource = $SourceHaver->getSource()->getRootSource();
+        
+        # NullSources don't matter. Skip over them.
+        if ($RootSource instanceof NullSource) return null;
+        
+        
+        $Sources[ $RootSource->getName() ] = $RootSource;
+        return $RootSource;
     }
 }

@@ -9,6 +9,7 @@ use Sm\Abstraction\Identifier\Identifiable;
 use Sm\Entity\Property\Property;
 use Sm\Entity\Property\PropertyHaver;
 use Sm\Error\UnimplementedError;
+use Sm\EvaluableStatement\Constructs\And_;
 use Sm\EvaluableStatement\Constructs\ChainableConstruct;
 use Sm\EvaluableStatement\EqualityCondition\EqualityCondition_;
 use Sm\Formatter\FormatterFactory;
@@ -32,24 +33,24 @@ return [
         throw new UnimplementedError("Cannot properly format item of type \"{$item_type}\".");
     },
     function ($item, FormatterFactory $FormatterFactory) {
-        if (is_array($item)) {
-            $end_array = [];
-            var_dump($end_array);
-            foreach ($item as $key => $value) {
-                $key               = $FormatterFactory->format($key);
-                $value             = $FormatterFactory->format($value);
-                $end_array["$key"] = $value;
-            }
-            return $end_array;
+        if (!is_array($item)) return null;
+        $end_array = [];
+        var_dump($end_array);
+        foreach ($item as $key => $value) {
+            $key               = $FormatterFactory->format($key);
+            $value             = $FormatterFactory->format($value);
+            $end_array["$key"] = $value;
         }
+        return $end_array;
     },
     function ($item) {
-        if (is_string($item)) {
-            # If this is an identifiable string, format it so it's a little bit prettier
-            if (strpos($item, "{{object:") === 0) {
-                return explode('|', $item)[1];
-            }
-        }
+        if (!is_string($item)) return null;
+    
+        # If this is an identifiable string, format it so it's a little bit prettier
+        if (strpos($item, "{{object:") === 0) return explode('|', $item)[1];
+    
+        return "'$item'";
+        
         return null;
     },
     StringResolvable::class => function ($item) { return $item; },
@@ -151,11 +152,20 @@ return [
      * AND_, OR_
      */
     ChainableConstruct::class => function (ChainableConstruct $ConstructCondition, FormatterFactory $FormatterFactory) {
-        $items  = $ConstructCondition->items;
-        $items  = $FormatterFactory->format($items);
-        $name   = strtoupper($FormatterFactory->format($ConstructCondition->construct));
+        $items = $ConstructCondition->items;
+        $items = $FormatterFactory->format($items);
+        $name  = strtoupper($ConstructCondition->construct);
+    
+        if ($ConstructCondition instanceof And_) {
+            $items =
+                array_filter(
+                    $items,
+                    function ($item) { return "$item" !== "true"; });
+        }
+        
+        
         $clause = join(" {$name} ", $items);
-        return "({$clause})";
+        return count($items) > 1 ? "({$clause})" : "{$clause}";
     },
     
     NativeResolvable::class   => function (NativeResolvable $resolvable, FormatterFactory $FormatterFactory) {
@@ -167,7 +177,7 @@ return [
     EqualityCondition_::class => function (EqualityCondition_ $Condition, FormatterFactory $FormatterFactory) {
         $right_side = $FormatterFactory->format($Condition->right_side);
         $left_side  = $FormatterFactory->format($Condition->left_side);
-        $symbol     = $FormatterFactory->format($Condition->symbol);
+        $symbol     = $Condition->symbol;
         return "({$left_side} {$symbol} {$right_side})";
     },
 ];

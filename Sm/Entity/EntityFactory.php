@@ -11,8 +11,8 @@ namespace Sm\Entity;
 use Sm\Factory\Factory;
 
 class EntityFactory extends Factory {
-    
     public function build($operand = null) {
-        return new Entity;
+        $result = parent::build(...func_get_args());
+        return $result??new Entity;
     }
 }

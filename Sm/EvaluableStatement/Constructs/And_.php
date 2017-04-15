@@ -31,8 +31,12 @@ class And_ extends EvaluableStatement implements ChainableConstruct {
             $return_value = true;
             # Iterate through the items to see if all of the statements evaluate to true
             foreach ($this->_items_ as $item) {
-                if (!($item = $this->valueOf($item))) return false;
-                if ($item instanceof DeferredEvaluationStatement) $return_value = DeferredEvaluationStatement::init($this);
+                if (!($item = $this->valueOf($item))) {
+                    return false;
+                }
+                if ($item instanceof DeferredEvaluationStatement) {
+                    $return_value = DeferredEvaluationStatement::init($this);
+                }
             }
             return $return_value;
         };

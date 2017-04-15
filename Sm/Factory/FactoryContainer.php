@@ -8,10 +8,11 @@
 namespace Sm\Factory;
 
 
-use Sm\Container\Container;
+use Sm\Storage\Container\Container;
 
 /**
  * Class FactoryContainer
+ *
  * Class that contains all of the Factories that a given operation might use.
  *
  * @package Sm\Factory
@@ -27,11 +28,14 @@ class FactoryContainer extends Container {
         /** @var Factory[] $Factories */
         $Factories      = $this->_search_registry_for_name($name);
         $_factory_count = count($Factories);
-        if ($_factory_count === 1) return $Factories[0];
-        else if ($_factory_count < 2 && class_exists($name)) {
+        if ($_factory_count === 1) {
+            return $Factories[0];
+        } else if ($_factory_count < 2 && class_exists($name)) {
             $_class = new $name;
             if ($_class instanceof Factory) {
-                if (!$_factory_count) $this->register($name, $_class);
+                if (!$_factory_count) {
+                    $this->register($name, $_class);
+                }
                 return $_class;
             }
         }
@@ -48,8 +52,11 @@ class FactoryContainer extends Container {
      * @return array
      */
     private function _search_registry_for_name($name) {
-        if (isset($this->registry[ $name ])) return $this->registry[ $name ];
-        else if (class_exists($name)) return [];
+        if (isset($this->registry[ $name ])) {
+            return $this->registry[ $name ];
+        } else if (class_exists($name)) {
+            return [];
+        }
         
         foreach ($this->registry as $index => $item) {
             $exp = explode('\\', $index);
@@ -78,8 +85,11 @@ class FactoryContainer extends Container {
          */
         $attempt_build_method = function () use ($Factories) {
             foreach ($Factories as $LastFactory) {
+                /** @var \Sm\Factory\Factory $LastFactory */
                 $result = $LastFactory->attempt_build(...func_get_args());
-                if ($result) return $result;
+                if ($result) {
+                    return $result;
+                }
             }
             return null;
         };
@@ -91,7 +101,9 @@ class FactoryContainer extends Container {
          */
         $build_method = function () use ($Factories, $attempt_build_method) {
             $result = $attempt_build_method(...func_get_args());
-            if ($result) return $result;
+            if ($result) {
+                return $result;
+            }
             $LastFactory = $Factories[ count($Factories) - 1 ] ?? null;
             return $LastFactory ? $LastFactory->build(...func_get_args()) : null;
         };
@@ -103,6 +115,7 @@ class FactoryContainer extends Container {
             public function __construct($build_method, $attempt_build_method) {
                 $this->build_method         = $build_method;
                 $this->attempt_build_method = $attempt_build_method;
+                parent::__construct();
             }
             public function build() {
                 return call_user_func_array($this->build_method, func_get_args());

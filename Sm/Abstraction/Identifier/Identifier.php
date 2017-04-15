@@ -23,7 +23,9 @@ class Identifier {
      * @return string
      */
     public static function generateIdentity(Identifiable $item) {
-        if ($id = $item->getObjectId()) return $id;
+        if ($id = $item->getObjectId()) {
+            return $id;
+        }
         $class_name                                   = get_class($item);
         $random_string                                = Util::generateRandomString(15, Util::getAlphaCharacters() . '_');
         static::$items_by_class[ $class_name ]        = static::$items_by_class[ $class_name ] ??[];
@@ -67,5 +69,13 @@ class Identifier {
      */
     public static function &identify_ref($identity) {
         return static::$items[ $identity ];
+    }
+    public static function objectIdAs(string $type, string $object_id) {
+        return str_replace('{{object', "{{{$type}", $object_id);
+    }
+    public static function combineObjectIds(...$object_ids) {
+        $object_ids = array_filter($object_ids);
+        sort($object_ids);
+        return '~' . str_replace('}}{{', '*', join('', $object_ids)) . '~';
     }
 }

@@ -25,8 +25,9 @@ class Router implements Registry {
      * @param \Sm\App\App|null $App
      */
     public function __construct(App $App = null) {
-        if (isset($App))
+        if (isset($App)) {
             $this->App = $App;
+        }
     }
     public function __get($name) {
         return $this->resolve($name);
@@ -40,10 +41,11 @@ class Router implements Registry {
         } else if (!($registrand instanceof Route)) {
             $registrand = Route::coerce($registrand);
         }
-        if (is_string($name))
+        if (is_string($name)) {
             $this->routes[ $name ] = $registrand;
-        else
+        } else {
             $this->routes[] = $registrand;
+        }
         return $this;
     }
     public function resolve($Request = null) {
@@ -57,8 +59,10 @@ class Router implements Registry {
             }
         }
         $msg = "No matching routes";
-        
-        if ($this->App) $msg .= " in {$this->App->name}";
+    
+        if ($this->App) {
+            $msg .= " in {$this->App->name}";
+        }
         
         throw new UnresolvableError($msg);
     }

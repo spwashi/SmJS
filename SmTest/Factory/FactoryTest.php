@@ -20,7 +20,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase {
     public function testCanRegister() {
         $return_eleven = function () { return 11; };
         $Factory       = new Factory();
-        $Factory->register($return_eleven);
+        $Factory->register(null, $return_eleven);
         $response = $Factory->build();
         $this->assertEquals(11, $response);
     
@@ -28,7 +28,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase {
         $Factory = new Factory();
     
         $add_1 = function (int $int) { return $int + 1; };
-        $Factory->register($add_1);
+        $Factory->register(null, $add_1);
         $response_1 = $Factory->build(2);
         $response_2 = $Factory->build(1);
         $this->assertEquals(3, $response_1);
@@ -40,15 +40,13 @@ class FactoryTest extends \PHPUnit_Framework_TestCase {
     
         ###
         $Factory = new Factory();
-        $Factory->register($Mock, \stdClass::class);
-    
+        $Factory->register(\stdClass::class, $Mock);
         $MockFromFactory = $Factory->build(\stdClass::class);
         $this->assertEquals('test_works', $MockFromFactory->test());
-    
         ###
         $Factory = new Factory();
-        $Factory->register(function () { return 'hello'; }, \stdClass::class);
-        $this->assertEquals('hello', $Factory->build(new \stdClass));
+        $Factory->register(\DOMAttr::class, function () { return 'hello'; });
+        $this->assertEquals('hello', $Factory->build(new \DOMAttr('name')));
         
     }
 }

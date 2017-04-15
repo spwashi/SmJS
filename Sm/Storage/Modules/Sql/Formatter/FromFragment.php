@@ -9,24 +9,24 @@ namespace Sm\Storage\Modules\Sql\Formatter;
 
 
 class FromFragment extends SqlFragment {
-    /** @var  array $aliases An array, indexed by php alias, that keeps track of what we're calling the tables in here. */
-    protected $aliases;
+    /** @var  array $SourceFragmentArray An array, indexed by php alias, that keeps track of what we're calling the tables in here. */
+    protected $SourceFragmentArray;
     public function getVariables(): array {
-        return [ 'aliases' => $this->aliases ];
+        return [ 'aliases' => $this->SourceFragmentArray ];
     }
     /**
      * @return array
      */
-    public function getAliases(): array {
-        return $this->aliases;
+    public function getSourceFragmentArray(): array {
+        return $this->SourceFragmentArray;
     }
     /**
-     * @param array $aliases
+     * @param array $SourceFragmentArray
      *
      * @return FromFragment
      */
-    public function setAliases(array $aliases): FromFragment {
-        $this->aliases = $aliases;
+    public function setSourceFragmentArray(array $SourceFragmentArray): FromFragment {
+        $this->SourceFragmentArray = $SourceFragmentArray;
         return $this;
     }
 }

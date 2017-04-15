@@ -17,7 +17,7 @@ class PropertyContainerTest extends \PHPUnit_Framework_TestCase {
         $this->PropertyContainer = new PropertyContainer;
     }
     public function testCanRegisterProperty() {
-        $Property = new Property();
+        $Property = new Property;
         $this->PropertyContainer->register('title', $Property);
         
         $this->expectException(WrongArgumentException::class);

@@ -9,7 +9,7 @@ namespace Sm\Query\Sql;
 
 
 use Sm\App\App;
-use Sm\Storage\Source\Database\DatabaseSource;
+use Sm\Storage\Database\DatabaseSource;
 
 class SqlModuleTest extends \PHPUnit_Framework_TestCase {
     /** @var  App $App */

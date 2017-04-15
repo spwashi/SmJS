@@ -5,7 +5,7 @@
  * Time: 10:49 PM
  */
 
-namespace Sm\Storage\Source\Database;
+namespace Sm\Storage\Database;
 
 
 use Sm\Authentication\Authentication;
@@ -19,7 +19,7 @@ use Sm\Storage\Source\Source;
  * Represents a Source from a Table
  *
  * @method static init(DatabaseSource $DatabaseSource, string $table_name = null)
- * @package Sm\Storage\Source\Database
+ * @package Sm\Storage\Database
  */
 class TableSource extends DatabaseSource {
     protected $table_name;

@@ -9,9 +9,9 @@ namespace Sm\Entity\Property;
 
 
 use Sm\Resolvable\StringResolvable;
+use Sm\Storage\Database\TableSource;
 use Sm\Storage\Modules\Sql\MySql\MysqlDatabaseSource;
 use Sm\Storage\Modules\Sql\MySql\MysqlPdoAuthentication;
-use Sm\Storage\Source\Database\TableSource;
 
 class PropertyTest extends \PHPUnit_Framework_TestCase {
     /** @var  \Sm\Entity\Property\Property $Property */

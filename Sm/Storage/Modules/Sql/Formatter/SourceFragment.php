@@ -11,32 +11,17 @@ namespace Sm\Storage\Modules\Sql\Formatter;
 use Sm\Storage\Source\Source;
 
 class SourceFragment extends SqlFragment {
-    public $Source;
-    public $source_alias;
+    public    $Source;
+    public    $source_alias;
+    protected $owner_object_id;
+    
     /**
      * Return the variables that this class deems relevant to the formatter.
      *
      * @return array
      */
     public function getVariables(): array {
-        return [ 'source_alias' => $this->source_alias, 'Source' => $this->Source ];
-    }
-    /**
-     * @return mixed
-     */
-    public function getSourceAlias() {
-        return $this->source_alias;
-    }
-    /**
-     * Set the alias of the Source
-     *
-     * @param string $source_alias
-     *
-     * @return $this
-     */
-    public function setSourceAlias($source_alias) {
-        $this->source_alias = $source_alias;
-        return $this;
+        return [ 'Source' => $this->Source, 'owner_object_id' => $this->owner_object_id ];
     }
     /**
      * @return \Sm\Storage\Source\Source
@@ -51,6 +36,20 @@ class SourceFragment extends SqlFragment {
      */
     public function setSource(Source $Source) {
         $this->Source = $Source;
+        return $this;
+    }
+    public function getOwnerObjectId() {
+        return $this->owner_object_id;
+    }
+    /**
+     * Set the object_id of the Owner of this Source in case we're doing an "alias by owner/source" kinda thing
+     *
+     * @param mixed $owner_object_id
+     *
+     * @return $this
+     */
+    public function setOwnerObjectId($owner_object_id) {
+        $this->owner_object_id = $owner_object_id;
         return $this;
     }
 }

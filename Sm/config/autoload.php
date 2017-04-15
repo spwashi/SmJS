@@ -11,5 +11,7 @@ spl_autoload_register(function ($class_string) {
     }
     $class = implode('/', $class);
     $path  = BASE_PATH . "{$class}.php";
-    if (is_file($path)) require_once($path);
+    if (is_file($path)) {
+        require_once($path);
+    }
 });

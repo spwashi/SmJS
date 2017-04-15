@@ -19,7 +19,9 @@ class TemplateFactory extends FormatterFactory {
      * @return Template
      */
     public function build($operand = null) {
-        if ($operand instanceof Template) return $operand;
+        if ($operand instanceof Template) {
+            return $operand;
+        }
         return new PhpTemplate(is_string($operand) ? $operand : null);
     }
 }

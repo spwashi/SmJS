@@ -26,10 +26,14 @@ class Module extends \Sm\Resolvable\Resolvable implements \Sm\Abstraction\Module
     
     public function dispatch() {
         $arguments = func_get_args();
-        if (!$this->is_init) $this->initialize();
+        if (!$this->is_init) {
+            $this->initialize();
+        }
         $this->assertComplete();
-        
-        if ($this->has_dispatched) return $this->last_dispatch_result;
+    
+        if ($this->has_dispatched) {
+            return $this->last_dispatch_result;
+        }
         
         if (isset($this->Dispatch)) {
             $this->has_dispatched = true;
@@ -58,7 +62,9 @@ class Module extends \Sm\Resolvable\Resolvable implements \Sm\Abstraction\Module
         return $this;
     }
     public function initialize(App $App = null) {
-        if ($this->is_init) return $this;
+        if ($this->is_init) {
+            return $this;
+        }
         if ($this->Init instanceof Resolvable) {
             $this->Init->resolve($this->App ?? $App ?? null, $this);
         }
@@ -81,7 +87,9 @@ class Module extends \Sm\Resolvable\Resolvable implements \Sm\Abstraction\Module
      * @throws \Sm\Resolvable\Error\UnresolvableError
      */
     public static function init($item = null) {
-        if ($item instanceof Module) return $item;
+        if ($item instanceof Module) {
+            return $item;
+        }
         $init = null;
         if (is_array($item)) {
             $init = $item['init'] ?? null;

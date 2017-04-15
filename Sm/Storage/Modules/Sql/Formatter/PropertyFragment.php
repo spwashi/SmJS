@@ -14,28 +14,16 @@ namespace Sm\Storage\Modules\Sql\Formatter;
  * @package Sm\Storage\Modules\Sql\Formatter
  */
 class PropertyFragment extends SqlFragment {
+    /** @var  \Sm\Entity\Property\Property $Property The Property that this Fragment represents */
     protected $Property;
+    /** @var  \Sm\Storage\Modules\Sql\Formatter\SourceFragment $SourceFragment The Fragment that represents this Property's Source */
     protected $SourceFragment;
-    protected $alias;
     
     public function getVariables(): array {
         return [
             'Property'       => $this->Property,
-            'alias'          => $this->alias,
             'SourceFragment' => $this->SourceFragment,
         ];
-    }
-    public function getAlias() {
-        return $this->alias;
-    }
-    /**
-     * @param mixed $alias
-     *
-     * @return PropertyFragment
-     */
-    public function setAlias($alias) {
-        $this->alias = $alias;
-        return $this;
     }
     /**
      * @return \Sm\Entity\Property\Property

@@ -9,26 +9,24 @@ namespace Sm\Storage\Modules\Sql;
 
 
 use Sm\App\Module\Module;
-use Sm\Container\Container;
 use Sm\Formatter\FormatterFactory;
 use Sm\Formatter\FormatterFactoryHaver;
 use Sm\Resolvable\Error\UnresolvableError;
-use Sm\Storage\Source\Database\DatabaseSource;
+use Sm\Storage\Container\Container;
+use Sm\Storage\Database\DatabaseSource;
 
 /**
  * Class SqlModule
  *
- * @property-read FormatterFactory                                $FormatterFactory
- * @property-read \Sm\Storage\Source\Database\DatabaseSource|null $DatabaseSource
+ * @property-read FormatterFactory                         $FormatterFactory
+ * @property-read \Sm\Storage\Database\DatabaseSource|null $DatabaseSource
  *
  * @package Sm\Query\Sql
  */
 class SqlModule extends Module {
     /** @var  FormatterFactory $FormatterFactory */
     protected $FormatterFactory;
-    /** @var  \Sm\Query\Interpreter\QueryInterpreter $QueryInterpreter What's used to interpret Queries for Sql */
-    protected $QueryInterpreter;
-    /** @var  \Sm\Container\Container $DatabaseSourceContainer */
+    /** @var  \Sm\Storage\Container\Container $DatabaseSourceContainer */
     protected $DatabaseSourceContainer;
     /**
      * SqlModule constructor.
@@ -49,8 +47,12 @@ class SqlModule extends Module {
      * @return null
      */
     public function __get($name) {
-        if (isset($this->$name)) return $this->$name;
-        if ($name === 'DatabaseSource') return $this->getDatabaseSource();
+        if (isset($this->$name)) {
+            return $this->$name;
+        }
+        if ($name === 'DatabaseSource') {
+            return $this->getDatabaseSource();
+        }
         return null;
     }
     
@@ -67,10 +69,12 @@ class SqlModule extends Module {
     public function format(...$args) {
         foreach ($args as $item) {
             /** @var FormatterFactoryHaver $item */
-            if (!($item instanceof FormatterFactoryHaver)) continue;
+            if (!($item instanceof FormatterFactoryHaver)) {
+                continue;
+            }
             $item->setFormatterFactory($this->FormatterFactory);
         }
-        return $this->dispatch()->FormatterFactory->build(...$args);
+        return $this->dispatch()->FormatterFactory->format(...$args);
     }
     /**
      * @param FormatterFactory $FormatterFactory
@@ -79,6 +83,7 @@ class SqlModule extends Module {
      */
     public function setFormatterFactory(FormatterFactory $FormatterFactory): SqlModule {
         $this->FormatterFactory = $FormatterFactory;
+        $this->FormatterFactory->Cache->start('ttt');
         return $this;
     }
     /**
@@ -102,14 +107,6 @@ class SqlModule extends Module {
     public function registerDatabaseSource($DatabaseSource, $name = 'default') {
         $this->DatabaseSourceContainer->register($name, $DatabaseSource);
         return $this;
-    }
-    /**
-     * Get the QueryInterpreter used to interpret \Sm\Query\Query ies
-     *
-     * @return \Sm\Query\Interpreter\QueryInterpreter
-     */
-    public function getQueryInterpreter() {
-        return $this->QueryInterpreter;
     }
     protected function assertComplete() {
         if (!isset($this->FormatterFactory) || !($this->FormatterFactory instanceof FormatterFactory)) {

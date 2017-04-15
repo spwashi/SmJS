@@ -7,7 +7,7 @@
 
 namespace Sm\Logger;
 
-use Sm\Container\Container;
+use Sm\Storage\Container\Container;
 
 /**
  * Class LoggerContainer

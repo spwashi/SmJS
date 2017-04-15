@@ -30,7 +30,7 @@ class Variable_Test extends \PHPUnit_Framework_TestCase {
         $this->Variable_ = new Variable_();
     }
     public function testCanResolve() {
-        $this->assertInstanceOf(Variable_::class, $this->Variable_->resolve());
+        $this->assertNull($this->Variable_->resolve());
         $this->Variable_->setValue(NativeResolvable::init(1));
         $this->assertEquals(1, $this->Variable_->resolve());
     }

@@ -5,7 +5,7 @@
  * Time: 10:54 PM
  */
 
-namespace Sm\Storage\Source\Database;
+namespace Sm\Storage\Database;
 
 
 use Sm\Storage\Source\Source;

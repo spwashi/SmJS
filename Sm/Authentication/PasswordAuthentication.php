@@ -27,8 +27,12 @@ abstract class PasswordAuthentication extends Authentication {
      * @return static
      */
     public function setCredentials($username = null, $password = null) {
-        if (isset($username)) $this->username = $username;
-        if (isset($password)) $this->password = $password;
+        if (isset($username)) {
+            $this->username = $username;
+        }
+        if (isset($password)) {
+            $this->password = $password;
+        }
         return $this;
     }
     protected final function getPassword() { return $this->password; }

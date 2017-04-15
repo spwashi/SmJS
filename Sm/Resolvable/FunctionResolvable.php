@@ -17,12 +17,14 @@ class FunctionResolvable extends Resolvable {
     public function resolve() {
         $arguments = func_get_args();
         $subject   = $this->subject;
-        
-        if (is_string($subject) && strpos($subject, '::'))
+    
+        if (is_string($subject) && strpos($subject, '::')) {
             $subject = explode('::', $subject);
-        
-        if (!is_callable($subject))
+        }
+    
+        if (!is_callable($subject)) {
             throw  new UnresolvableError("Must be a callable function");
+        }
         
         return call_user_func_array($this->subject, $arguments);
     }

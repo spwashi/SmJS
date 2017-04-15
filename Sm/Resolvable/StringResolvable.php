@@ -21,7 +21,9 @@ class StringResolvable extends NativeResolvable implements \JsonSerializable {
     /** @var */
     protected $subject;
     public function __construct($subject = null) {
-        if (!static::itemCanBeString($subject)) throw new UnresolvableError("Could not resolve subject");
+        if (!static::itemCanBeString($subject)) {
+            throw new UnresolvableError("Could not resolve subject");
+        }
         parent::__construct($subject);
     }
     public function __debugInfo() {

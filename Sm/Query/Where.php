@@ -25,6 +25,7 @@ use Sm\Factory\FactoryContainer;
  * @method static Where less_($left, $right);
  * @method static Where equals_($left, $right);
  * @method static Where and_($condition);
+ * @method static Where where_($condition);
  * @method static Where or_($condition);
  */
 class Where {
@@ -94,11 +95,12 @@ class Where {
             if (!($Condition instanceof ChainableConstruct)) {
                 $Condition = static::_and_($Condition);
             }
-        
+    
             $items = $Condition->items;
-            if (!isset($items[0]))
+            if (!isset($items[0])) {
                 array_shift($items);
-        
+            }
+            
             $AggregateCondition = $Condition->set($AggregateCondition, ...$items);
         }
     
@@ -111,7 +113,9 @@ class Where {
             $json   = json_encode($result);
             
             # Don't add the same Query twice
-            if (isset($this->registered_conditions[ $json ])) return $this;
+            if (isset($this->registered_conditions[ $json ])) {
+                return $this;
+            }
             $this->conditions[] = $this->registered_conditions[ $json ] = $result;
         }
         return $this;
@@ -137,16 +141,24 @@ class Where {
     }
     protected function createChainableConstruct(string $classname, $condition, $initial_value = null) {
         $ChainableConstruct = $this->EvaluableStatementFactory()->build($classname);
-        if (empty($this->conditions)) $initial_value = null;
+        if (empty($this->conditions)) {
+            $initial_value = null;
+        }
         $ChainableConstruct->set($initial_value, static::val($condition));
         return $ChainableConstruct;
     }
     protected static function val($item) {
-        if ($item instanceof Where) return $item->getCondition();
+        if ($item instanceof Where) {
+            return $item->getCondition();
+        }
         return $item;
     }
     
+    
     # region queries
+    private function _where_($condition) {
+        return $condition;
+    }
     private function _greater_($left, $right) {
         return $this->createEqualityCondition(GreaterThanCondition::class, ...func_get_args());
     }

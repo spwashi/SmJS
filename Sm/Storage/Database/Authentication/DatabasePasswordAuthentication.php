@@ -5,7 +5,7 @@
  * Time: 11:40 PM
  */
 
-namespace Sm\Storage\Source\Database\Authentication;
+namespace Sm\Storage\Database\Authentication;
 
 
 use Sm\Authentication\PasswordAuthentication;

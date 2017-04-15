@@ -8,15 +8,14 @@
 namespace Sm\App;
 
 
-use Sm\Abstraction\Resolvable\Arguments;
 use Sm\App\Module\Module;
-use Sm\Container\Container;
 use Sm\Factory\FactoryContainer;
 use Sm\Query\Query;
 use Sm\Request\Request;
 use Sm\Resolvable\FunctionResolvable;
 use Sm\Resolvable\NativeResolvable;
 use Sm\Routing\Router;
+use Sm\Storage\Container\Container;
 
 /**
  * Class App
@@ -32,14 +31,18 @@ use Sm\Routing\Router;
  */
 class App extends Container {
     protected $app_resolved = [];
+    protected $Paths;
+    protected $Factories;
+    protected $Modules;
     #  Constructors/Initializers
     #-----------------------------------------------------------------------------------
     public function __construct() {
+        $PathContainer = PathContainer::init()->setApp($this);
+        $this->Paths   = $PathContainer;
         parent::__construct();
-        $this->Paths     = PathContainer::init()->setApp($this);
         $this->Modules   = ModuleContainer::init()->setApp($this);
         $this->Factories = FactoryContainer::init();
-        $this->Paths->register_defaults(
+        $this->Paths->registerDefaults(
             [
                 'base_path'   =>
                     BASE_PATH,
@@ -56,6 +59,12 @@ class App extends Container {
                         return $Paths->app_path . 'config/';
                     }),
             ]);
+    }
+    public function __get($name) {
+        if (in_array($name, [ 'Paths', 'Modules', 'Factories' ])) {
+            return $this->$name;
+        }
+        return parent::__get($name);
     }
     /**
      * Set the name of the Application
@@ -86,11 +95,15 @@ class App extends Container {
         return $Duplicate;
     }
     public function register($name = null, $registrand = null, $register_with_app = false) {
-        if ($register_with_app) $this->app_resolved[] = $name;
-        if ($registrand instanceof NativeResolvable) $registrand = $registrand->resolve();
+        if ($register_with_app) {
+            $this->app_resolved[] = $name;
+        }
+        if ($registrand instanceof NativeResolvable) {
+            $registrand = $registrand->resolve();
+        }
         return parent::register($name, $registrand);
     }
-    public function register_defaults($name, $registrand = null, $register_with_app = false) {
+    public function registerDefaults($name, $registrand = null, $register_with_app = false) {
         if ($register_with_app) {
             if (is_array($name)) {
                 foreach ($name as $index => $value) {
@@ -100,7 +113,7 @@ class App extends Container {
                 $this->app_resolved[ $name ] = true;
             }
         }
-        return parent::register_defaults($name, $registrand);
+        return parent::registerDefaults($name, $registrand);
     }
     /**
      * @param null  $identifier
@@ -111,14 +124,15 @@ class App extends Container {
     public function resolve($identifier = null, $arguments = null) {
         $arguments = func_get_args();
         #If
-        if (array_key_exists($identifier, $this->app_resolved))
+        if (array_key_exists($identifier, $this->app_resolved)) {
             array_splice($arguments, 1, 0, [ $this ]);
+        }
         return $this->canResolve($identifier)
             ? parent::resolve(...$arguments)
             : null;
     }
     public function __debugInfo() {
-        $return          = $this->registry;
+        $return          = $this->getAll();
         $return['Paths'] = $this->Paths;
         return $return;
     }
@@ -131,11 +145,12 @@ class App extends Container {
     public static function coerce($item) {
         $instance = new static();
     
-        if ($item instanceof Container) $instance->inherit($item);
-        else if (is_array($item)) $instance->register($item);
+        if ($item instanceof Container) {
+            $instance->inherit($item);
+        } else if (is_array($item)) {
+            $instance->register($item);
+        }
         
         return $instance;
     }
-    
-    
 }

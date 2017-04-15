@@ -11,12 +11,19 @@ namespace Sm\Storage\Modules\Sql\Formatter;
 use Sm\Error\WrongArgumentException;
 
 class SelectFragment extends SqlFragment {
+    /** @var  \Sm\Storage\Modules\Sql\Formatter\PropertyFragment[] */
     protected $PropertyFragments;
     /**
      * @var FromFragment $FromFragment
      */
     protected $FromFragment;
     protected $WhereFragment;
+    /**
+     * @return \Sm\Storage\Modules\Sql\Formatter\PropertyFragment[]
+     */
+    public function getPropertyFragments() {
+        return $this->PropertyFragments;
+    }
     /**
      * Set the PropertyFragments that this SelectStatement will use.
      *
@@ -33,12 +40,6 @@ class SelectFragment extends SqlFragment {
         }
         $this->PropertyFragments = $PropertyFragments;
         return $this;
-    }
-    /**
-     * @return \Sm\Storage\Modules\Sql\Formatter\PropertyFragment[]
-     */
-    public function getProperties() {
-        return $this->PropertyFragments;
     }
     public function getVariables(): array {
         return [
@@ -64,7 +65,7 @@ class SelectFragment extends SqlFragment {
     /**
      * @return WhereFragment
      */
-    public function getWhere(): WhereFragment {
+    public function getWhereFragment() {
         return $this->WhereFragment;
     }
     /**
@@ -72,7 +73,7 @@ class SelectFragment extends SqlFragment {
      *
      * @return \Sm\Storage\Modules\Sql\Formatter\SelectFragment
      */
-    public function setWhere(WhereFragment $WhereFragment): SelectFragment {
+    public function setWhereFragment(WhereFragment $WhereFragment): SelectFragment {
         $this->WhereFragment = $WhereFragment;
         return $this;
     }

@@ -5,7 +5,7 @@
  * Time: 7:11 PM
  */
 
-namespace Sm\Container;
+namespace Sm\Storage\Container;
 
 
 use Sm\Resolvable\SingletonFunctionResolvable;
@@ -24,9 +24,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
      * @depends      testCanCreate
      * @dataProvider Container_Provider
      *
-     * @param \Sm\Container\Container $Container
+     * @param \Sm\Storage\Container\Container $Container
      *
-     * @return \Sm\Container\Container
+     * @return \Sm\Storage\Container\Container
      */
     public function testCanRegister(Container $Container) {
         return $this->_register_default($Container);
@@ -68,9 +68,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
     /**
      * @depends testCanCreate
      *
-     * @param \Sm\Container\Container $Container
+     * @param \Sm\Storage\Container\Container $Container
      *
-     * @return \Sm\Container\Container
+     * @return \Sm\Storage\Container\Container
      */
     public function testCanCopy(Container $Container) {
         $Container->register('test.1', SingletonFunctionResolvable::init(function ($argument) {
@@ -92,14 +92,14 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals($array, $end);
     }
     /**
-     * @param \Sm\Container\Container $Container
+     * @param \Sm\Storage\Container\Container $Container
      *
-     * @return \Sm\Container\Container
+     * @return \Sm\Storage\Container\Container
      */
     protected function _register_default(Container $Container) {
         $Container->register('test_string', 'string');
-        $Container->register_defaults('test_string', 'This is a thing');
-        $Container->register_defaults('other_test_string', 'This is a thing');
+        $Container->registerDefaults('test_string', 'This is a thing');
+        $Container->registerDefaults('other_test_string', 'This is a thing');
         $Container->register('test_fn', function () { return 'fn'; });
         $Container->register([
                                  'test_arr_1' => 1,

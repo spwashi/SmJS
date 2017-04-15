@@ -32,7 +32,9 @@ System_::registerFactory(LoggerFactory::class, new LoggerFactory);
 $LoggerFactory = System_::Factory(LoggerFactory::class);
 
 $fn_get_default_logger = function ($name = null, $severity = null) {
-    if (isset($name)) $name = StringResolvable::coerce($name)->resolve();
+    if (isset($name)) {
+        $name = StringResolvable::coerce($name)->resolve();
+    }
     $Logger  = new Logger($name??'System');
     $Handler = new StreamHandler(SYSTEM_LOG_PATH . 'system.sm.log.html',
                                  $severity ?? null);
@@ -42,5 +44,4 @@ $fn_get_default_logger = function ($name = null, $severity = null) {
 };
 
 
-$LoggerFactory->register(SingletonFunctionResolvable::init($fn_get_default_logger),
-                         'System');
+$LoggerFactory->register('System', SingletonFunctionResolvable::init($fn_get_default_logger));

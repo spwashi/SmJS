@@ -13,10 +13,10 @@ use Sm\Entity\EntityType;
 use Sm\Entity\EntityTypeMeta;
 use Sm\Entity\Property\Property;
 use Sm\Entity\Property\PropertyContainer;
+use Sm\Storage\Database\TableSource;
+use Sm\Storage\Modules\Sql\MySql\Interpreter\MysqlQueryInterpreter;
 use Sm\Storage\Modules\Sql\MySql\MysqlDatabaseSource;
 use Sm\Storage\Modules\Sql\MySql\MysqlPdoAuthentication;
-use Sm\Storage\Modules\Sql\MySql\MysqlQueryInterpreter;
-use Sm\Storage\Source\Database\TableSource;
 
 class QueryTest extends \PHPUnit_Framework_TestCase {
     /**
@@ -68,12 +68,9 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
             $ET = $EntityTypes[ $_name ]
                 = new EntityType(EntityTypeMeta::init()->setProperties($PropertyContainer)->setName($_name));
     
-            $ET->IdentifyingConditionFactory->register(function ($classname, $ET) {
-                return [
-                    'Condition' => Where::equals_($ET->Properties->id, $ET->Properties->id->value),
-                    'Items'     => [ $ET->Properties->id ],
-                ];
-            }, MysqlQueryInterpreter::class);
+            $ET->IdentifyingConditionFactory->register(MysqlQueryInterpreter::class, function ($QueryInterpreter, Query $Query, $ET) {
+                $Query->select($ET->Properties->id)->where(Where::equals_($ET->Properties->id, $ET->Properties->id->value));
+            });
             
         }
         
@@ -91,20 +88,26 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
         $App->Modules->_app   = include APP_MODULE ??[];
         $Collection->id       = 'collection_id';
         $Section->id          = '1';
+        $Section->title       = 'hello';
         $id                   = clone  $Section->Meta->Properties;
     
-        $WhereClause = Where::greater_(6, 1)
-                            ->or_($Section->id);
     
-        $results = $App->Query->select($Section->title)
-                              ->where($WhereClause)->run();
+        $WhereClause = Where::greater_(6, $Colln->title)->or_($Collection->id);
+    
+        $results = $App->Query->select($Colln->title, $Collection->Properties)
+                              ->where($WhereClause)
+                              ->run();
     
     
-        $results = $App->Query->insert($Section->title, $Section->alias)->run();
+        $results = $App->Query->insert($Section->Properties)
+                              ->values([ 1, 2, 'This is a test' ], [ 1, 2, 3, 4 ])
+                              ->run();
         
     }
     protected function getDatabaseSource() {
-        if (isset($this->DatabaseSource)) return $this->DatabaseSource;
+        if (isset($this->DatabaseSource)) {
+            return $this->DatabaseSource;
+        }
         $Authentication = MysqlPdoAuthentication::init()
                                                 ->setCredentials('codozsqq',
                                                                  '^bzXfxDc!Dl6',

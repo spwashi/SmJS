@@ -18,8 +18,10 @@ class PhpTemplate extends Template {
         $_path_ = $this->resolved_path;
         # This really is only here to be available to the included script
         $App = $this->App ?? null;
-        
-        if ($App) ;
+    
+        if ($App) {
+            ;
+        }
         
         # region  Capture the content of the file and return it region
         ob_start();

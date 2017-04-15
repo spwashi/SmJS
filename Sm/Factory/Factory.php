@@ -10,15 +10,36 @@ namespace Sm\Factory;
 
 use Sm\Resolvable\Error\UnresolvableError;
 use Sm\Resolvable\FunctionResolvable;
+use Sm\Resolvable\NativeResolvable;
 use Sm\Resolvable\Resolvable;
+use Sm\Storage\Container\AbstractContainer;
+use Sm\Storage\Container\Mini\MiniCache;
 use Sm\Util;
 
-class Factory implements \Sm\Abstraction\Factory\Factory {
+/**
+ * Class Factory
+ *
+ * @package Sm\Factory
+ * @property-read \Sm\Storage\Container\Mini\MiniCache $Cache
+ */
+class Factory extends AbstractContainer {
+    /** @var  \Sm\Storage\Container\Mini\MiniCache $Cache */
+    protected $Cache;
+    protected $cache_key;
+    
+    /** @var Resolvable[] */
     protected $registry = [];
     /** @var array $class_registry */
     protected $class_registry = [];
-    
+    /** @var bool If there is a class that isn't registered in the factory (and doesn't have ancestor that is), should we create it anyways? */
     protected $do_create_missing = true;
+    /**
+     * Factory constructor.
+     */
+    public function __construct() {
+        $this->Cache = new MiniCache;
+    }
+    
     
     /**
      * @return mixed
@@ -44,19 +65,18 @@ class Factory implements \Sm\Abstraction\Factory\Factory {
      */
     public function attempt_build() {
         $args = func_get_args();
-    
         /** @var string $class_name */
         $class_name = $args[0] ?? null;
+        $class_name = is_object($class_name) ? get_class($class_name) : $class_name;
     
-    
-        if (is_string($class_name)
-            || is_object($class_name) && ($class_name = get_class($class_name))
-            || isset($class_name) && ($class_name = gettype($class_name)) && isset($this->class_registry[ $class_name ])
+        if (is_string($class_name) || ($class_name = gettype($class_name)) &&
+                                      isset($this->class_registry[ $class_name ])
         ) {
             # If the original class exists or we found a match, create the class
             try {
                 return $this->create_class($class_name, $args);
             } catch (WrongFactoryException $E) {
+            } catch (UnresolvableError $E) {
             }
         }
     
@@ -64,22 +84,79 @@ class Factory implements \Sm\Abstraction\Factory\Factory {
         # Iterate through the other registry to see if there is some sort of different check
         #  being done
         /**
-         * @var          $index
-         * @var callable $method
+         * @var            $index
+         * @var Resolvable $method
          */
         foreach ($this->registry as $index => $method) {
-            $result = $method(...$args);
-            if ($result) return $result;
+            $result = $method->resolve(...$args);
+            if ($result) {
+                return $result;
+            }
         }
         return null;
     }
-    public function getHandlerFromRegistry($item) {
-        if (!class_exists($item)) return $this->class_registry[ $item ] ?? null;
-        $ancestors = Util::getAncestorClasses($item, true);
-        foreach ($ancestors as $class_name) {
-            if (isset($this->class_registry[ $class_name ])) return $this->class_registry[ $class_name ];
+    /**
+     * @param null $name
+     *
+     * @return mixed|null
+     */
+    
+    public function resolve($name = null) {
+        $args   = func_get_args();
+        $result = $this->Cache->resolve($args);
+        
+        if (isset($result)) {
+            return $result;
         }
-        return null;
+        $result = $this->attempt_build(...$args);
+        
+        
+        # Cache the result if we've decided that's necessary
+        $this->Cache->cache($args, $result);
+        return $result;
+    }
+    /**
+     * Return whatever this factory refers to based on some sort of operand
+     *
+     * @return null
+     */
+    public function build() {
+        return static::resolve(...func_get_args());
+    }
+    /**
+     * Register a method to use to build this factory
+     *
+     * @param null $name
+     *
+     * @param      $registrand
+     *
+     * @return $this
+     */
+    public function register($name = null, $registrand = null) {
+        if (is_array($registrand)) {
+            foreach ($registrand as $key => $value) {
+                $this->register(is_numeric($key) ? null : $key, $value);
+            }
+            return $this;
+        } else {
+            $registrand = $this->standardizeRegistrand($registrand);
+            
+            
+            # If the "name" is an object, just use the classname
+            if (is_object($name)) {
+                $name = get_class($name);
+            }
+            if (is_string($name)) {
+                $this->class_registry[ $name ] = $registrand;
+            }
+            
+            # register functions that don't have a name
+            #  or FunctionResolvables that don't have an
+            if (!$name) {
+                array_unshift($this->registry, $registrand);
+            }
+        }
+        return $this;
     }
     /**
      * Build a class relevant to this Factory
@@ -92,66 +169,39 @@ class Factory implements \Sm\Abstraction\Factory\Factory {
      * @throws \Sm\Factory\WrongFactoryException
      * @throws \Sm\Resolvable\Error\UnresolvableError
      */
-    public function create_class(string $class_name, array $args = []) {
-        $actual_class_name = $this->getHandlerFromRegistry($class_name);
-        
+    protected function create_class(string $class_name, array $args = []) {
         # If there is a function to help us create the class, call that function with the original class name that we
         #  are trying to create
-        if (is_callable($actual_class_name) && ($actual_class_name instanceof FunctionResolvable || !($actual_class_name instanceof Resolvable))) {
-            return $actual_class_name(...$args);
-        } # If the registry holds a string, use the string as a class name
-        elseif (is_string($actual_class_name)) {
-            $class_name = $actual_class_name;
-        } # If the class name is an object, clone it
-        else if (is_object($actual_class_name)) {
-            return clone $actual_class_name;
+        $class_handler = Util::getItemByClassAncestry($class_name, $this->class_registry);
+        
+        # If we are resolving a function, return that result.
+        if ($class_handler instanceof FunctionResolvable) {
+            return $class_handler(...$args);
         }
-    
-    
+        
+        # Otherwise, set the class handler to be whatever the classhandler resolves to
+        if ($class_handler instanceof Resolvable) {
+            $class_handler = $class_handler->resolve(...$args);
+        }
+        
+        # If the registry holds a string, use the string as a class name
+        if (is_string($class_handler)) {
+            $class_name = $class_handler;
+        } # If the class name is an object, clone it
+        else if (is_object($class_handler)) {
+            return clone $class_handler;
+        }
+        
+        
         if (!$this->canCreateClass($class_name) || !$this->do_create_missing) {
             throw new WrongFactoryException("Not allowed to create class of type {$class_name}");
         }
         
-        if (!class_exists($class_name)) throw new UnresolvableError("Class {$class_name} not found");
-        
+        if (!class_exists($class_name)) {
+            throw new UnresolvableError("Class {$class_name} not found");
+        }
         $class = new $class_name(...$args);
         return $class;
-    }
-    /**
-     * Return whatever this factory refers to based on some sort of operand
-     *
-     * @return null
-     */
-    public function build() {
-        return $this->attempt_build(...func_get_args());
-    }
-    /**
-     * Register a method to use to build this factory
-     *
-     * @param      $item
-     *
-     * @param null $name
-     *
-     * @return $this
-     * @throws \Sm\Resolvable\Error\UnresolvableError
-     */
-    public function register($item, $name = null) {
-        if (is_array($item)) {
-            foreach ($item as $key => $value) {
-                $this->register($value, is_numeric($key) ? null : $key);
-            }
-            return $this;
-        } else {
-            if (is_string($name)) {
-                $this->class_registry[ $name ] = $item;
-            }
-            # register functions that don't have a name
-            #  or FunctionResolvables that don't have an
-            if (is_callable($item) && (!$name)) {
-                array_unshift($this->registry, $item);
-            }
-        }
-        return $this;
     }
     /**
      * Are we allowed to create factories of this class type?
@@ -160,7 +210,15 @@ class Factory implements \Sm\Abstraction\Factory\Factory {
      *
      * @return bool
      */
-    public function canCreateClass($object_type) {
+    protected function canCreateClass($object_type) {
         return true;
+    }
+    /**
+     * @param mixed $registrand Whatever is being registered
+     *
+     * @return null|\Sm\Abstraction\Resolvable\Resolvable
+     */
+    protected function standardizeRegistrand($registrand) {
+        return is_callable($registrand) ? FunctionResolvable::coerce($registrand) : NativeResolvable::coerce($registrand);
     }
 }

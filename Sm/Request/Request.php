@@ -69,7 +69,9 @@ class Request implements \Sm\Abstraction\Request\Request, Coercable, \JsonSerial
         $this->url  = $url;
         $parsed     = parse_url($url);
         $this->path = $parsed['path'] ?? $this->url;
-        if (is_string($this->path)) $this->path = trim($this->path, '/ ');
+        if (is_string($this->path)) {
+            $this->path = trim($this->path, '/ ');
+        }
         return $this;
     }
     /**
@@ -78,7 +80,9 @@ class Request implements \Sm\Abstraction\Request\Request, Coercable, \JsonSerial
      * @return null
      */
     public function getUrlPath() {
-        if ($this->ChangePathResolvable) return $this->ChangePathResolvable->resolve($this->path);
+        if ($this->ChangePathResolvable) {
+            return $this->ChangePathResolvable->resolve($this->path);
+        }
         return $this->path ?? null;
     }
     /**
@@ -147,7 +151,9 @@ class Request implements \Sm\Abstraction\Request\Request, Coercable, \JsonSerial
     }
     public static function init() { return new static; }
     public static function coerce($item = null) {
-        if ($item instanceof Request) return $item;
+        if ($item instanceof Request) {
+            return $item;
+        }
         if (is_string($item)) {
             return static::init()->setUrl($item);
         } else {

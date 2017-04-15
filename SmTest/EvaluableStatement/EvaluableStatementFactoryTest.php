@@ -25,15 +25,14 @@ class EvaluableStatementFactoryTest extends \PHPUnit_Framework_TestCase {
         
         
         # Register that class under the pseudonym "test"
-        $Factory->register($fn_get_class, 'test');
+        $Factory->register('test', $fn_get_class);
         
         # For "test", register two callbacks. The last to be registered should be the first to be called.
         $Factory->registerEvaluatorForClass('test', function () { echo '|test.echo.2'; });
         $Factory->registerEvaluatorForClass('test', function () { echo 'test.echo.1'; });
         
         /** @var EvaluableStatement $class */
-        $class = $Factory->build('test');
-        
+        $class  = $Factory->build('test');
         $result = $class->resolve();
         $this->assertEquals('test.return', $result);
         

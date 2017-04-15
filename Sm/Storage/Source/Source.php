@@ -30,7 +30,9 @@ abstract class Source implements Identifiable {
      * @param Authentication $Authentication
      */
     public function __construct(Authentication $Authentication = null) {
-        if (isset($Authentication)) $this->Authentication = $Authentication;
+        if (isset($Authentication)) {
+            $this->Authentication = $Authentication;
+        }
         $this->setObjectId(Identifier::generateIdentity($this));
     }
     

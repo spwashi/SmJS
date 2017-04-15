@@ -56,13 +56,13 @@ class AppTest extends \PHPUnit_Framework_TestCase {
         $App                   = App::init();
         $App->name             = 'Test';
         $App->Paths->base_path = 'hello';
-        $App->register_defaults('test',
-                                FunctionResolvable::coerce(function ($App) {
+        $App->registerDefaults('test',
+                               FunctionResolvable::coerce(function ($App) {
                                     return $App->name;
                                 }),
-                                true);
+                               true);
         $App->test_2 = 'hello';
-        $App->register_defaults('test_2', FunctionResolvable::coerce(function ($App) { return $App->name; }), true);
+        $App->registerDefaults('test_2', FunctionResolvable::coerce(function ($App) { return $App->name; }), true);
         $this->assertEquals($App->name,
                             $App->test);
         $this->assertEquals('hello', $App->test_2);

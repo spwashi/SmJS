@@ -54,9 +54,10 @@ class View extends Response {
         $Template = $this->templates[ $content_type ] ?? null;
         
         # If we don't have a template, convert whatever it is into a string
-        if (!$Template)
+        if (!$Template) {
             return "" . $this->getFactoryContainer()->resolve(ResolvableFactory::class)
                              ->build($this->subject);
+        }
         
         # Resolve the template with the variables this View should get
         return $Template->resolve($this->getVariables());
@@ -82,8 +83,9 @@ class View extends Response {
             $this->getFactoryContainer()->resolve(TemplateFactory::class)
                  ->build($_template);
     
-        if ($App = $this->getApp())
+        if ($App = $this->getApp()) {
             $Template->setApp($App);
+        }
         
         $this->templates[ $content_type ] = $Template;
         return $this;
@@ -129,32 +131,12 @@ class View extends Response {
         # Create Views from the Values
         foreach ($vars as $k => $val) {
             $built_view = $ViewFactory->build($val)->resolve();
-            if (strlen("{$built_view}")) $vars[ $k ] = $built_view;
+            if (strlen("{$built_view}")) {
+                $vars[ $k ] = $built_view;
+            }
         }
         
         
         return $vars;
-    }
-    /**
-     * Get the ViewFactory that this instance of the View will use
-     *
-     * @return \Sm\View\ViewFactory
-     */
-    private function _getViewFactory() {
-        /** @var ViewFactory $ViewFactory */
-        if (isset($this->App)) $ViewFactory = $this->App->resolve('view.factory');
-        if (!isset($ViewFactory)) $ViewFactory = new ViewFactory;
-        return $ViewFactory;
-    }
-    /**
-     * Get the TemplateFactory that this instance of the Template will use
-     *
-     * @return \Sm\View\Template\TemplateFactory
-     */
-    private function _getTemplateFactory() {
-        /** @var TemplateFactory $TemplateFactory */
-        if (isset($this->App)) $TemplateFactory = $this->App->resolve('template.factory');
-        if (!isset($TemplateFactory)) $TemplateFactory = new TemplateFactory;
-        return $TemplateFactory;
     }
 }

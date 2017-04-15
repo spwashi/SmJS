@@ -28,7 +28,9 @@ class Type extends Resolvable implements \JsonSerializable {
     }
     function jsonSerialize() {
         $subject = "$this->subject";
-        if (strlen($subject)) return $subject;
+        if (strlen($subject)) {
+            return $subject;
+        }
         $class = static::class;
         $expl  = explode('\\', $class);
         end($expl);

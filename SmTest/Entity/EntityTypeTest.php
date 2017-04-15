@@ -11,11 +11,12 @@ namespace Sm\Entity;
 use Sm\Entity\Property\Property;
 use Sm\Entity\Property\PropertyContainer;
 use Sm\Entity\Property\ReadonlyPropertyException;
+use Sm\Storage\Database\TableSource;
 use Sm\Storage\Modules\Sql\MySql\MysqlDatabaseSource;
 use Sm\Storage\Modules\Sql\MySql\MysqlPdoAuthentication;
-use Sm\Storage\Source\Database\TableSource;
 
 class EntityTypeTest extends \PHPUnit_Framework_TestCase {
+    /** @var  \Sm\Entity\EntityType $EntityType */
     protected $EntityType;
     public function setUp() {
         $this->EntityType = $this->getEntityType();
@@ -37,10 +38,24 @@ class EntityTypeTest extends \PHPUnit_Framework_TestCase {
         $this->EntityType->Properties->first_name = new Property;
     }
     
+    public function testCanOwnPropertiesCorrectly() {
+        $Section           = $this->EntityType;
+        $Section->eg_title = "Samuel";
+        $Section->eg_alias = "Washington";
+        $this->assertEquals($Section, $Section->eg_alias->getOwners()[0]);
+        $Properties = $Section->Properties;
+        $this->assertInstanceOf(PropertyContainer::class, $Properties);
+        
+        $clonedProperties = clone $Properties;
+        $this->assertNotEquals($Section, $clonedProperties->getOwner());
+        
+    }
     
     protected function getEntityType() {
         $property_array = [ 'first_name' => new Property,
                             'last_name'  => new Property,
+                            'eg_alias'   => new Property,
+                            'eg_title'   => new Property,
                             'alias'      => new Property, ];
         
         $DatabaseSource = $this->getDatabaseSource();
@@ -55,7 +70,7 @@ class EntityTypeTest extends \PHPUnit_Framework_TestCase {
         return $EntityType;
     }
     /**
-     * @return \Sm\Storage\Source\Database\DatabaseSource
+     * @return \Sm\Storage\Database\DatabaseSource
      */
     protected function getDatabaseSource() {
         $Authentication = MysqlPdoAuthentication::init()

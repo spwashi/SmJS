@@ -14,18 +14,18 @@ use Sm\EvaluableStatement\EvaluableStatementFactory;
 use Sm\Formatter\FormatterFactory;
 use Sm\Query\Interpreter\QueryInterpreterFactory;
 use Sm\Resolvable\FunctionResolvable;
+use Sm\Storage\Database\TableSource;
+use Sm\Storage\Modules\Sql\MySql\Interpreter\MysqlQueryInterpreter;
 use Sm\Storage\Modules\Sql\MySql\MysqlDatabaseSource;
 use Sm\Storage\Modules\Sql\MySql\MysqlPdoAuthentication;
-use Sm\Storage\Modules\Sql\MySql\MysqlQueryInterpreter;
 use Sm\Storage\Modules\Sql\SqlModule;
-use Sm\Storage\Source\Database\TableSource;
 use Sm\Type\Variable_\Variable_;
 
 
 $SqlModule = SqlModule::init(function (App $App, SqlModule $SqlModule) {
     $FormatterFactory = new FormatterFactory;
     $path             = __DIR__ . '/mysql.sql.sm.formatter.php';
-    $FormatterFactory->register(include $path ?? []);
+    $FormatterFactory->register(null, include $path ?? []);
     $SqlModule->setFormatterFactory($FormatterFactory);
     
     
@@ -42,12 +42,10 @@ $SqlModule = SqlModule::init(function (App $App, SqlModule $SqlModule) {
     
     
     $get_mysql_interpreter_fn = function ($item = null) use ($SqlModule) {
-        $Interpreter = new MysqlQueryInterpreter;
-        $Interpreter->setSqlModule($SqlModule);
-        return $Interpreter;
+        return (new MysqlQueryInterpreter)->setSqlModule($SqlModule);
     };
     $App->Factories->resolve(QueryInterpreterFactory::class)
-                   ->register($get_mysql_interpreter_fn, MysqlDatabaseSource::class);
+                   ->register(MysqlDatabaseSource::class, $get_mysql_interpreter_fn);
 });
 $dispatch  = function (App $App, SqlModule $self) {
     /** @var EvaluableStatementFactory $_ */
@@ -70,9 +68,8 @@ $dispatch  = function (App $App, SqlModule $self) {
     
     $Source        = new TableSource($DatabaseSource, 'sections');
     $TitleProperty = new Property('title', $Source);
-
-
-//    var_dump($self->format($TitleProperty));
+    
+    
     # endregion
 };
 $SqlModule->setDispatch(FunctionResolvable::coerce($dispatch));

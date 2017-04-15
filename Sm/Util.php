@@ -10,6 +10,24 @@ namespace Sm;
 
 class Util {
     /**
+     * Return a string representing the general structure of the item as a pipe-delimited string
+     *
+     * @param $result
+     *
+     * @return string
+     */
+    public static function getShapeOfItem($result) {
+        if (is_array($result)) {
+            $string = '';
+            foreach ($result as $item) {
+                $string .= static::getShapeOfItem($item) . '|';
+            }
+            
+            return trim($string, '|');
+        }
+        return is_object($result) ? get_class($result) : gettype($result);
+    }
+    /**
      * Is there a good way for us to convert this into a string?
      *
      * @param $var
@@ -39,7 +57,7 @@ class Util {
      *
      * @return string THe random string
      */
-    static function generateRandomString($length, $characters_to_use = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-') {
+    public static function generateRandomString($length, $characters_to_use = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-') {
         $str   = '';
         $count = strlen($characters_to_use);
         while ($length--) {
@@ -49,7 +67,33 @@ class Util {
         
         return $str;
     }
-    
+    /**
+     * Gives us a way to search the registry while also allowing for inheritance
+     *
+     * @param string $item         The class name or identifying string to search for.
+     * @param array  $search_array Reference to the array to sarch for the Item in
+     *
+     * @return mixed|null
+     */
+    public static function getItemByClassAncestry(string $item, array &$search_array) {
+        # If the class is non-existent, all we can really do is check to see if
+        #   we have that name registered in whatever array
+        if (!class_exists($item)) {
+            return $search_array[ $item ] ?? null;
+        }
+        
+        # Iterate through the ancestor classes to see if we have something registered for them.
+        $ancestors = Util::getAncestorClasses($item, true);
+        foreach ($ancestors as $class_name) {
+            # If there's something in here for the ancestor class (or just this item's class), return that item
+            if (isset($search_array[ $class_name ])) {
+                return $search_array[ $class_name ];
+            }
+        }
+        
+        # If we can't find the item, return null
+        return null;
+    }
     /**
      * Get an array of the classes that an object inherits from. The first indices are the highest ancestors.
      *
@@ -62,7 +106,9 @@ class Util {
         $classes = [];
         $class   = $class_name;
         for ($classes[] = $class; $class = get_parent_class($class); $classes[] = $class) ;
-        if ($append_interfaces) $classes += class_implements($class_name);
+        if ($append_interfaces) {
+            $classes += class_implements($class_name);
+        }
         return $classes;
     }
     /**
@@ -91,12 +137,18 @@ class Util {
             $previous_line         = $repl_item['line'] = $item['line'] ?? $previous_line;
             $repl_item['function'] = $item['function'] ?? null;
             $repl_item['class']    = $item['class'] ?? null;
-            if ($i < $level) break;
-            if ($i > $max_len || $i - $level >= $count) continue;
+            if ($i < $level) {
+                break;
+            }
+            if ($i > $max_len || $i - $level >= $count) {
+                continue;
+            }
             $end[] = $s = array_filter($repl_item, function ($r) { return !!($r??false); });
         }
         $end = array_reverse($end);
-        if ($count === 1) return $end[0] ?? [];
+        if ($count === 1) {
+            return $end[0] ?? [];
+        }
         return $end;
     }
 }

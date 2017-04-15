@@ -9,7 +9,7 @@ namespace Sm\Entity\Property;
 
 
 use Sm\Abstraction\ReadonlyTrait;
-use Sm\Entity\EntityVariable;
+use Sm\Entity\EntityTypeVariable;
 use Sm\Storage\Source\NullSource;
 use Sm\Storage\Source\Source;
 use Sm\Storage\Source\SourceHaver;
@@ -46,13 +46,20 @@ class Property extends Variable_ implements SourceHaver {
      * @param Source|null $Source
      */
     public function __construct($name = null, Source $Source = null) {
-        if (isset($name)) $this->name = $name;
-        if (isset($Source)) $this->Source = $Source;
+        if (isset($name)) {
+            $this->name = $name;
+        }
+        if (isset($Source)) {
+            $this->Source = $Source;
+        }
         
         parent::__construct(null);
     }
     public function __get($name) {
-        if ($name === 'object_id') return $this->_object_id;
+        if ($name === 'object_id') {
+            return $this->_object_id;
+        }
+        # todo (bug or feature?) returns $this when "value" would resolves to null bc of variable resolution thing
         return parent::__get($name);
     }
     /**
@@ -64,7 +71,9 @@ class Property extends Variable_ implements SourceHaver {
      * @throws \Sm\Entity\Property\ReadonlyPropertyException
      */
     public function __set($name, $value) {
-        if ($this->isReadonly()) throw new ReadonlyPropertyException("Cannot modify a readonly property");
+        if ($this->isReadonly()) {
+            throw new ReadonlyPropertyException("Cannot modify a readonly property");
+        }
         parent::__set($name, $value);
     }
     /**
@@ -75,13 +84,39 @@ class Property extends Variable_ implements SourceHaver {
      *
      * @return $this
      */
-    public function addOwner(PropertyHaver $Owner) {
-        if (($this->Owners[0] ?? false) instanceof EntityVariable) return $this->setOwner($Owner);
-        if (!in_array($Owner, $this->Owners)) $this->Owners[] = $Owner;
+    public function addOwner(PropertyHaver $Owner = null) {
+        # If this PropertyContainer was previously owned by an EntityTypeVariable
+        if (($this->Owners[0] ?? false) instanceof EntityTypeVariable) {
+            return $this->setOwner($Owner);
+        }
+        if (!in_array($Owner, $this->Owners)) {
+            $this->Owners[] = $Owner;
+        }
         return $this;
     }
-    public function setOwner(PropertyHaver $Owner) {
-        $this->Owners = [ $Owner ];
+    /**
+     * Remove an Owner from this Property
+     *
+     * @param \Sm\Entity\Property\PropertyHaver $Owner
+     *
+     * @return $this
+     */
+    public function removeOwner(PropertyHaver $Owner) {
+        $index = array_search($Owner, $this->Owners);
+        if ($index !== false) {
+            unset($this->Owners[ $index ]);
+        }
+        return $this;
+    }
+    /**
+     * Make it so the only Owner of this Property
+     *
+     * @param \Sm\Entity\Property\PropertyHaver|null $Owner
+     *
+     * @return $this
+     */
+    public function setOwner(PropertyHaver $Owner = null) {
+        $this->Owners = isset($Owner) ? [ $Owner ] : [];
         return $this;
     }
     /**

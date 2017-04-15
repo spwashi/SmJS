@@ -31,8 +31,12 @@ abstract class EqualityCondition_ extends EvaluableStatement {
     protected $_right_side_ = null;
     
     public function set($left_side = null, $right_side = null): EvaluableStatement {
-        if (isset($left_side)) $this->_left_side_ = $left_side;
-        if (isset($right_side)) $this->_right_side_ = $right_side;
+        if (isset($left_side)) {
+            $this->_left_side_ = $left_side;
+        }
+        if (isset($right_side)) {
+            $this->_right_side_ = $right_side;
+        }
         return $this;
     }
     public static function init($left_side = null, $right_side = null) {

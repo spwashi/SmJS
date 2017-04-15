@@ -7,7 +7,7 @@
 
 namespace Sm\App;
 
-use Sm\Container\Container;
+use Sm\Storage\Container\Container;
 
 
 /**
@@ -48,7 +48,9 @@ class PathContainer extends Container {
      */
     public function resolve($name = null) {
         $string = parent::resolve($name, $this, $this->App);
-        if (!is_string($string)) return $string;
+        if (!is_string($string)) {
+            return $string;
+        }
         return rtrim($string, '/') . '/';
     }
     function __call($name, $arguments) {

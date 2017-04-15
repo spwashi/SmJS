@@ -9,8 +9,8 @@ namespace Sm\App;
 
 
 use Sm\App\Module\Module;
-use Sm\Container\Container;
 use Sm\Request\Request;
+use Sm\Storage\Container\Container;
 
 /**
  * @property Module                            routing
@@ -46,7 +46,9 @@ class ModuleContainer extends Container {
      */
     public function duplicate(App $App = null) {
         $Container = static::init();
-        if (isset($App)) $Container->setApp($App);
+        if (isset($App)) {
+            $Container->setApp($App);
+        }
         $registry                        = $this->cloneRegistry();
         $Container->_registered_defaults = $this->_registered_defaults;
         $Container->register($registry, null, false);
@@ -70,8 +72,10 @@ class ModuleContainer extends Container {
         } else {
             $registrand = Module::coerce($registrand);
             $registrand->setApp($this->App);
-            
-            if ($do_initialize) $registrand->initialize();
+    
+            if ($do_initialize) {
+                $registrand->initialize();
+            }
             
             parent::register($name, $registrand);
             return $this;
@@ -85,7 +89,9 @@ class ModuleContainer extends Container {
      */
     public function resolve($name = null, $arguments = null) {
         $Module = parent::resolve($name, $arguments);
-        if ($Module instanceof Module) $Module->initialize();
+        if ($Module instanceof Module) {
+            $Module->initialize();
+        }
         return $Module;
     }
     /**
@@ -94,8 +100,10 @@ class ModuleContainer extends Container {
      * @return $this
      */
     public function reset() {
-        foreach ($this->registry as $key => $value) {
-            if ($value instanceof Module) $value->reset();
+        foreach ($this->getAll() as $key => $value) {
+            if ($value instanceof Module) {
+                $value->reset();
+            }
         }
         return $this;
     }

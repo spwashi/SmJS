@@ -66,7 +66,9 @@ abstract class EvaluableStatement extends Resolvable implements Formattable, \Js
             $variables += $variables['items'];
         }
         foreach ($variables as $index => $variable) {
-            if ($variable instanceof Variable_ || $variable instanceof DeferredEvaluationStatement) return null;
+            if ($variable instanceof Variable_ || $variable instanceof DeferredEvaluationStatement) {
+                return null;
+            }
         }
         return true;
     }
@@ -142,7 +144,9 @@ abstract class EvaluableStatement extends Resolvable implements Formattable, \Js
         if ($component instanceof Resolvable) {
             $component->setFactoryContainer($this->getFactoryContainer());
         }
-        if ($component instanceof Variable_) return $component;
+        if ($component instanceof Variable_) {
+            return $component;
+        }
         $result = $component instanceof Resolvable ? $component->resolve() : $component;
         return $result;
     }
@@ -161,7 +165,9 @@ abstract class EvaluableStatement extends Resolvable implements Formattable, \Js
         $registry[] = \Closure::bind($this->getDefaultEvaluator(), $this);
         foreach ($registry as $key => $item) {
             $result = $item($this);
-            if (isset($result)) return $result;
+            if (isset($result)) {
+                return $result;
+            }
         }
         return null;
     }

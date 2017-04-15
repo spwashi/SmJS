@@ -25,8 +25,10 @@ class Route implements Resolvable, Coercable, \JsonSerializable {
     protected $parameters = [];
     
     public function __construct($resolution = null, $pattern = null) {
-        if (is_string($pattern) || is_numeric($pattern)) $this->setStringPattern($pattern);
-    
+        if (is_string($pattern) || is_numeric($pattern)) {
+            $this->setStringPattern($pattern);
+        }
+        
         if (is_string($resolution) && strpos($resolution, '#') !== false && strpos($resolution, '::') !== false) {
             $resolution = FunctionResolvable::coerce(function ($Request = null) use ($pattern, $resolution) {
                 if ($Request instanceof Request) {
@@ -52,7 +54,9 @@ class Route implements Resolvable, Coercable, \JsonSerializable {
             $resolution = ResolvableFactory::init()->build($resolution);
         }
     
-        if ($resolution instanceof Resolvable) $this->setResolution($resolution);
+        if ($resolution instanceof Resolvable) {
+            $this->setResolution($resolution);
+        }
     }
     /**
      * @param string|Request $item
@@ -60,9 +64,15 @@ class Route implements Resolvable, Coercable, \JsonSerializable {
      * @return bool
      */
     public function matches($item) {
-        if ($item instanceof Request) $item = $item->getUrlPath();
-        if (is_string($item)) $item = trim($item, '\\ /');
-        if ($item === $this->pattern) return true;
+        if ($item instanceof Request) {
+            $item = $item->getUrlPath();
+        }
+        if (is_string($item)) {
+            $item = trim($item, '\\ /');
+        }
+        if ($item === $this->pattern) {
+            return true;
+        }
         if (is_string($item) && is_string($this->pattern)) {
             preg_match("~^{$this->pattern}~x", $item, $matches);
             $this->getArgumentsFromString($item);
@@ -115,9 +125,15 @@ class Route implements Resolvable, Coercable, \JsonSerializable {
                 throw new UnresolvableError("Cannot match the route");
             }
         } catch (\Exception $e) {
-            if ($e instanceof MalformedRouteException) throw $e;
-            if (isset($this->DefaultResolvable)) return $this->DefaultResolvable->resolve($Request);
-            if ($e instanceof UnresolvableError) throw $e;
+            if ($e instanceof MalformedRouteException) {
+                throw $e;
+            }
+            if (isset($this->DefaultResolvable)) {
+                return $this->DefaultResolvable->resolve($Request);
+            }
+            if ($e instanceof UnresolvableError) {
+                throw $e;
+            }
         }
         throw new UnresolvableError("Cannot resolve route");
     }
@@ -132,7 +148,9 @@ class Route implements Resolvable, Coercable, \JsonSerializable {
         ];
     }
     public static function coerce($item) {
-        if ($item instanceof Route) return $item;
+        if ($item instanceof Route) {
+            return $item;
+        }
         if (is_array($item)) {
             $resolution = $item['resolution'] ?? null;
             $pattern    = $item['pattern'] ?? null;
@@ -142,9 +160,13 @@ class Route implements Resolvable, Coercable, \JsonSerializable {
                 $resolution = $item[ $k ];
                 $pattern    = $k;
             }
-            if (!($resolution && $pattern)) throw new MalformedRouteException("Malformed route configuration '{$pattern}''");
+            if (!($resolution && $pattern)) {
+                throw new MalformedRouteException("Malformed route configuration '{$pattern}''");
+            }
             $Route = new static($resolution, $pattern);
-            if ($default) $Route->setDefaultResolution($default);
+            if ($default) {
+                $Route->setDefaultResolution($default);
+            }
         } else if (is_string($item)) {
             $Route = new static(null, $item);
         } else if ($item instanceof Resolvable) {
@@ -208,17 +230,26 @@ class Route implements Resolvable, Coercable, \JsonSerializable {
     }
     private function getArgumentsFromString(string $item) {
         preg_match("~^{$this->pattern}~x", $item, $matches);
-        if (!count($matches)) return [];
+        if (!count($matches)) {
+            return [];
+        }
         array_shift($matches);
         $Arguments = [];
         foreach ($this->parameters as $parameter_name) {
-            if (!count($matches)) continue;
+            if (!count($matches)) {
+                continue;
+            }
             $parameter_value = array_shift($matches);
     
-            if ($parameter_name) $Arguments[ $parameter_name ] = $parameter_value;
-            else                 $Arguments[] = $parameter_value;
+            if ($parameter_name) {
+                $Arguments[ $parameter_name ] = $parameter_value;
+            } else {
+                $Arguments[] = $parameter_value;
+            }
         }
-        if (count($matches)) $Arguments = array_merge($Arguments, $matches);
+        if (count($matches)) {
+            $Arguments = array_merge($Arguments, $matches);
+        }
         return $Arguments;
     }
 }

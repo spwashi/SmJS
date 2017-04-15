@@ -28,7 +28,9 @@ abstract class Template extends Resolvable implements Formatter {
      * @param \Sm\App\App|null $App
      */
     public function __construct($subject, App $App = null) {
-        if (isset($App)) $this->setApp($App);
+        if (isset($App)) {
+            $this->setApp($App);
+        }
         parent::__construct($subject);
     }
     /**
@@ -95,11 +97,15 @@ abstract class Template extends Resolvable implements Formatter {
      * @return string
      */
     private function _resolvePath() {
-        if (isset($this->resolved_path)) return $this->resolved_path;
+        if (isset($this->resolved_path)) {
+            return $this->resolved_path;
+        }
         /** @var string $_path_ */
         $_path_ = $this->subject;
         # We must have an app in order for the path to be relative to something!
-        if (!isset($this->App)) $this->path_is_absolute = true;
+        if (!isset($this->App)) {
+            $this->path_is_absolute = true;
+        }
         
         # If the path isn't a string, we don't know what to do with it
         if (!is_string($_path_)) {
@@ -109,7 +115,9 @@ abstract class Template extends Resolvable implements Formatter {
         }
         
         # If the path is not absolute, make it relative to the "templates" path
-        if (!$this->path_is_absolute) $_path_ = $this->App->Paths->to_template($_path_);
+        if (!$this->path_is_absolute) {
+            $_path_ = $this->App->Paths->to_template($_path_);
+        }
         
         # If the path isn't existent, save an error to throw later
         if (!is_file($_path_)) {

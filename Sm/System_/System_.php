@@ -25,7 +25,9 @@ class System_ {
      */
     public static function Log() {
         $args = func_get_args();
-        if (count($args)) array_unshift($args, 'System');
+        if (count($args)) {
+            array_unshift($args, 'System');
+        }
         return static::Factory(LoggerFactory::class)->build(...$args);
     }
     

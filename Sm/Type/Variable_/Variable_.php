@@ -12,6 +12,7 @@ use Sm\Abstraction\Identifier\HasObjectIdentityTrait;
 use Sm\Abstraction\Identifier\Identifiable;
 use Sm\Abstraction\Identifier\Identifier;
 use Sm\Resolvable\Error\UnresolvableError;
+use Sm\Resolvable\NullResolvable;
 use Sm\Resolvable\Resolvable;
 use Sm\Resolvable\ResolvableFactory;
 
@@ -36,14 +37,21 @@ class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
      * @param mixed|null $subject
      */
     public function __construct($subject = null) {
+        $subject = $subject ?? NullResolvable::init();
         $this->setObjectId(Identifier::generateIdentity($this));
         parent::__construct($subject);
     }
     
     public function __get($name) {
-        if ($name === 'name') return $this->name;
-        if ($name === 'value') return $this->resolve();
-        if ($name === 'raw_value') return $this->subject;
+        if ($name === 'name') {
+            return $this->name;
+        }
+        if ($name === 'value') {
+            return $this->resolve();
+        }
+        if ($name === 'raw_value') {
+            return $this->subject;
+        }
         return null;
     }
     /**
@@ -53,8 +61,12 @@ class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
      * @param $value
      */
     public function __set($name, $value) {
-        if ($name === 'name' && $value) $this->name = $value;
-        if ($name === 'value') $this->setValue($value);
+        if ($name === 'name' && $value) {
+            $this->name = $value;
+        }
+        if ($name === 'value') {
+            $this->setValue($value);
+        }
     }
     
     /**
@@ -86,7 +98,9 @@ class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
      * @throws \Sm\Resolvable\Error\UnresolvableError
      */
     public function setSubject($subject) {
-        if ($subject === null) return $this;
+        if ($subject === null) {
+            return $this;
+        }
         # Only deal with Resolvables
         
         $subject = $this->getFactoryContainer()->resolve(ResolvableFactory::class)->build($subject);
@@ -128,8 +142,10 @@ class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
      * @return $this|mixed
      */
     public function resolve() {
-        if (isset($this->subject)) return $this->subject->resolve();
-        return $this;
+        if (isset($this->subject)) {
+            return $this->subject->resolve();
+        }
+        return null;
     }
     /**
      * Does this Variable have a value to resolve to?

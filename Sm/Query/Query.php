@@ -34,11 +34,16 @@ class Query {
     
     const QUERY_TYPE_SELECT = 'select';
     const QUERY_TYPE_INSERT = 'insert';
+    const QUERY_TYPE_UPDATE = 'update';
     
     /** @var array $select_array An array of properties or whatever that we want to select */
     protected $select_array = [];
-    /** @var array $insert_or_update_array An array of properties that we want to insert. Sorted from "Update" later. */
-    protected $insert_or_update_array = [];
+    /** @var array $update_array An array of the properties that we want to update */
+    protected $update_array = [];
+    /** @var array $insert_array An array of properties that we want to insert */
+    protected $insert_array = [];
+    /** @var array[] $values_array An array of arrays of the values that we want to insert */
+    protected $values_array = [];
     /** @var null|string $query_type This is the type of Query we are executing */
     protected $query_type = null;
     /** @var  \Sm\Query\Where $where The overall Where clause that accompanies this Query */
@@ -63,6 +68,15 @@ class Query {
     public function getSelectArray(): array {
         return $this->select_array;
     }
+    public function getUpdateArray(): array {
+        return $this->update_array;
+    }
+    public function getInsertArray(): array {
+        return $this->insert_array;
+    }
+    public function getValuesArray(): array {
+        return $this->values_array;
+    }
     /**
      * Get the Where clause of the Query
      *
@@ -71,7 +85,6 @@ class Query {
     public function getWhere() {
         return $this->where;
     }
-    
     #
     ## Public Query methods
     #
@@ -112,9 +125,12 @@ class Query {
      *
      */
     public function where(Where $where) {
-        if (!isset($this->where)) $this->where = $where;
-        else $this->where->appendConditions($where->getRawConditionsArray());
-    
+        if (!isset($this->where)) {
+            $this->where = $where;
+        } else {
+            $this->where->appendConditions($where->getRawConditionsArray());
+        }
+        
         return $this;
     }
     /**
@@ -125,7 +141,9 @@ class Query {
      * @return \Sm\Query\Query
      */
     public function update(...$items) {
-        return $this->insert(...$items);
+        $this->query_type   = $this->query_type ?? static::QUERY_TYPE_UPDATE;
+        $this->update_array = array_merge($this->update_array, array_filter($items));
+        return $this;
     }
     /**
      * Insert some properties (or update them) on whatever platform
@@ -135,8 +153,19 @@ class Query {
      * @return $this
      */
     public function insert(...$items) {
-        $this->query_type             = $this->query_type ?? static::QUERY_TYPE_INSERT;
-        $this->insert_or_update_array = array_merge($this->insert_or_update_array, array_filter($items));
+        $this->query_type   = $this->query_type ?? static::QUERY_TYPE_INSERT;
+        $this->insert_array = array_merge($this->insert_array, array_filter($items));
+        return $this;
+    }
+    /**
+     * Set the values that we want to insert
+     *
+     * @param array ...$items
+     *
+     * @return $this
+     */
+    public function values(...$items) {
+        $this->values_array = array_merge($this->values_array, $items);
         return $this;
     }
     /**
@@ -149,17 +178,22 @@ class Query {
     public function run() {
         $SourceArray = $this->getSourcesUsed();
     
-        if (count($SourceArray) > 1) throw new UnimplementedError("Cannot query across root sources");
-        else if (!count($SourceArray)) throw new Error("There is no Source to execute this Query.");
-    
+        if (count($SourceArray) > 1) {
+            throw new UnimplementedError("Cannot query across root sources");
+        } else if (!count($SourceArray)) {
+            throw new Error("There is no Source to execute this Query.");
+        }
+        
         /** @var Source $RootSource The Source that is going to be handling this Query */
         $RootSource              = $SourceArray[ key($SourceArray) ];
         $Factories               = $this->getFactoryContainer();
         $QueryInterpreterFactory = $Factories->resolve(QueryInterpreterFactory::class);
         /** @var \Sm\Query\Interpreter\QueryInterpreter $QueryInterpreter */
         $QueryInterpreter = $QueryInterpreterFactory->build($RootSource);
-        if (isset($QueryInterpreter)) return $QueryInterpreter->interpret($this);
-        return $this;
+        if (isset($QueryInterpreter)) {
+            return $QueryInterpreter->interpret($this);
+        }
+        return null;
     }
     
     #
@@ -192,7 +226,9 @@ class Query {
         $ends_with_underscore = strpos($name, '_', $strlen_name - 1);
         if ($ends_with_underscore) {
             $name = substr($name, 0, $strlen_name - 1);
-            if (method_exists($Self, $name)) return call_user_func_array([ $Self, $name ], $arguments);
+            if (method_exists($Self, $name)) {
+                return call_user_func_array([ $Self, $name ], $arguments);
+            }
         }
         throw new Error("There is no method {$name} in this class.");
     }
@@ -212,18 +248,24 @@ class Query {
         if ($item instanceof SourceHaver) {
             $Source           = $item->getSource();
             $source_is_active = $Source && $Source->isAuthenticated();
-            if (!$source_is_active && $throw_an_error) throw new UnauthorizedConnectionError("The Connection to this object's source is invalid.");
+            if (!$source_is_active && $throw_an_error) {
+                throw new UnauthorizedConnectionError("The Connection to this object's source is invalid.");
+            }
             return $source_is_active;
         }
         if ($item instanceof \Traversable) {
             foreach ($item as $value) {
-                if (!$this->canSelectItem($value, true)) return false;
+                if (!$this->canSelectItem($value, true)) {
+                    return false;
+                }
             }
             return true;
         }
         
         $source_haver_class = SourceHaver::class;
-        if ($throw_an_error) throw new WrongArgumentException("Item must be an instance of {$source_haver_class}");
+        if ($throw_an_error) {
+            throw new WrongArgumentException("Item must be an instance of {$source_haver_class}");
+        }
         
         return false;
     }
@@ -234,7 +276,9 @@ class Query {
      * @return array
      */
     protected function getSourcesUsed(): array {
-        $components = array_merge($this->select_array, $this->insert_or_update_array);
+        $components = array_merge($this->select_array,
+                                  $this->insert_array,
+                                  $this->update_array);
         /**
          * @var Source[] $Sources An array, indexed by object_id, of the Sources used
          */
@@ -243,13 +287,19 @@ class Query {
             if ($component instanceof PropertyContainer) {
                 foreach ($component as $property) {
                     $RootSource = static::getRootSourceFromSourceHaver($property);
-                    if ($RootSource) $Sources[ $RootSource->getObjectId() ] = $RootSource;
+                    if ($RootSource) {
+                        $Sources[ $RootSource->getObjectId() ] = $RootSource;
+                    }
                 }
             } else {
                 $RootSource = static::getRootSourceFromSourceHaver($component);
-                if ($RootSource) $Sources[ $RootSource->getObjectId() ] = $RootSource;
+                if ($RootSource) {
+                    $Sources[ $RootSource->getObjectId() ] = $RootSource;
+                }
             }
         }
+    
+        # Don't return the same Source twice
         $Sources = array_unique($Sources);
         return $Sources;
     }
@@ -261,11 +311,15 @@ class Query {
      * @return null|\Sm\Storage\Source\Source
      */
     protected static function getRootSourceFromSourceHaver(SourceHaver $SourceHaver) {
-        if (!($SourceHaver instanceof SourceHaver)) return null;
+        if (!($SourceHaver instanceof SourceHaver)) {
+            return null;
+        }
         $RootSource = $SourceHaver->getSource()->getRootSource();
         
         # NullSources don't matter. Skip over them.
-        if ($RootSource instanceof NullSource) return null;
+        if ($RootSource instanceof NullSource) {
+            return null;
+        }
         
         
         $Sources[ $RootSource->getName() ] = $RootSource;

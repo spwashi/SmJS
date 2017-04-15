@@ -29,7 +29,9 @@ trait ChainableConstructTrait {
     public function set(): EvaluableStatement {
         $items = func_get_args();
         foreach ($items as $key => $item) {
-            if (isset($item) || (!isset($this->_items_[ $key ]))) $this->_items_[ $key ] = $item;
+            if (isset($item) || (!isset($this->_items_[ $key ]))) {
+                $this->_items_[ $key ] = $item;
+            }
         }
         return $this;
     }

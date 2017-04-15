@@ -30,8 +30,11 @@ class Or_ extends EvaluableStatement implements ChainableConstruct {
             # Iterate through the items to see if one of the statements evaluate to true
             foreach ($this->_items_ as $item) {
                 $item = $this->valueOf($item);
-                if ($item instanceof DeferredEvaluationStatement) return new DeferredEvaluationStatement($this);
-                else if ($item) return true;
+                if ($item instanceof DeferredEvaluationStatement) {
+                    return new DeferredEvaluationStatement($this);
+                } else if ($item) {
+                    return true;
+                }
             }
             return false;
         };

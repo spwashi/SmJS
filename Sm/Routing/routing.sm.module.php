@@ -17,7 +17,9 @@ return [
         # Default path to routes configuration is relative to the config path
         $config_path = $App->Paths->to_config("default/routes.sm.config.php", true)
             ?: $App->Paths->to_config("routes.sm.config.php", true);
-        if (!$config_path) throw new UnresolvableError("There are no routes configured for this App ($App->name)");
+        if (!$config_path) {
+            throw new UnresolvableError("There are no routes configured for this App ($App->name)");
+        }
         
         # Get an array representative of the configuration
         $config_arr = file_exists($config_path) ? include $config_path : [];
@@ -39,7 +41,9 @@ return [
         $Router = $App->Router;
         
         # All we require is that the router is a registry
-        if (!$Router instanceof Registry) throw new UnresolvableError("Invalid Router");
+        if (!$Router instanceof Registry) {
+            throw new UnresolvableError("Invalid Router");
+        }
         
         # This should return an "output" from the Route that was matched
         return $Router->resolve($Request);

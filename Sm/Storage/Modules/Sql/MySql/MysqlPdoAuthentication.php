@@ -18,8 +18,12 @@ class MysqlPdoAuthentication extends PasswordAuthentication {
     
     public function setCredentials($username = null, $password = null, $host = null, $database = null) {
         parent::setCredentials($username, $password);
-        if (isset($host)) $this->host = $host;
-        if (isset($database)) $this->database_name = $database;
+        if (isset($host)) {
+            $this->host = $host;
+        }
+        if (isset($database)) {
+            $this->database_name = $database;
+        }
         return $this;
     }
     

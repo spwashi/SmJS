@@ -28,7 +28,7 @@ class EntityTypeMeta implements Identifiable {
     
     protected function __construct() {
         $this->setObjectId(Identifier::generateIdentity($this));
-        $this->Properties = (new PropertyContainer)->setOwner(EntityVariable::init());
+        $this->Properties = (new PropertyContainer)->addPropertyOwners(EntityTypeVariable::init());
     }
     public function __clone() {
         $this->Properties = $this->cloneProperties();
@@ -40,8 +40,8 @@ class EntityTypeMeta implements Identifiable {
      */
     public function cloneProperties() {
         $Properties = clone $this->Properties;
-        $owner      = EntityVariable::init();
-        $Properties->setOwner($owner);
+        $owner      = EntityTypeVariable::init();
+        $Properties->addPropertyOwners($owner);
         foreach ($Properties as $property) {
 //            echo $property->getObjectId() . "\t owned by\t" . $owner->getObjectId() . "\n";
         }

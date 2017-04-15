@@ -38,7 +38,9 @@ class Entity {
      */
     public function EntityType(string $name) {
         $result = $this->getEntityType($name);
-        if ($result) return $result;
+        if ($result) {
+            return $result;
+        }
         throw new NoMatchingEntityTypeError("No Entity Type to match {$name}");
     }
 }

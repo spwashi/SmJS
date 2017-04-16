@@ -19,12 +19,6 @@ class PropertyFragment extends SqlFragment {
     /** @var  \Sm\Storage\Modules\Sql\Formatter\SourceFragment $SourceFragment The Fragment that represents this Property's Source */
     protected $SourceFragment;
     
-    public function getVariables(): array {
-        return [
-            'Property'       => $this->Property,
-            'SourceFragment' => $this->SourceFragment,
-        ];
-    }
     /**
      * @return \Sm\Entity\Property\Property
      */

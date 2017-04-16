@@ -22,12 +22,12 @@ use Sm\Storage\Modules\Sql\SqlModule;
 abstract class QuerySubInterpreter {
     /** @var  SqlModule $SqlModule */
     protected $SqlModule;
-    /** @var  array An array indexed by the object_id of the Property owner that contains arrays indexed by the object_id of the Owner's Properties that we are Querying to the actual Property. */
-    protected $Owner_object_id__Properties_map;
+    /** @var  array An array indexed by the object_id of the Property PropertyHaver that contains arrays indexed by the object_id of the PropertyHaver's Properties that we are Querying to the actual Property. */
+    protected $PropertyHaver_object_id__Properties_map;
     /** @var  Query $Query The Query that we are going to interpret */
     protected $Query;
-    /** @var  array An array that maps the object_id of the Source to the object_id of the Owners that use it */
-    protected $Source_object_id__Owner_object_id_array__map;
+    /** @var  array An array that maps the object_id of the Source to the object_id of the PropertyHavers that use it */
+    protected $Source_object_id__PropertyHaver_object_id_array__map;
     
     /**
      * Complete the QueryInterpreter, returning a string that represents the Query to execute

@@ -28,16 +28,16 @@ class PropertyContainerTest extends \PHPUnit_Framework_TestCase {
         $Property = $this->PropertyContainer->title;
         $this->assertInstanceOf(Property::class, $Property);
     }
-    public function testCanSetOwner() {
-        /** @var \Sm\Entity\Property\PropertyHaver $Owner */
-        $Owner = $this->getMockBuilder(PropertyHaver::class)->getMock();
-        $this->PropertyContainer->setOwner($Owner);
-        $this->assertEquals($Owner, $this->PropertyContainer->getOwner());
+    public function testCanSetPropertyHaver() {
+        /** @var \Sm\Entity\Property\PropertyHaver $PropertyHaver */
+        $PropertyHaver = $this->getMockBuilder(PropertyHaver::class)->getMock();
+        $this->PropertyContainer->setPropertyHaver($PropertyHaver);
+        $this->assertEquals($PropertyHaver, $this->PropertyContainer->getPropertyHaver());
         
         $PropertyContainer             = $this->PropertyContainer;
         $PropertyContainer->first_name = new Property;
         foreach ($PropertyContainer as $Property) {
-            $this->assertContains($Owner, $Property->getOwners());
+            $this->assertContains($PropertyHaver, $Property->getPropertyHavers());
         }
     }
     public function testCanMarkReadonlyAndNotRegister() {

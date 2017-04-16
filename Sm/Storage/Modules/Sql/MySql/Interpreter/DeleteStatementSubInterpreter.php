@@ -8,29 +8,18 @@
 namespace Sm\Storage\Modules\Sql\MySql\Interpreter;
 
 
-use Sm\Storage\Modules\Sql\Formatter\SelectFragment;
+use Sm\Storage\Modules\Sql\Formatter\DeleteFragment;
 
 /**
- * Class SelectStatementSubInterpreter
+ * Class DeleteStatementSubInterpreter
  *
- * Meant to handle the execution of Select statements
+ * Meant to handle the execution of Delete statements
  *
  * @package Sm\Storage\Modules\Sql\MySql\Interpreter
  */
-class SelectStatementSubInterpreter extends MysqlQuerySubInterpreter {
-    public function execute() {
-        return parent::execute();
-        
-        /** @var \Sm\Storage\Modules\Sql\MySql\MysqlDatabaseSource $DatabaseSource */
-        $DatabaseSource = $this->SqlModule->getDatabaseSource();
-        # todo Variables being bound
-        
-        $sth = $DatabaseSource->getConnection()->prepare("$SelectStatement");
-        $sth->execute();
-        return $sth->fetchAll(\PDO::FETCH_ASSOC);
-    }
+class DeleteStatementSubInterpreter extends MysqlQuerySubInterpreter {
     public function getQueryProperties() {
-        return $this->Query->getSelectArray();
+        return $this->Query->getDeleteArray();
     }
     /**
      * Complete the QueryInterpreter, returning a string that represents the Query to execute
@@ -40,15 +29,16 @@ class SelectStatementSubInterpreter extends MysqlQuerySubInterpreter {
     public function createFragment() {
         # The "From" Clause
         $FromFragment = $this->createFromFragment();
-        # The columns we're selecting
+        # The columns we're deleting
         $PropertyFragments = $this->createPropertyFragments();
         # The "Where" clause that we're going to add on (if it exists)
         $WhereFragment = $this->createWhereFragment($PropertyFragments);
-    
-        $Fragment = SelectFragment::init();
+        
+        $Fragment = DeleteFragment::init();
         $Fragment->setFromFragment($FromFragment);
         $Fragment->setWhereFragment($WhereFragment);
         $Fragment->setPropertyFragments($PropertyFragments);
+        
         return $Fragment;
     }
 }

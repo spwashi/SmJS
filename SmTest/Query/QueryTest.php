@@ -13,8 +13,8 @@ use Sm\Entity\EntityType;
 use Sm\Entity\EntityTypeMeta;
 use Sm\Entity\Property\Property;
 use Sm\Entity\Property\PropertyContainer;
+use Sm\Resolvable\ArrayResolvable;
 use Sm\Storage\Database\TableSource;
-use Sm\Storage\Modules\Sql\MySql\Interpreter\MysqlQueryInterpreter;
 use Sm\Storage\Modules\Sql\MySql\MysqlDatabaseSource;
 use Sm\Storage\Modules\Sql\MySql\MysqlPdoAuthentication;
 
@@ -67,10 +67,6 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
             }
             $ET = $EntityTypes[ $_name ]
                 = new EntityType(EntityTypeMeta::init()->setProperties($PropertyContainer)->setName($_name));
-    
-            $ET->IdentifyingConditionFactory->register(MysqlQueryInterpreter::class, function ($QueryInterpreter, Query $Query, $ET) {
-                $Query->select($ET->Properties->id)->where(Where::equals_($ET->Properties->id, $ET->Properties->id->value));
-            });
             
         }
         
@@ -86,22 +82,30 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
         $App                  = App::init()->setName('ExampleApp');
         $App->Paths->app_path = BASE_PATH . 'SmTest/ExampleApp/';
         $App->Modules->_app   = include APP_MODULE ??[];
-        $Collection->id       = 'collection_id';
-        $Section->id          = '1';
-        $Section->title       = 'hello';
-        $id                   = clone  $Section->Meta->Properties;
     
     
-        $WhereClause = Where::greater_(6, $Colln->title)->or_($Collection->id);
-    
+        $Collection->id = 'collection_id';
+        $Section->id    = '1';
+        $Section->title = 'hello';
+        $id             = clone  $Section->Meta->Properties;
+        
+        
         $results = $App->Query->select($Colln->title, $Collection->Properties)
-                              ->where($WhereClause)
+                              ->where(Where::greater_(6, $Colln->title)->or_($Collection->id))
+                              ->run();
+    
+        $results = $App->Query->update($Colln->title, $Collection->Properties)
+                              ->where(Where::greater_(7, $Colln->title)->or_($Collection->id))
                               ->run();
     
     
         $results = $App->Query->insert($Section->Properties)
-                              ->values([ 1, 2, 'This is a test' ], [ 1, 2, 3, 4 ])
+                              ->values([ 1, 2, 'This is a test' ],
+                                       [ 'this', 'is', ArrayResolvable::init([ 'a', 'set', 'of' => 'arrays' ]) ],
+                                       [ 1, 2, 3, 4 ])
                               ->run();
+    
+        $results = $App->Query->delete($Section->Properties)->run();
         
     }
     protected function getDatabaseSource() {

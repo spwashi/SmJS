@@ -41,16 +41,6 @@ class InsertFragment extends SqlFragment {
         return $this;
     }
     /**
-     * Return the variables that this class deems relevant to the formatter.
-     *
-     * @return array
-     */
-    public function getVariables(): array {
-        return [
-            'Properties' => $this->PropertyFragments,
-        ];
-    }
-    /**
      * @param \Sm\Formatter\Fragment\Fragment[] $ValueFragments
      *
      * @return InsertFragment

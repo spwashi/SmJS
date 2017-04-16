@@ -29,6 +29,7 @@ class FormatterFactory extends Factory {
     /** @var  array $registered_rule_names An array of the names of Rules that are being applied */
     protected $registered_rule_names = [];
     protected $used_rule_names       = [];
+    protected $rules_cache_key;
     
     /**
      * FormatterFactory constructor.
@@ -54,6 +55,9 @@ class FormatterFactory extends Factory {
     public function addRule(string $name, $resolvable = null) {
         if (!in_array($name, $this->registered_rule_names)) {
             $this->registered_rule_names[] = $name;
+        } else {
+            $index = array_search($name, $this->used_rule_names);
+            if ($index >= 0) array_splice($this->used_rule_names, $index);
         }
         if (!isset($resolvable)) {
             return $this;
@@ -77,8 +81,8 @@ class FormatterFactory extends Factory {
             return $this;
         } else {
             array_splice($this->registered_rule_names, $index);
+            return $this;
         }
-        return $this;
     }
     /**
      * Make it so that we know we can use the previously "consumed" rules.
@@ -101,44 +105,30 @@ class FormatterFactory extends Factory {
         $result = parent::build($item, $this);
         return PlainStringFormatter::coerce($result);
     }
+    public function reset() {
+        $this->endRulesCache(true);
+    }
     public function format($item_to_format) {
-        $rule_cache_key = Util::generateRandomString(4);
-        $this->Rules->Cache->start($rule_cache_key);
-        
-        # true if the Rules Cache was started by this function call
-        $key_matches = $this->Rules->Cache->keyMatches($rule_cache_key);
-        
-        
-        $item = $this->consumeRules($item_to_format, true);
+        $rule_cache_key = $this->startRulesCache();
+        $item           = $this->consumeRules($item_to_format, true);
         
         # Format arrays individually
         if (is_array($item)) {
             $formatted_item = [];
             foreach ($item as $index => $value) {
+                if (!is_numeric($index)) $index = $this->format(StringResolvable::coerce($index));
                 $formatted_item[ $index ] = $this->format($value);
             }
             return $formatted_item;
         }
         
-        
         # Build the item like a factory
         $built_item = $this->build($item);
         $result     = $this->consumeRules($built_item, false);
-        
-        if ($result === $built_item || $result instanceof Formatter) {
-            return $result;
-        }
-        
-        $result = $this->build($result);
-        
-        # If this function call was what started the Rules cache
-        if ($key_matches) {
-            $this->Rules->resetConsumedItems();
-            $this->Rules->Cache->end($rule_cache_key);
-        }
-        
-        # Make the rules usable again
-        $this->restoreRules();
+    
+        if ((static::resultIsComplete($result) || $result === $built_item)) return $result;
+    
+        $this->endRulesCache(false, $rule_cache_key);
         
         return $result;
     }
@@ -196,5 +186,27 @@ class FormatterFactory extends Factory {
     }
     protected static function resultIsComplete($item) {
         return is_array($item) ? $item : $item instanceof Formatter;
+    }
+    private function startRulesCache() {
+        $cache_key             = Util::generateRandomString(4);
+        $this->rules_cache_key = $this->rules_cache_key ?? $cache_key;
+        $this->Rules->Cache->start($cache_key);
+        return $cache_key;
+    }
+    /**
+     * @param bool $final Whether or not we want the Cache to permanently end
+     * @param null $key
+     *
+     * @return bool true on success
+     */
+    private function endRulesCache($final = false, $key = null) {
+        $this->Rules->Cache->end($final ? $this->rules_cache_key : $key);
+        $success = !$this->Rules->Cache->isCaching();
+        
+        if (!$success) return false;
+        
+        $this->Rules->resetConsumedItems();
+        $this->restoreRules();
+        return $success;
     }
 }

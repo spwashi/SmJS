@@ -36,9 +36,9 @@ class Property extends Variable_ implements SourceHaver {
     /** @var  Source $Source */
     protected $Source;
     /**
-     * @var \Sm\Entity\Property\PropertyHaver[] $Owners The objects that hold this property
+     * @var \Sm\Entity\Property\PropertyHaver[] $PropertyHavers The objects that hold this property
      */
-    protected $Owners = [];
+    protected $PropertyHavers = [];
     /**
      * Property constructor.
      *
@@ -80,43 +80,43 @@ class Property extends Variable_ implements SourceHaver {
      * Sometimes multiple objects hold references to the same Property.
      * This allows the property to know which objects hold it.
      *
-     * @param \Sm\Entity\Property\PropertyHaver $Owner
+     * @param \Sm\Entity\Property\PropertyHaver $PropertyHaver
      *
      * @return $this
      */
-    public function addOwner(PropertyHaver $Owner = null) {
+    public function addPropertyHaver(PropertyHaver $PropertyHaver = null) {
         # If this PropertyContainer was previously owned by an EntityTypeVariable
-        if (($this->Owners[0] ?? false) instanceof EntityTypeVariable) {
-            return $this->setOwner($Owner);
+        if (($this->PropertyHavers[0] ?? false) instanceof EntityTypeVariable) {
+            return $this->setPropertyHaver($PropertyHaver);
         }
-        if (!in_array($Owner, $this->Owners)) {
-            $this->Owners[] = $Owner;
+        if (!in_array($PropertyHaver, $this->PropertyHavers)) {
+            $this->PropertyHavers[] = $PropertyHaver;
         }
         return $this;
     }
     /**
-     * Remove an Owner from this Property
+     * Remove an PropertyHaver from this Property
      *
-     * @param \Sm\Entity\Property\PropertyHaver $Owner
+     * @param \Sm\Entity\Property\PropertyHaver $PropertyHaver
      *
      * @return $this
      */
-    public function removeOwner(PropertyHaver $Owner) {
-        $index = array_search($Owner, $this->Owners);
+    public function removePropertyHaver(PropertyHaver $PropertyHaver) {
+        $index = array_search($PropertyHaver, $this->PropertyHavers);
         if ($index !== false) {
-            unset($this->Owners[ $index ]);
+            unset($this->PropertyHavers[ $index ]);
         }
         return $this;
     }
     /**
-     * Make it so the only Owner of this Property
+     * Make it so the only PropertyHaver of this Property
      *
-     * @param \Sm\Entity\Property\PropertyHaver|null $Owner
+     * @param \Sm\Entity\Property\PropertyHaver|null $PropertyHaver
      *
      * @return $this
      */
-    public function setOwner(PropertyHaver $Owner = null) {
-        $this->Owners = isset($Owner) ? [ $Owner ] : [];
+    public function setPropertyHaver(PropertyHaver $PropertyHaver = null) {
+        $this->PropertyHavers = isset($PropertyHaver) ? [ $PropertyHaver ] : [];
         return $this;
     }
     /**
@@ -124,8 +124,8 @@ class Property extends Variable_ implements SourceHaver {
      *
      * @return \Sm\Entity\Property\PropertyHaver[]
      */
-    public function getOwners() {
-        return $this->Owners;
+    public function getPropertyHavers() {
+        return $this->PropertyHavers;
     }
     /**
      * Set the name of the property

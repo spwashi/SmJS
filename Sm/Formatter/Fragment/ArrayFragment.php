@@ -32,7 +32,7 @@ class ArrayFragment extends Fragment {
      *
      * @return $this
      */
-    public function setFragments(array $array) {
+    public function setArray(array $array) {
         $this->array = $array;
         return $this;
     }

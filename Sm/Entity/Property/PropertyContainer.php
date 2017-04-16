@@ -25,8 +25,8 @@ use Sm\Storage\Container\Container;
 class PropertyContainer extends Container {
     use ReadonlyTrait;
     
-    /** @var  PropertyHaver $Owner Whatever these properties belong to */
-    protected $Owner;
+    /** @var  PropertyHaver $PropertyHaver Whatever these properties belong to */
+    protected $PropertyHaver;
     
     /**
      * Rules for cloning the PropertyContainer
@@ -35,7 +35,7 @@ class PropertyContainer extends Container {
         foreach ($this->registry as $key => &$item) {
             $this->registry[ $key ] = (clone $item);
         }
-        $this->addPropertyOwners(null);
+        $this->addPropertyPropertyHavers(null);
     }
     /**
      * @param null|string $name
@@ -92,7 +92,7 @@ class PropertyContainer extends Container {
         }
         /** @var static $result */
         $result = parent::register($name, $registrand);
-        $this->addOwnerToProperty($registrand);
+        $this->addPropertyHaverToProperty($registrand);
         return $result;
     }
     /**
@@ -112,15 +112,15 @@ class PropertyContainer extends Container {
         return parent::remove($name);
     }
     /**
-     * Get the Owner of these Properties
+     * Get the PropertyHaver of these Properties
      *
      * @return PropertyHaver|null
      */
-    public function getOwner() {
-        return $this->Owner;
+    public function getPropertyHaver() {
+        return $this->PropertyHaver;
     }
     /**
-     * Set the Owner of this PropertyContainer.
+     * Set the PropertyHaver of this PropertyContainer.
      * Allows us to have a reference to whatever holds these Properties.
      *
      * @todo This is probably a bad idea...
@@ -129,56 +129,56 @@ class PropertyContainer extends Container {
      *
      * @return $this
      */
-    public function setOwner(PropertyHaver $PropertyHaver = null) {
-        $this->Owner = $PropertyHaver;
+    public function setPropertyHaver(PropertyHaver $PropertyHaver = null) {
+        $this->PropertyHaver = $PropertyHaver;
         return $this;
     }
     /**
-     * Sets the Owner for all of the Properties as well as the PropertyContainer
+     * Sets the PropertyHaver for all of the Properties as well as the PropertyContainer
      *
      * @param \Sm\Entity\Property\PropertyHaver|null $PropertyHaver
      *
      * @return $this
      */
-    public function addPropertyOwners(PropertyHaver $PropertyHaver = null) {
-        $this->setOwner($PropertyHaver);
-        # Add the owner to each property
+    public function addPropertyPropertyHavers(PropertyHaver $PropertyHaver = null) {
+        $this->setPropertyHaver($PropertyHaver);
+        # Add the PropertyHaver to each property
         foreach ($this as $name => $Property) {
             if (isset($PropertyHaver)) {
-                $this->addOwnerToProperty($name);
+                $this->addPropertyHaverToProperty($name);
             } else {
-                # remove the Owner from the Property
-                $Property->setOwner(null);
+                # remove the PropertyHaver from the Property
+                $Property->setPropertyHaver(null);
             }
         }
         return $this;
     }
     /**
-     * Get all of the Owners held by the Properties in a PropertyContainer
+     * Get all of the PropertyHavers held by the Properties in a PropertyContainer
      *
      * @return array
      */
-    public function getPropertyOwners(): array {
-        $owners = [];
+    public function getPropertyPropertyHavers(): array {
+        $PropertyHavers = [];
         foreach ($this as $index => $property) {
-            $owners = array_merge($owners, $property->getOwners());
+            $PropertyHavers = array_merge($PropertyHavers, $property->getPropertyHavers());
         }
-        return array_unique($owners);
+        return array_unique($PropertyHavers);
     }
     /**
-     * Add an owner to the Property with the following name
+     * Add an PropertyHaver to the Property with the following name
      *
      * @param $name
      *
      * @return $this
      * @throws \Sm\Error\Error
      */
-    protected function addOwnerToProperty($name) {
-        if (isset($this->Owner)) {
+    protected function addPropertyHaverToProperty($name) {
+        if (isset($this->PropertyHaver)) {
             $Property = $name instanceof Property ? $name : $this->resolve($name);
     
             if ($Property) {
-                $Property->addOwner($this->Owner);
+                $Property->addPropertyHaver($this->PropertyHaver);
             } else {
                 throw new Error("Cannot find property {$name}");
             }

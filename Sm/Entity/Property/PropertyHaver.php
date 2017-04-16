@@ -18,13 +18,4 @@ use Sm\Abstraction\Identifier\Identifiable;
  * @package Sm\Entity\Property
  */
 interface PropertyHaver extends Identifiable {
-    /**
-     * Based on some sort of context (e.g. A source or a Source name),
-     * check whether or not this PropertyHaver exists.
-     *
-     * @param string|object|null $context
-     *
-     * @return mixed
-     */
-    public function checkExistence($context = null);
 }

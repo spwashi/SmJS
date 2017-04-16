@@ -9,11 +9,14 @@ namespace Sm\Storage\Modules\Sql\Interpreter;
 
 
 use Sm\Entity\EntityType;
+use Sm\Error\UnimplementedError;
 use Sm\Query\Interpreter\Exception\UninterpretableError;
 use Sm\Query\Interpreter\QueryInterpreter;
 use Sm\Query\Query;
+use Sm\Storage\Modules\Sql\MySql\Interpreter\DeleteStatementSubInterpreter;
 use Sm\Storage\Modules\Sql\MySql\Interpreter\InsertStatementSubInterpreter;
 use Sm\Storage\Modules\Sql\MySql\Interpreter\SelectStatementSubInterpreter;
+use Sm\Storage\Modules\Sql\MySql\Interpreter\UpdateStatementSubInterpreter;
 use Sm\Storage\Modules\Sql\SqlModule;
 
 abstract class SqlQueryInterpreter extends QueryInterpreter {
@@ -32,20 +35,25 @@ abstract class SqlQueryInterpreter extends QueryInterpreter {
     }
     
     public function interpret(Query $Query) {
-        if (!isset($this->SqlModule)) {
-            throw new UninterpretableError("Cannot interpret query without a SqlModule.");
-        }
-        
-        
-        switch ($Query->getQueryType()) {
+        if (!isset($this->SqlModule)) throw new UninterpretableError("Cannot interpret query without a SqlModule.");
+    
+        $queryType = $Query->getQueryType();
+        switch ($queryType) {
             case 'select':
                 $Interpreter = SelectStatementSubInterpreter::create($Query, $this->SqlModule);
                 break;
             case 'insert':
                 $Interpreter = InsertStatementSubInterpreter::create($Query, $this->SqlModule);
                 break;
+            case 'delete':
+                $Interpreter = DeleteStatementSubInterpreter::create($Query, $this->SqlModule);
+                break;
+            case 'update':
+                $Interpreter = UpdateStatementSubInterpreter::create($Query, $this->SqlModule);
+                break;
             default:
-                return [];
+                $type_message = !empty($queryType) ? "of type {$queryType}" : "that don't have an associated interpreter.";
+                throw new UnimplementedError("Do not know how to handle queries $type_message");
         }
         
         return $Interpreter->execute();
@@ -53,16 +61,16 @@ abstract class SqlQueryInterpreter extends QueryInterpreter {
     
     #region Completing the Query
     /**
-     * For one owner of a property, modify this query based on how they say it needs to be modified.
+     * For one PropertyHaver of a property, modify this query based on how they say it needs to be modified.
      * A common thing that a query might be augmented for is adding an extra condition to the "Where" clause
      *
-     * @param                 $Owner
+     * @param                 $PropertyHaver
      * @param \Sm\Query\Query $Query
      * @param                 $property_array
      */
-    private function augmentQueryForOwner($Owner, Query $Query) {
-        if ($Owner instanceof EntityType) {
-            $Owner->augmentQuery($this, $Query);
+    private function augmentQueryForPropertyHaver($PropertyHaver, Query $Query) {
+        if ($PropertyHaver instanceof EntityType) {
+            $PropertyHaver->augmentQuery($this, $Query);
         }
     }
     #endregion

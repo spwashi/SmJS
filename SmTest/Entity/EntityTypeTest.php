@@ -42,12 +42,12 @@ class EntityTypeTest extends \PHPUnit_Framework_TestCase {
         $Section           = $this->EntityType;
         $Section->eg_title = "Samuel";
         $Section->eg_alias = "Washington";
-        $this->assertEquals($Section, $Section->eg_alias->getOwners()[0]);
+        $this->assertEquals($Section, $Section->eg_alias->getPropertyHavers()[0]);
         $Properties = $Section->Properties;
         $this->assertInstanceOf(PropertyContainer::class, $Properties);
         
         $clonedProperties = clone $Properties;
-        $this->assertNotEquals($Section, $clonedProperties->getOwner());
+        $this->assertNotEquals($Section, $clonedProperties->getPropertyHaver());
         
     }
     

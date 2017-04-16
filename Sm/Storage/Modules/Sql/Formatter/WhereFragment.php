@@ -15,9 +15,6 @@ class WhereFragment extends SqlFragment {
     protected $where;
     /** @var \Sm\Storage\Modules\Sql\Formatter\PropertyFragment[] The PropertyFragments that we might reference in this Where clause */
     protected $PropertyFragments = [];
-    public function getVariables(): array {
-        return [ 'clauses' => $this->where ];
-    }
     public function getWhere() {
         return $this->where;
     }

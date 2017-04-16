@@ -35,9 +35,12 @@ class Query {
     const QUERY_TYPE_SELECT = 'select';
     const QUERY_TYPE_INSERT = 'insert';
     const QUERY_TYPE_UPDATE = 'update';
+    const QUERY_TYPE_DELETE = 'delete';
     
     /** @var array $select_array An array of properties or whatever that we want to select */
     protected $select_array = [];
+    /** @var array $delete_array An array of properties or whatever that we want to delete */
+    protected $delete_array = [];
     /** @var array $update_array An array of the properties that we want to update */
     protected $update_array = [];
     /** @var array $insert_array An array of properties that we want to insert */
@@ -77,6 +80,9 @@ class Query {
     public function getValuesArray(): array {
         return $this->values_array;
     }
+    public function getDeleteArray(): array {
+        return $this->delete_array;
+    }
     /**
      * Get the Where clause of the Query
      *
@@ -112,6 +118,33 @@ class Query {
                 
             }
             $this->select_array[] = $item;
+        }
+        return $this;
+    }
+    /**
+     * Set the Properties that we want to delete
+     * #todo LOOK INTO THIS
+     *
+     * @param array ...$items
+     *
+     * @return $this
+     * @throws \Sm\Error\WrongArgumentException
+     */
+    public function delete(...$items) {
+        $this->query_type = $this->query_type ?? static::QUERY_TYPE_DELETE;
+        foreach ($items as $index => $item) {
+            
+            try {
+                $this->canSelectItem($item, true);
+            } catch (Error $e) {
+                throw new WrongArgumentException(
+                    "Argument {$index} cannot be queried --  " .
+                    "Please check that it is a (or an array of) SourceHaver Object(s) " .
+                    "and the Source is properly authenticated and connected. \n" .
+                    "Additionally, {$e->getMessage()}");
+                
+            }
+            $this->delete_array[] = $item;
         }
         return $this;
     }
@@ -269,6 +302,12 @@ class Query {
         
         return false;
     }
+    protected function getAllComponents() {
+        return array_merge($this->select_array,
+                           $this->insert_array,
+                           $this->delete_array,
+                           $this->update_array);
+    }
     /**
      * Get an array of all of the Sources used by this class.
      * The array should be indexed by Source Identifier.
@@ -276,9 +315,7 @@ class Query {
      * @return array
      */
     protected function getSourcesUsed(): array {
-        $components = array_merge($this->select_array,
-                                  $this->insert_array,
-                                  $this->update_array);
+        $components = $this->getAllComponents();
         /**
          * @var Source[] $Sources An array, indexed by object_id, of the Sources used
          */

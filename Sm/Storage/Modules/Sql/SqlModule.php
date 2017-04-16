@@ -83,7 +83,7 @@ class SqlModule extends Module {
      */
     public function setFormatterFactory(FormatterFactory $FormatterFactory): SqlModule {
         $this->FormatterFactory = $FormatterFactory;
-        $this->FormatterFactory->Cache->start('ttt');
+        $this->FormatterFactory->Cache->start();
         return $this;
     }
     /**

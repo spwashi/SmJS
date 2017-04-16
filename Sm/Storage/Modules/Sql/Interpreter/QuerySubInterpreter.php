@@ -8,7 +8,7 @@
 namespace Sm\Storage\Modules\Sql\Interpreter;
 
 use Sm\Query\Query;
-use Sm\Query\Where;
+use Sm\Query\WhereClause;
 use Sm\Storage\Modules\Sql\Formatter\WhereFragment;
 use Sm\Storage\Modules\Sql\SqlModule;
 
@@ -54,10 +54,10 @@ abstract class QuerySubInterpreter {
      * @return mixed
      */
     protected function createWhereFragment($PropertyFragments = []): WhereFragment {
-        $Where         = $this->Query->getWhere();
+        $Where         = $this->Query->WhereClause;
         $WhereFragment = WhereFragment::init()
                                       ->setPropertyFragments($PropertyFragments);
-        if ($Where instanceof Where) {
+        if ($Where instanceof WhereClause) {
             $WhereFragment->setWhere($Where);
         }
         

@@ -11,5 +11,12 @@ namespace Sm\Abstraction\Formatting;
 use Sm\Abstraction\Resolvable\Resolvable;
 
 interface Formatter extends Resolvable {
-    public function resolve(array $variables = []);
+    /**
+     *
+     *
+     * @param array $variables
+     *
+     * @return mixed
+     */
+    public function resolve($variables = []);
 }

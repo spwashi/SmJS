@@ -32,7 +32,7 @@ class StringResolvable extends NativeResolvable implements \JsonSerializable {
     public function __toString() {
         return $this->resolve();
     }
-    public function resolve() {
+    public function resolve($_ = null) {
         return "$this->subject";
     }
     public function jsonSerialize() {

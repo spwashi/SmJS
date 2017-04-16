@@ -36,7 +36,7 @@ class FormatterFactory extends Factory {
      */
     public function __construct() {
         $this->Aliases = new Container;
-        $this->Rules   = (new Container)->setConsumptionMode(true);
+        $this->Rules   = (new Container);
         parent::__construct();
     }
     public function __get($name) {
@@ -53,15 +53,8 @@ class FormatterFactory extends Factory {
      * @return $this
      */
     public function addRule(string $name, $resolvable = null) {
-        if (!in_array($name, $this->registered_rule_names)) {
-            $this->registered_rule_names[] = $name;
-        } else {
-            $index = array_search($name, $this->used_rule_names);
-            if ($index >= 0) array_splice($this->used_rule_names, $index);
-        }
-        if (!isset($resolvable)) {
-            return $this;
-        }
+        if (!in_array($name, $this->registered_rule_names)) $this->registered_rule_names[] = $name;
+        if (!isset($resolvable)) return $this;
         if (!($resolvable instanceof FunctionResolvable) && !($resolvable instanceof StringResolvable)) {
             $resolvable = is_callable($resolvable) ? FunctionResolvable::coerce($resolvable) : StringResolvable::coerce($resolvable);
         }
@@ -110,7 +103,7 @@ class FormatterFactory extends Factory {
     }
     public function format($item_to_format) {
         $rule_cache_key = $this->startRulesCache();
-        $item           = $this->consumeRules($item_to_format, true);
+        $item           = $this->applyRules($item_to_format, true);
         
         # Format arrays individually
         if (is_array($item)) {
@@ -123,14 +116,7 @@ class FormatterFactory extends Factory {
         }
         
         # Build the item like a factory
-        $built_item = $this->build($item);
-        $result     = $this->consumeRules($built_item, false);
-    
-        if ((static::resultIsComplete($result) || $result === $built_item)) return $result;
-    
-        $this->endRulesCache(false, $rule_cache_key);
-        
-        return $result;
+        return $this->build($item);
     }
     /**
      * For anything we want to apply Rules to, apply them and return the result.
@@ -142,35 +128,37 @@ class FormatterFactory extends Factory {
      *
      * @return mixed
      */
-    protected function consumeRules($result, $is_item = false) {
+    protected function applyRules($result, $is_item = false) {
+        $original = $result;
+        
+        /** @var array $checked_out_array An array of the Rules that we've checked out to apply */
+        $checked_out_array = [];
+        
         # Apply any formatting rules
-        $count = count($this->registered_rule_names);
-        for ($index = 0; $index < $count; $index++) {
-            $name = $this->registered_rule_names[ $index ];
+        foreach ($this->registered_rule_names as $index => $name) {
+            $Resolver            = $this->Rules->checkout($name);
+            $formatted           = $Resolver->resolve($result, $is_item);
+            $checked_out_array[] = $Resolver;
             
-            # Used Rule Names is an array, indexed by rule_name, of arrays, indexed by the "shape" of the result, containing
-            $this->used_rule_names[ $name ] = $this->used_rule_names[ $name ] ?? [];
-            $arg_shape                      = Util::getShapeOfItem($result);
-            if (in_array($arg_shape, $this->used_rule_names)) {
-                continue;
-            }
-            #if (in_array($name, $this->used_rule_names)) continue;
-            
-            # If the rule applies, set the result to whatever it says it should be
-            $formatted = $this->Rules->resolve($name, $result, $is_item);
-            
-            # If the result is an empty string, maybe we shouldn't count it?
-//            if (is_string($formatted) && empty($formatted)) $formatted = null;
-            
+            # If the rule didn't get applied, add it back in because there probably isn't a risk of recursion
             if (!isset($formatted)) {
+                $this->Rules->checkBackIn($Resolver);
                 continue;
             }
             
             $result = $formatted;
-            
-            # Mark this rule as "used" so we don't call it more than once.
-            $this->used_rule_names[ $name ][] = $arg_shape;
         }
+        
+        if ($original === $result) return $original;
+        
+        $result = $this->format($result);
+        
+        $checked_out_array = array_filter($checked_out_array);
+        foreach ($checked_out_array as $item) {
+            $success = $this->Rules->checkBackIn($item);
+            if (!$success) var_dump('cannot check back in');
+        }
+        
         return $result;
     }
     /**
@@ -206,7 +194,6 @@ class FormatterFactory extends Factory {
         if (!$success) return false;
         
         $this->Rules->resetConsumedItems();
-        $this->restoreRules();
         return $success;
     }
 }

@@ -76,7 +76,7 @@ class Module extends \Sm\Resolvable\Resolvable implements \Sm\Abstraction\Module
         $this->has_dispatched = false;
         return $this;
     }
-    public function resolve() {
+    public function resolve($_ = null) {
         $this->initialize();
         return $this;
     }

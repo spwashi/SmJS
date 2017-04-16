@@ -40,7 +40,7 @@ class Response extends Resolvable implements Formattable {
     /**
      * @return string
      */
-    public function resolve() {
+    public function resolve($_ = null) {
         switch ($this->content_type) {
             default:
             case Response::TYPE_TEXT_HTML:

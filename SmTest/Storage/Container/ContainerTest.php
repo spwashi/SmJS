@@ -8,7 +8,9 @@
 namespace Sm\Storage\Container;
 
 
-use Sm\Resolvable\SingletonFunctionResolvable;
+use Sm\Resolvable\NullResolvable;
+use Sm\Resolvable\OnceRunResolvable;
+use Sm\Resolvable\Resolvable;
 
 class ContainerTest extends \PHPUnit_Framework_TestCase {
     public function setUp() { ; }
@@ -73,14 +75,50 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
      * @return \Sm\Storage\Container\Container
      */
     public function testCanCopy(Container $Container) {
-        $Container->register('test.1', SingletonFunctionResolvable::init(function ($argument) {
+        $test_1_fn = function ($argument) {
             return $argument + 1;
-        }));
+        };
+        $test_1    = OnceRunResolvable::init($test_1_fn);
+        $Container->register('test.1', $test_1);
         $this->assertEquals(3, $Container->resolve('test.1', 2));
         $NewContainer = $Container->duplicate();
         $this->assertEquals(6, $NewContainer->resolve('test.1', 5));
         return $NewContainer;
     }
+    
+    /**
+     * @param \Sm\Storage\Container\Container $Container
+     *
+     * @depends  testCanCreate
+     */
+    public function testCanCheckout(Container $Container) {
+        $Container->register([ 'test'  => 1,
+                               'hello' => 'Another',
+                               'last'  => function () { return 'fifteen'; },
+                             ]);
+        
+        $test_Resolvable = $Container->checkout('test');
+        
+        $this->assertInstanceOf(Resolvable::class, $test_Resolvable);
+        $this->assertNotInstanceOf(NullResolvable::class, $test_Resolvable);
+        $resolve = $test_Resolvable->resolve();
+        $this->assertEquals(1, $resolve);
+        $this->assertNull($test_Resolvable->resolve());
+        
+        $this->assertTrue($Container->checkBackIn($test_Resolvable));
+        $this->assertNull($test_Resolvable);
+        $this->assertEquals(1, $Container->checkout('test')->resolve());
+        
+        
+        $this->assertEquals('Another', $Container->checkout('hello')
+                                                 ->resolve());
+        
+        $this->assertEquals('fifteen', $Container->checkout('last')
+                                                 ->resolve());
+        
+        
+    }
+    
     public function testCanIterate() {
         $end       = [];
         $array     = [ 'sam', 'bob', 'jan' ];

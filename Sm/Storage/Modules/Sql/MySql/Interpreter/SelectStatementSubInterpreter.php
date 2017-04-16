@@ -29,9 +29,6 @@ class SelectStatementSubInterpreter extends MysqlQuerySubInterpreter {
         $sth->execute();
         return $sth->fetchAll(\PDO::FETCH_ASSOC);
     }
-    public function getQueryProperties() {
-        return $this->Query->getSelectArray();
-    }
     /**
      * Complete the QueryInterpreter, returning a string that represents the Query to execute
      *

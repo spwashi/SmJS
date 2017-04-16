@@ -141,7 +141,7 @@ class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
      *
      * @return $this|mixed
      */
-    public function resolve() {
+    public function resolve($_ = null) {
         if (isset($this->subject)) {
             return $this->subject->resolve();
         }

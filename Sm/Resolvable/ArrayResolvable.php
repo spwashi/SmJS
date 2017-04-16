@@ -29,7 +29,7 @@ class ArrayResolvable extends NativeResolvable implements \JsonSerializable {
     /**
      * @return array
      */
-    public function resolve() {
+    public function resolve($_ = null) {
         return parent::resolve() ?? [];
     }
     

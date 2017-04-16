@@ -9,11 +9,11 @@ namespace Sm\Resolvable;
 
 
 /**
- * Class SingletonFunctionResolvableTest
+ * Class OnceCalledResolvableTest
  *
  * @package Sm\Resolvable
  */
-class SingletonFunctionResolvableTest extends FunctionResolvableTest {
+class OnceRunResolvableTest extends FunctionResolvableTest {
     public function genericSubjectProvider() {
         return [
             [ "test" ],
@@ -23,8 +23,8 @@ class SingletonFunctionResolvableTest extends FunctionResolvableTest {
         ];
     }
     public function testCanCreate() {
-        $Resolvable = new SingletonFunctionResolvable(function () { });
-        $this->assertInstanceOf(SingletonFunctionResolvable::class, $Resolvable);
+        $Resolvable = new OnceRunResolvable(function () { });
+        $this->assertInstanceOf(OnceRunResolvable::class, $Resolvable);
         return $Resolvable;
     }
     /**
@@ -33,11 +33,11 @@ class SingletonFunctionResolvableTest extends FunctionResolvableTest {
      * @param $subject
      */
     public function testCanResolveCorrectly($subject) {
-        $Resolvable = new SingletonFunctionResolvable(function () use ($subject) { return $subject; });
+        $Resolvable = new OnceRunResolvable(function () use ($subject) { return $subject; });
         $this->assertTrue($subject === $Resolvable->resolve());
     }
     public function testOnlyResolvesOnce() {
-        $Resolvable = new SingletonFunctionResolvable(function ($subject) { return $subject; });
+        $Resolvable = new OnceRunResolvable(function ($subject) { return $subject; });
         $Resolvable->resolve("one");
         $result = $Resolvable->resolve("two");
         $this->assertEquals("one", $result);

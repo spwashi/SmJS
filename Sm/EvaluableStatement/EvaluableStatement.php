@@ -155,7 +155,7 @@ abstract class EvaluableStatement extends Resolvable implements Formattable, \Js
      *
      * @return mixed
      */
-    public function resolve() {
+    public function resolve($_ = null) {
         $registry    = $this->registry;
         $can_resolve = $this->resolvesToValue();
         if ($can_resolve !== true) {

@@ -8,19 +8,19 @@
 use Sm\App\App;
 use Sm\Query\Query;
 use Sm\Request\Request;
-use Sm\Resolvable\SingletonFunctionResolvable;
+use Sm\Resolvable\OnceRunResolvable;
 
 return [
     'init' => function (App $App) {
         # Set a way to receive the request, typical factories
         $App->registerDefaults([ 'Request' =>
-                                     SingletonFunctionResolvable::coerce(function ($url = null) {
+                                     OnceRunResolvable::coerce(function ($url = null) {
                                          return \Sm\Request\Request::coerce($url??Request::getRequestUrl());
                                      }) ]);
         
         # Set the default controller namespace - used in routing
         $App->registerDefaults('controller_namespace',
-                               SingletonFunctionResolvable::coerce(function ($App) {
+                               OnceRunResolvable::coerce(function ($App) {
                                    return '\\' . ($App->name??'Sm') . '\\Controller\\';
                                }),
                                true);

@@ -13,6 +13,7 @@ use Sm\Resolvable\NativeResolvable;
 class CacheItem extends NativeResolvable {
     /** @var  string|array|mixed $identity Something that we can use to determine if this Cache item matches another */
     protected $identity;
+    protected $marked_expired;
     /**
      * Check to see if an item matches this Cache item
      *
@@ -21,6 +22,7 @@ class CacheItem extends NativeResolvable {
      * @return bool
      */
     public function compareIdentity($item) {
+        if ($this->isExpired()) return false;
         $identity = $this->identity;
         return $item === $identity;
     }
@@ -32,5 +34,12 @@ class CacheItem extends NativeResolvable {
     public function setIdentity($identity) {
         $this->identity = $identity;
         return $this;
+    }
+    public function expire() {
+        $this->marked_expired = true;
+        return $this;
+    }
+    public function isExpired() {
+        return $this->marked_expired;
     }
 }

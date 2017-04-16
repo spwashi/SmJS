@@ -9,7 +9,14 @@ namespace Sm\Resolvable;
 
 
 class NullResolvable extends NativeResolvable {
+    public function setSubject($item = null) {
+        $this->subject = null;
+        return $this;
+    }
     public function resolve($arguments = null) {
         return null;
+    }
+    protected function createIdentity() {
+        return '---';
     }
 }

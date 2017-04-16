@@ -19,9 +19,6 @@ use Sm\Storage\Modules\Sql\Formatter\UpdateFragment;
  * @package Sm\Storage\Modules\Sql\MySql\Interpreter
  */
 class UpdateStatementSubInterpreter extends MysqlQuerySubInterpreter {
-    public function getQueryProperties() {
-        return $this->Query->getUpdateArray();
-    }
     /**
      * Complete the QueryInterpreter, returning a string that represents the Query to execute
      *

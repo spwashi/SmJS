@@ -21,14 +21,14 @@ use Sm\Factory\FactoryContainer;
  * Class Where
  *
  * @package Sm\Query
- * @method static Where greater_($left, $right);
- * @method static Where less_($left, $right);
- * @method static Where equals_($left, $right);
- * @method static Where and_($condition);
- * @method static Where where_($condition);
- * @method static Where or_($condition);
+ * @method static WhereClause greater_($left, $right);
+ * @method static WhereClause less_($left, $right);
+ * @method static WhereClause equals_($left, $right);
+ * @method static WhereClause and_($condition);
+ * @method static WhereClause where_($condition);
+ * @method static WhereClause or_($condition);
  */
-class Where {
+class WhereClause {
     /** @var  FactoryContainer */
     protected $FactoryContainer;
     protected $Condition;
@@ -52,7 +52,7 @@ class Where {
      *
      * @param FactoryContainer $FactoryContainer
      *
-     * @return Where
+     * @return WhereClause
      */
     public function setFactoryContainer(FactoryContainer $FactoryContainer) {
         $this->FactoryContainer = $FactoryContainer;
@@ -148,7 +148,7 @@ class Where {
         return $ChainableConstruct;
     }
     protected static function val($item) {
-        if ($item instanceof Where) {
+        if ($item instanceof WhereClause) {
             return $item->getCondition();
         }
         return $item;

@@ -9,7 +9,7 @@ namespace Sm\Resolvable;
 
 
 class NativeResolvable extends Resolvable {
-    public function resolve() {
+    public function resolve($name = null) {
         return $this->subject;
     }
 }

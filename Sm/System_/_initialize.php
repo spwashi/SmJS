@@ -10,8 +10,8 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Sm\Entity\EntityFactory;
 use Sm\Logger\LoggerFactory;
+use Sm\Resolvable\OnceRunResolvable;
 use Sm\Resolvable\ResolvableFactory;
-use Sm\Resolvable\SingletonFunctionResolvable;
 use Sm\Resolvable\StringResolvable;
 use Sm\System_\System_;
 use Sm\View\Template\TemplateFactory;
@@ -44,4 +44,4 @@ $fn_get_default_logger = function ($name = null, $severity = null) {
 };
 
 
-$LoggerFactory->register('System', SingletonFunctionResolvable::init($fn_get_default_logger));
+$LoggerFactory->register('System', OnceRunResolvable::init($fn_get_default_logger));

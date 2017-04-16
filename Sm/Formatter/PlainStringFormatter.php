@@ -8,8 +8,13 @@
 namespace Sm\Formatter;
 
 
+use Sm\Abstraction\Formatting\Formatter;
+use Sm\Error\WrongArgumentException;
 use Sm\Resolvable\StringResolvable;
 
-class PlainStringFormatter extends StringResolvable implements \Sm\Abstraction\Formatting\Formatter {
-    public function resolve(array $variables = []) { return parent::resolve(...func_get_args()); }
+class PlainStringFormatter extends StringResolvable implements Formatter {
+    public function resolve($variables = []) {
+        if (!is_array($variables)) throw new WrongArgumentException("Must use arrays only.");
+        return parent::resolve(...func_get_args());
+    }
 }

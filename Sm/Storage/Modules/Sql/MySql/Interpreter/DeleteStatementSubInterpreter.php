@@ -18,9 +18,6 @@ use Sm\Storage\Modules\Sql\Formatter\DeleteFragment;
  * @package Sm\Storage\Modules\Sql\MySql\Interpreter
  */
 class DeleteStatementSubInterpreter extends MysqlQuerySubInterpreter {
-    public function getQueryProperties() {
-        return $this->Query->getDeleteArray();
-    }
     /**
      * Complete the QueryInterpreter, returning a string that represents the Query to execute
      *

@@ -91,11 +91,11 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
         
         
         $results = $App->Query->select($Colln->title, $Collection->Properties)
-                              ->where(Where::greater_(6, $Colln->title)->or_($Collection->id))
+                              ->where(WhereClause::greater_(6, $Colln->title)->or_($Collection->id))
                               ->run();
     
         $results = $App->Query->update($Colln->title, $Collection->Properties)
-                              ->where(Where::greater_(7, $Colln->title)->or_($Collection->id))
+                              ->where(WhereClause::greater_(7, $Colln->title)->or_($Collection->id))
                               ->run();
     
     

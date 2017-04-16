@@ -12,15 +12,15 @@ use Sm\Resolvable\NativeResolvable;
 use Sm\Resolvable\Resolvable;
 
 class Example_1 extends Resolvable {
-    public function resolve() { return 1; }
+    public function resolve($_ = null) { return 1; }
 }
 
 class Example_2 extends Resolvable {
-    public function resolve() { return 2; }
+    public function resolve($_ = null) { return 2; }
 }
 
 class Example_3 extends Resolvable {
-    public function resolve() { return 3; }
+    public function resolve($_ = null) { return 3; }
 }
 
 class Variable_Test extends \PHPUnit_Framework_TestCase {

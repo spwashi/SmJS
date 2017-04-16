@@ -41,19 +41,36 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         echo "{$Fragment}\n\n--------------------------\n\n";
         return;
     }
+    /**
+     * Get the Properties that this Query Subinterpreter will use
+     *
+     * @return \Sm\Entity\Property\Property[]|\Sm\Entity\Property\PropertyHaver[]
+     * @throws \Sm\Error\Error
+     */
+    public function getQueryProperties() {
+        $query_type = $this->Query->getQueryType();
+        
+        $properties = $this->Query->{$query_type};
+        if (!is_array($properties)) throw new Error("There was an error getting the Properties used by {$query_type}");
+        return $properties;
+    }
     public function createStatement() {
         $Fragment = $this->createFragment();
         $stmt     = $this->completeStatementFormatting($this->SqlModule->format($Fragment));
         return $stmt;
     }
+    
+    #
+    ##
+    #
     /**
      * Make an array for the Fragments of Sources used in this Query
      *
      * @return \Sm\Storage\Modules\Sql\Formatter\SourceFragment[]
      */
     public function createSourceFragments() {
-        $this->initSourceMap(false);
-    
+        $this->initSourceArray(false);
+        
         $SourceArray          = $this->Source_object_id__PropertyHaver_object_id_array__map;
         $SourceFragment_array = [];
         foreach ($SourceArray as $_Source_object_id => $_PropertyHaver_object_id_array) {
@@ -99,10 +116,6 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         return $PropertyFragment_array;
     }
     /**
-     * @return Property[]|PropertyHaver[]
-     */
-    abstract public function getQueryProperties();
-    /**
      * Make sure the Statement is in its final form
      *
      * @param $SqlStatement
@@ -128,65 +141,10 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         $Instance->SqlModule = $SqlModule;
         return $Instance;
     }
+    
     #
     ##
     #
-    /**
-     * Create the Fragment that will contain the info of a "From" statement
-     *
-     * @return FromFragment
-     */
-    protected function createFromFragment() {
-        $SourceFragments = $this->createSourceFragments();
-        return FromFragment::init()->setSourceFragmentArray($SourceFragments);
-    }
-    /**
-     * Initialize an array that maps the Object ID of a Source to an array of numbers indexed by the object ID of an PropertyHaver
-     *
-     * @param bool $redo
-     *
-     * @return $this
-     */
-    protected function initSourceMap($redo = false) {
-        # If we've already done this and we aren't sure that we want to redo the process
-        if (isset($this->Source_object_id__PropertyHaver_object_id_array__map) && !$redo) {
-            return $this;
-        }
-    
-        # Make sure we have all of the PropertyHavers
-        $PropertyHaver_object_id__Properties_map = $this->initPropertyHaverArray()->PropertyHaver_object_id__Properties_map;
-        $PropertyArray                           = $this->initPropertyArray(true)->PropertyArray;
-    
-        # This is the array that contains a list of PropertyHavers that use a given Source
-        $this->Source_object_id__PropertyHaver_object_id_array__map = new MiniContainer;
-        /** @var \Sm\Storage\Container\Mini\MiniContainer $src_ownr_map */
-        $src_ownr_map = &$this->Source_object_id__PropertyHaver_object_id_array__map;
-    
-    
-        foreach ($PropertyHaver_object_id__Properties_map as $_PropertyHaver_object_id => $_PropertyHaver_PropertyArray) {
-            /**
-             * @var Property $_Property
-             */
-            foreach ($PropertyArray as $_Property_object_id => $_Property) {
-                # This is an array, indexed by source id, of the object_ids of PropertyHavers that use this Source
-                $_Source    = $_Property->getSource();
-                $_source_id = $_Source->getObjectId();
-                
-                $src_ownr_map->registerDefault($_source_id, new MiniContainer);
-    
-                # We register the Object ID of the PropertyHaver to be the Count of the items in the SourcePropertyHaverMap that have
-                # this same Source ID so we can know whether we need to alias it or not
-                # If the Count is greater than 0, we alias it
-                $src_ownr_map->{$_source_id}->registerDefault($_PropertyHaver_object_id,
-                                                              $src_ownr_map->{$_source_id}->count());
-                # Keep track of the PropertyHaver IDs
-                # The "count" lets us know if there is more than one item under this source ID
-            }
-        }
-        $this->aliasSources();
-        return $this;
-    }
-    
     /**
      * Iterate through the Source array and alias any of the Sources that are used by multiple different PropertyHavers.
      * This is because if two different Entities reference the same table, usually that table has to get aliased at least once.
@@ -215,7 +173,52 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         
         return $this;
     }
+    /**
+     * Initialize an array that maps the Object ID of a Source to an array of numbers indexed by the object ID of an PropertyHaver
+     *
+     * @param bool $redo
+     *
+     * @return $this
+     */
+    protected function initSourceArray($redo = false) {
+        # If we've already done this and we aren't sure that we want to redo the process
+        if (isset($this->Source_object_id__PropertyHaver_object_id_array__map) && !$redo) {
+            return $this;
+        }
+        
+        # Make sure we have all of the PropertyHavers
+        $PropertyHaver_object_id__Properties_map = $this->initPropertyHaverArray()->PropertyHaver_object_id__Properties_map;
+        $PropertyArray                           = $this->initPropertyArray(true)->PropertyArray;
+        
+        # This is the array that contains a list of PropertyHavers that use a given Source
+        $this->Source_object_id__PropertyHaver_object_id_array__map = new MiniContainer;
+        /** @var \Sm\Storage\Container\Mini\MiniContainer $src_ownr_map */
+        $src_ownr_map = &$this->Source_object_id__PropertyHaver_object_id_array__map;
+        
+        
+        foreach ($PropertyHaver_object_id__Properties_map as $_PropertyHaver_object_id => $_PropertyHaver_PropertyArray) {
+            /**
+             * @var Property $_Property
+             */
+            foreach ($PropertyArray as $_Property_object_id => $_Property) {
+                # This is an array, indexed by source id, of the object_ids of PropertyHavers that use this Source
+                $_Source    = $_Property->getSource();
+                $_source_id = $_Source->getObjectId();
+                
+                $src_ownr_map->registerDefault($_source_id, new MiniContainer);
     
+                # We register the Object ID of the PropertyHaver to be the Count of the items in the SourcePropertyHaverMap that have
+                # this same Source ID so we can know whether we need to alias it or not
+                # If the Count is greater than 0, we alias it
+                $src_ownr_map->{$_source_id}->registerDefault($_PropertyHaver_object_id,
+                                                              $src_ownr_map->{$_source_id}->count());
+                # Keep track of the PropertyHaver IDs
+                # The "count" lets us know if there is more than one item under this source ID
+            }
+        }
+        $this->aliasSources();
+        return $this;
+    }
     /**
      * If this Query relies on Properties (most do), return an array of those Properties
      *
@@ -224,11 +227,8 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
      * @return $this
      */
     protected function initPropertyArray($redo = false) {
-        if (isset($this->PropertyArray) && !$redo) {
-            return $this;
-        }
-        $PropertyArray       = $this->getQueryProperties();
-        $this->PropertyArray = static::flattenPropertyArray($PropertyArray);
+        if (isset($this->PropertyArray) && !$redo) return $this;
+        $this->PropertyArray = $this->getQueryProperties();
         return $this;
     }
     /**
@@ -272,6 +272,19 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         
         # Sometimes augmenting the Query adds new Properties. This just makes sure they have been added to the Property Array
         return $this->initPropertyArray(true);
+    }
+    
+    #
+    ##
+    #
+    /**
+     * Create the Fragment that will contain the info of a "From" statement
+     *
+     * @return FromFragment
+     */
+    protected function createFromFragment() {
+        $SourceFragments = $this->createSourceFragments();
+        return FromFragment::init()->setSourceFragmentArray($SourceFragments);
     }
     /**
      * For one PropertyHaver of a property, modify this query based on how they say it needs to be modified.

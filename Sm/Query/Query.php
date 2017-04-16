@@ -8,6 +8,7 @@
 namespace Sm\Query;
 
 use Sm\Abstraction\Factory\HasFactoryContainerTrait;
+use Sm\Entity\Property\Property;
 use Sm\Entity\Property\PropertyContainer;
 use Sm\Error\Error;
 use Sm\Error\UnimplementedError;
@@ -27,16 +28,38 @@ use Sm\Storage\Source\SourceHaver;
  *
  * @package Sm\Query
  *
- * @method static Query select_(...$items)
+ * @property-read Property[]            $select
+ * @property-read Property[]            $delete
+ * @property-read Property[]            $insert
+ * @property-read Property[]            $update
+ * @property-read array                 $values
+ * @property-read \Sm\Query\WhereClause $WhereClause
+ *
+ * @method  static Query select(...$items) Properties to select.
+ * @method  static Query delete(...$items) Properties to delete.
+ * @method  static Query insert(...$items) Properties to insert. Values from these are included
+ * @method  static Query update(...$items) Properties to update (updates from their values)
+ * @method  static Query values(...$items) Arrays of values to insert.
+ *
+ * @method static Query val(...$items)
  */
 class Query {
     use HasFactoryContainerTrait;
     
-    const QUERY_TYPE_SELECT = 'select';
-    const QUERY_TYPE_INSERT = 'insert';
-    const QUERY_TYPE_UPDATE = 'update';
-    const QUERY_TYPE_DELETE = 'delete';
+    # region properties
     
+    # region query types
+    const QUERY_TYPE_SELECT       = 'select';
+    const QUERY_TYPE_INSERT       = 'insert';
+    const QUERY_TYPE_UPDATE       = 'update';
+    const QUERY_TYPE_DELETE       = 'delete';
+    const QUERY_TYPE_CREATE_TABLE = 'create_table';
+    /** @var null|string $query_type This is the type of Query we are executing */
+    protected $query_type = null;
+    # endregion
+    /** @var  \Sm\Query\WhereClause $WhereClause The overall Where clause that accompanies this Query */
+    protected $WhereClause;
+    # region Component Arrays
     /** @var array $select_array An array of properties or whatever that we want to select */
     protected $select_array = [];
     /** @var array $delete_array An array of properties or whatever that we want to delete */
@@ -47,14 +70,38 @@ class Query {
     protected $insert_array = [];
     /** @var array[] $values_array An array of arrays of the values that we want to insert */
     protected $values_array = [];
-    /** @var null|string $query_type This is the type of Query we are executing */
-    protected $query_type = null;
-    /** @var  \Sm\Query\Where $where The overall Where clause that accompanies this Query */
-    protected $where;
+    # endregion
+    /** @var array An array of the Properties that this Query is aware that it uses */
+    protected $PropertyArray = [];
+    # endregion
+    
     
     #
-    ##  Getters and Setters
-    #
+    ##  Constructor
+    public function __call($name, $arguments) {
+        if (in_array($name, [ 'select', 'update', 'delete', 'insert' ])) {
+            $PropertyArray       = $this->runQueryTypeFunction($name, $arguments);
+            $this->PropertyArray = array_merge($this->PropertyArray, $PropertyArray);
+            return $this;
+        }
+        
+        if ($name === 'values') {
+            foreach ($arguments as $index => $array) {
+                if (!is_array($array)) throw new WrongArgumentException("Can only insert using arrays");
+            }
+            $this->values_array = array_merge($this->values_array, $arguments);
+            return $this;
+        }
+        
+        return $this;
+    }
+    public function __get($name) {
+        if (in_array($name, [ 'select', 'update', 'delete', 'insert', 'values', ])) {
+            return $this->{"{$name}_array"} ?? [];
+        }
+        if ($name === 'WhereClause') return $this->WhereClause;
+        return null;
+    }
     /**
      * Get the type of Query we are going to be executing
      *
@@ -63,144 +110,28 @@ class Query {
     public function getQueryType() {
         return $this->query_type;
     }
-    /**
-     * Get the array of things that we want to select.
-     *
-     * @return array
-     */
-    public function getSelectArray(): array {
-        return $this->select_array;
-    }
-    public function getUpdateArray(): array {
-        return $this->update_array;
-    }
-    public function getInsertArray(): array {
-        return $this->insert_array;
-    }
-    public function getValuesArray(): array {
-        return $this->values_array;
-    }
-    public function getDeleteArray(): array {
-        return $this->delete_array;
-    }
-    /**
-     * Get the Where clause of the Query
-     *
-     * @return Where
-     */
-    public function getWhere() {
-        return $this->where;
-    }
+    
     #
-    ## Public Query methods
-    #
-    /**
-     * Set the Properties that we want to select
-     *
-     * @param array ...$items
-     *
-     * @return $this
-     * @throws \Sm\Error\WrongArgumentException
-     */
-    public function select(...$items) {
-        $this->query_type = $this->query_type ?? static::QUERY_TYPE_SELECT;
-        foreach ($items as $index => $item) {
-            
-            # todo vague error
-            try {
-                $this->canSelectItem($item, true);
-            } catch (Error $e) {
-                throw new WrongArgumentException(
-                    "Argument {$index} cannot be queried --  " .
-                    "Please check that it is a (or an array of) SourceHaver Object(s) " .
-                    "and the Source is properly authenticated and connected. \n" .
-                    "Additionally, {$e->getMessage()}");
-                
-            }
-            $this->select_array[] = $item;
-        }
-        return $this;
-    }
-    /**
-     * Set the Properties that we want to delete
-     * #todo LOOK INTO THIS
-     *
-     * @param array ...$items
-     *
-     * @return $this
-     * @throws \Sm\Error\WrongArgumentException
-     */
-    public function delete(...$items) {
-        $this->query_type = $this->query_type ?? static::QUERY_TYPE_DELETE;
-        foreach ($items as $index => $item) {
-            
-            try {
-                $this->canSelectItem($item, true);
-            } catch (Error $e) {
-                throw new WrongArgumentException(
-                    "Argument {$index} cannot be queried --  " .
-                    "Please check that it is a (or an array of) SourceHaver Object(s) " .
-                    "and the Source is properly authenticated and connected. \n" .
-                    "Additionally, {$e->getMessage()}");
-                
-            }
-            $this->delete_array[] = $item;
-        }
-        return $this;
-    }
+    ##  Getters and Setters
     /**
      * Set the Where clause of the query
      *
-     * @param \Sm\Query\Where $where
+     * @param \Sm\Query\WhereClause $where
      *
      * @return $this
-     * @internal param array ...$items
-     *
      */
-    public function where(Where $where) {
-        if (!isset($this->where)) {
-            $this->where = $where;
+    public function where(WhereClause $where) {
+        if (!isset($this->WhereClause)) {
+            $this->WhereClause = $where;
         } else {
-            $this->where->appendConditions($where->getRawConditionsArray());
+            $this->WhereClause->appendConditions($where->getRawConditionsArray());
         }
         
         return $this;
     }
-    /**
-     * Update the values of some properties on whatever platform
-     *
-     * @param array ...$items
-     *
-     * @return \Sm\Query\Query
-     */
-    public function update(...$items) {
-        $this->query_type   = $this->query_type ?? static::QUERY_TYPE_UPDATE;
-        $this->update_array = array_merge($this->update_array, array_filter($items));
-        return $this;
-    }
-    /**
-     * Insert some properties (or update them) on whatever platform
-     *
-     * @param array ...$items
-     *
-     * @return $this
-     */
-    public function insert(...$items) {
-        $this->query_type   = $this->query_type ?? static::QUERY_TYPE_INSERT;
-        $this->insert_array = array_merge($this->insert_array, array_filter($items));
-        return $this;
-    }
-    /**
-     * Set the values that we want to insert
-     *
-     * @param array ...$items
-     *
-     * @return $this
-     */
-    public function values(...$items) {
-        $this->values_array = array_merge($this->values_array, $items);
-        return $this;
-    }
+    
+    #
+    ## Public Query methods
     /**
      * Run the Query, delegating subqueries to the proper source
      *
@@ -216,22 +147,26 @@ class Query {
         } else if (!count($SourceArray)) {
             throw new Error("There is no Source to execute this Query.");
         }
-        
+    
+    
         /** @var Source $RootSource The Source that is going to be handling this Query */
         $RootSource              = $SourceArray[ key($SourceArray) ];
         $Factories               = $this->getFactoryContainer();
         $QueryInterpreterFactory = $Factories->resolve(QueryInterpreterFactory::class);
+    
         /** @var \Sm\Query\Interpreter\QueryInterpreter $QueryInterpreter */
         $QueryInterpreter = $QueryInterpreterFactory->build($RootSource);
-        if (isset($QueryInterpreter)) {
-            return $QueryInterpreter->interpret($this);
-        }
-        return null;
-    }
     
-    #
-    ## Class methods
-    #
+        $Owners = $this->getPropertyHaversFromArray($this->PropertyArray);
+        $Query  = $this;
+        foreach ($Owners as $PropertyHaver) {
+            if ($PropertyHaver instanceof QueryAugmentor) {
+                $Query = $PropertyHaver->augmentQuery($Query);
+            }
+        }
+    
+        return isset($QueryInterpreter) ? $QueryInterpreter->interpret($Query) : null;
+    }
     /**
      * Static constructor for Query
      *
@@ -240,33 +175,11 @@ class Query {
     public static function init() {
         return new static;
     }
+    
+    #
+    ## Class methods
     /**
-     * Allow us to call the standard methods with a shortcut.
-     * e.g. Query::init()->select   -->   Query::select()
-     *
-     * @param string $name
-     * @param array  $arguments
-     *
-     * @return mixed
-     * @throws \Sm\Error\Error
-     * @todo this might lead to a bug with private/protected methods?
-     *
-     */
-    public static function __callStatic($name, $arguments) {
-        $Self = new static;
-        
-        $strlen_name          = strlen($name);
-        $ends_with_underscore = strpos($name, '_', $strlen_name - 1);
-        if ($ends_with_underscore) {
-            $name = substr($name, 0, $strlen_name - 1);
-            if (method_exists($Self, $name)) {
-                return call_user_func_array([ $Self, $name ], $arguments);
-            }
-        }
-        throw new Error("There is no method {$name} in this class.");
-    }
-    /**
-     * Functions to check to see if we an select an item.
+     * Functions to check to see if we can use a property.
      * Depends on the Source, etc.
      *
      * @param      $item
@@ -277,7 +190,9 @@ class Query {
      * @throws \Sm\Error\WrongArgumentException
      * @throws \Sm\Storage\Source\Exception\UnauthorizedConnectionError
      */
-    protected function canSelectItem($item, $throw_an_error = false) {
+    protected function canUseProperties($item, $throw_an_error = false) {
+        
+        # We assume that it has a source
         if ($item instanceof SourceHaver) {
             $Source           = $item->getSource();
             $source_is_active = $Source && $Source->isAuthenticated();
@@ -286,27 +201,42 @@ class Query {
             }
             return $source_is_active;
         }
-        if ($item instanceof \Traversable) {
+        
+        # If we're asking about an array, iterate through
+        if ($item instanceof \Traversable || is_array($item)) {
             foreach ($item as $value) {
-                if (!$this->canSelectItem($value, true)) {
-                    return false;
-                }
+                if (!$this->canUseProperties($value, $throw_an_error)) return false;
             }
             return true;
         }
         
         $source_haver_class = SourceHaver::class;
-        if ($throw_an_error) {
-            throw new WrongArgumentException("Item must be an instance of {$source_haver_class}");
-        }
+        
+        # Throw an error if we want because the item can't be used
+        if ($throw_an_error) throw new WrongArgumentException("Item must be an instance of {$source_haver_class}");
         
         return false;
     }
-    protected function getAllComponents() {
-        return array_merge($this->select_array,
-                           $this->insert_array,
-                           $this->delete_array,
-                           $this->update_array);
+    /**
+     * Get an array of the Properties used to build this Query
+     *
+     * @return Property[]
+     */
+    protected function getReferencedProperties() {
+        return array_unique(array_merge(
+                                $this->select_array,
+                                $this->update_array,
+                                $this->delete_array,
+                                $this->insert_array
+                            ));
+    }
+    protected function getPropertyHaversFromArray($PropertyArray) {
+        $PropertyHavers = [];
+        foreach ($PropertyArray as $index => $item) {
+            if (!($item instanceof Property)) continue;
+            $PropertyHavers[] = $item->getPropertyHavers();
+        }
+        return array_unique(array_merge(...$PropertyHavers));
     }
     /**
      * Get an array of all of the Sources used by this class.
@@ -315,27 +245,18 @@ class Query {
      * @return array
      */
     protected function getSourcesUsed(): array {
-        $components = $this->getAllComponents();
+        $components = $this->getReferencedProperties();
         /**
          * @var Source[] $Sources An array, indexed by object_id, of the Sources used
          */
         $Sources = [];
         foreach ($components as $component) {
-            if ($component instanceof PropertyContainer) {
-                foreach ($component as $property) {
-                    $RootSource = static::getRootSourceFromSourceHaver($property);
-                    if ($RootSource) {
-                        $Sources[ $RootSource->getObjectId() ] = $RootSource;
-                    }
-                }
-            } else {
-                $RootSource = static::getRootSourceFromSourceHaver($component);
-                if ($RootSource) {
-                    $Sources[ $RootSource->getObjectId() ] = $RootSource;
-                }
+            $RootSource = static::getRootSourceFromSourceHaver($component);
+            if ($RootSource) {
+                $Sources[ $RootSource->getObjectId() ] = $RootSource;
             }
         }
-    
+        
         # Don't return the same Source twice
         $Sources = array_unique($Sources);
         return $Sources;
@@ -361,5 +282,60 @@ class Query {
         
         $Sources[ $RootSource->getName() ] = $RootSource;
         return $RootSource;
+    }
+    /**
+     * Function meant to handle default functionality of basic query types. Standin for select, update, delete, insert functions
+     *
+     * @param $name
+     * @param $arguments
+     *
+     * @return Property[]
+     * @throws \Sm\Error\WrongArgumentException
+     */
+    private function runQueryTypeFunction($name, $arguments) {
+        $this->query_type = $this->query_type ?? $name;
+        $array_name       = "{$name}_array";
+        
+        # Flatten the Properties. This gets all properties from the PropertyContainer.
+        $arguments = self::flattenPropertyArray($arguments);
+        
+        # Check to see if all of the items are OK.
+        try {
+            $this->canUseProperties($arguments, true);
+        } catch (Error $e) {
+            throw new WrongArgumentException(
+                "Argument cannot be queried --  " .
+                "Please check that it is a (or an array of) SourceHaver Object(s) " .
+                "and the Source is properly authenticated and connected. \n" .
+                "Additionally, {$e->getMessage()}");
+            
+        }
+        
+        # Merge the properties with the existent array
+        $this->$array_name   = array_unique(array_merge($this->$array_name, array_filter($arguments)));
+        $this->PropertyArray = array_merge($this->PropertyArray, array_filter($arguments));
+        return $arguments;
+    }
+    /**
+     * Given an array that contains either Properties or PropertyContainers, get all of the Properties mentioned
+     *
+     * @param $PropertyArray
+     *
+     * @return array
+     */
+    private static function flattenPropertyArray($PropertyArray) {
+        $Properties = [];
+        # Iterate through the properties and PropertyContainers to get the
+        foreach ($PropertyArray as $PropertyOrContainer) {
+            if ($PropertyOrContainer instanceof Property) {
+                $Properties[] = $PropertyOrContainer;
+            } else if ($PropertyOrContainer instanceof PropertyContainer) {
+                foreach ($PropertyOrContainer as $property) {
+                    $Properties[] = $property;
+                }
+            }
+        }
+        
+        return $Properties;
     }
 }

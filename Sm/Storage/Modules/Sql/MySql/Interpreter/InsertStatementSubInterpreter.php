@@ -8,8 +8,6 @@
 namespace Sm\Storage\Modules\Sql\MySql\Interpreter;
 
 
-use Sm\Entity\Property\Property;
-use Sm\Entity\Property\PropertyHaver;
 use Sm\Storage\Modules\Sql\Formatter\InsertFragment;
 
 class InsertStatementSubInterpreter extends MysqlQuerySubInterpreter {
@@ -25,14 +23,8 @@ class InsertStatementSubInterpreter extends MysqlQuerySubInterpreter {
                                            ->setValueFragments($this->createValueFragments());
         return $InsertFragment;
     }
-    /**
-     * @return Property[]|PropertyHaver[]
-     */
-    public function getQueryProperties() {
-        return $this->Query->getInsertArray();
-    }
     private function createValueFragments() {
-        $values_array_array = $this->Query->getValuesArray();
+        $values_array_array = $this->Query->values;
         $Fragments          = [];
         foreach ($values_array_array as $index => $value_array) {
             $Fragments[] = $this->SqlModule->format($value_array);

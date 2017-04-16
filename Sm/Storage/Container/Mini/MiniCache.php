@@ -8,6 +8,8 @@
 namespace Sm\Storage\Container\Mini;
 
 
+use Sm\Error\Error;
+use Sm\Resolvable\NullResolvable;
 use Sm\Storage\Container\Cache\CacheInterface;
 use Sm\Storage\Container\Cache\CacheItem;
 use Sm\Util;
@@ -44,12 +46,10 @@ class MiniCache extends MiniContainer implements CacheInterface {
      * @return $this
      */
     public function cache($identity, $result) {
-        if (!isset($this->cache_key)) {
-            return $this;
-        }
-        if (!isset($result)) {
-            return $this;
-        }
+        if (!isset($this->cache_key)) return $this;
+        
+        if (!isset($result)) return $this;
+        
         
         $cache_key = $this->generateCacheIndex($identity);
         
@@ -70,27 +70,49 @@ class MiniCache extends MiniContainer implements CacheInterface {
      * @return mixed|null
      */
     public function resolve($args = null) {
-        if (!isset($this->cache_key)) {
-            return null;
-        }
-        
+        if (!isset($this->cache_key)) return null;
+        return $this->getItem($args, true)->resolve() ?? null;
+    }
+    
+    public function canResolve($args) {
+        if (!$this->isCaching()) throw new Error("Cannot resolve without first starting cache.");
+        return parent::canResolve($args) && isset($this->cache_key);
+    }
+    
+    /**
+     * @param string $args
+     * @param bool   $as_resolvable
+     *
+     * @return \Sm\Resolvable\Resolvable|null
+     */
+    public function getItem($args, $as_resolvable = false) {
         $cache_index = $this->generateCacheIndex($args);
-        if (!isset($this->registry[ $cache_index ])) {
-            return null;
-        }
+        $null        = $as_resolvable ? NullResolvable::init() : null;
+        if (!isset($this->registry[ $cache_index ])) return $null;
         
         $index_registry = $this->registry[ $cache_index ];
         
         foreach ($index_registry as $index => $CacheItem) {
             /** @var \Sm\Storage\Container\Cache\CacheItem $CacheItem */
-            $args_equal = $CacheItem->compareIdentity($args);
-            
-            if ($args_equal) {
-                return $CacheItem->resolve();
+            if ($CacheItem->isExpired()) {
+                unset($index_registry[ $index ]);
+                continue;
             }
+            $args_equal = $CacheItem->compareIdentity($args);
+            if ($args_equal) return $CacheItem;
         }
-        return null;
+        
+        return $null;
     }
+    
+    public function remove($args) {
+        $item = $this->getItem($args);
+        if ($item instanceof CacheItem) {
+            $item->expire();
+        }
+        return $item;
+    }
+    
     public function register($identity = null, $result = null) {
         return $this->cache(...func_get_args());
     }

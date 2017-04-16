@@ -13,7 +13,6 @@ use Sm\Resolvable\FunctionResolvable;
 use Sm\Resolvable\NativeResolvable;
 use Sm\Resolvable\Resolvable;
 use Sm\Storage\Container\AbstractContainer;
-use Sm\Storage\Container\Mini\MiniCache;
 use Sm\Util;
 
 /**
@@ -33,12 +32,6 @@ class Factory extends AbstractContainer {
     protected $class_registry = [];
     /** @var bool If there is a class that isn't registered in the factory (and doesn't have ancestor that is), should we create it anyways? */
     protected $do_create_missing = true;
-    /**
-     * Factory constructor.
-     */
-    public function __construct() {
-        $this->Cache = new MiniCache;
-    }
     
     
     /**

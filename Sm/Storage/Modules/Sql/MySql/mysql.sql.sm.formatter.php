@@ -46,8 +46,7 @@ return [
         throw new UnimplementedError("Cannot properly format item of type \"{$item_type}\".");
     },
     ArrayFragment::class            => function (ArrayFragment $ArrayFragment, FormatterFactory $FormatterFactory) {
-        $value = $ArrayFragment->getArray();
-        return json_encode($value);
+        return json_encode($ArrayFragment->getArray());
     },
     
     #

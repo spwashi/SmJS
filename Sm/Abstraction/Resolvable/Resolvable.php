@@ -12,7 +12,9 @@ interface  Resolvable {
     /**
      * Return the final result of the Resolvable (as of now)
      *
+     * @param null $_ Optional number of arguments
+     *
      * @return mixed
      */
-    public function resolve();
+    public function resolve($_ = null);
 }

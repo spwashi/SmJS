@@ -14,6 +14,9 @@ use Sm\Entity\Property\Property;
 use Sm\Entity\Property\PropertyContainer;
 use Sm\Entity\Property\PropertyHaver;
 use Sm\Factory\Factory;
+use Sm\Query\Query;
+use Sm\Query\QueryAugmentor;
+use Sm\Query\WhereClause;
 
 
 /**
@@ -35,7 +38,7 @@ use Sm\Factory\Factory;
  *
  * @package Sm\Entity
  */
-class EntityType implements PropertyHaver {
+class EntityType implements PropertyHaver, QueryAugmentor {
     use HasObjectIdentityTrait;
     /** @var  EntityTypeMeta $EntityTypeMeta Information about this EntityType */
     protected $EntityTypeMeta;
@@ -50,7 +53,7 @@ class EntityType implements PropertyHaver {
     protected $ExistenceCheckers;
     
     #-----------------------------------------------------------------------------------
-    ##  Initialization/Constructors
+    #  Initialization/Constructors
     #-----------------------------------------------------------------------------------
     /**
      * EntityType constructor.
@@ -84,7 +87,8 @@ class EntityType implements PropertyHaver {
         }
         /** @var Property $Property */
         if ($Property = $this->Properties->resolve($name)) {
-            return $Property->markReadonly();
+            $Property->markReadonly();
+            return $Property;
         }
         return null;
     }
@@ -98,9 +102,25 @@ class EntityType implements PropertyHaver {
             throw new NonexistentPropertyException("The requested Property '{$name}' does not exist for this EntityType");
         }
     }
+    public function augmentQuery(Query $Query): Query {
+        $do_add_where = in_array($Query->getQueryType(), [
+            Query::QUERY_TYPE_SELECT,
+            Query::QUERY_TYPE_UPDATE,
+            Query::QUERY_TYPE_DELETE,
+        ]);
+        
+        if ($do_add_where) {
+            $Query->select($this->Properties->id)->where(WhereClause::equals_($this->Properties->id,
+                                                                              $this->Properties->id->value));
+        }
+        return $Query;
+    }
+    #-----------------------------------------------------------------------------------
+    #  Getters/Setters/Checkers/Registerers
+    #-----------------------------------------------------------------------------------
     
     #-----------------------------------------------------------------------------------
-    ##  Getters/Setters/Checkers/Registerers
+    #  Getters/Setters/Checkers/Registerers
     #-----------------------------------------------------------------------------------
     /**
      * Get the Properties of the EntityType
@@ -112,6 +132,7 @@ class EntityType implements PropertyHaver {
         #   basically, I'm assuming that we never want to mutate the PropertyContainer outside of the context of
         #   this EntityType (fair?)
         #   So, we should return a readonly version of the property container
-        return $this->Properties->markReadonly();
+        $this->Properties->markReadonly();
+        return $this->Properties;
     }
 }

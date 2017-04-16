@@ -9,6 +9,9 @@ namespace Sm\Resolvable;
 
 
 use Sm\Abstraction\Factory\HasFactoryContainerTrait;
+use Sm\Abstraction\Identifier\HasObjectIdentityTrait;
+use Sm\Abstraction\Identifier\Identifiable;
+use Sm\Abstraction\Identifier\Identifier;
 use Sm\Util;
 
 /**
@@ -20,9 +23,9 @@ use Sm\Util;
  *
  * @package Sm\Resolvable
  */
-abstract class Resolvable implements \Sm\Abstraction\Resolvable\Resolvable {
+abstract class Resolvable implements Identifiable, \Sm\Abstraction\Resolvable\Resolvable {
     use HasFactoryContainerTrait;
-    
+    use HasObjectIdentityTrait;
     /** @var  mixed $subject The thing that this Resolvable is wrapping */
     protected $subject;
     
@@ -33,6 +36,9 @@ abstract class Resolvable implements \Sm\Abstraction\Resolvable\Resolvable {
      */
     public function __construct($subject = null) {
         $this->setSubject($subject);
+    
+        # Makes it easy to refer to Resolvables or whatever
+        $this->setObjectId($this->createIdentity());
     }
     /**
      * Get the subject of the Resolvable (The thing that this Resolvable is wrapping)
@@ -110,5 +116,8 @@ abstract class Resolvable implements \Sm\Abstraction\Resolvable\Resolvable {
             return $item;
         }
         return static::init(...func_get_args());
+    }
+    protected function createIdentity() {
+        return Identifier::generateIdentity($this);
     }
 }

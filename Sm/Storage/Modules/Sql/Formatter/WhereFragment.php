@@ -8,10 +8,10 @@
 namespace Sm\Storage\Modules\Sql\Formatter;
 
 
-use Sm\Query\Where;
+use Sm\Query\WhereClause;
 
 class WhereFragment extends SqlFragment {
-    /** @var  Where $where The WHERE clause */
+    /** @var  WhereClause $where The WHERE clause */
     protected $where;
     /** @var \Sm\Storage\Modules\Sql\Formatter\PropertyFragment[] The PropertyFragments that we might reference in this Where clause */
     protected $PropertyFragments = [];
@@ -23,7 +23,7 @@ class WhereFragment extends SqlFragment {
      *
      * @return WhereFragment
      */
-    public function setWhere(Where $clauses): WhereFragment {
+    public function setWhere(WhereClause $clauses): WhereFragment {
         $this->where = $clauses;
         return $this;
     }

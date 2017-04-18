@@ -8,7 +8,6 @@
 namespace Sm\Resolvable;
 
 
-use Sm\Abstraction\Resolvable\Arguments;
 
 /**
  * Class PassiveResolvable

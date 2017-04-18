@@ -19,9 +19,11 @@ use Sm\Resolvable\ResolvableFactory;
 /**
  * Class Variable_
  *
- * @property string     $name      The name of the Variable_
- * @property mixed      $value     The resolved value of this Variable_'s subject
- * @property Resolvable $raw_value The raw, unresolved Resolvable that this Variable_ holds a reference to
+ * @property-read mixed $default_value      The Resolvable that holds the value of the Variable_
+ * @property-read mixed $default            The default of the Variable_
+ * @property string     $name               The name of the Variable_
+ * @property mixed      $value              The resolved value of this Variable_'s subject
+ * @property Resolvable $raw_value          The raw, unresolved Resolvable that this Variable_ holds a reference to
  *
  * @package Sm\Type\Variable_
  */
@@ -29,8 +31,10 @@ class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
     use HasObjectIdentityTrait;
     /** @var  Resolvable $subject */
     protected $subject;
-    protected $name;
-    protected $potential_types = [];
+    /** @var  Resolvable $_default */
+    protected $_default;
+    protected $_name;
+    protected $_potential_types = [];
     /**
      * Variable_ constructor.
      *
@@ -44,13 +48,19 @@ class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
     
     public function __get($name) {
         if ($name === 'name') {
-            return $this->name;
+            return $this->_name;
         }
         if ($name === 'value') {
             return $this->resolve();
         }
         if ($name === 'raw_value') {
             return $this->subject;
+        }
+        if ($name === 'default_value') {
+            return $this->_default->resolve();
+        }
+        if ($name === 'default') {
+            return $this->_default;
         }
         return null;
     }
@@ -61,11 +71,16 @@ class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
      * @param $value
      */
     public function __set($name, $value) {
-        if ($name === 'name' && $value) {
-            $this->name = $value;
-        }
-        if ($name === 'value') {
-            $this->setValue($value);
+        switch ($name) {
+            case 'name':
+                $this->_name = $value;
+                break;
+            case 'value':
+                $this->setValue($value);
+                break;
+            case 'default':
+                $this->setDefault($value);
+                break;
         }
     }
     
@@ -75,17 +90,17 @@ class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
      * @return array
      */
     public function getPotentialTypes(): array {
-        return $this->potential_types;
+        return $this->_potential_types;
     }
     /**
      * Set an array of the potential types that a the value can be
      *
-     * @param $potential_types
+     * @param $_potential_types
      *
-     * @return mixed
+     * @return $this
      */
-    public function setPotentialTypes(array $potential_types) {
-        $this->potential_types = $potential_types;
+    public function setPotentialTypes(...$_potential_types) {
+        $this->_potential_types = $_potential_types;
         return $this;
     }
     
@@ -112,10 +127,10 @@ class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
         $class = get_class($subject);
         
         # If we haven't given permission to set a Resolvable of this type, don't
-        if ($len = count($this->potential_types)) {
+        if ($len = count($this->_potential_types)) {
             # iterate through the potential types and see if we're allowed to continue;
             for ($i = 0; $i < $len; $i++) {
-                if ($class === $this->potential_types[ $i ] || is_subclass_of($class, $this->potential_types[ $i ])) {
+                if ($class === $this->_potential_types[ $i ] || is_subclass_of($class, $this->_potential_types[ $i ])) {
                     break;
                 } else if ($i === $len - 1) {
                     throw new UnresolvableError("Cannot set this class");
@@ -156,7 +171,20 @@ class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
         return isset($this->subject);
     }
     function jsonSerialize() {
-        return [ 'name' => $this->name, '_type' => Variable_::class ];
+        return [ 'name' => $this->_name, '_type' => Variable_::class ];
+    }
+    /**
+     * Set the Default Value
+     *
+     * @param Resolvable|mixed $default
+     *
+     * @return Variable_
+     */
+    public function setDefault($default): Variable_ {
+        $this->_default = $default instanceof Resolvable ? $default : $this->getFactoryContainer()
+                                                                           ->resolve(ResolvableFactory::class)
+                                                                           ->build($default);
+        return $this;
     }
     /**
      * Create a Variable

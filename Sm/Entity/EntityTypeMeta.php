@@ -70,7 +70,7 @@ class EntityTypeMeta implements Identifiable {
      * @return string
      */
     public function getName() {
-        return $this->name;
+        return $this->_name;
     }
     /**
      * @param string $name
@@ -78,7 +78,7 @@ class EntityTypeMeta implements Identifiable {
      * @return EntityTypeMeta
      */
     public function setName(string $name): EntityTypeMeta {
-        $this->name = $name;
+        $this->_name = $name;
         return $this;
     }
     /**

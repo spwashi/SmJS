@@ -10,14 +10,14 @@ namespace Sm\Storage\Modules\Sql\MySql\Interpreter;
 
 use Sm\Storage\Modules\Sql\Formatter\InsertFragment;
 
-class InsertStatementSubInterpreter extends MysqlQuerySubInterpreter {
+class InsertQuerySubInterpreter extends MysqlQuerySubInterpreter {
     /**
      * Complete the QueryInterpreter, returning a string that represents the Query to execute
      *
      * @return string
      */
     public function createFragment() {
-        $PropertyFragments = $this->createPropertyFragments();
+        $PropertyFragments = $this->createPropertyFragmentArray();
         $InsertFragment    = InsertFragment::init()
                                            ->setPropertyFragments($PropertyFragments)
                                            ->setValueFragments($this->createValueFragments());

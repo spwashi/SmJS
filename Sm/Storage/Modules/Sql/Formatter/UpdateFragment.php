@@ -9,11 +9,11 @@ namespace Sm\Storage\Modules\Sql\Formatter;
 
 
 use Sm\Formatter\Fragment\Fragment;
-use Sm\Storage\Modules\Sql\Formatter\Traits\FragmentHasPropertyFragments;
+use Sm\Storage\Modules\Sql\Formatter\Traits\FragmentHasPropertyFragmentArrayTrait;
 use Sm\Storage\Modules\Sql\Formatter\Traits\FragmentHasWhereFragmentTrait;
 
 class UpdateFragment extends SqlFragment {
-    use FragmentHasPropertyFragments;
+    use FragmentHasPropertyFragmentArrayTrait;
     use FragmentHasWhereFragmentTrait;
     
     /**

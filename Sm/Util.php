@@ -18,12 +18,14 @@ class Util {
      */
     public static function getShapeOfItem($result) {
         if (is_array($result)) {
-            $string = '';
+            $string = 'array[';
             foreach ($result as $item) {
                 $string .= static::getShapeOfItem($item) . '|';
             }
-            
-            return trim($string, '|');
+    
+            $string = trim($string, '|');
+            $string .= ']';
+            return $string;
         }
         return is_object($result) ? get_class($result) : gettype($result);
     }

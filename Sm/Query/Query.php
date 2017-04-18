@@ -18,6 +18,7 @@ use Sm\Storage\Source\Exception\UnauthorizedConnectionError;
 use Sm\Storage\Source\NullSource;
 use Sm\Storage\Source\Source;
 use Sm\Storage\Source\SourceHaver;
+use Sm\Util;
 
 /**
  * Class Query
@@ -32,6 +33,7 @@ use Sm\Storage\Source\SourceHaver;
  * @property-read Property[]            $delete
  * @property-read Property[]            $insert
  * @property-read Property[]            $update
+ * @property-read mixed                 $create_item
  * @property-read array                 $values
  * @property-read \Sm\Query\WhereClause $WhereClause
  *
@@ -47,18 +49,21 @@ class Query {
     use HasFactoryContainerTrait;
     
     # region properties
-    
     # region query types
-    const QUERY_TYPE_SELECT       = 'select';
-    const QUERY_TYPE_INSERT       = 'insert';
-    const QUERY_TYPE_UPDATE       = 'update';
-    const QUERY_TYPE_DELETE       = 'delete';
-    const QUERY_TYPE_CREATE_TABLE = 'create_table';
+    const QUERY_TYPE_SELECT = 'select';
+    const QUERY_TYPE_INSERT = 'insert';
+    const QUERY_TYPE_UPDATE = 'update';
+    const QUERY_TYPE_DELETE = 'delete';
+    const QUERY_TYPE_CREATE = 'create_table';
     /** @var null|string $query_type This is the type of Query we are executing */
     protected $query_type = null;
     # endregion
+    
     /** @var  \Sm\Query\WhereClause $WhereClause The overall Where clause that accompanies this Query */
     protected $WhereClause;
+    /** @var array An array of the Properties that this Query is aware that it uses */
+    protected $PropertyArray = [];
+    
     # region Component Arrays
     /** @var array $select_array An array of properties or whatever that we want to select */
     protected $select_array = [];
@@ -70,9 +75,9 @@ class Query {
     protected $insert_array = [];
     /** @var array[] $values_array An array of arrays of the values that we want to insert */
     protected $values_array = [];
+    /** @var array[] $create An array of the things that we want to create */
+    protected $create = [];
     # endregion
-    /** @var array An array of the Properties that this Query is aware that it uses */
-    protected $PropertyArray = [];
     # endregion
     
     
@@ -80,7 +85,7 @@ class Query {
     ##  Constructor
     public function __call($name, $arguments) {
         if (in_array($name, [ 'select', 'update', 'delete', 'insert' ])) {
-            $PropertyArray       = $this->runQueryTypeFunction($name, $arguments);
+            $PropertyArray       = $this->runStdQueryTypeFunction($name, $arguments);
             $this->PropertyArray = array_merge($this->PropertyArray, $PropertyArray);
             return $this;
         }
@@ -92,13 +97,14 @@ class Query {
             $this->values_array = array_merge($this->values_array, $arguments);
             return $this;
         }
-        
-        return $this;
+    
+        throw new WrongArgumentException("There is no method {$name}");
     }
     public function __get($name) {
         if (in_array($name, [ 'select', 'update', 'delete', 'insert', 'values', ])) {
             return $this->{"{$name}_array"} ?? [];
         }
+        if ($name === 'create_item') return $this->create;
         if ($name === 'WhereClause') return $this->WhereClause;
         return null;
     }
@@ -129,7 +135,11 @@ class Query {
         
         return $this;
     }
-    
+    public function create($item) {
+        $this->query_type = static::QUERY_TYPE_CREATE;
+        $this->create     = $item;
+        return $this;
+    }
     #
     ## Public Query methods
     /**
@@ -194,14 +204,21 @@ class Query {
         
         # We assume that it has a source
         if ($item instanceof SourceHaver) {
-            $Source           = $item->getSource();
+            $Source = $item->getSource();
+        } else if ($item instanceof Source) {
+            $Source = $item;
+        }
+    
+    
+        if (isset($Source)) {
             $source_is_active = $Source && $Source->isAuthenticated();
             if (!$source_is_active && $throw_an_error) {
                 throw new UnauthorizedConnectionError("The Connection to this object's source is invalid.");
             }
             return $source_is_active;
         }
-        
+    
+    
         # If we're asking about an array, iterate through
         if ($item instanceof \Traversable || is_array($item)) {
             foreach ($item as $value) {
@@ -236,6 +253,9 @@ class Query {
             if (!($item instanceof Property)) continue;
             $PropertyHavers[] = $item->getPropertyHavers();
         }
+    
+        if (!count($PropertyHavers)) return [];
+        
         return array_unique(array_merge(...$PropertyHavers));
     }
     /**
@@ -245,16 +265,27 @@ class Query {
      * @return array
      */
     protected function getSourcesUsed(): array {
-        $components = $this->getReferencedProperties();
+        $components   = $this->getReferencedProperties();
+        $components[] = $this->create;
+        $components   = array_filter($components);
         /**
          * @var Source[] $Sources An array, indexed by object_id, of the Sources used
          */
         $Sources = [];
+    
+    
         foreach ($components as $component) {
-            $RootSource = static::getRootSourceFromSourceHaver($component);
-            if ($RootSource) {
-                $Sources[ $RootSource->getObjectId() ] = $RootSource;
+        
+            if ($component instanceof Source) {
+                $RootSource = $component->getRootSource();
+            } else if ($component instanceof SourceHaver) {
+                $RootSource = static::getRootSourceFromSourceHaver($component);
+            } else {
+                $_type = Util::getShapeOfItem($component);
+                throw new WrongArgumentException("Cannot get Source from type {$_type}");
             }
+        
+            if ($RootSource) $Sources[ $RootSource->getObjectId() ] = $RootSource;
         }
         
         # Don't return the same Source twice
@@ -292,12 +323,14 @@ class Query {
      * @return Property[]
      * @throws \Sm\Error\WrongArgumentException
      */
-    private function runQueryTypeFunction($name, $arguments) {
+    private function runStdQueryTypeFunction($name, $arguments) {
         $this->query_type = $this->query_type ?? $name;
         $array_name       = "{$name}_array";
         
-        # Flatten the Properties. This gets all properties from the PropertyContainer.
-        $arguments = self::flattenPropertyArray($arguments);
+        if (in_array($name, [ 'select', 'update', 'delete', 'insert' ])) {
+            # Flatten the Properties. This gets all properties from the PropertyContainer.
+            $arguments = self::flattenPropertyArray($arguments);
+        }
         
         # Check to see if all of the items are OK.
         try {
@@ -306,8 +339,7 @@ class Query {
             throw new WrongArgumentException(
                 "Argument cannot be queried --  " .
                 "Please check that it is a (or an array of) SourceHaver Object(s) " .
-                "and the Source is properly authenticated and connected. \n" .
-                "Additionally, {$e->getMessage()}");
+                "and the Source is properly authenticated and connected. \n", null, $e);
             
         }
         

@@ -7,6 +7,9 @@
 
 namespace Sm\Storage\Modules\Sql\Formatter;
 
+use Sm\Storage\Modules\Sql\Formatter\Traits\FragmentHasPropertyFragmentTrait;
+use Sm\Storage\Modules\Sql\Formatter\Traits\FragmentHasSourceFragmentTrait;
+
 
 /**
  * Class PropertyFragment
@@ -14,39 +17,6 @@ namespace Sm\Storage\Modules\Sql\Formatter;
  * @package Sm\Storage\Modules\Sql\Formatter
  */
 class PropertyFragment extends SqlFragment {
-    /** @var  \Sm\Entity\Property\Property $Property The Property that this Fragment represents */
-    protected $Property;
-    /** @var  \Sm\Storage\Modules\Sql\Formatter\SourceFragment $SourceFragment The Fragment that represents this Property's Source */
-    protected $SourceFragment;
-    
-    /**
-     * @return \Sm\Entity\Property\Property
-     */
-    public function getProperty() {
-        return $this->Property;
-    }
-    /**
-     * @param mixed $Property
-     *
-     * @return PropertyFragment
-     */
-    public function setProperty($Property) {
-        $this->Property = $Property;
-        return $this;
-    }
-    /**
-     * @return \Sm\Storage\Modules\Sql\Formatter\SourceFragment
-     */
-    public function getSourceFragment() {
-        return $this->SourceFragment;
-    }
-    /**
-     * @param \Sm\Storage\Modules\Sql\Formatter\SourceFragment $SourceFragment
-     *
-     * @return $this
-     */
-    public function setSourceFragment(SourceFragment $SourceFragment) {
-        $this->SourceFragment = $SourceFragment;
-        return $this;
-    }
+    use FragmentHasSourceFragmentTrait;
+    use FragmentHasPropertyFragmentTrait;
 }

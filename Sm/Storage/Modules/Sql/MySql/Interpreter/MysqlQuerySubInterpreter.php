@@ -41,43 +41,27 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         echo "{$Fragment}\n\n--------------------------\n\n";
         return;
     }
-    /**
-     * Get the Properties that this Query Subinterpreter will use
-     *
-     * @return \Sm\Entity\Property\Property[]|\Sm\Entity\Property\PropertyHaver[]
-     * @throws \Sm\Error\Error
-     */
-    public function getQueryProperties() {
-        $query_type = $this->Query->getQueryType();
-        
-        $properties = $this->Query->{$query_type};
-        if (!is_array($properties)) throw new Error("There was an error getting the Properties used by {$query_type}");
-        return $properties;
-    }
     public function createStatement() {
         $Fragment = $this->createFragment();
         $stmt     = $this->completeStatementFormatting($this->SqlModule->format($Fragment));
         return $stmt;
     }
-    
-    #
-    ##
-    #
     /**
      * Make an array for the Fragments of Sources used in this Query
      *
      * @return \Sm\Storage\Modules\Sql\Formatter\SourceFragment[]
      */
-    public function createSourceFragments() {
+    public function createSourceFragmentArray() {
+        # This isn't going to be necessary in all cases, only when we want to loop over all used Sources.
         $this->initSourceArray(false);
         
+        # Default to creating source for all properties
         $SourceArray          = $this->Source_object_id__PropertyHaver_object_id_array__map;
         $SourceFragment_array = [];
         foreach ($SourceArray as $_Source_object_id => $_PropertyHaver_object_id_array) {
             $_Source = Identifier::identify($_Source_object_id);
-            if (!$_Source) {
-                continue;
-            }
+            if (!$_Source) continue;
+            
             foreach ($_PropertyHaver_object_id_array as $_PropertyHaver_object_id => $count) {
                 $SourceFragment_array [] = SourceAsAliasFragment::init()
                                                                 ->setSource($_Source)
@@ -86,13 +70,16 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         }
         return $SourceFragment_array;
     }
+    
+    #
+    ##
     /**
      * Make an array of the Properties used in this table
      *
      * @return array
      * @throws \Sm\Error\UnimplementedError
      */
-    public function createPropertyFragments() {
+    public function createPropertyFragmentArray() {
         $PropertyArray          = $this->initPropertyArray(true)->PropertyArray;
         $PropertyFragment_array = [];
         /** @var Property $Property */
@@ -141,10 +128,22 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         $Instance->SqlModule = $SqlModule;
         return $Instance;
     }
+    /**
+     * Get the Properties that this Query Subinterpreter will use
+     *
+     * @return \Sm\Entity\Property\Property[]|\Sm\Entity\Property\PropertyHaver[]
+     * @throws \Sm\Error\Error
+     */
+    protected function getQueryProperties() {
+        $query_type = $this->Query->getQueryType();
+        # todo something is smelly about this. Maybe this shuld be a part of a Trait?
+        $properties = $this->Query->{$query_type};
+        if (!is_array($properties)) throw new Error("There was an error getting the Properties used by {$query_type}");
+        return $properties;
+    }
     
     #
     ##
-    #
     /**
      * Iterate through the Source array and alias any of the Sources that are used by multiple different PropertyHavers.
      * This is because if two different Entities reference the same table, usually that table has to get aliased at least once.
@@ -276,14 +275,13 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
     
     #
     ##
-    #
     /**
      * Create the Fragment that will contain the info of a "From" statement
      *
      * @return FromFragment
      */
     protected function createFromFragment() {
-        $SourceFragments = $this->createSourceFragments();
+        $SourceFragments = $this->createSourceFragmentArray();
         return FromFragment::init()->setSourceFragmentArray($SourceFragments);
     }
     /**
@@ -310,7 +308,6 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
     }
     #
     ##
-    #
     /**
      * Add this property to the array of (array of properties indexed by Property object_id) indexed by PropertyHaver object_id
      *

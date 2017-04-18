@@ -17,6 +17,8 @@ use Sm\Resolvable\ArrayResolvable;
 use Sm\Resolvable\NativeResolvable;
 use Sm\Resolvable\StringResolvable;
 use Sm\Storage\Database\TableSource;
+use Sm\Storage\Modules\Sql\Formatter\ColumnAsDefinitionFragment;
+use Sm\Storage\Modules\Sql\Formatter\CreateTableFragment;
 use Sm\Storage\Modules\Sql\Formatter\DeleteFragment;
 use Sm\Storage\Modules\Sql\Formatter\FromFragment;
 use Sm\Storage\Modules\Sql\Formatter\InsertFragment;
@@ -45,35 +47,39 @@ return [
         $item_type = is_object($item) ? get_class($item) : gettype($item);
         throw new UnimplementedError("Cannot properly format item of type \"{$item_type}\".");
     },
-    ArrayFragment::class            => function (ArrayFragment $ArrayFragment, FormatterFactory $FormatterFactory) {
+    ArrayFragment::class              => function (ArrayFragment $ArrayFragment, FormatterFactory $FormatterFactory) {
         return json_encode($ArrayFragment->getArray());
     },
     
     #
     ## Variables or Resolvables
     #
-    ArrayResolvable::class          => function (ArrayResolvable $ArrayResolvable, FormatterFactory $FormatterFactory) {
+    ArrayResolvable::class            => function (ArrayResolvable $ArrayResolvable, FormatterFactory $FormatterFactory) {
         $array         = $ArrayResolvable->resolve();
         $ArrayFragment = ArrayFragment::init()->setArray($array);
         return $FormatterFactory->format($ArrayFragment);
     },
-    StringResolvable::class         => function ($item) { return $item; },
-    Variable_::class                => function (Variable_ $item) { return ":{$item->name}"; },
+    StringResolvable::class           => function ($item) { return $item; },
+    Variable_::class                  => function (Variable_ $item) { return ":{$item->name}"; },
     
     #
     ## Sources
     #
-    TableSource::class              => function (TableSource $TableSource, FormatterFactory $FormatterFactory) {
+    TableSource::class                => function (TableSource $TableSource, FormatterFactory $FormatterFactory) {
         $name = $TableSource->getName();
         return "{$name}";
     },
-    SourceFragment::class           => function (SourceFragment $SourceFragment, FormatterFactory $FormatterFactory) {
+    SourceFragment::class             => function (SourceFragment $SourceFragment, FormatterFactory $FormatterFactory) {
         $Source         = $SourceFragment->getSource();
         $SourceObjectId = $Source->getObjectId();
+        # This is confusing because it should have been written as a rule.
+        #  basically, we assume that SourceFragments are always going to be given to us as something readable (right now, only SourceAsAliasFragments)
+        #  and says "when we encounter raw SourceFragments, replace them later with whatever their alias is"
+        #  I would prefer to not do this, but I want to reach my deadline and I'll probably read this later and remember todo look into cleaning this up
         $FormatterFactory->Aliases->register($SourceObjectId, $Source);
         return $SourceObjectId;
     },
-    SourceAsAliasFragment::class    => function (SourceAsAliasFragment $SourceAsAliasFragment, FormatterFactory $FormatterFactory) {
+    SourceAsAliasFragment::class      => function (SourceAsAliasFragment $SourceAsAliasFragment, FormatterFactory $FormatterFactory) {
         $Source                  = $SourceAsAliasFragment->getSource();
         $PropertyHaver_object_id = $SourceAsAliasFragment->getPropertyHaverObjectId();
         $Source_object_id        = $Source->getObjectId();
@@ -94,13 +100,13 @@ return [
     #
     ## Properties
     #
-    Property::class                 => function (Property $Property, FormatterFactory $FormatterFactory) {
+    Property::class                   => function (Property $Property, FormatterFactory $FormatterFactory) {
         if (!$FormatterFactory->Aliases->canResolve($Property->getObjectId())) {
             $FormatterFactory->Aliases->register($Property->getObjectId(), $Property->name);
         }
         return "{$Property}";
     },
-    PropertyAsValueFragment::class  => function (PropertyAsValueFragment $PropertyAsValueFragment, FormatterFactory $FormatterFactory) {
+    PropertyAsValueFragment::class    => function (PropertyAsValueFragment $PropertyAsValueFragment, FormatterFactory $FormatterFactory) {
         $object_id = $PropertyAsValueFragment->getProperty()->object_id;
         # This is to be used for binding parameters
         $name_as_alias = str_replace("object:", "value:", $object_id);
@@ -108,11 +114,11 @@ return [
         $FormatterFactory->Aliases->register($name_as_alias, ":{$alias}");
         return $name_as_alias;
     },
-    PropertyAsNameFragment::class   => function (PropertyAsNameFragment $PropertyAsNameFragment, FormatterFactory $FormatterFactory) {
+    PropertyAsNameFragment::class     => function (PropertyAsNameFragment $PropertyAsNameFragment, FormatterFactory $FormatterFactory) {
         $Property = $PropertyAsNameFragment->getProperty();
         return "`$Property->name`";
     },
-    PropertyAsAliasFragment::class  => function (PropertyAsAliasFragment $PropertyFragment, FormatterFactory $FormatterFactory) {
+    PropertyAsAliasFragment::class    => function (PropertyAsAliasFragment $PropertyFragment, FormatterFactory $FormatterFactory) {
         /** @var Property $Property */
         $Property      = $PropertyFragment->getProperty() ?? null;
         $object_id     = $Property->object_id;
@@ -121,7 +127,7 @@ return [
         $FormatterFactory->Aliases->register($name_as_alias, "{$source_name}_" . $FormatterFactory->format($Property));
         return $name_as_alias;
     },
-    PropertyAsColumnFragment::class => function (PropertyAsColumnFragment $PropertyFragment, FormatterFactory $FormatterFactory) {
+    PropertyAsColumnFragment::class   => function (PropertyAsColumnFragment $PropertyFragment, FormatterFactory $FormatterFactory) {
         /** @var Property $Property */
         $Property       = $PropertyFragment->getVariables()['Property'] ?? null;
         $object_id      = $Property->object_id;
@@ -141,7 +147,7 @@ return [
     #
     ## Generic Query Aid
     #
-    SourcesArrayFragment::class     => function (SourcesArrayFragment $SourcesArrayFragment, FormatterFactory $FormatterFactory) {
+    SourcesArrayFragment::class       => function (SourcesArrayFragment $SourcesArrayFragment, FormatterFactory $FormatterFactory) {
         $from_statement = '';
         $Fragments      = $SourcesArrayFragment->getSourceFragmentArray();
         /** @var SourceFragment $SourceFragment */
@@ -157,13 +163,13 @@ return [
         }
         return trim($from_statement, "\n\t, ");
     },
-    FromFragment::class             => function (FromFragment $FromFragment, FormatterFactory $FormatterFactory) {
+    FromFragment::class               => function (FromFragment $FromFragment, FormatterFactory $FormatterFactory) {
         $from_statement  = "";
         $SourceFragments = $FromFragment->getSourceFragmentArray();
         $from_statement  = $FormatterFactory->format(SourcesArrayFragment::init()->setSourceFragmentArray($SourceFragments));
         return "FROM \t$from_statement";
     },
-    WhereFragment::class            => function (WhereFragment $WhereFragment, FormatterFactory $FormatterFactory) {
+    WhereFragment::class              => function (WhereFragment $WhereFragment, FormatterFactory $FormatterFactory) {
         $PropertyFragments = $WhereFragment->getPropertyFragments();
         $Where             = $WhereFragment->getWhere();
         if (!isset($Where)) return '';
@@ -187,11 +193,33 @@ return [
         return $where_statement;
         
     },
-    
+    ColumnAsDefinitionFragment::class => function (ColumnAsDefinitionFragment $ColumnFragment, FormatterFactory $FormatterFactory) {
+        $Property            = $ColumnFragment->getProperty();
+        $name                = $Property->name;
+        $null_statement      = !$ColumnFragment->canBeNull() ? "NOT NULL" : 'NULL';
+        $data_type_statement = $ColumnFragment->getDataType();
+        
+        $default_statement = '';
+        
+        if ($ColumnFragment->hasDefaultValue()) {
+            $default_value     = $FormatterFactory->format($ColumnFragment->getDefaultValue());
+            $default_statement = "DEFAULT {$default_value}";
+        }
+        
+        
+        $statement_components = [
+            $name,
+            $data_type_statement,
+            $null_statement,
+            $default_statement,
+        ];
+        
+        return join(' ', array_filter($statement_components));
+    },
     #
     ## CRUD
     #
-    InsertFragment::class           => function (InsertFragment $InsertFragment, FormatterFactory $FormatterFactory) {
+    InsertFragment::class             => function (InsertFragment $InsertFragment, FormatterFactory $FormatterFactory) {
         $PropertyFragments = $InsertFragment->getPropertyFragments();
         
         # This is the formatted string for the Source
@@ -243,8 +271,8 @@ return [
         
         return $insert_statement;
     },
-    SelectFragment::class           => function (SelectFragment $SelectFragment, FormatterFactory $FormatterFactory) {
-        $PropertyFragments     = $SelectFragment->getPropertyFragments();
+    SelectFragment::class             => function (SelectFragment $SelectFragment, FormatterFactory $FormatterFactory) {
+        $PropertyFragments     = $SelectFragment->getPropertyFragmentArray();
         $query_statement_array = [];
         foreach ($PropertyFragments as $property_id => $property_fragment) {
             $formatted_property      = $FormatterFactory->format(PropertyAsColumnFragment::inherit($property_fragment));
@@ -259,8 +287,8 @@ return [
         $query_statement = trim($query_statement, "\n\t,");
         return "SELECT \t{$query_statement}\n{$from_statement} \n{$where_statement}";
     },
-    UpdateFragment::class           => function (UpdateFragment $UpdateFragment, FormatterFactory $FormatterFactory) {
-        $PropertyFragments     = $UpdateFragment->getPropertyFragments();
+    UpdateFragment::class             => function (UpdateFragment $UpdateFragment, FormatterFactory $FormatterFactory) {
+        $PropertyFragments     = $UpdateFragment->getPropertyFragmentArray();
         $query_statement_array = [];
         /**
          * @var string           $property_id
@@ -279,8 +307,8 @@ return [
         $query_statement = trim($query_statement, "\n\t,");
         return "UPDATE \t{$sources_statement} \nSET\t\t{$query_statement} \n{$where_statement}";
     },
-    DeleteFragment::class           => function (DeleteFragment $DeleteFragment, FormatterFactory $FormatterFactory) {
-        $PropertyFragments     = $DeleteFragment->getPropertyFragments();
+    DeleteFragment::class             => function (DeleteFragment $DeleteFragment, FormatterFactory $FormatterFactory) {
+        $PropertyFragments     = $DeleteFragment->getPropertyFragmentArray();
         $query_statement_array = [];
         foreach ($PropertyFragments as $property_id => $property_fragment) {
             $formatted_property      = $FormatterFactory->format(PropertyAsNameFragment::inherit($property_fragment));
@@ -294,11 +322,52 @@ return [
         $query_statement = trim($query_statement, "\n\t,");
         return "DELETE \t{$query_statement} \n{$from_statement} \n{$where_statement}";
     },
-    
+    CreateTableFragment::class        => function (CreateTableFragment $CreateTableFragment, FormatterFactory $FormatterFactory) {
+        $SourceFragment         = $CreateTableFragment->getSourceFragment();
+        $source_statement       = $FormatterFactory->format($SourceFragment);
+        $create_table_statement = "CREATE TABLE {$source_statement} (\n\t\t";
+        
+        /** @var ColumnAsDefinitionFragment[] $ColumnFragmentArray */
+        $ColumnFragmentArray    = $CreateTableFragment->getColumnFragmentArray();
+        $column_statement_array = $FormatterFactory->format($ColumnFragmentArray);
+        $create_table_statement .= join(",\n\t\t", $column_statement_array);
+        
+        $foreign_key_statement_array = [];
+        
+        # region Foreign Key statements
+        # If there are any properties that are actually references to other properties
+        foreach ($ColumnFragmentArray as $_ColumnFragment) {
+            $_ReferenceFragment = $_ColumnFragment->getReferenceFragment();
+            if (!isset($_ReferenceFragment)) continue;
+            $_column_name          = $_ColumnFragment->getProperty()->name;
+            $_Reference            = $_ReferenceFragment->getProperty();
+            $_ReferenceSource      = $_Reference->getSource();
+            $_reference_table_name = $_ReferenceSource->getName();
+            
+            if (!($_ReferenceSource instanceof TableSource)) {
+                #todo consider throwing an error
+                continue;
+            }
+            
+            if (!isset($_reference_table_name)) {
+                throw new UnimplementedError("Cannot reference sources that do not have a name");
+            }
+            $_reference_name                = $_Reference->name;
+            $foreign_key_statement_array [] = "FOREIGN KEY ({$_column_name}) REFERENCES {$_reference_table_name}({$_reference_name})";
+        }
+        $foreign_key_statement = join(', ', array_filter($foreign_key_statement_array));
+        # endregion
+        
+        if (strlen($foreign_key_statement)) $create_table_statement .= ",\n\t\t$foreign_key_statement";
+        
+        $create_table_statement .= "\n)";
+        
+        return $create_table_statement;
+    },
     #
     ## And_, Or_, etc
     #
-    ChainableConstruct::class       => function (ChainableConstruct $ConstructCondition, FormatterFactory $FormatterFactory) {
+    ChainableConstruct::class         => function (ChainableConstruct $ConstructCondition, FormatterFactory $FormatterFactory) {
         $items     = $ConstructCondition->items;
         $items     = $FormatterFactory->format($items);
         $construct = strtoupper($ConstructCondition->construct);
@@ -314,14 +383,14 @@ return [
         $clause = join(" {$construct} ", $items);
         return count($items) > 1 ? "({$clause})" : "{$clause}";
     },
-    NativeResolvable::class         => function (NativeResolvable $resolvable, FormatterFactory $FormatterFactory) {
+    NativeResolvable::class           => function (NativeResolvable $resolvable, FormatterFactory $FormatterFactory) {
         return $FormatterFactory->format($resolvable->resolve());
     },
     
     #
     ## =, >, <
     #
-    EqualityCondition_::class       => function (EqualityCondition_ $Condition, FormatterFactory $FormatterFactory) {
+    EqualityCondition_::class         => function (EqualityCondition_ $Condition, FormatterFactory $FormatterFactory) {
         $left_side  = $FormatterFactory->format($Condition->left_side);
         $right_side = $FormatterFactory->format($Condition->right_side);
         $symbol     = $Condition->symbol;

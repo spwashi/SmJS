@@ -10,13 +10,15 @@ namespace Sm\Storage\Modules\Sql\Interpreter;
 
 use Sm\Entity\EntityType;
 use Sm\Error\UnimplementedError;
+use Sm\Error\WrongArgumentException;
 use Sm\Query\Interpreter\Exception\UninterpretableError;
 use Sm\Query\Interpreter\QueryInterpreter;
 use Sm\Query\Query;
-use Sm\Storage\Modules\Sql\MySql\Interpreter\DeleteStatementSubInterpreter;
-use Sm\Storage\Modules\Sql\MySql\Interpreter\InsertStatementSubInterpreter;
-use Sm\Storage\Modules\Sql\MySql\Interpreter\SelectStatementSubInterpreter;
-use Sm\Storage\Modules\Sql\MySql\Interpreter\UpdateStatementSubInterpreter;
+use Sm\Storage\Modules\Sql\MySql\Interpreter\CreateTableSourceQuerySubInterpreter;
+use Sm\Storage\Modules\Sql\MySql\Interpreter\DeleteQuerySubInterpreter;
+use Sm\Storage\Modules\Sql\MySql\Interpreter\InsertQuerySubInterpreter;
+use Sm\Storage\Modules\Sql\MySql\Interpreter\SelectQuerySubInterpreter;
+use Sm\Storage\Modules\Sql\MySql\Interpreter\UpdateQuerySubInterpreter;
 use Sm\Storage\Modules\Sql\SqlModule;
 
 abstract class SqlQueryInterpreter extends QueryInterpreter {
@@ -39,20 +41,29 @@ abstract class SqlQueryInterpreter extends QueryInterpreter {
     
         $queryType = $Query->getQueryType();
         switch ($queryType) {
-            case 'select':
-                $Interpreter = SelectStatementSubInterpreter::create($Query, $this->SqlModule);
+            case Query::QUERY_TYPE_SELECT:
+                $Interpreter = SelectQuerySubInterpreter::create($Query, $this->SqlModule);
                 break;
-            case 'insert':
-                $Interpreter = InsertStatementSubInterpreter::create($Query, $this->SqlModule);
+            case Query::QUERY_TYPE_INSERT:
+                $Interpreter = InsertQuerySubInterpreter::create($Query, $this->SqlModule);
                 break;
-            case 'delete':
-                $Interpreter = DeleteStatementSubInterpreter::create($Query, $this->SqlModule);
+            case Query::QUERY_TYPE_DELETE:
+                $Interpreter = DeleteQuerySubInterpreter::create($Query, $this->SqlModule);
                 break;
-            case 'update':
-                $Interpreter = UpdateStatementSubInterpreter::create($Query, $this->SqlModule);
+            case Query::QUERY_TYPE_UPDATE:
+                $Interpreter = UpdateQuerySubInterpreter::create($Query, $this->SqlModule);
+                break;
+            case Query::QUERY_TYPE_CREATE:
+                $Item = $Query->create_item;
+        
+                if (!is_object($Item)) {
+                    $type = gettype($Item);
+                    throw new WrongArgumentException("Not sure how to create objects of type '{$type}'");
+                }
+                $Interpreter = CreateTableSourceQuerySubInterpreter::create($Query, $this->SqlModule);
                 break;
             default:
-                $type_message = !empty($queryType) ? "of type {$queryType}" : "that don't have an associated interpreter.";
+                $type_message = !empty($queryType) ? "of type '{$queryType}'" : "that don't have an associated interpreter.";
                 throw new UnimplementedError("Do not know how to handle queries $type_message");
         }
         

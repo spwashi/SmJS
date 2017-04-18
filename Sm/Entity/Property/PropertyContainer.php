@@ -12,6 +12,8 @@ use Sm\Abstraction\ReadonlyTrait;
 use Sm\Error\Error;
 use Sm\Error\WrongArgumentException;
 use Sm\Storage\Container\Container;
+use Sm\Storage\Source\NullSource;
+use Sm\Storage\Source\Source;
 
 /**
  * Class PropertyContainer
@@ -27,6 +29,8 @@ class PropertyContainer extends Container {
     
     /** @var  PropertyHaver $PropertyHaver Whatever these properties belong to */
     protected $PropertyHaver;
+    /** @var  \Sm\Storage\Source\Source $Source If there is a source that all of these Properties should belong to */
+    protected $Source;
     
     /**
      * Rules for cloning the PropertyContainer
@@ -93,6 +97,9 @@ class PropertyContainer extends Container {
         /** @var static $result */
         $result = parent::register($name, $registrand);
         $this->addPropertyHaverToProperty($registrand);
+        if ($registrand->getSource() instanceof NullSource && isset($this->Source)) {
+            $registrand->setSource($this->Source);
+        }
         return $result;
     }
     /**
@@ -164,6 +171,21 @@ class PropertyContainer extends Container {
             $PropertyHavers = array_merge($PropertyHavers, $property->getPropertyHavers());
         }
         return array_unique($PropertyHavers);
+    }
+    /**
+     * @return \Sm\Storage\Source\Source
+     */
+    public function getSource() {
+        return $this->Source;
+    }
+    /**
+     * @param \Sm\Storage\Source\Source $Source
+     *
+     * @return PropertyContainer
+     */
+    public function setSource(Source $Source) {
+        $this->Source = $Source;
+        return $this;
     }
     /**
      * Add an PropertyHaver to the Property with the following name

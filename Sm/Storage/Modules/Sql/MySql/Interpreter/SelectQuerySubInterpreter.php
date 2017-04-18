@@ -17,7 +17,7 @@ use Sm\Storage\Modules\Sql\Formatter\SelectFragment;
  *
  * @package Sm\Storage\Modules\Sql\MySql\Interpreter
  */
-class SelectStatementSubInterpreter extends MysqlQuerySubInterpreter {
+class SelectQuerySubInterpreter extends MysqlQuerySubInterpreter {
     public function execute() {
         return parent::execute();
         
@@ -38,14 +38,14 @@ class SelectStatementSubInterpreter extends MysqlQuerySubInterpreter {
         # The "From" Clause
         $FromFragment = $this->createFromFragment();
         # The columns we're selecting
-        $PropertyFragments = $this->createPropertyFragments();
+        $PropertyFragments = $this->createPropertyFragmentArray();
         # The "Where" clause that we're going to add on (if it exists)
         $WhereFragment = $this->createWhereFragment($PropertyFragments);
     
         $Fragment = SelectFragment::init();
         $Fragment->setFromFragment($FromFragment);
         $Fragment->setWhereFragment($WhereFragment);
-        $Fragment->setPropertyFragments($PropertyFragments);
+        $Fragment->setPropertyFragmentArray($PropertyFragments);
         return $Fragment;
     }
 }

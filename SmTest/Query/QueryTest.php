@@ -17,6 +17,9 @@ use Sm\Resolvable\ArrayResolvable;
 use Sm\Storage\Database\TableSource;
 use Sm\Storage\Modules\Sql\MySql\MysqlDatabaseSource;
 use Sm\Storage\Modules\Sql\MySql\MysqlPdoAuthentication;
+use Sm\Type\Integer_;
+use Sm\Type\Null_;
+use Sm\Type\String_;
 
 class QueryTest extends \PHPUnit_Framework_TestCase {
     /**
@@ -88,7 +91,24 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
         $Section->id    = '1';
         $Section->title = 'hello';
         $id             = clone  $Section->Meta->Properties;
-        
+    
+    
+        $SectionTypesTable              = TableSource::init($this->getDatabaseSource(), 'section_types');
+        $SectionTypesTable->Columns->id = Property::init()->setMaxLength(4)->setPotentialTypes(Integer_::class);
+    
+        $SectionsTable                        = TableSource::init($this->getDatabaseSource(), 'sections');
+        $SectionsTable->Columns->id           = Property::init()->setMaxLength(10)->setPotentialTypes(Integer_::class);
+        $SectionsTable->Columns->content      = Property::init()->setMaxLength(75)->setPotentialTypes(Null_::class, String_::class)->setDefault('title');
+        $SectionsTable->Columns->title        = Property::init()->setMaxLength(25)->setPotentialTypes(Null_::class, String_::class)->setDefault('title');
+        $SectionsTable->Columns->section_type = Property::init()
+                                                        ->setReferenceResolvable($SectionTypesTable->Columns->id)
+                                                        ->setPotentialTypes(Null_::class, Integer_::class)
+                                                        ->setDefault(4);
+        $SectionsTable->Columns->primary_keys = 'id';
+    
+    
+        $results = $App->Query->create($SectionTypesTable)->run();
+        $results = $App->Query->create($SectionsTable)->run();
         
         $results = $App->Query->select($Colln->title, $Collection->Properties)
                               ->where(WhereClause::greater_(6, $Colln->title)->or_($Collection->id))

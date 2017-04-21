@@ -28,6 +28,23 @@ use Sm\Type\String_;
  */
 class CreateTableSourceQuerySubInterpreter extends MysqlQuerySubInterpreter {
     /**
+     *
+     */
+    public function execute() {
+        $statement = $this->createStatement();
+        /** @var \Sm\Storage\Database\TableSource $Item */
+        $Item           = $this->Query->create_item;
+        $DatabaseSource = $Item->getRootSource();
+        echo "{$statement}\n\n--------------------------\n\n";
+        /** @var \Sm\Storage\Modules\Sql\MySql\MysqlDatabaseSource $DatabaseSource */
+        $sth    = $DatabaseSource->getConnection()->prepare("$statement");
+        $result = $sth->execute();
+        
+        return $result;
+    }
+    
+    
+    /**
      * Complete the QueryInterpreter, returning a string that represents the Query to execute
      *
      * @return string
@@ -111,7 +128,6 @@ class CreateTableSourceQuerySubInterpreter extends MysqlQuerySubInterpreter {
             $_ReferenceRootSource = $Reference->getSource()->getRootSource();
             $_ColumnRootSource    = $Column->getSource()->getRootSource();
             if ($_ReferenceRootSource !== $_ColumnRootSource) {
-                var_dump([ $_ReferenceRootSource, $_ColumnRootSource ]);
                 throw new UnimplementedError("Cannot yet query across sources");
             }
             
@@ -139,10 +155,8 @@ class CreateTableSourceQuerySubInterpreter extends MysqlQuerySubInterpreter {
         if (null === $ColumnFragment->getDataType()) {
             $ColumnFragment->setDataType($datatype_string);
         }
-        
-        if ($_is_primary_key) {
-            $ColumnFragment->setIsPrimaryKey(true);
-        }
+    
+        $ColumnFragment->setIsPrimaryKey($_is_primary_key);
         
         if (isset($DefaultResolvable)) {
             $ColumnFragment->setDefaultValue($DefaultResolvable->resolve());

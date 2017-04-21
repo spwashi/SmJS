@@ -325,6 +325,7 @@ return [
     CreateTableFragment::class        => function (CreateTableFragment $CreateTableFragment, FormatterFactory $FormatterFactory) {
         $SourceFragment         = $CreateTableFragment->getSourceFragment();
         $source_statement       = $FormatterFactory->format($SourceFragment);
+        $source_name            = $SourceFragment->getSource();
         $create_table_statement = "CREATE TABLE {$source_statement} (\n\t\t";
         
         /** @var ColumnAsDefinitionFragment[] $ColumnFragmentArray */
@@ -333,11 +334,16 @@ return [
         $create_table_statement .= join(",\n\t\t", $column_statement_array);
         
         $foreign_key_statement_array = [];
-        
+        $primary_key_array           = [];
         # region Foreign Key statements
         # If there are any properties that are actually references to other properties
         foreach ($ColumnFragmentArray as $_ColumnFragment) {
             $_ReferenceFragment = $_ColumnFragment->getReferenceFragment();
+    
+            if ($_ColumnFragment->isPrimaryKey()) {
+                $primary_key_array[] = $_ColumnFragment->getProperty()->name;
+            }
+            
             if (!isset($_ReferenceFragment)) continue;
             $_column_name          = $_ColumnFragment->getProperty()->name;
             $_Reference            = $_ReferenceFragment->getProperty();
@@ -345,7 +351,7 @@ return [
             $_reference_table_name = $_ReferenceSource->getName();
             
             if (!($_ReferenceSource instanceof TableSource)) {
-                #todo consider throwing an error
+                #todo consider throwing an error?
                 continue;
             }
             
@@ -353,11 +359,15 @@ return [
                 throw new UnimplementedError("Cannot reference sources that do not have a name");
             }
             $_reference_name                = $_Reference->name;
-            $foreign_key_statement_array [] = "FOREIGN KEY ({$_column_name}) REFERENCES {$_reference_table_name}({$_reference_name})";
+            $foreign_key_statement_array [] = "CONSTRAINT FK_{$_reference_table_name}__{$source_name}__{$_column_name} FOREIGN KEY ({$_column_name}) REFERENCES {$_reference_table_name}({$_reference_name})";
         }
+    
+        $primary_keys_joined   = join(',', $primary_key_array);
+        $primary_key_statement = "PRIMARY KEY ({$primary_keys_joined})";
         $foreign_key_statement = join(', ', array_filter($foreign_key_statement_array));
         # endregion
-        
+    
+        if (strlen($primary_keys_joined)) $create_table_statement .= ",\n\t\t$primary_key_statement";
         if (strlen($foreign_key_statement)) $create_table_statement .= ",\n\t\t$foreign_key_statement";
         
         $create_table_statement .= "\n)";

@@ -93,10 +93,12 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
         $id             = clone  $Section->Meta->Properties;
     
     
-        $SectionTypesTable              = TableSource::init($this->getDatabaseSource(), 'section_types');
-        $SectionTypesTable->Columns->id = Property::init()->setMaxLength(4)->setPotentialTypes(Integer_::class);
-    
+        $SectionTypesTable                        = TableSource::init($this->getDatabaseSource(), 'section_types');
+        $SectionTypesTable->Columns->id           = Property::init()->setMaxLength(4)->setPotentialTypes(Integer_::class);
+        $SectionTypesTable->Columns->primary_keys = 'id';
+        
         $SectionsTable                        = TableSource::init($this->getDatabaseSource(), 'sections');
+        $SectionsTable->Columns->primary_keys = 'id';
         $SectionsTable->Columns->id           = Property::init()->setMaxLength(10)->setPotentialTypes(Integer_::class);
         $SectionsTable->Columns->content      = Property::init()->setMaxLength(75)->setPotentialTypes(Null_::class, String_::class)->setDefault('title');
         $SectionsTable->Columns->title        = Property::init()->setMaxLength(25)->setPotentialTypes(Null_::class, String_::class)->setDefault('title');
@@ -104,7 +106,6 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
                                                         ->setReferenceResolvable($SectionTypesTable->Columns->id)
                                                         ->setPotentialTypes(Null_::class, Integer_::class)
                                                         ->setDefault(4);
-        $SectionsTable->Columns->primary_keys = 'id';
     
     
         $results = $App->Query->create($SectionTypesTable)->run();
@@ -136,7 +137,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
                                                 ->setCredentials('codozsqq',
                                                                  '^bzXfxDc!Dl6',
                                                                  'localhost',
-                                                                 'factshift');
+                                                                 'test');
         $Authentication->connect();
         $DatabaseSource = MysqlDatabaseSource::init();
         $DatabaseSource->authenticate($Authentication);

@@ -45,7 +45,7 @@ abstract class QuerySubInterpreter {
      * @return static
      *
      */
-    abstract public static function create(Query $Query, SqlModule $SqlModule);
+    abstract public static function init(Query $Query, SqlModule $SqlModule);
     /**
      * Create a semi-formatted string of the "Where" clause of this Query
      *

@@ -37,8 +37,8 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
     protected $do_alias_sources = true;
     
     public function execute() {
-        $Fragment = $this->createStatement();
-        echo "{$Fragment}\n\n--------------------------\n\n";
+        $statement = $this->createStatement();
+        echo "{$statement}\n\n--------------------------\n\n";
         return;
     }
     public function createStatement() {
@@ -53,7 +53,7 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
      */
     public function createSourceFragmentArray() {
         # This isn't going to be necessary in all cases, only when we want to loop over all used Sources.
-        $this->initSourceArray(false);
+        $this->initSourceForPropertyArray(false);
         
         # Default to creating source for all properties
         $SourceArray          = $this->Source_object_id__PropertyHaver_object_id_array__map;
@@ -122,7 +122,7 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         $this->SqlModule->FormatterFactory->reset();
         return $SqlStatement;
     }
-    public static function create(Query $Query, SqlModule $SqlModule) {
+    public static function init(Query $Query, SqlModule $SqlModule) {
         $Instance            = new static;
         $Instance->Query     = $Query;
         $Instance->SqlModule = $SqlModule;
@@ -179,7 +179,7 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
      *
      * @return $this
      */
-    protected function initSourceArray($redo = false) {
+    protected function initSourceForPropertyArray($redo = false) {
         # If we've already done this and we aren't sure that we want to redo the process
         if (isset($this->Source_object_id__PropertyHaver_object_id_array__map) && !$redo) {
             return $this;

@@ -19,20 +19,14 @@ error_reporting(-1);
 //</editor-fold>
 
 ob_start();
-define('BASE_PATH', __DIR__ . '/');
-define('SYSTEM_LOG_PATH', __DIR__ . '/logs/');
-define('APP_MODULE', BASE_PATH . 'Sm/App/app.sm.module.php');
-define('SM_PATH', BASE_PATH . 'Sm/');
-require_once BASE_PATH . 'Sm/config/autoload.php';
+require_once __DIR__ . '/src/Sm/Sm.php';
 
-/** @var App $App */
 $App                = App::init();
 $App->Modules->_app = include APP_MODULE ??[];
 
 /** @var Module $RoutingModule */
 $RoutingModule = $App->Modules->routing;
 if (!$App->Modules->routing) die("Malformed site configuration!");
-
 
 # route the app to a controller method/function, retrieve that response
 $response = $App->Modules->routing($App->Request);

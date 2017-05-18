@@ -6,3 +6,4 @@ logs/*.log
 logs/*.log.*
 src/Factshift
 /lib/*
+/gulpfile.js

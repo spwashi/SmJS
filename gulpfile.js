@@ -43,7 +43,7 @@ const dist_dir_name = `${_deploy_dir}/dist`;
 const _test_dir_name = path.resolve(__dirname, 'tests', '_deploy');
 
 gulp.task('mocha', function () {
-    return gulp.src([_test_dir_name + '/index.js'])
+    return gulp.src([_deploy_dir + '/tests/index.js'])
                .pipe(mocha({
                                compilers: [
                                    'js:babel-core/register',

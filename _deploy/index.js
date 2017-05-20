@@ -1,1 +1,1 @@
-import "./_entities";
+export {default as std} from './src/std';

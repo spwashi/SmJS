@@ -17,6 +17,13 @@ describe('Std', () => {
         const testEventSymbolStore = tstStd.EVENTS;
         tstStd.receive(testEventSymbolStore).then(_ => done());
         tstStd.send(testEventSymbolStore.item('child'));
+    });
+    
+    it('Can resolve instances', () => {
+        const name = 'boon';
+        let ev     = Std.resolve(name);
+        new Std(name);
+        return ev;
     })
     
 });

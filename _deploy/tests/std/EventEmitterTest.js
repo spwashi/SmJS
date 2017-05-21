@@ -6,19 +6,20 @@ describe('EventEmitter', () => {
     const EventEmitter     = _deploy.std.EventEmitter;
     const testEventEmitter = new EventEmitter;
     
-    it('can emit strings', done => {
+    it('Can emit strings', done => {
         const event = 'test';
         testEventEmitter.on(event, i => done());
         testEventEmitter.emit(event);
     });
     
-    it('can emit symbols', done => {
+    it('Can emit symbols', done => {
         const event = Symbol('test');
         testEventEmitter.on(event, i => done());
         testEventEmitter.emit(event);
     });
     
     const SymbolStore     = _deploy.std.symbols.SymbolStore;
+    /** @type {SymbolStore}  */
     const testSymbolStore = SymbolStore.init('testSymbolStore');
     it('Can emit SymbolStores', (done) => {
         const event = testSymbolStore;
@@ -36,5 +37,10 @@ describe('EventEmitter', () => {
         const event = testSymbolStore;
         testEventEmitter.once(event.item('child'), i => done());
         testEventEmitter.emit(event.item('child').item('child of child'));
+    });
+    it(`Can emit 'static' symbol stores`, done => {
+        const staticEvent = testSymbolStore.item('test_static').STATIC;
+        testEventEmitter.emit(staticEvent);
+        testEventEmitter.once(testSymbolStore.item('test_static'), i => done())
     });
 });

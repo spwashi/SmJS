@@ -2,14 +2,22 @@ import events from "events";
 import {SymbolStore} from "./symbols/SymbolStore";
 const EVENTS = Symbol('EVENTS');
 export {EVENTS};
-class EventDescriptor {
-    constructor(emitter, eventName, eventFamily) {
-        this._emitter     = emitter;
-        this._eventName   = eventName;
-        this._eventFamily = eventFamily;
+export class EventDescriptor {
+    constructor(emitter, eventName, activeSymbol, eventFamily, args) {
+        this._emitter      = emitter;
+        this._eventName    = eventName;
+        this._activeSymbol = activeSymbol;
+        this._eventFamily  = eventFamily;
+        this._args         = args;
     }
     
+    get args() { return this._args; }
+    
+    /** @return SymbolStore*/
     get eventName() {return this._eventName;}
+    
+    /** @return {Symbol} */
+    get activeSymbol() {return this._activeSymbol;}
     
     get eventFamily() {return this._eventFamily;}
     
@@ -22,34 +30,55 @@ class EventDescriptor {
 export default class EventEmitter extends events.EventEmitter {
     constructor(emitter) {
         super();
-        this._emitter = emitter;
+        this._emitter = emitter || null;
+    
+        this._emittedEvents = new Map;
     }
     
-    on(event_name, ...args) {
+    on(event_name, fn) {
         if (event_name instanceof SymbolStore) event_name = event_name.Symbol;
-        return super.on(event_name, ...args);
+        if (this._emittedEvents.has(event_name)) {
+            if (typeof fn === 'function') {
+                fn(...this._emittedEvents.get(event_name));
+            }
+            return this;
+        }
+        else
+            return super.on(event_name, fn);
     }
     
     /**
      * Emit an event
      *
      * @param {string|Symbol|SymbolStore} event_name The event identifier that we are emitting
+     * @param event
      * @param args
      */
-    emit(event_name, ...args) {
-        let family;
-        if (event_name instanceof SymbolStore) {
-            
-            // If this symbol belongs to a family of symbols, also emit those
-            family = event_name.family;
-            family.forEach(symbol => this.emit(symbol, ...args));
-            // We emit this symbol last
+    emit(event_name, event, ...args) {
+        let family             = new Set;
+        let _originalEventName = event_name;
+    
+        if (_originalEventName instanceof SymbolStore) {
+            family     = _originalEventName.family;
             event_name = event_name.Symbol;
         }
-        const event = new EventDescriptor(this._emitter || null,
-                                          event_name,
-                                          family);
-        super.emit(event_name, event, ...args);
+    
+        if (!(event instanceof EventDescriptor)) {
+            args.splice(0, 0, event);
+            event = new EventDescriptor(this._emitter || null,
+                                        _originalEventName,
+                                        event_name,
+                                        family,
+                                        args);
+        }
+        args.splice(0, 0, event);
+    
+        if (_originalEventName instanceof SymbolStore && _originalEventName.origin === SymbolStore.$_$.STATIC) {
+            this._emittedEvents.set(_originalEventName.parent.Symbol, [...args]);
+        }
+    
+        family.forEach(symbol => this.emit(symbol, ...args));
+        super.emit(event_name, ...args);
     }
 }
 EventEmitter.EVENTS = EVENTS;

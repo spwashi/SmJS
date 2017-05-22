@@ -5,10 +5,11 @@ const _deploy = require('../../../_deploy');
 describe('ConfiguredEntity', () => {
     const ConfiguredEntity = _deploy.entities.ConfiguredEntity;
     const Std              = _deploy.std.Std;
+    const EVENTS           = _deploy.std.EventEmitter.EVENTS;
     const configuredEntity = new ConfiguredEntity('test');
     it('exists', () => {
         expect(configuredEntity.Symbol).to.be.a('symbol');
-        expect(configuredEntity.Symbol.toString()).to.equal(Symbol(`[${ConfiguredEntity.name}].test`).toString())
+        expect(configuredEntity.Symbol.toString()).to.equal(Symbol(`[${ConfiguredEntity.name}]test`).toString())
     });
     
     it('Can resolve', d => {
@@ -43,7 +44,7 @@ describe('ConfiguredEntity', () => {
     
     it('Can inherit', d => {
         const testParent = new ConfiguredEntity('parent');
-        const child      = ConfiguredEntity.getSymbolStore('child');
+        const child      = ConfiguredEntity.getSymbolStore('child').item(EVENTS);
         
         const INHERIT  = child.item(Std.EVENTS.item('inherit').COMPLETE);
         const COMPLETE = child.item(Std.EVENTS.item('init').COMPLETE);

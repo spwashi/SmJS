@@ -4,9 +4,12 @@
 
 import {default as EventEmitter, EVENTS} from "./EventEmitter";
 import SymbolStore from "./symbols/SymbolStore";
+
+const PROPERTY = SymbolStore.$_$.item('_PROPERTY_').Symbol;
+
 const _receive = (self, eventName, fn, once = true) => {
-    let resolve = 'boon', reject;
-    let func    = (...args) => {
+    let resolve, reject;
+    let func = (...args) => {
         if (typeof fn === 'function') fn(...args);
         return resolve(args);
     };
@@ -16,6 +19,7 @@ const _receive = (self, eventName, fn, once = true) => {
     return promise;
     
 };
+
 /**
  *
  */
@@ -25,18 +29,32 @@ class Std {
      * @return {SymbolStore}
      */
     static getSymbolStore(symbol) {
+        /** @type {string} item If we are retrieving a property of this item */
+        let item;
         if (typeof symbol === 'string') {
             let identifer = this === Std ? '[' : `[${this.name}]`;
+            if (symbol.indexOf('|') > 0) [symbol, item] = symbol.split('|') || null;
             if (symbol.indexOf(identifer) !== 0) symbol = this.createName(symbol);
             symbol = Symbol.for(symbol);
+    
         }
-        return SymbolStore.init(symbol, null, symbol);
+        const symbolStore = SymbolStore.init(symbol, null, symbol);
+        if (!item) return symbolStore;
+        else return symbolStore.item(PROPERTY).item(item);
+    }
+    
+    register_property(name, property) {
+        const propertySymbolStore = this._symbolStore.item(PROPERTY).item(name);
+        return this.send(propertySymbolStore.STATIC, property);
     }
     
     static resolve(symbol) {
         let symbolStore = this.getSymbolStore(symbol);
-        let COMPLETE    = Std.EVENTS.item('init').COMPLETE;
-        COMPLETE        = symbolStore.item(COMPLETE);
+    
+        const is_property = symbolStore.family.has(PROPERTY);
+    
+        const COMPLETE = is_property ? symbolStore : symbolStore.item(EVENTS)
+                                                                .item(Std.EVENTS.item('init').COMPLETE);
         return Std.receive(COMPLETE)
     }
     
@@ -44,7 +62,7 @@ class Std {
     
     static createName(name) {
         name = name || Math.random().toString(36).substr(4, 6);
-        return `[${this.name}].${name}`
+        return `[${this.name}]${name}`
     }
     
     /**
@@ -57,9 +75,11 @@ class Std {
         this._name = this.constructor.createName(symbol);
         if (typeof symbol !== 'symbol') symbol = Symbol.for(this._name);
         this._Symbol = symbol;
-        
+    
+        const symbolStore = this.constructor.getSymbolStore(symbol);
+        this._symbolStore = symbolStore;
         /** @type {SymbolStore}  */
-        this[EVENTS] = this.constructor.getSymbolStore(symbol);
+        this[EVENTS] = symbolStore.item(EVENTS);
         const BEGIN = Std.EVENTS.item('init').BEGIN;
         this.send(this.EVENTS.item(BEGIN).STATIC, this);
         /**

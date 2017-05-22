@@ -24,6 +24,14 @@ describe('Std', () => {
         let ev     = Std.resolve(name);
         new Std(name);
         return ev;
-    })
+    });
     
+    it('Can resolve _properties_', _ => {
+        const name = '[Std]test|title';
+        
+        const std     = new Std('test');
+        const resolve = Std.resolve(name);
+        std.register_property('title', {});
+        resolve.then(i => _());
+    })
 });

@@ -1,5 +1,7 @@
 import ConfiguredEntity from "./ConfiguredEntity";
-
+/**
+ * @class Property
+ */
 export default class Property extends ConfiguredEntity {
     static get name() {return 'Property'; }
     

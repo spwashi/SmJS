@@ -7,6 +7,6 @@ describe('Property', () => {
     const testProperty = new Property('testProperty');
     it('exists', () => {
         expect(testProperty.Symbol).to.be.a('symbol');
-        expect(testProperty.Symbol.toString()).to.equal(Symbol(`[${Property.name}].testProperty`).toString())
+        expect(testProperty.Symbol.toString()).to.equal(Symbol(`[${Property.name}]testProperty`).toString())
     });
 });

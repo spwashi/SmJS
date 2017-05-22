@@ -4,7 +4,6 @@
 const Std = require('../std/').Std;
 /**
  * @class ConfiguredEntity
- * @extends Std
  */
 export default class ConfiguredEntity extends Std {
     static get name() {return 'ConfiguredEntity'; }
@@ -12,9 +11,7 @@ export default class ConfiguredEntity extends Std {
     get name() {return this._name;}
     
     /** @return {Set} */
-    get parents() {
-        return this._parentSymbols;
-    }
+    get parents() { return this._parentSymbols; }
     
     constructor(name, config = {}) {
         if (!config && typeof name === 'object') config = name;
@@ -25,8 +22,7 @@ export default class ConfiguredEntity extends Std {
         const finish        = _ => this.complete(ConfiguredEntity.name);
         
         let configPromise = (this._parentPromise || Promise.resolve())
-            .then(i => this.configure(config))
-            .then(this);
+            .then(i => this.configure(config));
         
         // Inherit the necessary things before marking this as "complete"
         if (config.follows) {

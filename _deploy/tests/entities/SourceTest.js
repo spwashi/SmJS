@@ -7,6 +7,6 @@ describe('Source', () => {
     const testSource = new Source('testSource');
     it('exists', () => {
         expect(testSource.Symbol).to.be.a('symbol');
-        expect(testSource.Symbol.toString()).to.equal(Symbol(`[${Source.name}].testSource`).toString())
+        expect(testSource.Symbol.toString()).to.equal(Symbol(`[${Source.name}]testSource`).toString())
     });
 });

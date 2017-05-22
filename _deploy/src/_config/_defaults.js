@@ -31,24 +31,24 @@ export let models = {
     _entity:       {
         properties: {
             id:             {
-                follows: '[Model]._{id}', primary: true, unique: true,
+                follows: '[Model]_|id', primary: true, unique: true,
                 // Used when this property is being inherited secondhand. When this is not being inherited directly.
                 exclude: ['primary', 'unique']
             },
-            creation_dt:    {follows: '[Model]._{timestamp}', _default: '__NOW__'},
-            last_update_dt: {follows: '[Model]._{timestamp}'}
+            creation_dt:    {follows: '[Model]_|timestamp', _default: '__NOW__'},
+            last_update_dt: {follows: '[Model]_|timestamp'}
         }
     },
     _inheriting:   {
         properties: {
-            id: {follows: '[Model]._entity{id}', primary: false, unique: false}
+            id: {follows: '[Model]_entity|id', primary: false, unique: false}
         }
     },
     _relationship: {
-        follows:    ['[Model]._entity'],
+        follows:    ['[Model]_entity'],
         properties: {
             id: {
-                follows: '[Model]._entity{id}',
+                follows: '[Model]_entity|id',
                 primary: true,
                 unique:  true,
             },

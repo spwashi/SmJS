@@ -6,8 +6,7 @@ export default class Model extends ConfiguredEntity {
     constructor(name, config) {
         super(name, config);
         this._Properties    = new Map;
-        this._parentPromise = this._parentPromise
-                                  .then(i => this.complete(Model.name));
+        this._parentPromise = this._parentPromise.then(i => this.complete(Model.name));
     }
     
     addProperty(property_name, property_config) {

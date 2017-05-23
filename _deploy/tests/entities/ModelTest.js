@@ -5,7 +5,9 @@ const _deploy = require('../../../_deploy');
 
 describe('Model', () => {
     const Std             = _deploy.std.Std;
+    const SymbolStore     = _deploy.std.symbols.SymbolStore;
     const Model           = _deploy.entities.Model;
+    const Property        = _deploy.entities.Property;
     const getDefaultModel = i => { return new Model('_', models._); };
     
     it('exists', () => {
@@ -32,11 +34,11 @@ describe('Model', () => {
         childModel.receive(childModel.EVENTS.item(INHERIT_COMPLETE))
                   .then(result => {
                       let [event, childModel] = result;
-        
+    
                       if (!(childModel instanceof Model)) return done(`Return is of wrong type (${typeof childModel})`);
-        
+    
                       if (childModel.parents.has(parentModel.Symbol)) return done();
-        
+    
                       return done('Could not inherit parent');
                   });
     });
@@ -52,4 +54,21 @@ describe('Model', () => {
             done('Incomplete')
         })
     });
+    
+    it('Can resolve Properties', done => {
+        const model          = new Model('testResolveProperties', {properties: {test_property: {}}});
+        const modelName      = '[Model]testResolveProperties';
+        const _property_name = 'test_property';
+        
+        Std.resolve(`${modelName}|${_property_name}`).then(i => {
+            let [event, property] = i;
+            let error;
+            // SmPHP-30
+            expect(model.Properties[`[Property]\{${modelName}}${_property_name}`]).to.equal(property);
+            expect(property).to.be.instanceof(Property);
+            
+            return model.resolve(_property_name).then(prop => done());
+        });
+    })
+    
 });

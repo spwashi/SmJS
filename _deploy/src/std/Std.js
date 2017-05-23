@@ -43,7 +43,7 @@ class Std {
         else return symbolStore.item(PROPERTY).item(item);
     }
     
-    register_property(name, property) {
+    register_attribute(name, property) {
         const propertySymbolStore = this._symbolStore.item(PROPERTY).item(name);
         return this.send(propertySymbolStore.STATIC, property);
     }
@@ -56,6 +56,10 @@ class Std {
         const COMPLETE = is_property ? symbolStore : symbolStore.item(EVENTS)
                                                                 .item(Std.EVENTS.item('init').COMPLETE);
         return Std.receive(COMPLETE)
+    }
+    
+    resolve(symbol) {
+        return Std.receive(this._symbolStore.item(PROPERTY).item(symbol));
     }
     
     static get name() {return 'Std';}

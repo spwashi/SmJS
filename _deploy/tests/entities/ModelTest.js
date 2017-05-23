@@ -63,7 +63,7 @@ describe('Model', () => {
         Std.resolve(`${modelName}|${_property_name}`).then(i => {
             let [event, property] = i;
             let error;
-            // SmPHP-30
+            // [Property]{[Model]testResolveProperties}test_property
             expect(model.Properties[`[Property]\{${modelName}}${_property_name}`]).to.equal(property);
             expect(property).to.be.instanceof(Property);
             

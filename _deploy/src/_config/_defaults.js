@@ -31,7 +31,8 @@ export let models = {
     _entity:       {
         properties: {
             id:             {
-                follows: '[Model]_|id', primary: true, unique: true,
+                follows: '[Model]_|id',
+                primary: true, unique: true,
                 // Used when this property is being inherited secondhand. When this is not being inherited directly.
                 exclude: ['primary', 'unique']
             },

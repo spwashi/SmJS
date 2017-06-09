@@ -20,16 +20,13 @@ describe('Model', () => {
         const testModel = getDefaultModel();
         expect(testModel.Symbol).to.be.a('symbol');
         expect(testModel.Symbol.toString()).to.equal(Symbol(`[${Model.name}]_`).toString());
-        Model.resolve('_').then(i => {
-            let [event, model] = i;
-            done();
-        });
+        Model.resolve('_').then(i => {done();});
     });
     
     const INHERIT_COMPLETE = Std.EVENTS.item('inherit').COMPLETE;
     it('Can inherit another model', done => {
         const parentModel = new Model('parentModel');
-        const childModel  = new Model('childModel', {follows: parentModel.name});
+        const childModel  = new Model('childModel', {inherits: parentModel.name});
         
         childModel.receive(childModel.EVENTS.item(INHERIT_COMPLETE))
                   .then(result => {
@@ -46,7 +43,7 @@ describe('Model', () => {
     it('Can inherit multiple models', done => {
         const parentModel1 = new Model('parentModel1');
         const parentModel2 = new Model('parentModel2');
-        const childModel   = new Model('childModel', {follows: ['parentModel2', 'parentModel1']});
+        const childModel   = new Model('childModel', {inherits: ['parentModel2', 'parentModel1']});
         
         childModel.receive(childModel.EVENTS.item(INHERIT_COMPLETE)).then(i => {
             let [event, childModel] = i;
@@ -70,17 +67,31 @@ describe('Model', () => {
         });
     });
     
-    it('Has properties that can be primary or unique', done => {
+    it('Can register Primary properties', done => {
         const _model_name    = 'mn';
         const _property_name = 'pn';
         const model_name     = `[Model]${_model_name}`;
-        const model          = new Model(_model_name, {properties: {[_property_name]: {pimary: true, unique: true}}});
+        const model          = new Model(_model_name, {properties: {[_property_name]: {primary: true, unique: true}}});
         Std.resolve(`${model_name}|${_property_name}`).then(i => {
             /** @type {Property} property */
             let [event, property] = i;
-            expect(property.unique).to.be.true;
-            done();
+            const primaryKeySet   = model.propertyMeta.getPrimaryKeySet(property);
+            const message         = primaryKeySet ? null : 'Could not successfully incorporate primary key';
+            done(message);
         });
     });
+    
+    // it('Has properties that can be primary or unique', done => {
+    //     const _model_name    = 'mn';
+    //     const _property_name = 'pn';
+    //     const model_name     = `[Model]${_model_name}`;
+    //     const model          = new Model(_model_name, {properties: {[_property_name]: {pimary: true, unique: true}}});
+    //     Std.resolve(`${model_name}|${_property_name}`).then(i => {
+    //         /** @type {Property} property */
+    //         let [event, property] = i;
+    //         expect(property.unique).to.be.true;
+    //         done();
+    //     });
+    // });
     
 });

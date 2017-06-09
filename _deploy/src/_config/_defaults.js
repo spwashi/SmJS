@@ -31,27 +31,27 @@ export let models = {
     _entity:       {
         properties: {
             id:             {
-                follows: '[Model]_|id',
-                primary: true,
-                unique:  true,
-                exclude: ['primary', 'unique']
+                inherits: '[Model]_|id',
+                primary:  true,
+                unique:   true,
+                exclude:  ['primary', 'unique']
             },
-            creation_dt:    {follows: '[Model]_|timestamp', _default: '__NOW__'},
-            last_update_dt: {follows: '[Model]_|timestamp'}
+            creation_dt:    {inherits: '[Model]_|timestamp', _default: '__NOW__'},
+            last_update_dt: {inherits: '[Model]_|timestamp'}
         }
     },
     _inheriting:   {
         properties: {
-            id: {follows: '[Model]_entity|id', primary: false, unique: false}
+            id: {inherits: '[Model]_entity|id', primary: false, unique: false}
         }
     },
     _relationship: {
-        follows:    ['[Model]_entity'],
+        inherits:   ['[Model]_entity'],
         properties: {
             id: {
-                follows: '[Model]_entity|id',
-                primary: true,
-                unique:  true,
+                inherits: '[Model]_entity|id',
+                primary:  true,
+                unique:   true,
             },
         }
     },

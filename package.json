@@ -43,6 +43,6 @@
   },
   "dependencies":    {
     "debug": "^2.6.6",
-    "react": "latest"
+    "react": "latest", "lodash": "latest"
   }
 }

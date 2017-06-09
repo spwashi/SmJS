@@ -70,7 +70,7 @@ describe('ConfiguredEntity', () => {
         
         ConfiguredEntity.receive(INHERIT).then(_ => (begin_called = true) && fn());
         ConfiguredEntity.receive(COMPLETE, fn);
-        
-        const testChild = new ConfiguredEntity('child', {follows: 'parent'});
+    
+        const testChild = new ConfiguredEntity('child', {inherits: 'parent'});
     })
 });

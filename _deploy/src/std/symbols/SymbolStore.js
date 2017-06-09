@@ -30,7 +30,7 @@ class SymbolStore {
         let parent_name;
         if (parent instanceof SymbolStore) parent_name = parent.name;
     
-        const _new_name = (parent_name ? _to_string(parent_name) + ' ' : '') + _to_string(name);
+        const _new_name = (parent_name ? _to_string(parent_name || symbol) + ' ' : '') + _to_string(name);
         this._name      = _new_name;
         this._Symbol    = symbol || Symbol(_new_name);
         

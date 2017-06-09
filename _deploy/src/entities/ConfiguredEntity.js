@@ -2,6 +2,7 @@
  * Created by Sam Washington on 5/20/17.
  */
 const Std = require('../std/').Std;
+const _   = require('lodash');
 /**
  * @class ConfiguredEntity
  */
@@ -13,32 +14,44 @@ export default class ConfiguredEntity extends Std {
     /** @return {Set} */
     get parents() { return this._parentSymbols; }
     
+    _storeOriginalConfiguration(original_config) {
+        this._originalConfig = _.cloneDeep(original_config);
+        return this;
+    }
+    
+    getOriginalConfiguration() {
+        return this._originalConfig;
+    }
+    
+    /**
+     * Complete the initialization (shortcut for complete)
+     * @return {Promise}
+     * @private
+     */
+    _finishInit() {
+        return this.complete(ConfiguredEntity.name);
+    }
+    
+    _completeInitialInheritance(parent_identifiers) {
+        parent_identifiers     = Array.isArray(parent_identifiers) ? parent_identifiers : [parent_identifiers];
+        const INHERIT          = Std.EVENTS.item('inherit');
+        const inheritedFollows = parent_identifiers.map(item => this.inherit(item));
+        return this.send(this.EVENTS.item(INHERIT.BEGIN).STATIC, this)
+                   .then(i => Promise.all(inheritedFollows))
+                   .then(i => this.send(this.EVENTS.item(INHERIT.COMPLETE).STATIC, this))
+    }
+    
     constructor(name, config = {}) {
         if (!config && typeof name === 'object') config = name;
         name = config.name = config.name || name;
         super(name);
-        this._config        = config;
         this._parentSymbols = new Set;
-        const finish        = _ => this.complete(ConfiguredEntity.name);
-        
-        let configPromise = (this._parentPromise || Promise.resolve())
-            .then(i => this.configure(config));
-        
-        // Inherit the necessary things before marking this as "complete"
-        if (config.follows) {
-            const follows          = Array.isArray(config.follows) ? config.follows : [config.follows];
-            const INHERIT          = Std.EVENTS.item('inherit');
-            const inheritedFollows = follows.map(item => this.inherit(item));
-            
-            this._parentPromise =
-                configPromise
-                    .then(i => this.send(this.EVENTS.item(INHERIT.BEGIN).STATIC, this))
-                    .then(i => Promise.all(inheritedFollows))
-                    .then(i => this.send(this.EVENTS.item(INHERIT.COMPLETE).STATIC, this))
-                    .then(finish);
-        } else {
-            this._parentPromise = configPromise.then(i => finish());
-        }
+        this._storeOriginalConfiguration(config);
+        let inherits        = config.inherits;
+        this._parentPromise = this._parentPromise
+                                  .then(i => this.configure(config))
+                                  .then(i => this._completeInitialInheritance(inherits))
+                                  .then(i => this._finishInit());
     }
     
     configure(properties) {
@@ -63,6 +76,7 @@ export default class ConfiguredEntity extends Std {
      * @return {*|Promise.<this>}
      */
     inherit(item) {
+        if (!item) return Promise.resolve([]);
         return this.constructor.resolve(item).then(
             (result) => {
                 /** @type {Event} event */

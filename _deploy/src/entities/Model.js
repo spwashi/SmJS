@@ -15,9 +15,7 @@ export default class Model extends ConfiguredEntity {
         this._parentPromise         = this._parentPromise.then(i => this.complete(Model.name));
     }
     
-    get Properties() {
-        return this._properties;
-    }
+    get Properties() { return this._properties; }
     
     /**
      * @return {PropertyMetaContainer}
@@ -30,9 +28,7 @@ export default class Model extends ConfiguredEntity {
      * @return {string}
      * @private
      */
-    _nameProperty(original_property_name) {
-        return `{${this.name}}${original_property_name}`;
-    }
+    _nameProperty(original_property_name) { return `{${this.name}}${original_property_name}`; }
     
     /**
      * Add the Property to the PropertyMeta to keep track of it.
@@ -42,13 +38,13 @@ export default class Model extends ConfiguredEntity {
      */
     _incorporatePropertyIntoMeta(property) {
         const config = property.getOriginalConfiguration();
-        if (config.primary) this._PropertyMetaContainer.addPrimaryKey(property);
+        if (config.primary) this._PropertyMetaContainer.addPropertiesToPrimaryKey(property);
         
         let unique = config.unique;
         if (typeof unique !== 'string') unique = !!unique;
         if (unique === true) unique = 'unique_key';
         
-        if (unique) this._PropertyMetaContainer.addUniqueKey(unique, property);
+        if (unique) this._PropertyMetaContainer.addPropertiesToUniqueKey(unique, property);
         return property;
     }
     
@@ -68,10 +64,10 @@ export default class Model extends ConfiguredEntity {
     
     addProperty(original_property_name, property_config) {
         const property_name = this._nameProperty(original_property_name);
-    
+        
         // The Property is going to get passed on by the Property.resolve, so there is no reason to store it here
         new Property(property_name, property_config);
-    
+        
         // The Property
         return Property.resolve(property_name)
                        .then(result => {

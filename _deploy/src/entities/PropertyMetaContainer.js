@@ -3,11 +3,15 @@
  */
 
 import Property from "./Property";
+import Std from "../std/Std";
 /**
  * An object that is meant to contain information about Properties as they exist in this context
+ * @class PropertyMetaContainer
+ * @extends Std
  */
-export default class PropertyMetaContainer {
+class PropertyMetaContainer extends Std {
     constructor() {
+        super();
         /** @type {Set} Represents the Properties that make up the Primary Key */
         this._primaryKey = new Set;
         /** @type {Map} Represents Sets that represent the Unique Keys */
@@ -21,9 +25,35 @@ export default class PropertyMetaContainer {
      */
     _enforceIsPropertySet(propertySet) {
         if (propertySet instanceof Property) propertySet = new Set([propertySet]);
-    
+        
         if (!(propertySet instanceof Set)) throw new Error("Invalid argument Type - must be Property or Set");
         return propertySet;
+    }
+    
+    /**
+     *
+     * @param {Property}        property
+     * @param {Set|Map}         keySet
+     * @return {Set|Map|bool}
+     * @private
+     */
+    _findPropertyKeySet(property, keySet) {
+        if (keySet instanceof Map) {
+            let matchingKeysets = new Map;
+            keySet.forEach((set, name, map) => {
+                const _keySet = this._findPropertyKeySet(property, set);
+                if (_keySet instanceof Set) {
+                    matchingKeysets.set(name, _keySet);
+                }
+            });
+            return matchingKeysets;
+        }
+        
+        // default behavior- return the keyset
+        if (property === null) return keySet;
+        
+        //If we pass in a property, interpret this as "get PrimaryKey where property = ___"
+        return keySet.has(property) ? keySet : false;
     }
     
     /**
@@ -32,11 +62,28 @@ export default class PropertyMetaContainer {
      * @return {*}
      */
     getPrimaryKeySet(property = null) {
-        // default behavior- return the primary key
-        if (property === null) return this._primaryKey;
-        
-        //If we pass in a property, interpret this as "get PrimaryKey where property = ___"
-        return this._primaryKey.has(property) ? this._primaryKey : false;
+        return this._findPropertyKeySet(property, this._primaryKey);
+    }
+    
+    /**
+     * Get an array that corresponds to the Unique Key sets that the property belongs to
+     * @param property
+     * @return {Array<Set>|Map|bool} Returns the unique key Map if no args are passed, an array of Sets that contain the property, or false
+     */
+    getUniqueKeySet(property) {
+        return this._findPropertyKeySet(property, this._uniqueKeys);
+    }
+    
+    /**
+     * Add what should be a set of properties to a pre-existing set (if that exists)
+     * @param keySet
+     * @param propertySet
+     * @return {Set}
+     * @private
+     */
+    _mergePropertySetWithKeySet(keySet, propertySet) {
+        keySet = keySet || [];
+        return new Set([...keySet, ...this._enforceIsPropertySet(propertySet)]);
     }
     
     /**
@@ -45,9 +92,9 @@ export default class PropertyMetaContainer {
      * @param {Set|Property} propertySet A Property or Set of Properties that are going to be used as the Primary Key.
      * @return {PropertyMetaContainer}
      */
-    addPrimaryKey(propertySet) {
-        this._primaryKey = new Set([...this._primaryKey, ...this._enforceIsPropertySet(propertySet)]);
-        return this;
+    addPropertiesToPrimaryKey(propertySet) {
+        this._primaryKey = this._mergePropertySetWithKeySet(this._primaryKey, propertySet);
+        return this._primaryKey;
     }
     
     /**
@@ -58,7 +105,12 @@ export default class PropertyMetaContainer {
      * @param {string}  keyName     The name of the Key to add
      * @param {Set|Property}     propertySet The property or Set of Properties thar are going to be used as the unique key.
      */
-    addUniqueKey(keyName, propertySet) {
-        this._uniqueKeys.set(keyName, this._enforceIsPropertySet(propertySet));
+    addPropertiesToUniqueKey(keyName, propertySet) {
+        // Add the Set to the others
+        const keySet = this._mergePropertySetWithKeySet(this._uniqueKeys.get(keyName),
+                                                        propertySet);
+        this._uniqueKeys.set(keyName, keySet);
     }
 }
+
+export default PropertyMetaContainer;

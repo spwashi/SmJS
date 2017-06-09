@@ -36,7 +36,7 @@ class Std {
             if (symbol.indexOf('|') > 0) [symbol, item] = symbol.split('|') || null;
             if (symbol.indexOf(identifer) !== 0) symbol = this.createName(symbol);
             symbol = Symbol.for(symbol);
-    
+            
         }
         const symbolStore = SymbolStore.init(symbol, null, symbol);
         if (!item) return symbolStore;
@@ -50,7 +50,7 @@ class Std {
     
     static resolve(symbol) {
         let symbolStore = this.getSymbolStore(symbol);
-    
+        
         // If we are trying to resolve something that has been registered as an attribute
         const is_property = symbolStore.family.has(ATTRIBUTE);
         
@@ -80,7 +80,7 @@ class Std {
         this._name = this.constructor.createName(symbol);
         if (typeof symbol !== 'symbol') symbol = Symbol.for(this._name);
         this._Symbol = symbol;
-    
+        
         const symbolStore = this.constructor.getSymbolStore(symbol);
         this._symbolStore = symbolStore;
         /**
@@ -118,6 +118,8 @@ class Std {
      * @constructor
      */
     get Symbol() { return this._Symbol; }
+    
+    get symbolName() {return this._Symbol.toString();}
     
     //region Events/EVENTS
     /**

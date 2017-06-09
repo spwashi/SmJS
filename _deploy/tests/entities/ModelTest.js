@@ -68,8 +68,8 @@ describe('Model', () => {
     });
     
     it('Can register Primary properties', done => {
-        const _model_name    = 'mn';
-        const _property_name = 'pn';
+        const _model_name    = 'primary_test_mn';
+        const _property_name = 'primary_test_pn';
         const model_name     = `[Model]${_model_name}`;
         const model          = new Model(_model_name, {properties: {[_property_name]: {primary: true, unique: true}}});
         Std.resolve(`${model_name}|${_property_name}`).then(i => {
@@ -81,17 +81,27 @@ describe('Model', () => {
         });
     });
     
-    // it('Has properties that can be primary or unique', done => {
-    //     const _model_name    = 'mn';
-    //     const _property_name = 'pn';
-    //     const model_name     = `[Model]${_model_name}`;
-    //     const model          = new Model(_model_name, {properties: {[_property_name]: {pimary: true, unique: true}}});
-    //     Std.resolve(`${model_name}|${_property_name}`).then(i => {
-    //         /** @type {Property} property */
-    //         let [event, property] = i;
-    //         expect(property.unique).to.be.true;
-    //         done();
-    //     });
-    // });
-    
+    it('Can register Unique properties', done => {
+        const _model_name     = 'unique_test_mn';
+        const _property_name  = 'unique_test_pn';
+        const _property_name2 = 'unique_test_pn2';
+        const model_name      = `[Model]${_model_name}`;
+        const model           = new Model(_model_name, {
+            properties: {
+                [_property_name]:  {primary: true, unique: true},
+                [_property_name2]: {unique: true},
+            }
+        });
+        /** @type property2 {Property}  */
+        let property2;
+        Std.resolve(`${model_name}|${_property_name2}`)
+           .then(i => [, property2] = i)
+           .then(i => Std.resolve(model_name))
+           .then(i => {
+               let [e, model]     = i;
+               const uniqueKeySet = model.propertyMeta.getUniqueKeySet(property2);
+               const message      = uniqueKeySet ? (uniqueKeySet.get('unique_key').size === 2 ? null : 'Missing one property') : 'Could not successfully incorporate unique key';
+               done(message);
+           });
+    });
 });

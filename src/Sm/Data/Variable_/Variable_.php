@@ -5,7 +5,7 @@
  * Time: 10:23 PM
  */
 
-namespace Sm\Type\Variable_;
+namespace Sm\Data\Variable_;
 
 
 use Sm\Abstraction\Identifier\HasObjectIdentityTrait;

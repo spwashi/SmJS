@@ -9,17 +9,17 @@ namespace Sm\Entity\Property;
 
 
 use Sm\Abstraction\ReadonlyTrait;
+use Sm\Data\Variable_\Variable_;
 use Sm\Entity\EntityTypeVariable;
+use Sm\Entity\Source\DataSource;
+use Sm\Entity\Source\NullDataSource;
+use Sm\Entity\Source\SourceHaver;
 use Sm\Error\Error;
 use Sm\Error\UnimplementedError;
 use Sm\Resolvable\NullResolvable;
 use Sm\Resolvable\Resolvable;
 use Sm\Resolvable\ResolvableFactory;
 use Sm\Resolvable\ResolvableResolvable;
-use Sm\Storage\Source\NullSource;
-use Sm\Storage\Source\Source;
-use Sm\Storage\Source\SourceHaver;
-use Sm\Type\Variable_\Variable_;
 
 /**
  * Class Property
@@ -41,7 +41,7 @@ class Property extends Variable_ implements SourceHaver {
     
     /** @var  string $name */
     protected $_name;
-    /** @var  Source $Source */
+    /** @var  DataSource $Source */
     protected $Source;
     /** @var  \Sm\Resolvable\Resolvable $ReferenceResolvable This is the Resolvable that returns a Property that this Property is a Reference to */
     protected $ReferenceResolvable;
@@ -56,10 +56,10 @@ class Property extends Variable_ implements SourceHaver {
     /**
      * Property constructor.
      *
-     * @param mixed|null  $name
-     * @param Source|null $Source
+     * @param mixed|null      $name
+     * @param DataSource|null $Source
      */
-    public function __construct($name = null, Source $Source = null) {
+    public function __construct($name = null, DataSource $Source = null) {
         if (isset($name)) {
             $this->_name = $name;
         }
@@ -149,17 +149,17 @@ class Property extends Variable_ implements SourceHaver {
     /**
      * Get the Source of the class
      *
-     * @return Source
+     * @return DataSource
      */
-    public function getSource(): Source {
-        return $this->Source = $this->Source ?? NullSource::init();
+    public function getSource(): DataSource {
+        return $this->Source = $this->Source ?? NullDataSource::init();
     }
     /**
-     * @param Source $Source
+     * @param DataSource $Source
      *
      * @return Property
      */
-    public function setSource(Source $Source) {
+    public function setSource(DataSource $Source) {
         $this->Source = $Source;
         return $this;
     }

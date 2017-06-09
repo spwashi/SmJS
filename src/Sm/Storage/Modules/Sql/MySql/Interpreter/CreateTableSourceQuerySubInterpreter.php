@@ -8,6 +8,9 @@
 namespace Sm\Storage\Modules\Sql\MySql\Interpreter;
 
 
+use Sm\Data\Integer_;
+use Sm\Data\Null_;
+use Sm\Data\String_;
 use Sm\Error\Error;
 use Sm\Error\UnimplementedError;
 use Sm\Resolvable\NullResolvable;
@@ -15,9 +18,6 @@ use Sm\Storage\Modules\Sql\Formatter\ColumnAsDefinitionFragment;
 use Sm\Storage\Modules\Sql\Formatter\CreateTableFragment;
 use Sm\Storage\Modules\Sql\Formatter\PropertyFragment;
 use Sm\Storage\Modules\Sql\Formatter\SourceFragment;
-use Sm\Type\Integer_;
-use Sm\Type\Null_;
-use Sm\Type\String_;
 
 /**
  * Class CreateStatementSubInterpreter
@@ -51,8 +51,8 @@ class CreateTableSourceQuerySubInterpreter extends MysqlQuerySubInterpreter {
      */
     public function createFragment() {
         $Fragment = CreateTableFragment::init()
-                                       ->setSourceFragment($this->createTableSourceFragment())
-                                       ->setColumnFragmentArray($this->createColumnFragmentArray());
+            ->setSourceFragment($this->createTableSourceFragment())
+            ->setColumnFragmentArray($this->createColumnFragmentArray());
         
         return $Fragment;
     }
@@ -139,8 +139,8 @@ class CreateTableSourceQuerySubInterpreter extends MysqlQuerySubInterpreter {
                 
                 # Mainly because Properties and columns are separate things for whatever reasons
                 $ColumnFragment->setReferenceFragment(PropertyFragment::inherit($ReferenceColumnFragment)
-                                                                      ->setSourceFragment(SourceFragment::init()
-                                                                                                        ->setSource($Reference->getSource())));
+                                                          ->setSourceFragment(SourceFragment::init()
+                                                                                  ->setSource($Reference->getSource())));
             }
         }
         
@@ -155,7 +155,7 @@ class CreateTableSourceQuerySubInterpreter extends MysqlQuerySubInterpreter {
         if (null === $ColumnFragment->getDataType()) {
             $ColumnFragment->setDataType($datatype_string);
         }
-    
+        
         $ColumnFragment->setIsPrimaryKey($_is_primary_key);
         
         if (isset($DefaultResolvable)) {

@@ -9,7 +9,7 @@ namespace Sm\Query\Sql;
 
 
 use Sm\App\App;
-use Sm\Storage\Database\DatabaseSource;
+use Sm\Storage\Database\DatabaseDataSource;
 
 class SqlModuleTest extends \PHPUnit_Framework_TestCase {
     /** @var  App $App */
@@ -23,14 +23,14 @@ class SqlModuleTest extends \PHPUnit_Framework_TestCase {
         $this->App->Modules->sql = include $sql_module ?? [];
     }
     public function testCanGetDatabaseSource() {
-        $this->assertInstanceOf(DatabaseSource::class,
+        $this->assertInstanceOf(DatabaseDataSource::class,
                                 $this
                                     ->App
                                     ->Modules
                                     ->sql
                                     ->getDatabaseSource());
-        
-        $this->assertInstanceOf(DatabaseSource::class,
+    
+        $this->assertInstanceOf(DatabaseDataSource::class,
                                 $this
                                     ->App
                                     ->Modules

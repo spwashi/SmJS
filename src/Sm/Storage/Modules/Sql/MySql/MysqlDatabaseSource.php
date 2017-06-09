@@ -10,7 +10,7 @@ namespace Sm\Storage\Modules\Sql\MySql;
 
 use Sm\Authentication\Authentication;
 use Sm\Authentication\Error\InvalidAuthenticationError;
-use Sm\Storage\Database\DatabaseSource;
+use Sm\Storage\Database\DatabaseDataSource;
 
 /**
  * Class MysqlDatabaseSource
@@ -20,7 +20,7 @@ use Sm\Storage\Database\DatabaseSource;
  * @package Sm\Storage\Modules\Sql\MySql
  * @method \PDO getConnection()
  */
-class MysqlDatabaseSource extends DatabaseSource {
+class MysqlDatabaseSource extends DatabaseDataSource {
     /**
      * @param \Sm\Authentication\Authentication|null $Authentication
      *

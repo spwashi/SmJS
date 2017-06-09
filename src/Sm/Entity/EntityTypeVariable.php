@@ -8,8 +8,8 @@
 namespace Sm\Entity;
 
 
+use Sm\Data\Variable_\Variable_;
 use Sm\Entity\Property\PropertyHaver;
-use Sm\Type\Variable_\Variable_;
 
 /**
  * Class EntityVariable

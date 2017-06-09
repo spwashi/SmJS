@@ -9,11 +9,11 @@ namespace Sm\Entity\Property;
 
 
 use Sm\Abstraction\ReadonlyTrait;
+use Sm\Entity\Source\DataSource;
+use Sm\Entity\Source\NullDataSource;
 use Sm\Error\Error;
 use Sm\Error\WrongArgumentException;
 use Sm\Storage\Container\Container;
-use Sm\Storage\Source\NullSource;
-use Sm\Storage\Source\Source;
 
 /**
  * Class PropertyContainer
@@ -29,7 +29,7 @@ class PropertyContainer extends Container {
     
     /** @var  PropertyHaver $PropertyHaver Whatever these properties belong to */
     protected $PropertyHaver;
-    /** @var  \Sm\Storage\Source\Source $Source If there is a source that all of these Properties should belong to */
+    /** @var  \Sm\Entity\Source\DataSource $Source If there is a source that all of these Properties should belong to */
     protected $Source;
     
     /**
@@ -97,7 +97,7 @@ class PropertyContainer extends Container {
         /** @var static $result */
         $result = parent::register($name, $registrand);
         $this->addPropertyHaverToProperty($registrand);
-        if ($registrand->getSource() instanceof NullSource && isset($this->Source)) {
+        if ($registrand->getSource() instanceof NullDataSource && isset($this->Source)) {
             $registrand->setSource($this->Source);
         }
         return $result;
@@ -173,17 +173,17 @@ class PropertyContainer extends Container {
         return array_unique($PropertyHavers);
     }
     /**
-     * @return \Sm\Storage\Source\Source
+     * @return \Sm\Entity\Source\DataSource
      */
     public function getSource() {
         return $this->Source;
     }
     /**
-     * @param \Sm\Storage\Source\Source $Source
+     * @param \Sm\Entity\Source\DataSource $Source
      *
      * @return PropertyContainer
      */
-    public function setSource(Source $Source) {
+    public function setSource(DataSource $Source) {
         $this->Source = $Source;
         return $this;
     }

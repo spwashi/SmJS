@@ -9,8 +9,8 @@ namespace Sm\Response;
 
 
 use Sm\Abstraction\Formatting\Formattable;
+use Sm\Data\DateTime_;
 use Sm\Resolvable\Resolvable;
-use Sm\Type\DateTime_;
 use Sm\Util;
 
 class Response extends Resolvable implements Formattable {

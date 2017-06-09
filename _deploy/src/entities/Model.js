@@ -2,7 +2,7 @@ import ConfiguredEntity from "./ConfiguredEntity";
 import Property from "./Property";
 import SymbolStore from "../std/symbols/SymbolStore";
 
-const PROPERTY = SymbolStore.$_$.item('_PROPERTY_').Symbol;
+const ATTRIBUTE = SymbolStore.$_$.item('_attribute_').Symbol;
 
 export default class Model extends ConfiguredEntity {
     static get name() {return 'Model'; }
@@ -27,7 +27,7 @@ export default class Model extends ConfiguredEntity {
             if (!(property instanceof Property)) throw new Error('Improperly created property');
     
             this._Properties[property.name] = property;
-            this.register_attribute(original_property_name, property);
+            this.registerAttribute(original_property_name, property);
             return property;
         })
     }

@@ -9,10 +9,10 @@ namespace Sm\EvaluableStatement;
 
 
 use Sm\Abstraction\Formatting\Formattable;
+use Sm\Data\Variable_\Variable_;
 use Sm\Formatter\FormatterFactory;
 use Sm\Formatter\FormatterFactoryHaver;
 use Sm\Resolvable\Resolvable;
-use Sm\Type\Variable_\Variable_;
 
 /**
  * Class EvaluableStatement

@@ -8,7 +8,7 @@
 namespace Sm\Storage\Modules\Sql\Formatter;
 
 
-use Sm\Storage\Source\Source;
+use Sm\Entity\Source\DataSource;
 
 class SourceFragment extends SqlFragment {
     public    $Source;
@@ -16,7 +16,7 @@ class SourceFragment extends SqlFragment {
     protected $PropertyHaver_object_id;
     
     /**
-     * @return \Sm\Storage\Source\Source
+     * @return \Sm\Entity\Source\DataSource
      */
     public function getSource() {
         return $this->Source;
@@ -26,7 +26,7 @@ class SourceFragment extends SqlFragment {
      *
      * @return $this
      */
-    public function setSource(Source $Source) {
+    public function setSource(DataSource $Source) {
         $this->Source = $Source;
         return $this;
     }

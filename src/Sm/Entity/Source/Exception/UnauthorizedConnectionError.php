@@ -5,7 +5,7 @@
  * Time: 2:23 PM
  */
 
-namespace Sm\Storage\Source\Exception;
+namespace Sm\Entity\Source\Exception;
 
 
 use Sm\Error\Error;

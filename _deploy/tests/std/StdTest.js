@@ -31,7 +31,7 @@ describe('Std', () => {
         
         const std     = new Std('test');
         const resolve = Std.resolve(name);
-        std.register_attribute('title', {});
+        std.registerAttribute('title', {});
         resolve.then(i => _());
     })
 });

@@ -56,7 +56,7 @@ class App extends Container {
                     }),
                 'config_path' =>
                     FunctionResolvable::coerce(function ($Paths, $App) {
-                        return $Paths->app_path . '_config/';
+                        return $Paths->app_path . 'config/';
                     }),
             ]);
     }

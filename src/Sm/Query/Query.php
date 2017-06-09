@@ -10,14 +10,14 @@ namespace Sm\Query;
 use Sm\Abstraction\Factory\HasFactoryContainerTrait;
 use Sm\Entity\Property\Property;
 use Sm\Entity\Property\PropertyContainer;
+use Sm\Entity\Source\DataSource;
+use Sm\Entity\Source\Exception\UnauthorizedConnectionError;
+use Sm\Entity\Source\NullDataSource;
+use Sm\Entity\Source\SourceHaver;
 use Sm\Error\Error;
 use Sm\Error\UnimplementedError;
 use Sm\Error\WrongArgumentException;
 use Sm\Query\Interpreter\QueryInterpreterFactory;
-use Sm\Storage\Source\Exception\UnauthorizedConnectionError;
-use Sm\Storage\Source\NullSource;
-use Sm\Storage\Source\Source;
-use Sm\Storage\Source\SourceHaver;
 use Sm\Util;
 
 /**
@@ -159,7 +159,7 @@ class Query {
         }
     
     
-        /** @var Source $RootSource The Source that is going to be handling this Query */
+        /** @var DataSource $RootSource The Source that is going to be handling this Query */
         $RootSource              = $SourceArray[ key($SourceArray) ];
         $Factories               = $this->getFactoryContainer();
         $QueryInterpreterFactory = $Factories->resolve(QueryInterpreterFactory::class);
@@ -198,14 +198,14 @@ class Query {
      *
      * @return bool
      * @throws \Sm\Error\WrongArgumentException
-     * @throws \Sm\Storage\Source\Exception\UnauthorizedConnectionError
+     * @throws \Sm\Entity\Source\Exception\UnauthorizedConnectionError
      */
     protected function canUseProperties($item, $throw_an_error = false) {
         
         # We assume that it has a source
         if ($item instanceof SourceHaver) {
             $Source = $item->getSource();
-        } else if ($item instanceof Source) {
+        } else if ($item instanceof DataSource) {
             $Source = $item;
         }
     
@@ -269,14 +269,14 @@ class Query {
         $components[] = $this->create;
         $components   = array_filter($components);
         /**
-         * @var Source[] $Sources An array, indexed by object_id, of the Sources used
+         * @var DataSource[] $Sources An array, indexed by object_id, of the Sources used
          */
         $Sources = [];
     
     
         foreach ($components as $component) {
-        
-            if ($component instanceof Source) {
+    
+            if ($component instanceof DataSource) {
                 $RootSource = $component->getRootSource();
             } else if ($component instanceof SourceHaver) {
                 $RootSource = static::getRootSourceFromSourceHaver($component);
@@ -295,9 +295,9 @@ class Query {
     /**
      * For everything that has a source, get the Root Source of that
      *
-     * @param \Sm\Storage\Source\SourceHaver $SourceHaver
+     * @param \Sm\Entity\Source\SourceHaver $SourceHaver
      *
-     * @return null|\Sm\Storage\Source\Source
+     * @return null|\Sm\Entity\Source\DataSource
      */
     protected static function getRootSourceFromSourceHaver(SourceHaver $SourceHaver) {
         if (!($SourceHaver instanceof SourceHaver)) {
@@ -306,7 +306,7 @@ class Query {
         $RootSource = $SourceHaver->getSource()->getRootSource();
         
         # NullSources don't matter. Skip over them.
-        if ($RootSource instanceof NullSource) {
+        if ($RootSource instanceof NullDataSource) {
             return null;
         }
         

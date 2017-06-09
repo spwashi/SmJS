@@ -15,7 +15,7 @@ class InsertFragment extends SqlFragment {
     protected $PropertyFragments = [];
     /** @var  \Sm\Formatter\Fragment\Fragment[] */
     protected $ValueFragments = [];
-    /** @var  \Sm\Storage\Source\Source[] */
+    /** @var  \Sm\Entity\Source\DataSource[] */
     protected $Sources;
     /**
      * @return \Sm\Storage\Modules\Sql\Formatter\PropertyFragment[]

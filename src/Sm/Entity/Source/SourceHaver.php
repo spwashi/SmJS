@@ -5,7 +5,7 @@
  * Time: 1:42 PM
  */
 
-namespace Sm\Storage\Source;
+namespace Sm\Entity\Source;
 
 
 /**
@@ -13,13 +13,13 @@ namespace Sm\Storage\Source;
  *
  * An interface to define something as having a Source.
  *
- * @package Sm\Storage\Source
+ * @package Sm\Entity\Source
  */
 interface SourceHaver {
     /**
      * Return the Source of ths object
      *
-     * @return \Sm\Storage\Source\Source
+     * @return \Sm\Entity\Source\DataSource
      */
-    public function getSource(): Source;
+    public function getSource(): DataSource;
 }

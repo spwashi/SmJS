@@ -32,8 +32,8 @@ export let models = {
         properties: {
             id:             {
                 follows: '[Model]_|id',
-                primary: true, unique: true,
-                // Used when this property is being inherited secondhand. When this is not being inherited directly.
+                primary: true,
+                unique:  true,
                 exclude: ['primary', 'unique']
             },
             creation_dt:    {follows: '[Model]_|timestamp', _default: '__NOW__'},

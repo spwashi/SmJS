@@ -15,10 +15,10 @@ return [
     'init' => function (App $App) {
     
         # Default path to routes configuration is relative to the _config path
-        $config_path = $App->Paths->to_config("default/routes.sm._config.php", true)
-            ?: $App->Paths->to_config("routes.sm._config.php", true);
+        $config_path = $App->Paths->to_config("default/routes.sm.config.php", true)
+            ?: $App->Paths->to_config("routes.sm.config.php", true);
         if (!$config_path) {
-            throw new UnresolvableError("There are no routes configured for this App ($App->name)");
+            throw new UnresolvableError("There are no routes configured for this App ($App->name) using " . $App->Paths->to_config("default/routes.sm.config.php"));
         }
         
         # Get an array representative of the configuration

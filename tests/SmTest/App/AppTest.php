@@ -32,7 +32,8 @@ class AppTest extends \PHPUnit_Framework_TestCase {
         $this->assertInstanceOf(App::class, $Module->getApp());
     }
     public function testCanBoot() {
-        $App = App::init();
+        $App                   = App::init()->setName('Test');
+        $App->Paths->base_path = TEST_PATH . 'ExampleApp';
         Module::init(include APP_MODULE)->initialize($App);
     
         $this->assertInstanceOf(Router::class, $App->Router);
@@ -58,8 +59,8 @@ class AppTest extends \PHPUnit_Framework_TestCase {
         $App->Paths->base_path = 'hello';
         $App->registerDefaults('test',
                                FunctionResolvable::coerce(function ($App) {
-                                    return $App->name;
-                                }),
+                                   return $App->name;
+                               }),
                                true);
         $App->test_2 = 'hello';
         $App->registerDefaults('test_2', FunctionResolvable::coerce(function ($App) { return $App->name; }), true);

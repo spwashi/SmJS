@@ -6,6 +6,7 @@
  */
 
 use Sm\Abstraction\Identifier\Identifier;
+use Sm\Data\Variable_\Variable_;
 use Sm\Entity\Property\Property;
 use Sm\Error\UnimplementedError;
 use Sm\EvaluableStatement\Constructs\And_;
@@ -33,7 +34,6 @@ use Sm\Storage\Modules\Sql\Formatter\SourceFragment;
 use Sm\Storage\Modules\Sql\Formatter\SourcesArrayFragment;
 use Sm\Storage\Modules\Sql\Formatter\UpdateFragment;
 use Sm\Storage\Modules\Sql\Formatter\WhereFragment;
-use Sm\Type\Variable_\Variable_;
 
 return [
     #
@@ -361,11 +361,11 @@ return [
             $_reference_name                = $_Reference->name;
             $foreign_key_statement_array [] = "CONSTRAINT FK_{$_reference_table_name}__{$source_name}__{$_column_name} FOREIGN KEY ({$_column_name}) REFERENCES {$_reference_table_name}({$_reference_name})";
         }
-    
+        # endregion
         $primary_keys_joined   = join(',', $primary_key_array);
         $primary_key_statement = "PRIMARY KEY ({$primary_keys_joined})";
         $foreign_key_statement = join(', ', array_filter($foreign_key_statement_array));
-        # endregion
+    
     
         if (strlen($primary_keys_joined)) $create_table_statement .= ",\n\t\t$primary_key_statement";
         if (strlen($foreign_key_statement)) $create_table_statement .= ",\n\t\t$foreign_key_statement";

@@ -10,7 +10,7 @@ namespace Sm\Storage\Database;
 
 use Sm\Authentication\Authentication;
 use Sm\Entity\Property\PropertyContainer;
-use Sm\Storage\Source\Source;
+use Sm\Entity\Source\DataSource;
 
 /** @noinspection PhpSignatureMismatchDuringInheritanceInspection */
 
@@ -21,16 +21,16 @@ use Sm\Storage\Source\Source;
  *
  * @property-read \Sm\Storage\Database\ColumnContainer $Columns
  *
- * @method static TableSource init(DatabaseSource $DatabaseSource, string $table_name = null)
+ * @method static TableSource init(DatabaseDataSource $DatabaseSource, string $table_name = null)
  * @package Sm\Storage\Database
  */
-class TableSource extends DatabaseSource {
+class TableSource extends DatabaseDataSource {
     protected $table_name;
-    /** @var  DatabaseSource $DatabaseSource */
+    /** @var  DatabaseDataSource $DatabaseSource */
     protected $DatabaseSource;
     /** @var PropertyContainer $_Columns */
     protected $_Columns;
-    public function __construct(DatabaseSource $DatabaseSource, $table_name) {
+    public function __construct(DatabaseDataSource $DatabaseSource, $table_name) {
         $this->DatabaseSource = $DatabaseSource;
         $this->table_name     = $table_name;
         $this->_Columns       = ColumnContainer::init()->setSource($this);
@@ -45,7 +45,7 @@ class TableSource extends DatabaseSource {
         return $this;
     }
     public function isAuthenticated() { return $this->DatabaseSource->isAuthenticated(); }
-    public function getRootSource(): Source {
+    public function getRootSource(): DataSource {
         return $this->DatabaseSource->getRootSource();
     }
     

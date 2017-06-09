@@ -13,13 +13,13 @@ use Sm\Formatter\FormatterFactory;
 use Sm\Formatter\FormatterFactoryHaver;
 use Sm\Resolvable\Error\UnresolvableError;
 use Sm\Storage\Container\Container;
-use Sm\Storage\Database\DatabaseSource;
+use Sm\Storage\Database\DatabaseDataSource;
 
 /**
  * Class SqlModule
  *
- * @property-read FormatterFactory                         $FormatterFactory
- * @property-read \Sm\Storage\Database\DatabaseSource|null $DatabaseSource
+ * @property-read FormatterFactory                             $FormatterFactory
+ * @property-read \Sm\Storage\Database\DatabaseDataSource|null $DatabaseSource
  *
  * @package Sm\Query\Sql
  */
@@ -91,7 +91,7 @@ class SqlModule extends Module {
      *
      * @param string $name
      *
-     * @return DatabaseSource
+     * @return DatabaseDataSource
      */
     public function getDatabaseSource($name = 'default') {
         return $this->DatabaseSourceContainer->resolve($name);
@@ -113,7 +113,7 @@ class SqlModule extends Module {
             throw new UnresolvableError("There needs to be a formatter factory in order for this Module to operate correctly.");
         }
     
-        if (!($this->DatabaseSource instanceof DatabaseSource)) {
+        if (!($this->DatabaseSource instanceof DatabaseDataSource)) {
             throw new UnresolvableError("There must be a DatabaseSource in order for this SqlModule to work as predicted");
         }
     }

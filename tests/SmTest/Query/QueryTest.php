@@ -9,6 +9,9 @@ namespace Sm\Query;
 
 
 use Sm\App\App;
+use Sm\Data\Integer_;
+use Sm\Data\Null_;
+use Sm\Data\String_;
 use Sm\Entity\EntityType;
 use Sm\Entity\EntityTypeMeta;
 use Sm\Entity\Property\Property;
@@ -17,9 +20,6 @@ use Sm\Resolvable\ArrayResolvable;
 use Sm\Storage\Database\TableSource;
 use Sm\Storage\Modules\Sql\MySql\MysqlDatabaseSource;
 use Sm\Storage\Modules\Sql\MySql\MysqlPdoAuthentication;
-use Sm\Type\Integer_;
-use Sm\Type\Null_;
-use Sm\Type\String_;
 
 class QueryTest extends \PHPUnit_Framework_TestCase {
     /**

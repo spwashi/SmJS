@@ -103,12 +103,15 @@ class EntityType implements PropertyHaver, QueryAugmentor {
         }
     }
     public function augmentQuery(Query $Query): Query {
+        // If it's a query of one of these types
         $do_add_where = in_array($Query->getQueryType(), [
             Query::QUERY_TYPE_SELECT,
             Query::QUERY_TYPE_UPDATE,
             Query::QUERY_TYPE_DELETE,
         ]);
-        
+    
+        // Add a where clause that restricts our actions to this EntityType
+        //  todo- Wrong assumption made here
         if ($do_add_where) {
             $Query->select($this->Properties->id)->where(WhereClause::equals_($this->Properties->id,
                                                                               $this->Properties->id->value));

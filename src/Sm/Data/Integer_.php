@@ -5,7 +5,7 @@
  * Time: 5:17 PM
  */
 
-namespace Sm\Type;
+namespace Sm\Data;
 
 
 class Integer_ extends Type {

@@ -65,7 +65,7 @@ export default class ConfiguredEntity extends Std {
     inherit(item) {
         return this.constructor.resolve(item).then(
             (result) => {
-                /** @type {EventDescriptor} event */
+                /** @type {Event} event */
                 let [event, parent] = result;
                 /** @type {ConfiguredEntity} parent */
                 if (!(parent instanceof this.constructor)) {

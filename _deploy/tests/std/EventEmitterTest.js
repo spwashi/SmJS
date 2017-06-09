@@ -38,6 +38,7 @@ describe('EventEmitter', () => {
         testEventEmitter.once(event.item('child'), i => done());
         testEventEmitter.emit(event.item('child').item('child of child'));
     });
+    // Emit SymbolStores and know that we've done it already
     it(`Can emit 'static' symbol stores`, done => {
         const staticEvent = testSymbolStore.item('test_static').STATIC;
         testEventEmitter.emit(staticEvent);

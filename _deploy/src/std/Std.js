@@ -5,7 +5,7 @@
 import {default as EventEmitter, EVENTS} from "./EventEmitter";
 import SymbolStore from "./symbols/SymbolStore";
 
-const PROPERTY = SymbolStore.$_$.item('_PROPERTY_').Symbol;
+const ATTRIBUTE = SymbolStore.$_$.item('_attribute_').Symbol;
 
 const _receive = (self, eventName, fn, once = true) => {
     let resolve, reject;
@@ -40,26 +40,27 @@ class Std {
         }
         const symbolStore = SymbolStore.init(symbol, null, symbol);
         if (!item) return symbolStore;
-        else return symbolStore.item(PROPERTY).item(item);
+        else return symbolStore.item(ATTRIBUTE).item(item);
     }
     
-    register_attribute(name, property) {
-        const propertySymbolStore = this._symbolStore.item(PROPERTY).item(name);
-        return this.send(propertySymbolStore.STATIC, property);
+    registerAttribute(name, attribute) {
+        const propertySymbolStore = this._symbolStore.item(ATTRIBUTE).item(name);
+        return this.send(propertySymbolStore.STATIC, attribute);
     }
     
     static resolve(symbol) {
         let symbolStore = this.getSymbolStore(symbol);
     
-        const is_property = symbolStore.family.has(PROPERTY);
-    
+        // If we are trying to resolve something that has been registered as an attribute
+        const is_property = symbolStore.family.has(ATTRIBUTE);
+        
         const COMPLETE = is_property ? symbolStore : symbolStore.item(EVENTS)
                                                                 .item(Std.EVENTS.item('init').COMPLETE);
         return Std.receive(COMPLETE)
     }
     
     resolve(symbol) {
-        return Std.receive(this._symbolStore.item(PROPERTY).item(symbol));
+        return Std.receive(this._symbolStore.item(ATTRIBUTE).item(symbol));
     }
     
     static get name() {return 'Std';}
@@ -82,25 +83,40 @@ class Std {
     
         const symbolStore = this.constructor.getSymbolStore(symbol);
         this._symbolStore = symbolStore;
-        /** @type {SymbolStore}  */
+        /**
+         * Refers to the identifiers of the events emitted by this class
+         * @type {SymbolStore}
+         */
         this[EVENTS] = symbolStore.item(EVENTS);
+        /** @type {SymbolStore} The Event that marks the beginning of this object's initialization */
         const BEGIN = Std.EVENTS.item('init').BEGIN;
         this.send(this.EVENTS.item(BEGIN).STATIC, this);
         /**
-         *
+         * A promise that lets us know the parent initialization process has been completed
          * @type {Promise}
          * @protected
          */
         this._parentPromise = Promise.resolve(this.complete(Std.name));
     }
     
+    /**
+     * Emit an event saying that we are done initializing this object
+     * @param {string}name Only if the name passed in matches the currently active class will we mark this class as complete
+     * @return {Promise}
+     */
     complete(name) {
         if (name === this.constructor.name) {
             const complete = Std.EVENTS.item('init').COMPLETE;
             return this.send(this.EVENTS.item(complete).STATIC, this);
         }
+        return Promise.resolve(null);
     }
     
+    /**
+     * Get the Symbol that identifies this object
+     * @return {Symbol}
+     * @constructor
+     */
     get Symbol() { return this._Symbol; }
     
     //region Events/EVENTS

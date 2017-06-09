@@ -5,7 +5,7 @@
  * Time: 10:48 PM
  */
 
-namespace Sm\Storage\Source;
+namespace Sm\Entity\Source;
 
 
 use Sm\Abstraction\Identifier\HasObjectIdentityTrait;
@@ -18,9 +18,9 @@ use Sm\Authentication\Authentication;
  *
  * Represents something that can be queried
  *
- * @package Sm\Storage\Source
+ * @package Sm\Entity\Source
  */
-abstract class Source implements Identifiable {
+abstract class DataSource implements Identifiable {
     use HasObjectIdentityTrait;
     /** @var  Authentication $Authentication Represents the Authenticated connection to whatever source */
     protected $Authentication;
@@ -45,9 +45,9 @@ abstract class Source implements Identifiable {
     /**
      * Get the root Source of this Source. Useful for subsources
      *
-     * @return \Sm\Storage\Source\Source
+     * @return \Sm\Entity\Source\DataSource
      */
-    public function getRootSource(): Source {
+    public function getRootSource(): DataSource {
         return $this;
     }
     /**

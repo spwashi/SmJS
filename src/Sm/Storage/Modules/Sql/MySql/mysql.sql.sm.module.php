@@ -6,6 +6,7 @@
  */
 
 use Sm\App\App;
+use Sm\Data\Variable_\Variable_;
 use Sm\Entity\Property\Property;
 use Sm\EvaluableStatement\Constructs\And_;
 use Sm\EvaluableStatement\EqualityCondition\GreaterThanCondition;
@@ -19,7 +20,6 @@ use Sm\Storage\Modules\Sql\MySql\Interpreter\MysqlQueryInterpreter;
 use Sm\Storage\Modules\Sql\MySql\MysqlDatabaseSource;
 use Sm\Storage\Modules\Sql\MySql\MysqlPdoAuthentication;
 use Sm\Storage\Modules\Sql\SqlModule;
-use Sm\Type\Variable_\Variable_;
 
 
 $SqlModule = SqlModule::init(function (App $App, SqlModule $SqlModule) {

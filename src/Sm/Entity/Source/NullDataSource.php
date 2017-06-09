@@ -5,16 +5,16 @@
  * Time: 1:44 PM
  */
 
-namespace Sm\Storage\Source;
+namespace Sm\Entity\Source;
 
 /**
  * Class NullSource
  *
  * Represents nothing as a Source. Useful for things that define themselves.
  *
- * @package Sm\Storage\Source
+ * @package Sm\Entity\Source
  */
-class NullSource extends Source {
+class NullDataSource extends DataSource {
     static $instance;
     public function isAuthenticated() {
         return true;

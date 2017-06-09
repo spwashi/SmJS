@@ -6,12 +6,20 @@ export let types   = [..._defaults.types];
 export let models  = Object.assign({},
                                    _defaults.models,
                                    {
-                                       _sm_entity:       {follows: ['[Model]_entity'], source: '_'},
-                                       _sm_relationship: {follows: ['[Model]_sm_entity', '[Model]_relationship']},
+                                       _sm_entity:       {
+                                           follows: ['[Model]_entity'],
+                                           source:  '_'
+                                       },
+                                       _sm_relationship: {
+                                           follows: ['[Model]_sm_entity', '[Model]_relationship']
+                                       },
     
                                        entities:                  {follows: ['[Model]_sm_entity'], properties: {name: {follows: ['[Model]_{item_name}']}}},
                                        entity_classes:            {follows: ['[Model]_sm_entity']},
-                                       properties:                {follows: ['[Model]_sm_entity']},
+                                       properties:                {
+                                           follows:    ['[Model]_sm_entity'],
+                                           properties: {value: {type: 'INT'}}
+                                       },
                                        types:                     {
                                            follows:    ['[Model]_sm_entity'],
                                            properties: {parent_type: {follows: ['[Model]types|id',]}}

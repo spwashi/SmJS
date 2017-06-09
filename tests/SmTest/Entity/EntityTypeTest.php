@@ -70,7 +70,7 @@ class EntityTypeTest extends \PHPUnit_Framework_TestCase {
         return $EntityType;
     }
     /**
-     * @return \Sm\Storage\Database\DatabaseSource
+     * @return \Sm\Storage\Database\DatabaseDataSource
      */
     protected function getDatabaseSource() {
         $Authentication = MysqlPdoAuthentication::init()

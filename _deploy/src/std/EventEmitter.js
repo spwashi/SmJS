@@ -2,7 +2,7 @@ import events from "events";
 import {SymbolStore} from "./symbols/SymbolStore";
 const EVENTS = Symbol('EVENTS');
 export {EVENTS};
-export class EventDescriptor {
+export class Event {
     constructor(emitter, eventName, activeSymbol, eventFamily, args) {
         this._emitter      = emitter;
         this._eventName    = eventName;
@@ -38,13 +38,10 @@ export default class EventEmitter extends events.EventEmitter {
     on(event_name, fn) {
         if (event_name instanceof SymbolStore) event_name = event_name.Symbol;
         if (this._emittedEvents.has(event_name)) {
-            if (typeof fn === 'function') {
-                fn(...this._emittedEvents.get(event_name));
-            }
+            if (typeof fn === 'function') fn(...this._emittedEvents.get(event_name));
             return this;
         }
-        else
-            return super.on(event_name, fn);
+        else return super.on(event_name, fn);
     }
     
     /**
@@ -63,13 +60,13 @@ export default class EventEmitter extends events.EventEmitter {
             event_name = event_name.Symbol;
         }
     
-        if (!(event instanceof EventDescriptor)) {
+        if (!(event instanceof Event)) {
             args.splice(0, 0, event);
-            event = new EventDescriptor(this._emitter || null,
-                                        _originalEventName,
-                                        event_name,
-                                        family,
-                                        args);
+            event = new Event(this._emitter || null,
+                              _originalEventName,
+                              event_name,
+                              family,
+                              args);
         }
         args.splice(0, 0, event);
     

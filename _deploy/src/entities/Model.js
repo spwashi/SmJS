@@ -1,20 +1,22 @@
 import ConfiguredEntity from "./ConfiguredEntity";
 import Property from "./Property";
 import SymbolStore from "../std/symbols/SymbolStore";
+import PropertyMetaContainer from "./PropertyMetaContainer";
 
 const ATTRIBUTE = SymbolStore.$_$.item('_attribute_').Symbol;
 
 export default class Model extends ConfiguredEntity {
     static get name() {return 'Model'; }
     
-    get Properties() {
-        return this._Properties;
-    }
-    
     constructor(name, config) {
         super(name, config);
-        this._Properties    = new Map;
-        this._parentPromise = this._parentPromise.then(i => this.complete(Model.name));
+        this._Properties            = new Map;
+        this._PropertyMetaContainer = new PropertyMetaContainer;
+        this._parentPromise         = this._parentPromise.then(i => this.complete(Model.name));
+    }
+    
+    get Properties() {
+        return this._Properties;
     }
     
     addProperty(original_property_name, property_config) {
@@ -25,7 +27,7 @@ export default class Model extends ConfiguredEntity {
             /** @type {Property} property */
             let [event, property] = result;
             if (!(property instanceof Property)) throw new Error('Improperly created property');
-    
+            
             this._Properties[property.name] = property;
             this.registerAttribute(original_property_name, property);
             return property;

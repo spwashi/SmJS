@@ -66,8 +66,8 @@ export default class ConfiguredEntity extends Std {
         this._storeOriginalConfiguration(config);
         let inherits        = config.inherits;
         this._parentPromise = this._parentPromise
-                                  .then(i => this.configure(config))
                                   .then(i => this._completeInitialInheritance(inherits))
+                                  .then(i => this.configure(config))
                                   .then(i => this._finishInit());
     }
     
@@ -91,7 +91,7 @@ export default class ConfiguredEntity extends Std {
         // Iterate through the properties and wait for them to resolve
         for (let property_name in properties) {
             if (!properties.hasOwnProperty(property_name)) continue;
-    
+            
             // Look for a configure_ function. If it exists, add it to the promises taht we are going to wait for resolution-wise
             const fn_name     = 'configure_' + property_name;
             /** @type {undefined|function}  */
@@ -125,25 +125,25 @@ export default class ConfiguredEntity extends Std {
      */
     inherit(item) {
         if (!item) return Promise.resolve([]);
-    
+        
         return this.constructor
                    .resolve(item)
                    .then(
                        (result) => {
                            /** @type {Event} event */
                            let [event, parent] = result;
-            
+                
                            /** @type {ConfiguredEntity} parent */
                            if (!(parent instanceof this.constructor)) {
                                // We can only inherit from things that are part of this family.
                                throw new Error('Cannot accept ' + (String(parent)));
                            }
-            
+                
                            // Say that we've inherited from this item
                            this._parentSymbols.add(parent.Symbol);
-            
+                
                            // Only inherit what the parent is willing to give
-                           return this.configure(parent.inheritables);
+                           return this.configure(Object.assign({}, parent.inheritables, this.getOriginalConfiguration()));
                        });
     }
 }

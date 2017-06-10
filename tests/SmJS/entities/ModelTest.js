@@ -91,14 +91,14 @@ describe('Model', () => {
         const _property_name  = 'unique_test_pn';
         const _property_name2 = 'unique_test_pn2';
         const model_name      = `[Model]${_model_name}`;
-    
+        
         new Model(_model_name, {
             properties: {
                 [_property_name]:  {primary: true, unique: true},
                 [_property_name2]: {unique: true},
             }
         });
-    
+        
         Std.resolve(`${model_name}|${_property_name2}`)
            .then(i => [, property2] = i)
            .then(i => Std.resolve(model_name))
@@ -145,7 +145,7 @@ describe('Model', () => {
                                    .map(/**@type {Model}*/
                                         model => [model.originalName, model]));
                })
-
+        
                // Check to see if the Models have inherited properties correctly
                .then(
                    /** @param ModelMap {Map<string,Model>}  */
@@ -158,17 +158,15 @@ describe('Model', () => {
                        });
                        const m2_promise = m2.resolve('first_name')
                                             .then(i => {
-    
                                                 const property     = _getPropertyFromEventArr(i);
                                                 const uniqueKeySet = m2.propertyMeta.getUniqueKeySet(property);
                                                 expect(uniqueKeySet).not.to.equal(false);
                                             });
                        const m3_promise = m3.resolve('first_name')
                                             .then(i => {
-                                                const property     = _getPropertyFromEventArr(i);
-                                                const uniqueKeySet = m3.propertyMeta.getUniqueKeySet(property);
-        
-                                                expect(uniqueKeySet).to.equal(false);
+                                                    const property     = _getPropertyFromEventArr(i);
+                                                    const uniqueKeySet = m3.propertyMeta.getUniqueKeySet(property);
+                                                    expect(uniqueKeySet).to.equal(false);
                                             });
                        return Promise.all([m1_promise, m2_promise, m3_promise]);
                    })

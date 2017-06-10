@@ -65,23 +65,27 @@ class Std {
     
     static get name() {return 'Std';}
     
+    get name() {return this._name}
+    
+    get originalName() {return this._originalName}
+    
     static createName(name) {
         name = name || Math.random().toString(36).substr(4, 6);
         return `[${this.name}]${name}`
     }
     
     /**
-     * @param symbol This is some sort of identifier for this object
+     * @param identifier This is some sort of identifier for this object
      */
-    constructor(symbol) {
+    constructor(identifier) {
         /** @type {events.EventEmitter}  */
         this._Events = new EventEmitter(this);
-        
-        this._name = this.constructor.createName(symbol);
-        if (typeof symbol !== 'symbol') symbol = Symbol.for(this._name);
-        this._Symbol = symbol;
-        
-        const symbolStore = this.constructor.getSymbolStore(symbol);
+        this._originalName = identifier;
+        this._name         = this.constructor.createName(identifier);
+        if (typeof identifier !== 'symbol') identifier = Symbol.for(this._name);
+        this._Symbol = identifier;
+    
+        const symbolStore = this.constructor.getSymbolStore(identifier);
         this._symbolStore = symbolStore;
         /**
          * Refers to the identifiers of the events emitted by this class

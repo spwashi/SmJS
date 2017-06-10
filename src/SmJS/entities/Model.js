@@ -5,6 +5,10 @@ import PropertyMetaContainer from "./PropertyMetaContainer";
 
 const ATTRIBUTE = SymbolStore.$_$.item('_attribute_').Symbol;
 
+/**
+ * @class Model
+ * @extends ConfiguredEntity
+ */
 export default class Model extends ConfiguredEntity {
     static get name() {return 'Model'; }
     
@@ -84,7 +88,7 @@ export default class Model extends ConfiguredEntity {
      * @param properties
      * @return {Promise.<*>}
      */
-    set_properties(properties) {
+    configure_properties(properties) {
         const promises = [];
         for (let property_name in properties) {
             if (!properties.hasOwnProperty(property_name)) continue;

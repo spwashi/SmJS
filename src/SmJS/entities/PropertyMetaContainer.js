@@ -34,7 +34,7 @@ class PropertyMetaContainer extends Std {
      *
      * @param {Property}        property
      * @param {Set|Map}         keySet
-     * @return {Set|Map|bool}
+     * @return {Set|Map|boolean}
      * @private
      */
     _findPropertyKeySet(property, keySet) {
@@ -46,6 +46,7 @@ class PropertyMetaContainer extends Std {
                     matchingKeysets.set(name, _keySet);
                 }
             });
+            if (!matchingKeysets.size) return false;
             return matchingKeysets;
         }
         

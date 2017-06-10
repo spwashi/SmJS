@@ -1,13 +1,14 @@
 import {describe, it} from "mocha";
 import {SMJS_PATH} from "../paths";
 const expect = require('chai').expect;
-const _src   = require(SMJS_PATH);
-const models = _src._config.models;
+/** @alias {Sm}  */
+const Sm     = require(SMJS_PATH);
+const models = Sm._config.models;
 describe('Model', () => {
-    const Std             = _src.std.Std;
-    const SymbolStore     = _src.std.symbols.SymbolStore;
-    const Model           = _src.entities.Model;
-    const Property        = _src.entities.Property;
+    const Std             = Sm.std.Std;
+    const SymbolStore     = Sm.std.symbols.SymbolStore;
+    const Model           = Sm.entities.Model;
+    const Property        = Sm.entities.Property;
     const getDefaultModel = i => { return new Model('_', models._); };
     
     it('exists', () => {
@@ -109,4 +110,54 @@ describe('Model', () => {
                done(message);
            });
     });
+    
+    it('Can inherit Properties', done => {
+        const m1n     = 'cip_m1n', m2n = 'cip_m2n', m3n = 'cip_m3n';
+        const _models = {
+            [m1n]: {properties: {id: {primary: true}, last_name: {unique: true}}},
+            [m2n]: {properties: {first_name: {unique: true}}},
+            [m3n]: {properties: {first_name: {unique: false}, last_name: {unique: false}}}
+        };
+        
+        // Initialize all of the Models
+        const resolveModels = Object.entries(_models)
+                                    .map(i => {
+                                        let [model_name, model_config] = i;
+                                        // Initialize the Model
+                                        new Model(model_name, model_config);
+                                        return Model.resolve(model_name);
+                                    });
+        
+        // Once all of the Models have been initialized
+        Promise.all(resolveModels)
+        
+               // Get all models from the returned array of event arrays & store them in an object
+               .then(i => {
+                   return new Map(i.map(event_model_arr => event_model_arr[1])
+                                   .map(/**@type {Model}*/
+                                        model => [model.originalName, model]));
+               })
+        
+               // Check to see if the Models have inherited Properties correctly
+               .then(
+                   /** @param ModelMap {Map<string,Model>}  */
+                   (ModelMap) => {
+                       const m1 = ModelMap.get(m1n), m2 = ModelMap.get(m2n), m3 = ModelMap.get(m3n);
+                
+                       const m2_promise = m2.resolve('first_name')
+                                            .then(i => {
+                                                let [, property] = i;
+                                                expect(property).to.be.instanceof(Property);
+                                                expect(m2.propertyMeta.getUniqueKeySet(property)).not.to.be.false;
+                                            });
+                       const m3_promise = m3.resolve('id')
+                                            .then(i => {
+                                                let [, property] = i;
+                                                expect(property).to.be.instanceof(Property);
+                                            });
+                       return Promise.all([m2_promise, m3_promise]);
+                   })
+               .then(i => done());
+        
+    })
 });

@@ -10,7 +10,7 @@ export let models = {
                 len:     11,
                 primary: true,
                 unique:  true,
-                // Properties that don't get inherited
+                // properties that don't get inherited
                 exclude: ['primary', 'unique']
             },
             item_name:   {

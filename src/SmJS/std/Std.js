@@ -45,6 +45,7 @@ class Std {
     
     registerAttribute(name, attribute) {
         const propertySymbolStore = this._symbolStore.item(ATTRIBUTE).item(name);
+        this._attributes.set(name, attribute);
         return this.send(propertySymbolStore.STATIC, attribute);
     }
     
@@ -65,6 +66,10 @@ class Std {
     
     static get name() {return 'Std';}
     
+    get(name) {
+        return this._attributes.get(name);
+    }
+    
     get name() {return this._name}
     
     get originalName() {return this._originalName}
@@ -83,10 +88,14 @@ class Std {
         this._originalName = identifier;
         this._name         = this.constructor.createName(identifier);
         if (typeof identifier !== 'symbol') identifier = Symbol.for(this._name);
-        this._Symbol = identifier;
-    
+        this._Symbol      = identifier;
         const symbolStore = this.constructor.getSymbolStore(identifier);
         this._symbolStore = symbolStore;
+        /**
+         * Register Attributes as a Map
+         * @type {Map}
+         */
+        this._attributes = new Map;
         /**
          * Refers to the identifiers of the events emitted by this class
          * @type {SymbolStore}

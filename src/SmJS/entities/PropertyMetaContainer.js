@@ -5,21 +5,21 @@
 import Property from "./Property";
 import Std from "../std/Std";
 /**
- * An object that is meant to contain information about Properties as they exist in this context
+ * An object that is meant to contain information about properties as they exist in this context
  * @class PropertyMetaContainer
  * @extends Std
  */
 class PropertyMetaContainer extends Std {
     constructor() {
         super();
-        /** @type {Set} Represents the Properties that make up the Primary Key */
+        /** @type {Set} Represents the properties that make up the Primary Key */
         this._primaryKey = new Set;
         /** @type {Map} Represents Sets that represent the Unique Keys */
         this._uniqueKeys = new Map;
     }
     
     /**
-     * These functions require that a Set of Properties is used.
+     * These functions require that a Set of properties is used.
      * @param propertySet
      * @private
      */
@@ -42,6 +42,7 @@ class PropertyMetaContainer extends Std {
             let matchingKeysets = new Map;
             keySet.forEach((set, name, map) => {
                 const _keySet = this._findPropertyKeySet(property, set);
+    
                 if (_keySet instanceof Set) {
                     matchingKeysets.set(name, _keySet);
                 }
@@ -88,9 +89,9 @@ class PropertyMetaContainer extends Std {
     }
     
     /**
-     * Set the Properties that are going to act as the Primary Key.
+     * Set the properties that are going to act as the Primary Key.
      *
-     * @param {Set|Property} propertySet A Property or Set of Properties that are going to be used as the Primary Key.
+     * @param {Set|Property} propertySet A Property or Set of properties that are going to be used as the Primary Key.
      * @return {PropertyMetaContainer}
      */
     addPropertiesToPrimaryKey(propertySet) {
@@ -99,12 +100,12 @@ class PropertyMetaContainer extends Std {
     }
     
     /**
-     * Add a Property or a Set of Properties to act as a Unique Key under a particular unique key name.
+     * Add a Property or a Set of properties to act as a Unique Key under a particular unique key name.
      * The unique key name is used for identification purposes. In instances when this PropertyMetaContainer is being
      * used to configure a TableDataSource, this would be useful in naming those keys.
      *
      * @param {string}  keyName     The name of the Key to add
-     * @param {Set|Property}     propertySet The property or Set of Properties thar are going to be used as the unique key.
+     * @param {Set|Property}     propertySet The property or Set of properties thar are going to be used as the unique key.
      */
     addPropertiesToUniqueKey(keyName, propertySet) {
         // Add the Set to the others

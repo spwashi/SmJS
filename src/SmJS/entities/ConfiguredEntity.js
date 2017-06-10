@@ -25,6 +25,10 @@ export default class ConfiguredEntity extends Std {
         return this;
     }
     
+    /**
+     * Get the original obect (or a clone of it) that was used to configure this object
+     * @return {{}}
+     */
     getOriginalConfiguration() {
         return this._originalConfig;
     }
@@ -55,7 +59,8 @@ export default class ConfiguredEntity extends Std {
     
     constructor(name, config = {}) {
         if (!config && typeof name === 'object') config = name;
-        name = config.name = config.name || name;
+        name              = config.name || name;
+        config.configName = config.configName || name;
         super(name);
         this._parentSymbols = new Set;
         this._storeOriginalConfiguration(config);
@@ -64,6 +69,13 @@ export default class ConfiguredEntity extends Std {
                                   .then(i => this.configure(config))
                                   .then(i => this._completeInitialInheritance(inherits))
                                   .then(i => this._finishInit());
+    }
+    
+    /**
+     * This is the name as it was used when we were initially configuring whatever this was.
+     */
+    get configName() {
+        return this.getOriginalConfiguration().configName;
     }
     
     /**
@@ -99,7 +111,11 @@ export default class ConfiguredEntity extends Std {
      * @return {{}}
      */
     getInheritables() {
-        return {};
+        return this.getOriginalConfiguration();
+    }
+    
+    get inheritables() {
+        return this.getInheritables();
     }
     
     /**
@@ -110,22 +126,24 @@ export default class ConfiguredEntity extends Std {
     inherit(item) {
         if (!item) return Promise.resolve([]);
     
-        return this.constructor.resolve(item).then(
-            (result) => {
-                /** @type {Event} event */
-                let [event, parent] = result;
-    
-                /** @type {ConfiguredEntity} parent */
-                if (!(parent instanceof this.constructor)) {
-                    // We can only inherit from things that are part of this family.
-                    throw new Error('Cannot accept ' + (String(parent)));
-                }
-    
-                // Say that we've inherited from this item
-                this._parentSymbols.add(parent.Symbol);
-    
-                // Only inherit what the parent is willing to give
-                return this.configure(parent.getInheritables());
-            });
+        return this.constructor
+                   .resolve(item)
+                   .then(
+                       (result) => {
+                           /** @type {Event} event */
+                           let [event, parent] = result;
+            
+                           /** @type {ConfiguredEntity} parent */
+                           if (!(parent instanceof this.constructor)) {
+                               // We can only inherit from things that are part of this family.
+                               throw new Error('Cannot accept ' + (String(parent)));
+                           }
+            
+                           // Say that we've inherited from this item
+                           this._parentSymbols.add(parent.Symbol);
+            
+                           // Only inherit what the parent is willing to give
+                           return this.configure(parent.inheritables);
+                       });
     }
 }

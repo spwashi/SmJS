@@ -6,7 +6,11 @@ export {std} ;
 export {entities} ;
 export {Sm};
 
-/** @module Sm */
+/**
+ * @module Sm
+ * @name Sm
+ * @alias Sm
+ */
 const Sm = {_config, std, entities};
 
 export default Sm;

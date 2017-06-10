@@ -15,9 +15,11 @@ describe('Model', () => {
         const testModel = new Model('test', {});
         expect(testModel.Symbol).to.be.a('symbol');
         expect(testModel.Symbol.toString()).to.equal(Symbol(`[${Model.name}]test`).toString());
+        const COMPLETE = Std.EVENTS.item('init').COMPLETE;
+        return Model.receive(testModel.EVENTS.item(COMPLETE));
     });
     
-    it('Can be initialized w Properties', done => {
+    it('Can be initialized w properties', done => {
         const testModel = getDefaultModel();
         expect(testModel.Symbol).to.be.a('symbol');
         expect(testModel.Symbol.toString()).to.equal(Symbol(`[${Model.name}]_`).toString());
@@ -53,7 +55,7 @@ describe('Model', () => {
         })
     });
     
-    it('Can resolve Properties', done => {
+    it('Can resolve properties', done => {
         const model          = new Model('testResolveProperties', {properties: {test_property: {}}});
         const modelName      = '[Model]testResolveProperties';
         const _property_name = 'test_property';
@@ -61,7 +63,7 @@ describe('Model', () => {
         Std.resolve(`${modelName}|${_property_name}`).then(i => {
             let [event, property] = i;
             // [Property]{[Model]testResolveProperties}test_property
-            expect(model.Properties[`[Property]\{${modelName}}${_property_name}`]).to.equal(property);
+            expect(model.properties.get(`[Property]\{${modelName}}${_property_name}`)).to.equal(property);
             expect(property).to.be.instanceof(Property);
             
             return model.resolve(_property_name).then(prop => done());
@@ -111,22 +113,28 @@ describe('Model', () => {
            });
     });
     
-    it('Can inherit Properties', done => {
+    it('Can inherit properties', done => {
         const m1n     = 'cip_m1n', m2n = 'cip_m2n', m3n = 'cip_m3n';
         const _models = {
             [m1n]: {properties: {id: {primary: true}, last_name: {unique: true}}},
-            [m2n]: {properties: {first_name: {unique: true}}},
-            [m3n]: {properties: {first_name: {unique: false}, last_name: {unique: false}}}
+            [m2n]: {inherits: ['cip_m1n'], properties: {first_name: {unique: true}}},
+            [m3n]: {inherits: ['cip_m2n'], properties: {first_name: {unique: false}, last_name: {unique: false}}}
         };
         
         // Initialize all of the Models
-        const resolveModels = Object.entries(_models)
-                                    .map(i => {
-                                        let [model_name, model_config] = i;
-                                        // Initialize the Model
-                                        new Model(model_name, model_config);
-                                        return Model.resolve(model_name);
-                                    });
+        const resolveModels            = Object.entries(_models)
+                                               .map(i => {
+                                                   let [model_name, model_config] = i;
+                                                   // Initialize the Model
+                                                   new Model(model_name, model_config);
+                                                   return Model.resolve(model_name);
+                                               });
+        const _assertProperty          = property => expect(property).to.be.instanceof(Property);
+        /**
+         * @param i
+         * @return Property
+         */
+        const _getPropertyFromEventArr = i => (_assertProperty(i[1]) , i[1]);
         
         // Once all of the Models have been initialized
         Promise.all(resolveModels)
@@ -137,25 +145,32 @@ describe('Model', () => {
                                    .map(/**@type {Model}*/
                                         model => [model.originalName, model]));
                })
-        
-               // Check to see if the Models have inherited Properties correctly
+
+               // Check to see if the Models have inherited properties correctly
                .then(
                    /** @param ModelMap {Map<string,Model>}  */
                    (ModelMap) => {
-                       const m1 = ModelMap.get(m1n), m2 = ModelMap.get(m2n), m3 = ModelMap.get(m3n);
-                
+                       const m1         = ModelMap.get(m1n),
+                             m2         = ModelMap.get(m2n),
+                             m3         = ModelMap.get(m3n);
+                       const m1_promise = m1.resolve('id').then(i => {
+                           const property = _getPropertyFromEventArr(i);
+                       });
                        const m2_promise = m2.resolve('first_name')
                                             .then(i => {
-                                                let [, property] = i;
-                                                expect(property).to.be.instanceof(Property);
-                                                expect(m2.propertyMeta.getUniqueKeySet(property)).not.to.be.false;
+    
+                                                const property     = _getPropertyFromEventArr(i);
+                                                const uniqueKeySet = m2.propertyMeta.getUniqueKeySet(property);
+                                                expect(uniqueKeySet).not.to.equal(false);
                                             });
-                       const m3_promise = m3.resolve('id')
+                       const m3_promise = m3.resolve('first_name')
                                             .then(i => {
-                                                let [, property] = i;
-                                                expect(property).to.be.instanceof(Property);
+                                                const property     = _getPropertyFromEventArr(i);
+                                                const uniqueKeySet = m3.propertyMeta.getUniqueKeySet(property);
+        
+                                                expect(uniqueKeySet).to.equal(false);
                                             });
-                       return Promise.all([m2_promise, m3_promise]);
+                       return Promise.all([m1_promise, m2_promise, m3_promise]);
                    })
                .then(i => done());
         

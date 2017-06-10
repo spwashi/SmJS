@@ -19,15 +19,35 @@ export default class Model extends ConfiguredEntity {
         this._parentPromise         = this._parentPromise.then(i => this.complete(Model.name));
     }
     
-    get Properties() { return this._properties; }
+    /**
+     * Get the properties of this Model.
+     * @return {Map<string|Symbol, Property>}
+     * @constructor
+     */
+    get properties() { return this._properties; }
     
     /**
      * @return {PropertyMetaContainer}
      */
     get propertyMeta() {return this._PropertyMetaContainer;}
     
+    _getEffectivePropertiesConfiguration() {
+        const properties = {};
+        this.properties
+            .forEach((property, name) => {
+                properties[property.configName] = property.getOriginalConfiguration();
+            });
+        return properties;
+    }
+    
+    getInheritables() {
+        return {
+            properties: this._getEffectivePropertiesConfiguration()
+        };
+    }
+    
     /**
-     * Name Properties that we are going to register under this Model.
+     * Name properties that we are going to register under this Model.
      * @param original_property_name
      * @return {string}
      * @private
@@ -60,15 +80,21 @@ export default class Model extends ConfiguredEntity {
      * @private
      */
     _registerProperty(original_property_name, property) {
-        this._properties[property.name] = property;
+        this._properties.set(property.name, property);
         this._incorporatePropertyIntoMeta(property);
         this.registerAttribute(original_property_name, property);
         return property;
     }
     
+    /**
+     * Add and register a Property, assuring that it is initialized and attached to this class.
+     * @param original_property_name
+     * @param property_config
+     * @return {Promise<Property>}
+     */
     addProperty(original_property_name, property_config) {
-        const property_name = this._nameProperty(original_property_name);
-        
+        const property_name        = this._nameProperty(original_property_name);
+        property_config.configName = property_config.configName || original_property_name;
         // The Property is going to get passed on by the Property.resolve, so there is no reason to store it here
         new Property(property_name, property_config);
         
@@ -81,19 +107,21 @@ export default class Model extends ConfiguredEntity {
                            return property;
                        })
                        .then(property => this._registerProperty(original_property_name, property))
+                       .then(property => property);
     }
     
     /**
-     * configure the properties for this cl
+     * configure the properties for this Model
      * @param properties
      * @return {Promise.<*>}
      */
     configure_properties(properties) {
-        const promises = [];
-        for (let property_name in properties) {
-            if (!properties.hasOwnProperty(property_name)) continue;
-            promises.push(this.addProperty(property_name, properties[property_name]));
-        }
+        const promises = Object.entries(properties).map((i) => {
+            let [property_name, property_config] = i;
+            property_config.configName           = property_name;
+            // console.log(property_config, this.Symbol);
+            return this.addProperty(property_name, property_config);
+        });
         return Promise.all(promises);
     }
 }

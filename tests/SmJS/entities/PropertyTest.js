@@ -1,9 +1,10 @@
 import {describe, it} from "mocha";
-const expect  = require('chai').expect;
-const _deploy = require('../../../_deploy');
+import {SMJS_PATH} from "../paths";
+const expect = require('chai').expect;
+const _src   = require(SMJS_PATH);
 
 describe('Property', () => {
-    const Property     = _deploy.entities.Property;
+    const Property     = _src.entities.Property;
     const testProperty = new Property('testProperty');
     it('exists', () => {
         expect(testProperty.Symbol).to.be.a('symbol');

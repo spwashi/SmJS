@@ -9,24 +9,24 @@ return [
     [ 'test_test_test_test_test' =>
           StringResolvable::coerce("TestFunction") ],
     
-    [ 'Sm/Sm' =>
+    [ FRAMEWORK_FROM_SRC . 'Sm' =>
           StringResolvable::coerce("Hello! You've discovered the app! Well done!") ],
-    [ 'Sm/fs' =>
+    [ FRAMEWORK_FROM_SRC . 'fs' =>
           FunctionResolvable::coerce(function (Request $Request) {
               $App =
-                  $Request->setChangePath("Sm/fs")->getApp()->duplicate()
+                  $Request->setChangePath(FRAMEWORK_FROM_SRC . "fs")->getApp()->duplicate()
                           ->register([ 'name' => 'Factshift' ]);
     
               return $App->Modules->routing->dispatch($Request);
           }),
     ],
-    [ 'Sm/ea' =>
+    [ FRAMEWORK_FROM_SRC . 'ea' =>
           FunctionResolvable::init(function (Request $Request) {
               /** @var App $App */
               $App                  = $Request->getApp()->duplicate();
               $App->name            = 'ExampleApp';
               $App->Paths->app_path = EXAMPLE_APP_PATH;
-              $Request->setChangePath("Sm/ea");
+              $Request->setChangePath(FRAMEWORK_FROM_SRC . "ea");
               return $App->Modules->routing->dispatch($Request);
           }),
     ],

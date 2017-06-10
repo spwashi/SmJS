@@ -51,3 +51,5 @@ export let sources = {
         details: {database: '[source|_factshift_config]'}
     }
 };
+
+export default {models, sources};

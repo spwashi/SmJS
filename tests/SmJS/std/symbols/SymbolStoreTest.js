@@ -1,9 +1,10 @@
 import {expect} from "chai";
 import {describe, it} from "mocha";
-const _deploy = require('../../../');
+import {SMJS_PATH} from "../../paths";
+const _src = require(SMJS_PATH);
 
 describe('SymbolStores', () => {
-    const SymbolStore     = _deploy.std.symbols.SymbolStore;
+    const SymbolStore     = _src.std.symbols.SymbolStore;
     const testSymbolStore = new SymbolStore('testSymbolStore');
     it('Has the right name', () => {
         expect(testSymbolStore.name).to.equal('testSymbolStore');

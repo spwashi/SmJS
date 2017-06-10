@@ -16,7 +16,7 @@ class SqlModuleTest extends \PHPUnit_Framework_TestCase {
     protected $App;
     public function setUp() {
         $this->App  = App::init();
-        $sql_module = $this->App->Paths->to_base('Sm/Storage/Modules/Sql/MySql/mysql.sql.sm.module.php');
+        $sql_module = SM_PATH . '/Storage/Modules/Sql/MySql/mysql.sql.sm.module.php';
         
         if (!is_file($sql_module)) return;
         

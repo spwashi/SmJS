@@ -1,10 +1,11 @@
 const expect = require('chai').expect;
 import {describe, it} from "mocha";
-const _deploy = require('../../../_deploy');
+import {SMJS_PATH} from "../paths";
+const _src = require(SMJS_PATH);
 describe('Std', () => {
-    const Std         = _deploy.std.Std;
-    const SymbolStore = _deploy.std.SymbolStore;
-    const EVENTS      = _deploy.std.EventEmitter.EVENTS;
+    const Std         = _src.std.Std;
+    const SymbolStore = _src.std.SymbolStore;
+    const EVENTS      = _src.std.EventEmitter.EVENTS;
     it('Can send and receive events', done => {
         expect(1).to.equal(1);
         const tstStd = new Std;

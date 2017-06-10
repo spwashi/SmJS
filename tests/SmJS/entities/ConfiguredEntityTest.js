@@ -1,11 +1,12 @@
 import {describe, it} from "mocha";
-const expect  = require('chai').expect;
-const _deploy = require('../../../_deploy');
+import {SMJS_PATH} from "../paths";
+const expect = require('chai').expect;
+const _src   = require(SMJS_PATH);
 
 describe('ConfiguredEntity', () => {
-    const ConfiguredEntity = _deploy.entities.ConfiguredEntity;
-    const Std              = _deploy.std.Std;
-    const EVENTS           = _deploy.std.EventEmitter.EVENTS;
+    const ConfiguredEntity = _src.entities.ConfiguredEntity;
+    const Std              = _src.std.Std;
+    const EVENTS           = _src.std.EventEmitter.EVENTS;
     const configuredEntity = new ConfiguredEntity('test');
     it('exists', () => {
         expect(configuredEntity.Symbol).to.be.a('symbol');

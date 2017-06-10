@@ -21,6 +21,7 @@ return [
         # Set the default controller namespace - used in routing
         $App->registerDefaults('controller_namespace',
                                OnceRunResolvable::coerce(function ($App) {
+                                   var_dump($App->name);
                                    return '\\' . ($App->name??'Sm') . '\\Controller\\';
                                }),
                                true);
@@ -33,15 +34,13 @@ return [
         }
         
         # Load the Routing module
-        $routing_module = $App->Paths->to_base('Sm/Routing/routing.sm.module.php');
-        if (is_file($routing_module)) {
-            $App->Modules->routing = include $routing_module ?? [];
-        }
+        $routing_module = SM_PATH . 'Routing/routing.sm.module.php';
+        if (is_file($routing_module)) $App->Modules->routing = include $routing_module ?? [];
+    
+    
+        $sql_module = SM_PATH . 'Storage/Modules/Sql/MySql/mysql.sql.sm.module.php';
+        if (is_file($sql_module)) $App->Modules->sql = include $sql_module ?? [];
         
-        $sql_module = $App->Paths->to_base('Sm/Storage/Modules/Sql/MySql/mysql.sql.sm.module.php');
-        if (is_file($sql_module)) {
-            $App->Modules->sql = include $sql_module ?? [];
-        }
         
         $App->register('Query', function () use ($App) {
             return Query::init()->setFactoryContainer($App->Factories);

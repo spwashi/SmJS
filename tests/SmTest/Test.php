@@ -25,7 +25,7 @@ class Test extends \PHPUnit_Framework_TestCase {
         $App                  = App::init();
         $App->name            = 'ExampleApp';
         $App->Paths->app_path = EXAMPLE_APP_PATH;
-        $app_module_path      = $App->Paths->base_path . 'Sm/App/app.sm.module.php';
+        $app_module_path      = $App->Paths->base_path . 'SmPHP/App/app.sm.module.php';
         $App->Request         = Request::coerce('http://spwashi.com/Sm/ea/Hello');
         $App->Modules->_app   = include $app_module_path ??[];
         return $App;

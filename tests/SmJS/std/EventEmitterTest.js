@@ -1,9 +1,10 @@
 import {describe, it} from "mocha";
-const expect  = require('chai').expect;
-const _deploy = require('../../../_deploy');
+import {SMJS_PATH} from "../paths";
+const expect = require('chai').expect;
+const _src   = require(SMJS_PATH);
 
 describe('EventEmitter', () => {
-    const EventEmitter     = _deploy.std.EventEmitter;
+    const EventEmitter     = _src.std.EventEmitter;
     const testEventEmitter = new EventEmitter;
     
     it('Can emit strings', done => {
@@ -18,7 +19,7 @@ describe('EventEmitter', () => {
         testEventEmitter.emit(event);
     });
     
-    const SymbolStore     = _deploy.std.symbols.SymbolStore;
+    const SymbolStore     = _src.std.symbols.SymbolStore;
     /** @type {SymbolStore}  */
     const testSymbolStore = SymbolStore.init('testSymbolStore');
     it('Can emit SymbolStores', (done) => {

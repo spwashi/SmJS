@@ -1,13 +1,13 @@
 import {describe, it} from "mocha";
-import {models} from "../../../_deploy/src/_config";
-const expect  = require('chai').expect;
-const _deploy = require('../../../_deploy');
-
+import {SMJS_PATH} from "../paths";
+const expect = require('chai').expect;
+const _src   = require(SMJS_PATH);
+const models = _src._config.models;
 describe('Model', () => {
-    const Std             = _deploy.std.Std;
-    const SymbolStore     = _deploy.std.symbols.SymbolStore;
-    const Model           = _deploy.entities.Model;
-    const Property        = _deploy.entities.Property;
+    const Std             = _src.std.Std;
+    const SymbolStore     = _src.std.symbols.SymbolStore;
+    const Model           = _src.entities.Model;
+    const Property        = _src.entities.Property;
     const getDefaultModel = i => { return new Model('_', models._); };
     
     it('exists', () => {

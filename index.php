@@ -19,7 +19,7 @@ error_reporting(-1);
 //</editor-fold>
 
 ob_start();
-require_once __DIR__ . '/src/Sm/Sm.php';
+require_once __DIR__ . '/src/SmPHP/Sm.php';
 
 $App                = App::init();
 $App->Modules->_app = include APP_MODULE ??[];

@@ -79,6 +79,11 @@ export default class Model extends ConfiguredEntity {
                        .then(property => this._registerProperty(original_property_name, property))
     }
     
+    /**
+     * configure the properties for this cl
+     * @param properties
+     * @return {Promise.<*>}
+     */
     set_properties(properties) {
         const promises = [];
         for (let property_name in properties) {

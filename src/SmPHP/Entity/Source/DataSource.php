@@ -14,18 +14,18 @@ use Sm\Abstraction\Identifier\Identifier;
 use Sm\Authentication\Authentication;
 
 /**
- * Class Source
+ * Class DataSource
  *
  * Represents something that can be queried
  *
- * @package Sm\Entity\Source
+ * @package Sm\Entity\DataSource
  */
 abstract class DataSource implements Identifiable {
     use HasObjectIdentityTrait;
     /** @var  Authentication $Authentication Represents the Authenticated connection to whatever source */
     protected $Authentication;
     /**
-     * Source constructor.
+     * DataSource constructor.
      *
      * @param Authentication $Authentication
      */
@@ -43,7 +43,7 @@ abstract class DataSource implements Identifiable {
     }
     abstract public function getName();
     /**
-     * Get the root Source of this Source. Useful for subsources
+     * Get the root DataSource of this DataSource. Useful for subsources
      *
      * @return \Sm\Entity\Source\DataSource
      */

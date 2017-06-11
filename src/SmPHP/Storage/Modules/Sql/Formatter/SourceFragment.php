@@ -34,7 +34,7 @@ class SourceFragment extends SqlFragment {
         return $this->PropertyHaver_object_id;
     }
     /**
-     * Set the object_id of the PropertyHaver of this Source in case we're doing an "alias by PropertyHaver/source" kinda thing
+     * Set the object_id of the PropertyHaver of this DataSource in case we're doing an "alias by PropertyHaver/source" kinda thing
      *
      * @param mixed $PropertyHaver_object_id
      *

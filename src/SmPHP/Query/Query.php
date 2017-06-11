@@ -155,11 +155,11 @@ class Query {
         if (count($SourceArray) > 1) {
             throw new UnimplementedError("Cannot query across root sources");
         } else if (!count($SourceArray)) {
-            throw new Error("There is no Source to execute this Query.");
+            throw new Error("There is no DataSource to execute this Query.");
         }
     
     
-        /** @var DataSource $RootSource The Source that is going to be handling this Query */
+        /** @var DataSource $RootSource The DataSource that is going to be handling this Query */
         $RootSource              = $SourceArray[ key($SourceArray) ];
         $Factories               = $this->getFactoryContainer();
         $QueryInterpreterFactory = $Factories->resolve(QueryInterpreterFactory::class);
@@ -190,7 +190,7 @@ class Query {
     ## Class methods
     /**
      * Functions to check to see if we can use a property.
-     * Depends on the Source, etc.
+     * Depends on the DataSource, etc.
      *
      * @param      $item
      *
@@ -260,7 +260,7 @@ class Query {
     }
     /**
      * Get an array of all of the Sources used by this class.
-     * The array should be indexed by Source Identifier.
+     * The array should be indexed by DataSource Identifier.
      *
      * @return array
      */
@@ -282,18 +282,18 @@ class Query {
                 $RootSource = static::getRootSourceFromSourceHaver($component);
             } else {
                 $_type = Util::getShapeOfItem($component);
-                throw new WrongArgumentException("Cannot get Source from type {$_type}");
+                throw new WrongArgumentException("Cannot get DataSource from type {$_type}");
             }
         
             if ($RootSource) $Sources[ $RootSource->getObjectId() ] = $RootSource;
         }
-        
-        # Don't return the same Source twice
+    
+        # Don't return the same DataSource twice
         $Sources = array_unique($Sources);
         return $Sources;
     }
     /**
-     * For everything that has a source, get the Root Source of that
+     * For everything that has a source, get the Root DataSource of that
      *
      * @param \Sm\Entity\Source\SourceHaver $SourceHaver
      *
@@ -339,7 +339,7 @@ class Query {
             throw new WrongArgumentException(
                 "Argument cannot be queried --  " .
                 "Please check that it is a (or an array of) SourceHaver Object(s) " .
-                "and the Source is properly authenticated and connected. \n", null, $e);
+                "and the DataSource is properly authenticated and connected. \n", null, $e);
             
         }
         

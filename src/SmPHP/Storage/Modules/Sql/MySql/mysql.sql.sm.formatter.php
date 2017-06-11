@@ -230,8 +230,8 @@ return [
         $first_row_of_properties  = [];
         foreach ($PropertyFragments as $index => $propertyFragment) {
             $_SourceFragment = $propertyFragment->getSourceFragment();
-            
-            # Get the Source if there hasn't been one set aside yet. This assumes that all of the Properties have the same Source,
+    
+            # Get the DataSource if there hasn't been one set aside yet. This assumes that all of the Properties have the same DataSource,
             if (!$source_statement) $source_statement = $FormatterFactory->format($_SourceFragment);
             
             # There should only be one source in the Source array, and it should be this one

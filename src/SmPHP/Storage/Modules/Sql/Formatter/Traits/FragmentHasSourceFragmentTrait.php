@@ -11,7 +11,7 @@ namespace Sm\Storage\Modules\Sql\Formatter\Traits;
 use Sm\Storage\Modules\Sql\Formatter\SourceFragment;
 
 trait FragmentHasSourceFragmentTrait {
-    /** @var  \Sm\Storage\Modules\Sql\Formatter\SourceFragment $SourceFragment The Fragment that represents this Property's Source */
+    /** @var  \Sm\Storage\Modules\Sql\Formatter\SourceFragment $SourceFragment The Fragment that represents this Property's DataSource */
     protected $SourceFragment;
     /**
      * @return \Sm\Storage\Modules\Sql\Formatter\SourceFragment

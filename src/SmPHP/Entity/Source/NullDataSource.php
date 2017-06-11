@@ -10,9 +10,9 @@ namespace Sm\Entity\Source;
 /**
  * Class NullSource
  *
- * Represents nothing as a Source. Useful for things that define themselves.
+ * Represents nothing as a DataSource. Useful for things that define themselves.
  *
- * @package Sm\Entity\Source
+ * @package Sm\Entity\DataSource
  */
 class NullDataSource extends DataSource {
     static $instance;

@@ -11,13 +11,13 @@ namespace Sm\Entity\Source;
 /**
  * Interface SourceHaver
  *
- * An interface to define something as having a Source.
+ * An interface to define something as having a DataSource.
  *
- * @package Sm\Entity\Source
+ * @package Sm\Entity\DataSource
  */
 interface SourceHaver {
     /**
-     * Return the Source of ths object
+     * Return the DataSource of ths object
      *
      * @return \Sm\Entity\Source\DataSource
      */

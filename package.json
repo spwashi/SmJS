@@ -5,8 +5,8 @@
   "description":     "A framework to assist with PHP web development",
   "main":            "index.js",
   "scripts":         {
-    "test":  "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify _deploy/Sm/_entities/index.js -o lib/_deploy/bundle.js -d -t [ babelify --presets [ es2015 react ] ] "
+    "test":  "gulp mocha",
+    "build": "gulp browserify"
   },
   "author":          "Samuel Washington",
   "license":         "ISC",

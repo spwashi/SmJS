@@ -147,7 +147,7 @@ class Property extends Variable_ implements SourceHaver {
     }
     # endregion
     /**
-     * Get the Source of the class
+     * Get the DataSource of the class
      *
      * @return DataSource
      */

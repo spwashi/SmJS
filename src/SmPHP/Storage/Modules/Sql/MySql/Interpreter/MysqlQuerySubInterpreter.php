@@ -145,7 +145,7 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
     #
     ##
     /**
-     * Iterate through the Source array and alias any of the Sources that are used by multiple different PropertyHavers.
+     * Iterate through the DataSource array and alias any of the Sources that are used by multiple different PropertyHavers.
      * This is because if two different Entities reference the same table, usually that table has to get aliased at least once.
      *
      * @return $this
@@ -160,8 +160,8 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
                 if (!$count) continue;
                 
                 $alias_key = Identifier::combineObjectIds($source_id, $object_id);
-                
-                # If we've already aliased this Source, don't do it again
+    
+                # If we've already aliased this DataSource, don't do it again
                 if ($this->SqlModule->FormatterFactory->Aliases->canResolve($alias_key)) continue;
                 
                 #
@@ -173,7 +173,7 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         return $this;
     }
     /**
-     * Initialize an array that maps the Object ID of a Source to an array of numbers indexed by the object ID of an PropertyHaver
+     * Initialize an array that maps the Object ID of a DataSource to an array of numbers indexed by the object ID of an PropertyHaver
      *
      * @param bool $redo
      *
@@ -188,8 +188,8 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         # Make sure we have all of the PropertyHavers
         $PropertyHaver_object_id__Properties_map = $this->initPropertyHaverArray()->PropertyHaver_object_id__Properties_map;
         $PropertyArray                           = $this->initPropertyArray(true)->PropertyArray;
-        
-        # This is the array that contains a list of PropertyHavers that use a given Source
+    
+        # This is the array that contains a list of PropertyHavers that use a given DataSource
         $this->Source_object_id__PropertyHaver_object_id_array__map = new MiniContainer;
         /** @var \Sm\Storage\Container\Mini\MiniContainer $src_ownr_map */
         $src_ownr_map = &$this->Source_object_id__PropertyHaver_object_id_array__map;
@@ -200,14 +200,14 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
              * @var Property $_Property
              */
             foreach ($PropertyArray as $_Property_object_id => $_Property) {
-                # This is an array, indexed by source id, of the object_ids of PropertyHavers that use this Source
+                # This is an array, indexed by source id, of the object_ids of PropertyHavers that use this DataSource
                 $_Source    = $_Property->getSource();
                 $_source_id = $_Source->getObjectId();
                 
                 $src_ownr_map->registerDefault($_source_id, new MiniContainer);
     
                 # We register the Object ID of the PropertyHaver to be the Count of the items in the SourcePropertyHaverMap that have
-                # this same Source ID so we can know whether we need to alias it or not
+                # this same DataSource ID so we can know whether we need to alias it or not
                 # If the Count is greater than 0, we alias it
                 $src_ownr_map->{$_source_id}->registerDefault($_PropertyHaver_object_id,
                                                               $src_ownr_map->{$_source_id}->count());
@@ -243,8 +243,8 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         }
         $PropertyArray = $this->initPropertyArray()->PropertyArray;
         /**
-         * @var array $PropertyHaver_object_id__Properties_map An array mapping Source ID to the objects that are trying to use them.
-         *                     If multiple src use one Source (probably a TableSource), we probably need to alias them.
+         * @var array $PropertyHaver_object_id__Properties_map An array mapping DataSource ID to the objects that are trying to use them.
+         *                     If multiple src use one DataSource (probably a TableSource), we probably need to alias them.
          */
         $PropertyHaver_object_id__Properties_map = [];
         foreach ($PropertyArray as $index => $item) {

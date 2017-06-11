@@ -37,6 +37,26 @@ export default class Model extends ConfiguredEntity {
         };
     }
     
+    //region Configure
+    /**
+     * configure the properties for this Model
+     * @param properties
+     * @return {Promise.<*>}
+     * @private
+     */
+    configure_properties(properties) {
+        const promises = Object.entries(properties).map((i) => {
+            let [property_name, property_config] = i;
+            property_config.configName           = property_name;
+            // console.log(property_config, this.Symbol);
+            return this._addProperty(property_name, property_config);
+        });
+        return Promise.all(promises);
+    }
+    
+    //endregion
+    
+    //region Private Methods
     /**
      * Add and register a Property, assuring that it is initialized and attached to this class.
      * @param original_property_name
@@ -62,7 +82,13 @@ export default class Model extends ConfiguredEntity {
                        .then(property => property);
     }
     
-    //region Private Methods
+    /**
+     * Get an object representation of what essentially is the original configuration that was used
+     * to configure the properties of this object
+     *
+     * @return {{}}
+     * @private
+     */
     _getEffectivePropertiesConfiguration() {
         const properties = {};
         this.properties
@@ -112,21 +138,6 @@ export default class Model extends ConfiguredEntity {
         return property;
     }
     
-    /**
-     * configure the properties for this Model
-     * @param properties
-     * @return {Promise.<*>}
-     * @private
-     */
-    configure_properties(properties) {
-        const promises = Object.entries(properties).map((i) => {
-            let [property_name, property_config] = i;
-            property_config.configName           = property_name;
-            // console.log(property_config, this.Symbol);
-            return this._addProperty(property_name, property_config);
-        });
-        return Promise.all(promises);
-    }
     
     //endregion
 }

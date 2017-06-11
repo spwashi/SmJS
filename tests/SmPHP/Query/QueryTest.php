@@ -76,7 +76,9 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
         return $EntityTypes;
         
     }
-    public function testSyntax() {
+    public function testNothing() {
+    }
+    public function deprecated_testSyntax() {
         $ET         = $this->createEntityTypes();
         $Section    = $ET['Section'];
         $Collection = $ET['Collection'];
@@ -85,14 +87,14 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
         $App                  = App::init()->setName('ExampleApp');
         $App->Paths->app_path = EXAMPLE_APP_PATH;
         $App->Modules->_app   = include APP_MODULE ??[];
-    
-    
+        
+        
         $Collection->id = 'collection_id';
         $Section->id    = '1';
         $Section->title = 'hello';
         $id             = clone  $Section->Meta->Properties;
-    
-    
+        
+        
         $SectionTypesTable                        = TableSource::init($this->getDatabaseSource(), 'section_types');
         $SectionTypesTable->Columns->id           = Property::init()->setMaxLength(4)->setPotentialTypes(Integer_::class);
         $SectionTypesTable->Columns->primary_keys = 'id';
@@ -106,26 +108,26 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
                                                         ->setReferenceResolvable($SectionTypesTable->Columns->id)
                                                         ->setPotentialTypes(Null_::class, Integer_::class)
                                                         ->setDefault(4);
-    
-    
+        
+        
         $results = $App->Query->create($SectionTypesTable)->run();
         $results = $App->Query->create($SectionsTable)->run();
         
         $results = $App->Query->select($Colln->title, $Collection->Properties)
                               ->where(WhereClause::greater_(6, $Colln->title)->or_($Collection->id))
                               ->run();
-    
+        
         $results = $App->Query->update($Colln->title, $Collection->Properties)
                               ->where(WhereClause::greater_(7, $Colln->title)->or_($Collection->id))
                               ->run();
-    
-    
+        
+        
         $results = $App->Query->insert($Section->Properties)
                               ->values([ 1, 2, 'This is a test' ],
                                        [ 'this', 'is', ArrayResolvable::init([ 'a', 'set', 'of' => 'arrays' ]) ],
                                        [ 1, 2, 3, 4 ])
                               ->run();
-    
+        
         $results = $App->Query->delete($Section->Properties)->run();
         
     }

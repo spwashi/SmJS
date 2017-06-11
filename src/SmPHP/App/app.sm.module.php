@@ -21,7 +21,6 @@ return [
         # Set the default controller namespace - used in routing
         $App->registerDefaults('controller_namespace',
                                OnceRunResolvable::coerce(function ($App) {
-                                   var_dump($App->name);
                                    return '\\' . ($App->name??'Sm') . '\\Controller\\';
                                }),
                                true);

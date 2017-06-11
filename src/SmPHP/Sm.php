@@ -8,6 +8,7 @@
 define('BASE_PATH', realpath(__DIR__ . '/../../') . '/');
 #
 define('TEST_PATH', BASE_PATH . 'tests/');
+define('SM_TEST_PATH', TEST_PATH . 'SmPHP/');
 define('EXAMPLE_APP_PATH', TEST_PATH . 'ExampleApp/');
 #
 
@@ -19,4 +20,4 @@ define('SYSTEM_LOG_PATH', BASE_PATH . 'logs/');
 define('APP_MODULE', SM_PATH . 'App/app.sm.module.php');
 
 require_once SM_PATH . 'config/autoload.php';
-require_once TEST_PATH . 'config/autoload.php';
+require_once SM_TEST_PATH . 'config/autoload.php';

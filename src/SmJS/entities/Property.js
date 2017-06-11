@@ -7,6 +7,6 @@ export default class Property extends ConfiguredEntity {
     
     constructor(name, config) {
         super(name, config);
-        this._parentPromise = this._parentPromise.then(i => this.complete(Property.name));
+        this._parentPromise = this._parentPromise.then(i => this._complete(Property.name));
     }
 }

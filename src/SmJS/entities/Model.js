@@ -16,7 +16,7 @@ export default class Model extends ConfiguredEntity {
         super(name, config);
         this._properties            = new Map;
         this._PropertyMetaContainer = new PropertyMetaContainer;
-        this._parentPromise         = this._parentPromise.then(i => this.complete(Model.name));
+        this._parentPromise         = this._parentPromise.then(i => this._complete(Model.name));
     }
     
     /**

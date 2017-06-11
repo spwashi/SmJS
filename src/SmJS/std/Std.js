@@ -86,6 +86,7 @@ class Std {
         /** @type {events.EventEmitter}  */
         this._Events = new EventEmitter(this);
         this._originalName = identifier;
+        this._isAvailable  = false;
         this._name         = this.constructor.createName(identifier);
         if (typeof identifier !== 'symbol') identifier = Symbol.for(this._name);
         this._Symbol      = identifier;
@@ -109,7 +110,7 @@ class Std {
          * @type {Promise}
          * @protected
          */
-        this._parentPromise = Promise.resolve(this.complete(Std.name));
+        this._parentPromise = Promise.resolve(this._complete(Std.name));
     }
     
     /**
@@ -117,12 +118,38 @@ class Std {
      * @param {string}name Only if the name passed in matches the currently active class will we mark this class as complete
      * @return {Promise}
      */
-    complete(name) {
+    _complete(name) {
         if (name === this.constructor.name) {
-            const complete = Std.EVENTS.item('init').COMPLETE;
-            return this.send(this.EVENTS.item(complete).STATIC, this);
+            const complete  = i => this.send(this.EVENTS.item(Std.EVENTS.item('init').COMPLETE).STATIC, this);
+            const available = this._available(name);
+            
+            return available.then(complete);
         }
         return Promise.resolve(null);
+    }
+    
+    /**
+     * Emit an event saying that this object is complete enough to be available
+     *
+     * @param {string} name The name of the class calling this function. Only the current class should call this function effectively
+     * @private
+     */
+    _available(name) {
+        if (name === this.constructor.name && !this._isAvailable) {
+            this._isAvailable = true;
+            return this.send(this.EVENTS.item(Std.EVENTS.item('available')).STATIC, this);
+        }
+        return Promise.resolve(null);
+    }
+    
+    /**
+     * Get this object when it is available.
+     *
+     * @return {this}
+     */
+    get available() {
+        return this.receive(this.EVENTS.item(Std.EVENTS.item('available')))
+                   .then(i => i[1] || null);
     }
     
     /**

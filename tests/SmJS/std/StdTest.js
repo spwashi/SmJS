@@ -2,10 +2,10 @@ const expect = require('chai').expect;
 import {describe, it} from "mocha";
 import {SMJS_PATH} from "../paths";
 const _src = require(SMJS_PATH);
+
 describe('Std', () => {
     const Std         = _src.std.Std;
     const SymbolStore = _src.std.SymbolStore;
-    const EVENTS      = _src.std.EventEmitter.EVENTS;
     it('Can send and receive events', done => {
         expect(1).to.equal(1);
         const tstStd = new Std;
@@ -19,6 +19,9 @@ describe('Std', () => {
         tstStd.receive(testEventSymbolStore).then(_ => done());
         tstStd.send(testEventSymbolStore.item('child'));
     });
+    it('Can wait for availability', done => {
+        (new Std).available.then(i => done());
+    });
     
     it('Can resolve instances', () => {
         const name = 'boon';
@@ -26,7 +29,6 @@ describe('Std', () => {
         new Std(name);
         return ev;
     });
-    
     it('Can resolve _properties_', _ => {
         const name = '[Std]test|title';
         

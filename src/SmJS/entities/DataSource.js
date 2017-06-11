@@ -7,6 +7,13 @@ import ConfiguredEntity from "./ConfiguredEntity";
 export default class DataSource extends ConfiguredEntity {
     static get name() {return 'DataSource'; }
     
+    static set acceptedTypes(value) {
+        this._acceptedTypes = value;
+    }
+    
+    static get acceptedTypes() {
+        return this._acceptedTypes;
+    }
     
     constructor(name, config) {
         super(name, config);

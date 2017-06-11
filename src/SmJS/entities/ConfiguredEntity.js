@@ -64,7 +64,10 @@ export default class ConfiguredEntity extends Std {
         super(name);
         this._parentSymbols = new Set;
         this._storeOriginalConfiguration(config);
-        let inherits        = config.inherits;
+        let inherits = config.inherits;
+        /**
+         * @protected
+         */
         this._parentPromise = this._parentPromise
                                   .then(i => this._completeInitialInheritance(inherits))
                                   .then(i => this.configure(config))

@@ -1,7 +1,9 @@
 import {describe, it} from "mocha";
 import {SMJS_PATH} from "../paths";
+const Sm     = require(SMJS_PATH);
 const expect = require('chai').expect;
-const _src   = require(SMJS_PATH);
+require('chai-as-promised');
+const _src = require(SMJS_PATH);
 
 describe('DataSource', () => {
     const DataSource = _src.entities.DataSource;
@@ -31,9 +33,14 @@ describe('DataSource', () => {
         });
     });
     
-    it('Has a type that is one of a few pre-configured values', () => {
-        let ds_name    = 'hatpcv_ds', ds_type = 'Json';
-        const createDS = i => new DataSource(ds_name, {type: 'Moot'});
-        // expect(createDS).to.throw(new Error);
+    it('Has a type that is one of a few pre-configured values', done => {
+        let ds_name = 'hatpcv_ds', ds_type = 'Json';
+        new DataSource(ds_name, {type: 'Moot'});
+        DataSource.receive(Sm.std.Std.EVENTS.item('init').ERROR).then(i => {
+            const [event, error] = i;
+            const message        = error instanceof TypeError ? null : 'Successfully set bad value';
+            done(message);
+        })
+        
     });
 });

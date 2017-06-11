@@ -71,7 +71,10 @@ export default class ConfiguredEntity extends Std {
         this._parentPromise = this._parentPromise
                                   .then(i => this._completeInitialInheritance(inherits))
                                   .then(i => this.configure(config))
-                                  .then(i => this._finishInit());
+                                  .then(i => this._finishInit())
+                                  .catch(e => {
+                                      this.send(this.EVENTS.item(Std.EVENTS.item('init').ERROR), e)
+                                  });
     }
     
     /**

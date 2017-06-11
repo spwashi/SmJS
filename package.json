@@ -24,6 +24,7 @@
     "babelify":                           "^7.3.0",
     "browserify":                         "latest",
     "chai":                               "^3.5.0",
+    "chai-as-promised":                   "^6.0.0",
     "chalk":                              "latest",
     "concat-stream":                      "^1.0.3",
     "gulp":                               "^3.9.1",

@@ -20,6 +20,10 @@ const _receive = (self, eventName, fn, once = true) => {
     
 };
 
+const _wait = (constructor, symbol) => {
+
+};
+
 /**
  *
  */
@@ -54,9 +58,18 @@ class Std {
         
         // If we are trying to resolve something that has been registered as an attribute
         const is_property = symbolStore.family.has(ATTRIBUTE);
+        const COMPLETE    = is_property ? symbolStore : symbolStore.item(EVENTS)
+                                                                   .item(Std.EVENTS.item('init').COMPLETE);
+        return Std.receive(COMPLETE)
+    }
+    
+    static available(symbol) {
+        let symbolStore = this.getSymbolStore(symbol);
         
-        const COMPLETE = is_property ? symbolStore : symbolStore.item(EVENTS)
-                                                                .item(Std.EVENTS.item('init').COMPLETE);
+        // If we are trying to resolve something that has been registered as an attribute
+        const is_property = symbolStore.family.has(ATTRIBUTE);
+        const COMPLETE    = is_property ? symbolStore : symbolStore.item(EVENTS)
+                                                                   .item(Std.EVENTS.item('available'));
         return Std.receive(COMPLETE)
     }
     
@@ -86,8 +99,13 @@ class Std {
         /** @type {events.EventEmitter}  */
         this._Events = new EventEmitter(this);
         this._originalName = identifier;
-        this._isAvailable  = false;
-        this._name         = this.constructor.createName(identifier);
+    
+        //region Status
+        this._isAvailable = false;
+        this._isComplete  = false;
+        //endregion
+    
+        this._name = this.constructor.createName(identifier);
         if (typeof identifier !== 'symbol') identifier = Symbol.for(this._name);
         this._Symbol      = identifier;
         const symbolStore = this.constructor.getSymbolStore(identifier);
@@ -110,7 +128,7 @@ class Std {
          * @type {Promise}
          * @protected
          */
-        this._parentPromise = Promise.resolve(this._complete(Std.name));
+        this._parentPromise = Promise.resolve(this._completeInit(Std.name));
     }
     
     /**
@@ -118,12 +136,11 @@ class Std {
      * @param {string}name Only if the name passed in matches the currently active class will we mark this class as complete
      * @return {Promise}
      */
-    _complete(name) {
+    _completeInit(name) {
         if (name === this.constructor.name) {
             const complete  = i => this.send(this.EVENTS.item(Std.EVENTS.item('init').COMPLETE).STATIC, this);
             const available = this._available(name);
-            
-            return available.then(complete);
+            return available.then(i => this._isComplete = true).then(complete);
         }
         return Promise.resolve(null);
     }
@@ -148,9 +165,16 @@ class Std {
      * @return {this}
      */
     get available() {
-        return this.receive(this.EVENTS.item(Std.EVENTS.item('available')))
-                   .then(i => i[1] || null);
+        return this.receive(this.EVENTS.item(Std.EVENTS.item('available'))).then(i => i[1] || null);
     }
+    
+    get initialized() {
+        return this.receive(this.EVENTS.item(Std.EVENTS.item('init').COMPLETE)).then(i => i[1] || null);
+    }
+    
+    get isAvailable() {return this._isAvailable}
+    
+    get isComplete() {return this._isComplete}
     
     /**
      * Get the Symbol that identifies this object

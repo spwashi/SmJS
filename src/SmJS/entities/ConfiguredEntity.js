@@ -39,7 +39,7 @@ export default class ConfiguredEntity extends Std {
      * @private
      */
     _finishInit() {
-        return this._complete(ConfiguredEntity.name);
+        return this._completeInit(ConfiguredEntity.name);
     }
     
     /**

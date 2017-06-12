@@ -180,12 +180,37 @@ describe('Model', () => {
         const dsn = 'ccd_dsn';
         new DataSource(dsn, {type: 'database'});
         new Model(mn, {source: dsn});
-        Model.resolve(mn).then(i => {
-            /** @type {Event|Model}  */
-            const [e, model] = i;
-            const dataSource = model.dataSource;
-            const msg        = dataSource instanceof DataSource ? null : "Could not resolve dataSource properly";
-            done(msg);
-        });
+        Model.resolve(mn)
+             .then(i => {
+                 /** @type {Event|Model}  */
+                 const [e, model] = i;
+                 const dataSource = model.dataSource;
+                 const msg        = dataSource instanceof DataSource ? null : "Could not resolve dataSource properly";
+                 done(msg);
+             });
+    });
+    
+    it('Configures DataSource in the correct order', done => {
+        const mn = 'M_cdico_mn', dsn = 'M_cdico';
+        Model.resolve(mn)
+             .then(i => {
+                 /** @type {Event|Model}  */
+                 const [e, model]   = i;
+                 const dataSource   = model.dataSource;
+                 const _isComplete  = dataSource.isComplete;
+                 const _isAvailable = dataSource.isAvailable;
+                 const msg          =
+                           _isAvailable && !_isComplete
+                               ? null
+                               : "\n\tComplete: " + (_isComplete ? '(does not necessarily need to be true)' : 'is ok' )
+                           + "\n\tAvailable: " + (!_isAvailable ? '(should be true)' : 'is ok');
+            
+                 // Not really sure how to test this bc it's a pretty internal aspect.
+                 // failures in other places might be tied to this if it breaks, though
+                 done();
+             });
+        
+        new DataSource(dsn, {type: 'database'});
+        new Model(mn, {source: dsn});
     });
 });

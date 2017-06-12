@@ -1,8 +1,8 @@
-import ConfiguredEntity from "./ConfiguredEntity";
 /**
  * @class Property
  */
-export default class Property extends ConfiguredEntity {
+import {DataSourceHaver} from "./DataSource";
+export default class Property extends DataSourceHaver {
     static get name() {return 'Property'; }
     
     constructor(name, config) {

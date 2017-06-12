@@ -55,3 +55,44 @@ export default class DataSource extends ConfiguredEntity {
         })
     }
 }
+/**
+ * @class DataSourceHaver
+ * @name DataSourceHaver
+ */
+export class DataSourceHaver extends ConfiguredEntity {
+    /**
+     *
+     * @return {DataSource}
+     */
+    get dataSource() {return this._dataSource}
+    
+    /**
+     * @name DataSourceHaver.configure_dataSource
+     * @param source_name
+     * @return {Promise<DataSource>}
+     */
+    configure_dataSource(source_name) {
+        if (typeof source_name !== "string") throw new TypeError("Not sure how to handle dataSource configurations that aren't strings");
+        
+        // Here, it doesn't matter if the DataSource is complete or not since that isn't our primary concern.
+        return DataSource.available(source_name)
+                         .then(i => {
+                             /** @type {Event|DataSource}  */
+                             const [e, dataSource] = i;
+            
+                             if (!(dataSource instanceof DataSource)) {
+                                 throw new TypeError("Returned DataSource is not of proper type");
+                             }
+                             return this._dataSource = dataSource;
+                         });
+    }
+    
+    /**
+     * @alias DataSourceHaver.configure_dataSource
+     * @param source_config
+     * @return {Promise<DataSource>}
+     */
+    configure_source(source_config) {
+        return this.configure_dataSource(source_config);
+    }
+}

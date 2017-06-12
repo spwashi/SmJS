@@ -2,12 +2,11 @@
  * @class Model
  * @extends ConfiguredEntity
  */
-import ConfiguredEntity from "./ConfiguredEntity";
 import Property from "./Property";
 import PropertyMetaContainer from "./PropertyMetaContainer";
-import DataSource from "./DataSource";
+import {DataSourceHaver} from "./DataSource";
 
-export default class Model extends ConfiguredEntity {
+export default class Model extends DataSourceHaver {
     constructor(name, config) {
         super(name, config);
         this._properties            = new Map;
@@ -27,32 +26,7 @@ export default class Model extends ConfiguredEntity {
      */
     get properties() { return this._properties; }
     
-    /**
-     *
-     * @return {DataSource}
-     */
-    get dataSource() {return this._dataSource}
-    
     //region Configure
-    configure_dataSource(source_name) {
-        if (typeof source_name !== "string") throw new TypeError("Not sure how to handle dataSource configurations that aren't strings");
-    
-        // Here, it doesn't matter if the DataSource is complete or not since that isn't our primary concern.
-        return DataSource.available(source_name)
-                         .then(i => {
-                             /** @type {Event|DataSource}  */
-                             const [e, dataSource] = i;
-        
-                             if (!(dataSource instanceof DataSource)) {
-                                 throw new TypeError("Returned DataSource is not of proper type");
-                             }
-                             return this._dataSource = dataSource;
-                         });
-    }
-    
-    configure_source(source_config) {
-        return this.configure_dataSource(source_config);
-    }
     
     /**
      * configure the properties for this Model

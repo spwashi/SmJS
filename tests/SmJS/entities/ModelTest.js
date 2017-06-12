@@ -8,6 +8,7 @@ describe('Model', () => {
     const Std             = Sm.std.Std;
     const SymbolStore     = Sm.std.symbols.SymbolStore;
     const Model           = Sm.entities.Model;
+    const DataSource      = Sm.entities.DataSource;
     const Property        = Sm.entities.Property;
     const getDefaultModel = i => { return new Model('_', models._); };
     
@@ -164,13 +165,27 @@ describe('Model', () => {
                                             });
                        const m3_promise = m3.resolve('first_name')
                                             .then(i => {
-                                                    const property     = _getPropertyFromEventArr(i);
-                                                    const uniqueKeySet = m3.propertyMeta.getUniqueKeySet(property);
-                                                    expect(uniqueKeySet).to.equal(false);
+                                                const property     = _getPropertyFromEventArr(i);
+                                                const uniqueKeySet = m3.propertyMeta.getUniqueKeySet(property);
+                                                expect(uniqueKeySet).to.equal(false);
                                             });
                        return Promise.all([m1_promise, m2_promise, m3_promise]);
                    })
                .then(i => done());
         
-    })
+    });
+    
+    it('Can configure DataSource', done => {
+        const mn  = 'ccd_mn';
+        const dsn = 'ccd_dsn';
+        new DataSource(dsn, {type: 'database'});
+        new Model(mn, {source: dsn});
+        Model.resolve(mn).then(i => {
+            /** @type {Event|Model}  */
+            const [e, model] = i;
+            const dataSource = model.dataSource;
+            const msg        = dataSource instanceof DataSource ? null : "Could not resolve dataSource properly";
+            done(msg);
+        });
+    });
 });

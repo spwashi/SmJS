@@ -1,17 +1,13 @@
-import ConfiguredEntity from "./ConfiguredEntity";
-import Property from "./Property";
-import SymbolStore from "../std/symbols/SymbolStore";
-import PropertyMetaContainer from "./PropertyMetaContainer";
-
-const ATTRIBUTE = SymbolStore.$_$.item('_attribute_').Symbol;
-
 /**
  * @class Model
  * @extends ConfiguredEntity
  */
+import ConfiguredEntity from "./ConfiguredEntity";
+import Property from "./Property";
+import PropertyMetaContainer from "./PropertyMetaContainer";
+import DataSource from "./DataSource";
+
 export default class Model extends ConfiguredEntity {
-    static get name() {return 'Model'; }
-    
     constructor(name, config) {
         super(name, config);
         this._properties            = new Map;
@@ -20,38 +16,61 @@ export default class Model extends ConfiguredEntity {
     }
     
     /**
+     * @return {PropertyMetaContainer}
+     */
+    get propertyMeta() {return this._PropertyMetaContainer;}
+    
+    /**
      * Get the properties of this Model.
      * @return {Map<string|Symbol, Property>}
      * @constructor
      */
     get properties() { return this._properties; }
     
+    get dataSource() {return this._dataSource}
+    
+    //region Configure
+    configure_dataSource(source_name) {
+        //todo wait for availability
+        return DataSource.resolve(source_name).then(i => {
+            const [e, dataSource] = i;
+            if (!(dataSource instanceof DataSource)) {
+                throw new TypeError("Returned DataSource is not of proper type");
+            }
+            return this._dataSource = dataSource;
+        });
+    }
+    
+    configure_source(source_config) {
+        return this.configure_dataSource(source_config);
+    }
+    
     /**
-     * @return {PropertyMetaContainer}
+     * configure the properties for this Model
+     * @param properties_config
+     * @return {Promise.<*>}
+     * @private
      */
-    get propertyMeta() {return this._PropertyMetaContainer;}
+    configure_properties(properties_config) {
+        const promises = Object.entries(properties_config).map((i) => {
+            let [property_name, property_config] = i;
+            
+            // Set the "configName" of the property. This is the name that we use to configure the property initially.
+            property_config.configName = property_name;
+            return this._addProperty(property_name, property_config);
+        });
+        return Promise.all(promises);
+    }
+    
+    //endregion
+    
+    // region Inherited
+    static get name() {return 'Model'; }
     
     getInheritables() {
         return {
             properties: this._getEffectivePropertiesConfiguration()
         };
-    }
-    
-    //region Configure
-    /**
-     * configure the properties for this Model
-     * @param properties
-     * @return {Promise.<*>}
-     * @private
-     */
-    configure_properties(properties) {
-        const promises = Object.entries(properties).map((i) => {
-            let [property_name, property_config] = i;
-            property_config.configName           = property_name;
-            // console.log(property_config, this.Symbol);
-            return this._addProperty(property_name, property_config);
-        });
-        return Promise.all(promises);
     }
     
     //endregion
@@ -137,7 +156,6 @@ export default class Model extends ConfiguredEntity {
         this.registerAttribute(original_property_name, property);
         return property;
     }
-    
     
     //endregion
 }

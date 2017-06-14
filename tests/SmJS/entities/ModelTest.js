@@ -191,7 +191,7 @@ describe('Model', () => {
     });
     
     it('Configures DataSource in the correct order', done => {
-        const mn = 'M_cdico_mn', dsn = 'M_cdico';
+        const mn = 'M_cdico_mn', dsn = 'M_cdico_sn';
         Model.resolve(mn)
              .then(i => {
                  /** @type {Event|Model}  */
@@ -213,4 +213,21 @@ describe('Model', () => {
         new DataSource(dsn, {type: 'database'});
         new Model(mn, {source: dsn});
     });
+    
+    it('Can pass DataSource on to properties', done => {
+        const mn = 'M_cpdotp_mn', dsn = 'M_cpdotp_dsn', pn = 'M_cpdotp_pn';
+        new DataSource(dsn, {type: 'database'});
+        new Model(mn, {source: dsn, properties: {[pn]: {}}});
+        Model.resolve(mn)
+             .then(i => {
+                 const [, model] = i;
+                 return model.resolve(pn);
+             })
+             .then(i => {
+                 const [e, property] = i;
+                 expect(property).to.be.instanceof(Property);
+                 expect(property.dataSource).to.be.instanceof(DataSource);
+                 done();
+             });
+    })
 });

@@ -7,17 +7,25 @@ import SymbolStore from "./symbols/SymbolStore";
 
 const ATTRIBUTE = SymbolStore.$_$.item('_attribute_').Symbol;
 
+/**
+ *
+ * @param self
+ * @param eventName
+ * @param fn
+ * @param once
+ * @return {Promise}
+ * @private
+ */
 const _receive = (self, eventName, fn, once = true) => {
     let resolve, reject;
     let func = (...args) => {
         if (typeof fn === 'function') fn(...args);
         return resolve(args);
     };
-    setTimeout(i => reject(eventName.Symbol), 50);
+    setTimeout(i => reject(eventName.TIMEOUT.Symbol), 50);
     const promise = new Promise((yes, no) => [resolve, reject] = [yes, no]);
     (once ? self.Events.once(eventName, func) : self.Events.on(eventName, func));
     return promise;
-    
 };
 
 const _wait = (constructor, symbol) => {
@@ -99,12 +107,12 @@ class Std {
         /** @type {events.EventEmitter}  */
         this._Events = new EventEmitter(this);
         this._originalName = identifier;
-    
+        
         //region Status
         this._isAvailable = false;
         this._isComplete  = false;
         //endregion
-    
+        
         this._name = this.constructor.createName(identifier);
         if (typeof identifier !== 'symbol') identifier = Symbol.for(this._name);
         this._Symbol      = identifier;

@@ -3,7 +3,10 @@ const _to_string = name => {
     let str;
     if (name_type === 'string') return name;
     if (name_type === 'symbol') {
-        return '<' + String(name).slice(7, -1) + '>';
+        let slice_name = String(name).slice(7, -1);
+        const $_$_str  = '<$_$> ';
+        if (slice_name.indexOf($_$_str) > -1) slice_name = '$' + slice_name.slice($_$_str.length) + '$';
+        return `<${slice_name}>`
     }
     if (name_type === 'object') return String(name);
     throw new Error(['Cannot handle this type --' + typeof name]);
@@ -29,7 +32,7 @@ class SymbolStore {
     constructor(name, parent = null, symbol = null) {
         let parent_name;
         if (parent instanceof SymbolStore) parent_name = parent.name;
-    
+        
         const _new_name = (parent_name ? _to_string(parent_name || symbol) + ' ' : '') + _to_string(name);
         this._name      = _new_name;
         this._Symbol    = symbol || Symbol(_new_name);
@@ -127,6 +130,9 @@ class SymbolStore {
     
     /** @return {SymbolStore}*/
     get ERROR() { return this.get_NAME_('ERROR'); }
+    
+    /** @return {SymbolStore}*/
+    get TIMEOUT() { return this.get_NAME_('ERROR').item(SymbolStore.$_$.item('TIMEOUT')); }
     
     /** @return {SymbolStore}*/
     get BEGIN() { return this.get_NAME_('BEGIN'); }

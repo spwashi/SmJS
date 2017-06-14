@@ -4,7 +4,8 @@
  */
 import Property from "./Property";
 import PropertyMetaContainer from "./PropertyMetaContainer";
-import {DataSourceHaver} from "./DataSource";
+import {DataSourceHaver, SOURCE} from "./DataSource";
+import {SymbolStore} from "../std/symbols/SymbolStore";
 
 export default class Model extends DataSourceHaver {
     constructor(name, config) {
@@ -27,6 +28,34 @@ export default class Model extends DataSourceHaver {
     get properties() { return this._properties; }
     
     //region Configure
+    /**
+     *
+     * @param {Property} property
+     * @return {Promise<Property>|*}
+     * @private
+     */
+    _attachDataSourceToProperty(property) {
+        
+        return this.resolve(SOURCE)
+                   .then(i => {
+                       /** @type {DataSource}  */
+                       const [, dataSource] = i;
+                       const dsn            = dataSource.configName || dataSource.name || null;
+                       return property.configure({source: dsn}).then(i => property);
+                   })
+                   .catch(i => {
+                       const TIMEOUT     = SymbolStore.$_$.item('TIMEOUT').Symbol;
+                       const symbolStore = SymbolStore.find(i);
+            
+                       if (!symbolStore instanceof symbolStore) throw i;
+            
+                       // If this isn't just a timeout
+                       if (!symbolStore.family.has(SOURCE)) throw i;
+                       if (!symbolStore.family.has(TIMEOUT)) throw i;
+            
+                       return property;
+                   });
+    }
     
     /**
      * configure the properties for this Model
@@ -40,7 +69,11 @@ export default class Model extends DataSourceHaver {
             
             // Set the "configName" of the property. This is the name that we use to configure the property initially.
             property_config.configName = property_name;
-            return this._addProperty(property_name, property_config);
+            return this._addProperty(property_name, property_config)
+                       .then(property => {
+                           this._attachDataSourceToProperty(property)
+                               .then(i => property);
+                       });
         });
         return Promise.all(promises);
     }

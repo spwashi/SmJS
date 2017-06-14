@@ -1,9 +1,10 @@
-import ConfiguredEntity from "./ConfiguredEntity";
-
 /**
  * @class DataSource
  * @extends ConfiguredEntity
  */
+import ConfiguredEntity from "./ConfiguredEntity";
+import SymbolStore from "../std/symbols/SymbolStore";
+
 export default class DataSource extends ConfiguredEntity {
     static get name() {return 'DataSource'; }
     
@@ -55,6 +56,8 @@ export default class DataSource extends ConfiguredEntity {
         })
     }
 }
+
+export const    SOURCE = SymbolStore.$_$.item('_source_').Symbol;
 /**
  * @class DataSourceHaver
  * @name DataSourceHaver
@@ -72,7 +75,9 @@ export class DataSourceHaver extends ConfiguredEntity {
      * @return {Promise<DataSource>}
      */
     configure_dataSource(source_name) {
-        if (typeof source_name !== "string") throw new TypeError("Not sure how to handle dataSource configurations that aren't strings");
+        if (typeof source_name !== "string") {
+            throw new TypeError("Not sure how to handle dataSource configurations that aren't strings");
+        }
         
         // Here, it doesn't matter if the DataSource is complete or not since that isn't our primary concern.
         return DataSource.available(source_name)
@@ -83,7 +88,10 @@ export class DataSourceHaver extends ConfiguredEntity {
                              if (!(dataSource instanceof DataSource)) {
                                  throw new TypeError("Returned DataSource is not of proper type");
                              }
-                             return this._dataSource = dataSource;
+                             this._dataSource = dataSource;
+                             this.registerAttribute(SOURCE, dataSource);
+                             
+                             return dataSource;
                          });
     }
     

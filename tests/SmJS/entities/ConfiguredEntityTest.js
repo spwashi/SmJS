@@ -7,7 +7,7 @@ describe('ConfiguredEntity', () => {
     const ConfiguredEntity = _src.entities.ConfiguredEntity;
     const Std              = _src.std.Std;
     const EVENTS           = _src.std.EventEmitter.EVENTS;
-    const configuredEntity = new ConfiguredEntity('test');
+    const configuredEntity = ConfiguredEntity.create('test');
     it('exists', () => {
         expect(configuredEntity.Symbol).to.be.a('symbol');
         expect(configuredEntity.Symbol.toString()).to.equal(Symbol(`[${ConfiguredEntity.name}]test`).toString())
@@ -15,13 +15,14 @@ describe('ConfiguredEntity', () => {
     
     it('Can resolve', d => {
         ConfiguredEntity.resolve('one').then(i => d());
-        new ConfiguredEntity('one');
+        ConfiguredEntity.init('one').then(i => console.log(i));
+        
     });
     
     it('init.BEGIN event', d => {
         const BEGIN = Std.EVENTS.item('init').BEGIN;
         ConfiguredEntity.receive(BEGIN).then(_ => {d()});
-        new ConfiguredEntity('name');
+        ConfiguredEntity.create('name');
     });
     
     it('init.COMPLETE event', d => {
@@ -40,11 +41,11 @@ describe('ConfiguredEntity', () => {
         
         ConfiguredEntity.receive(BEGIN).then(_ => fn(begin_called = true));
         ConfiguredEntity.receive(COMPLETE).then(fn);
-        new ConfiguredEntity('name');
+        ConfiguredEntity.create('name');
     });
     
     it('Can inherit', d => {
-        const testParent = new ConfiguredEntity('parent');
+        const testParent = ConfiguredEntity.create('parent');
         const child      = ConfiguredEntity.getSymbolStore('child').item(EVENTS);
         
         const INHERIT  = child.item(Std.EVENTS.item('inherit').COMPLETE);
@@ -72,6 +73,6 @@ describe('ConfiguredEntity', () => {
         ConfiguredEntity.receive(INHERIT).then(_ => (begin_called = true) && fn());
         ConfiguredEntity.receive(COMPLETE, fn);
     
-        const testChild = new ConfiguredEntity('child', {inherits: 'parent'});
+        const testChild = ConfiguredEntity.create('child', {inherits: 'parent'});
     })
 });

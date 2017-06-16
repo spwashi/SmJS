@@ -6,7 +6,7 @@ const _src   = require(SMJS_PATH);
 describe('Property', () => {
     const Property     = _src.entities.Property;
     const DataSource   = _src.entities.DataSource;
-    const testProperty = new Property('testProperty');
+    const testProperty = Property.create('testProperty');
     it('exists', () => {
         expect(testProperty.Symbol).to.be.a('symbol');
         expect(testProperty.Symbol.toString()).to.equal(Symbol(`[${Property.name}]testProperty`).toString())
@@ -14,8 +14,8 @@ describe('Property', () => {
     it('Can configure DataSource', done => {
         const pn  = 'P_ccd_pn';
         const dsn = 'P_ccd_dsn';
-        new DataSource(dsn, {type: 'database'});
-        new Property(pn, {source: dsn});
+        DataSource.create(dsn, {type: 'database'});
+        Property.create(pn, {source: dsn});
         Property.resolve(pn)
                 .then(i => {
                     /** @type {Event|DataSource}  */

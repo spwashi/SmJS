@@ -10,10 +10,10 @@ describe('Model', () => {
     const Model           = Sm.entities.Model;
     const DataSource      = Sm.entities.DataSource;
     const Property        = Sm.entities.Property;
-    const getDefaultModel = i => { return new Model('_', models._); };
+    const getDefaultModel = i => { return Model.create('_', models._); };
     
     it('exists', () => {
-        const testModel = new Model('test', {});
+        const testModel = Model.create('test', {});
         expect(testModel.Symbol).to.be.a('symbol');
         expect(testModel.Symbol.toString()).to.equal(Symbol(`[${Model.name}]test`).toString());
         const COMPLETE = Std.EVENTS.item('init').COMPLETE;
@@ -29,8 +29,8 @@ describe('Model', () => {
     
     const INHERIT_COMPLETE = Std.EVENTS.item('inherit').COMPLETE;
     it('Can inherit another model', done => {
-        const parentModel = new Model('parentModel');
-        const childModel  = new Model('childModel', {inherits: parentModel.name});
+        const parentModel = Model.create('parentModel');
+        const childModel  = Model.create('childModel', {inherits: parentModel.name});
         
         childModel.receive(childModel.EVENTS.item(INHERIT_COMPLETE))
                   .then(result => {
@@ -45,9 +45,9 @@ describe('Model', () => {
     });
     
     it('Can inherit multiple models', done => {
-        const parentModel1 = new Model('parentModel1');
-        const parentModel2 = new Model('parentModel2');
-        const childModel   = new Model('childModel', {inherits: ['parentModel2', 'parentModel1']});
+        const parentModel1 = Model.create('parentModel1');
+        const parentModel2 = Model.create('parentModel2');
+        const childModel   = Model.create('childModel', {inherits: ['parentModel2', 'parentModel1']});
         
         childModel.receive(childModel.EVENTS.item(INHERIT_COMPLETE)).then(i => {
             let [event, childModel] = i;
@@ -57,7 +57,7 @@ describe('Model', () => {
     });
     
     it('Can resolve properties', done => {
-        const model          = new Model('testResolveProperties', {properties: {test_property: {}}});
+        const model          = Model.create('testResolveProperties', {properties: {test_property: {}}});
         const modelName      = '[Model]testResolveProperties';
         const _property_name = 'test_property';
         
@@ -75,7 +75,7 @@ describe('Model', () => {
         const _model_name    = 'primary_test_mn';
         const _property_name = 'primary_test_pn';
         const model_name     = `[Model]${_model_name}`;
-        const model          = new Model(_model_name, {properties: {[_property_name]: {primary: true, unique: true}}});
+        const model          = Model.create(_model_name, {properties: {[_property_name]: {primary: true, unique: true}}});
         Std.resolve(`${model_name}|${_property_name}`).then(i => {
             /** @type {Property} property */
             let [event, property] = i;
@@ -92,8 +92,8 @@ describe('Model', () => {
         const _property_name  = 'unique_test_pn';
         const _property_name2 = 'unique_test_pn2';
         const model_name      = `[Model]${_model_name}`;
-        
-        new Model(_model_name, {
+    
+        Model.create(_model_name, {
             properties: {
                 [_property_name]:  {primary: true, unique: true},
                 [_property_name2]: {unique: true},
@@ -127,7 +127,7 @@ describe('Model', () => {
                                                .map(i => {
                                                    let [model_name, model_config] = i;
                                                    // Initialize the Model
-                                                   new Model(model_name, model_config);
+                                                   Model.create(model_name, model_config);
                                                    return Model.resolve(model_name);
                                                });
         const _assertProperty          = property => expect(property).to.be.instanceof(Property);
@@ -178,8 +178,8 @@ describe('Model', () => {
     it('Can configure DataSource', done => {
         const mn  = 'ccd_mn';
         const dsn = 'ccd_dsn';
-        new DataSource(dsn, {type: 'database'});
-        new Model(mn, {source: dsn});
+        DataSource.create(dsn, {type: 'database'});
+        Model.create(mn, {source: dsn});
         Model.resolve(mn)
              .then(i => {
                  /** @type {Event|Model}  */
@@ -209,15 +209,15 @@ describe('Model', () => {
                  // failures in other places might be tied to this if it breaks, though
                  done();
              });
-        
-        new DataSource(dsn, {type: 'database'});
-        new Model(mn, {source: dsn});
+    
+        DataSource.create(dsn, {type: 'database'});
+        Model.create(mn, {source: dsn});
     });
     
     it('Can pass DataSource on to properties', done => {
         const mn = 'M_cpdotp_mn', dsn = 'M_cpdotp_dsn', pn = 'M_cpdotp_pn';
-        new DataSource(dsn, {type: 'database'});
-        new Model(mn, {source: dsn, properties: {[pn]: {}}});
+        DataSource.create(dsn, {type: 'database'});
+        Model.create(mn, {source: dsn, properties: {[pn]: {}}});
         Model.resolve(mn)
              .then(i => {
                  const [, model] = i;

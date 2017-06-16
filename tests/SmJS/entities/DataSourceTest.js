@@ -7,7 +7,7 @@ const _src = require(SMJS_PATH);
 
 describe('DataSource', () => {
     const DataSource = _src.entities.DataSource;
-    const testSource = new DataSource('testSource');
+    const testSource = DataSource.create('testSource');
     
     DataSource.acceptedTypes = {
         Database: {},
@@ -21,7 +21,7 @@ describe('DataSource', () => {
     it('Has a type', done => {
         const ds_name = 'hat_ds';
         const ds_type = 'Database';
-        new DataSource(ds_name, {
+        DataSource.create(ds_name, {
             type: ds_type
         });
         DataSource.resolve(ds_name).then(i => {
@@ -35,7 +35,7 @@ describe('DataSource', () => {
     
     it('Has a type that is one of a few pre-configured values', done => {
         let ds_name = 'hatpcv_ds', ds_type = 'Json';
-        new DataSource(ds_name, {type: 'Moot'});
+        DataSource.create(ds_name, {type: 'Moot'});
         DataSource.receive(Sm.std.Std.EVENTS.item('init').ERROR).then(i => {
             const [event, error] = i;
             const message        = error instanceof TypeError ? null : 'Successfully set bad value';

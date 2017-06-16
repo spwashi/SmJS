@@ -34,7 +34,7 @@ export default class DataSource extends ConfiguredEntity {
          * @private
          */
         this._type = null;
-        this._parentPromise = this._parentPromise.then(i => this._completeInit(DataSource.name));
+        this._parentPromise = this._parentPromise.then(i => this._sendInitComplete(DataSource.name));
     }
     
     get type() {

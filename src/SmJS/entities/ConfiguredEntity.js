@@ -9,6 +9,26 @@ const _   = require('lodash');
 export default class ConfiguredEntity extends Std {
     static get name() {return 'ConfiguredEntity'; }
     
+    constructor(name, config = {}) {
+        if (!config && typeof name === 'object') config = name;
+        name              = config.name || name;
+        config.configName = config.configName || name;
+        super(name);
+        this._parentSymbols = new Set;
+        this._storeOriginalConfiguration(config);
+        let inherits = config.inherits;
+        /**
+         * @protected
+         */
+        this._parentPromise = this._parentPromise
+                                  .then(i => this._completeInitialInheritance(inherits))
+                                  .then(i => this.configure(config))
+                                  .then(i => this._finishInit())
+                                  .catch(e => {
+                                      this.send(this.EVENTS.item(Std.EVENTS.item('init').ERROR), e)
+                                  });
+    }
+    
     get name() {return this._name;}
     
     /** @return {Set} */
@@ -39,7 +59,7 @@ export default class ConfiguredEntity extends Std {
      * @private
      */
     _finishInit() {
-        return this._completeInit(ConfiguredEntity.name);
+        return this._sendInitComplete(ConfiguredEntity.name);
     }
     
     /**
@@ -55,26 +75,6 @@ export default class ConfiguredEntity extends Std {
         return this.send(this.EVENTS.item(INHERIT.BEGIN).STATIC, this)
                    .then(i => Promise.all(inheritedFollows))
                    .then(i => this.send(this.EVENTS.item(INHERIT.COMPLETE).STATIC, this))
-    }
-    
-    constructor(name, config = {}) {
-        if (!config && typeof name === 'object') config = name;
-        name              = config.name || name;
-        config.configName = config.configName || name;
-        super(name);
-        this._parentSymbols = new Set;
-        this._storeOriginalConfiguration(config);
-        let inherits = config.inherits;
-        /**
-         * @protected
-         */
-        this._parentPromise = this._parentPromise
-                                  .then(i => this._completeInitialInheritance(inherits))
-                                  .then(i => this.configure(config))
-                                  .then(i => this._finishInit())
-                                  .catch(e => {
-                                      this.send(this.EVENTS.item(Std.EVENTS.item('init').ERROR), e)
-                                  });
     }
     
     /**

@@ -12,7 +12,7 @@ export default class Model extends DataSourceHaver {
         super(name, config);
         this._properties            = new Map;
         this._PropertyMetaContainer = new PropertyMetaContainer;
-        this._parentPromise         = this._parentPromise.then(i => this._completeInit(Model.name));
+        this._parentPromise         = this._parentPromise.then(i => this._sendInitComplete(Model.name));
     }
     
     /**

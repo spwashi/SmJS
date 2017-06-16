@@ -4,13 +4,13 @@
  * @extends Error
  */
 import SymbolStore from "../std/symbols/SymbolStore";
-class GenericError extends Error {
+export class GenericError extends Error {
     constructor(message, symbol) {
         if (typeof symbol instanceof SymbolStore) symbol = symbol.symbolName;
         else if (typeof symbol === "symbol") symbol = symbol.toString();
         
         if (typeof message === 'string' && typeof symbol === 'string') {
-            message += " in " + symbol;
+            message += ` Sym[ ${symbol} ]`;
         }
         
         super(message);

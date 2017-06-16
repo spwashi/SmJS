@@ -8,10 +8,8 @@ describe('Errors', () => {
     it('Can throw an error with a symbol', () => {
         const thro = i => {
             try {
-                console.log(GenericError);
                 throw new GenericError("This is a test", Symbol('This is a symbol'));
             } catch (e) {
-                console.log(e);
                 throw e;
             }
         };

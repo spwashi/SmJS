@@ -6,11 +6,15 @@
 import SymbolStore from "../std/symbols/SymbolStore";
 export class GenericError extends Error {
     constructor(message, symbol) {
-        if (typeof symbol instanceof SymbolStore) symbol = symbol.symbolName;
-        else if (typeof symbol === "symbol") symbol = symbol.toString();
         
-        if (typeof message === 'string' && typeof symbol === 'string') {
-            message += ` Sym[ ${symbol} ]`;
+        let symbolString;
+        
+        if (typeof symbol instanceof SymbolStore) symbolString = symbol.symbolName;
+        else if (typeof symbol === "symbol") symbolString = symbol.toString();
+        else symbolString = symbol;
+        
+        if (typeof message === 'string' && typeof symbolString === 'string') {
+            message += ` (acting on Sym[ ${symbolString} ])`;
         }
         
         super(message);

@@ -3,5 +3,6 @@
  */
 import GenericError from "./Error";
 import TimeoutError from "./TimeoutError";
+import TypeError from "./TypeError";
 
-export default {GenericError, TimeoutError};
+export default {GenericError, TimeoutError, TypeError};

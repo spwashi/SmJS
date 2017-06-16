@@ -1,11 +1,13 @@
 import {describe, it} from "mocha";
 import {SMJS_PATH} from "../paths";
 const expect = require('chai').expect;
-const _src   = require(SMJS_PATH);
+/** @alias {Sm}  */
+const Sm     = require(SMJS_PATH);
 
 describe('Property', () => {
-    const Property     = _src.entities.Property;
-    const DataSource   = _src.entities.DataSource;
+    /**@alias Property */
+    const Property     = Sm.entities.Property;
+    const DataSource   = Sm.entities.DataSource;
     const testProperty = new Property('testProperty');
     it('exists', () => {
         expect(testProperty.Symbol).to.be.a('symbol');
@@ -25,4 +27,17 @@ describe('Property', () => {
                     done(msg);
                 });
     });
+    it('Can inherit from other Properties', done => {
+        const parent_pn = 'cifp_parent_pn', child_pn = 'cifp_child_pn';
+        let parent      = new Property(parent_pn, {});
+        let child       = new Property(child_pn, {inherits: [parent_pn]});
+        
+        Property.resolve(child_pn)
+                .then(i => {
+                    /** @type {Property} */
+                    const property = i[1];
+                    expect([...property.parents]).to.contain((parent.Symbol));
+                    done();
+                });
+    })
 });

@@ -14,12 +14,13 @@ describe('Datatype', () => {
         const p_dt_n     = 'cifd_p_dt_n';
         const child_dt_n = 'cifd_child_dt_n';
         const parent     = new Datatype(p_dt_n);
-        new Datatype(child_dt_n);
+        new Datatype(child_dt_n, {inherits: p_dt_n});
         Datatype.resolve(child_dt_n).then(i => {
             /** @type {Datatype}  */
             const datatype = i[1] || null;
             expect(datatype).to.be.instanceof(Datatype);
             expect([...datatype.parents]).to.contain(parent.Symbol);
+            done();
         });
     });
 });

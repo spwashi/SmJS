@@ -46,8 +46,8 @@ describe('ConfiguredEntity', () => {
     it('Can inherit', d => {
         const testParent = new ConfiguredEntity('parent');
         const child      = ConfiguredEntity.getSymbolStore('child').item(EVENTS);
-        
-        const INHERIT  = child.item(Std.EVENTS.item('inherit').COMPLETE);
+    
+        const INHERIT  = child.item(Std.EVENTS.item('inheritance').item('configuration').COMPLETE);
         const COMPLETE = child.item(Std.EVENTS.item('init').COMPLETE);
         
         let begin_called = false,

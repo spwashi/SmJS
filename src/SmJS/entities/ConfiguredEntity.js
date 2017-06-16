@@ -1,8 +1,10 @@
 /**
  * Created by Sam Washington on 5/20/17.
  */
-const Std = require('../std/').Std;
-const _   = require('lodash');
+const Std      = require('../std/').Std;
+const _reject_ = i => {throw i};
+
+const _ = require('lodash');
 /**
  * @class ConfiguredEntity
  */
@@ -50,11 +52,16 @@ export default class ConfiguredEntity extends Std {
      */
     _completeInitialInheritance(parent_identifiers) {
         parent_identifiers     = Array.isArray(parent_identifiers) ? parent_identifiers : [parent_identifiers];
-        const INHERIT          = Std.EVENTS.item('inherit');
-        const inheritedFollows = parent_identifiers.map(item => this.inherit(item));
+        const INHERIT          = Std.EVENTS.item('inheritance').item('configuration');
+        const inheritedFollows = [];
+        parent_identifiers.forEach(item => {
+            const pId = this.inherit(item);
+            inheritedFollows.push(pId);
+        });
         return this.send(this.EVENTS.item(INHERIT.BEGIN).STATIC, this)
-                   .then(i => Promise.all(inheritedFollows))
-                   .then(i => this.send(this.EVENTS.item(INHERIT.COMPLETE).STATIC, this))
+                   .then(i => Promise.all(inheritedFollows), _reject_)
+                   .then(i => this.send(this.EVENTS.item(INHERIT.COMPLETE).STATIC, this), _reject_)
+                   .catch(i => {throw i});
     }
     
     constructor(name, config = {}) {
@@ -69,11 +76,12 @@ export default class ConfiguredEntity extends Std {
          * @protected
          */
         this._parentPromise = this._parentPromise
-                                  .then(i => this._completeInitialInheritance(inherits))
-                                  .then(i => this.configure(config))
-                                  .then(i => this._finishInit())
+                                  .then(i => this._completeInitialInheritance(inherits), _reject_)
+                                  .then(i => this.configure(config), _reject_)
+                                  .then(i => this._finishInit(), _reject_)
                                   .catch(e => {
-                                      this.send(this.EVENTS.item(Std.EVENTS.item('init').ERROR), e)
+                                      this.send(this.EVENTS.item(Std.EVENTS.item('init').ERROR), e);
+                                      throw e;
                                   });
     }
     
@@ -131,14 +139,17 @@ export default class ConfiguredEntity extends Std {
      */
     inherit(item) {
         if (!item) return Promise.resolve([]);
-        
+    
+        const ITEM_INHERITANCE = Std.EVENTS.item('inheritance').item('item');
         return this.constructor
                    .resolve(item)
                    .then(
                        (result) => {
+    
                            /** @type {Event} event */
                            let [event, parent] = result;
-                
+                           console.log(this.symbolName, parent.symbolName);
+                           this.send(ITEM_INHERITANCE.BEGIN.Symbol, parent);
                            /** @type {ConfiguredEntity} parent */
                            if (!(parent instanceof this.constructor)) {
                                // We can only inherit from things that are part of this family.
@@ -149,7 +160,15 @@ export default class ConfiguredEntity extends Std {
                            this._parentSymbols.add(parent.Symbol);
                 
                            // Only inherit what the parent is willing to give
-                           return this.configure(Object.assign({}, parent.inheritables, this.getOriginalConfiguration()));
+                           const newConfiguration = Object.assign({}, parent.inheritables, this.getOriginalConfiguration());
+                           const configure        = this.configure(newConfiguration);
+    
+                           return configure.then(i => {
+                               return this.send(ITEM_INHERITANCE.COMPLETE, item);
+                           }).catch(i => {
+                               console.error(i);
+                               throw  i;
+                           })
                        });
     }
 }

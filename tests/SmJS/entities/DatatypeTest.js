@@ -14,13 +14,30 @@ describe('Datatype', () => {
         const p_dt_n     = 'cifd_p_dt_n';
         const child_dt_n = 'cifd_child_dt_n';
         const parent     = new Datatype(p_dt_n);
-        new Datatype(child_dt_n, {inherits: p_dt_n});
+        const child      = new Datatype(child_dt_n, {inherits: p_dt_n});
+    
+        Datatype.resolve(child_dt_n)
+                .then(i => {
+                    /** @type {Datatype}  */
+                    const datatype = i[1] || null;
+                    expect(datatype).to.be.instanceof(Datatype);
+                    expect([...datatype.parents]).to.contain(parent.Symbol);
+                    done();
+                });
+    });
+    
+    it('Can only inherit from one Datatype', () => {
+        const p_dt_n     = 'cifd_p_dt_n1';
+        const p_dt_n2    = 'cifd_p_dt_n2';
+        const child_dt_n = 'cifd_child_dt_n';
+        const parent     = new Datatype(p_dt_n);
+        const parent2    = new Datatype(p_dt_n2);
+        const child      = new Datatype(child_dt_n, {inherits: [p_dt_n, p_dt_n2]});
+        
         Datatype.resolve(child_dt_n).then(i => {
             /** @type {Datatype}  */
             const datatype = i[1] || null;
-            expect(datatype).to.be.instanceof(Datatype);
-            expect([...datatype.parents]).to.contain(parent.Symbol);
-            done();
         });
     });
+    
 });

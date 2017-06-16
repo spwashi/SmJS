@@ -27,7 +27,7 @@ describe('Model', () => {
         Model.resolve('_').then(i => {done();});
     });
     
-    const INHERIT_COMPLETE = Std.EVENTS.item('inherit').COMPLETE;
+    const INHERIT_COMPLETE = Std.EVENTS.item('inheritance').item('configuration').COMPLETE;
     it('Can inherit another model', done => {
         const parentModel = new Model('parentModel');
         const childModel  = new Model('childModel', {inherits: parentModel.name});

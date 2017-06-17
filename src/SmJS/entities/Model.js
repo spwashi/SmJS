@@ -6,13 +6,15 @@ import Property from "./Property";
 import PropertyMetaContainer from "./PropertyMetaContainer";
 import {DataSourceHaver, SOURCE} from "./DataSource";
 import {SymbolStore} from "../std/symbols/SymbolStore";
+import TimeoutError from "../errors/TimeoutError";
+
+const ATTRIBUTE = SymbolStore.$_$.item('_attribute_').Symbol;
 
 export default class Model extends DataSourceHaver {
     constructor(name, config) {
         super(name, config);
         this._properties            = new Map;
         this._PropertyMetaContainer = new PropertyMetaContainer;
-        this._parentPromise         = this._parentPromise.then(i => this._completeInit(Model.name));
     }
     
     /**
@@ -35,7 +37,6 @@ export default class Model extends DataSourceHaver {
      * @private
      */
     _attachDataSourceToProperty(property) {
-        
         return this.resolve(SOURCE)
                    .then(i => {
                        /** @type {DataSource}  */
@@ -44,16 +45,13 @@ export default class Model extends DataSourceHaver {
                        return property.configure({source: dsn}).then(i => property);
                    })
                    .catch(i => {
-                       const TIMEOUT     = SymbolStore.$_$.item('TIMEOUT').Symbol;
-                       const symbolStore = SymbolStore.find(i);
-            
-                       if (!symbolStore instanceof symbolStore) throw i;
-            
-                       // If this isn't just a timeout
-                       if (!symbolStore.family.has(SOURCE)) throw i;
-                       if (!symbolStore.family.has(TIMEOUT)) throw i;
-            
-                       return property;
+                       const TIMEOUT = SymbolStore.$_$.item('TIMEOUT').Symbol;
+                       if (i instanceof TimeoutError && i.activeSymbol instanceof SymbolStore) {
+                           if (i.activeSymbol === this._symbolStore.item(ATTRIBUTE).item(SOURCE)) {
+                               return property;
+                           }
+                       }
+                       throw i;
                    });
     }
     
@@ -71,8 +69,7 @@ export default class Model extends DataSourceHaver {
             property_config.configName = property_name;
             return this._addProperty(property_name, property_config)
                        .then(property => {
-                           this._attachDataSourceToProperty(property)
-                               .then(i => property);
+                           this._attachDataSourceToProperty(property).then(i => property).catch(i => {console.error(i) ;});
                        });
         });
         return Promise.all(promises);
@@ -103,13 +100,11 @@ export default class Model extends DataSourceHaver {
         const property_name        = this._nameProperty(original_property_name);
         property_config.configName = property_config.configName || original_property_name;
         // The Property is going to get passed on by the Property.resolve, so there is no reason to store it here
-        new Property(property_name, property_config);
         
         // The Property
-        return Property.resolve(property_name)
-                       .then(result => {
+        return Property.init(property_name, property_config)
+                       .then(property => {
                            /** @type {Property} property */
-                           let [event, property] = result;
                            if (!(property instanceof Property)) throw new Error('Improperly created property');
                            return property;
                        })

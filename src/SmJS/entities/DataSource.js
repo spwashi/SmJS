@@ -4,6 +4,7 @@
  */
 import ConfiguredEntity from "./ConfiguredEntity";
 import SymbolStore from "../std/symbols/SymbolStore";
+import TypeError from "../errors/TypeError";
 
 export default class DataSource extends ConfiguredEntity {
     static get name() {return 'DataSource'; }
@@ -34,7 +35,6 @@ export default class DataSource extends ConfiguredEntity {
          * @private
          */
         this._type = null;
-        this._parentPromise = this._parentPromise.then(i => this._completeInit(DataSource.name));
     }
     
     get type() {

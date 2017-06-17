@@ -4,33 +4,9 @@
 
 import {default as EventEmitter, EVENTS} from "./EventEmitter";
 import SymbolStore from "./symbols/SymbolStore";
+import TimeoutError from "../errors/TimeoutError";
 
 const ATTRIBUTE = SymbolStore.$_$.item('_attribute_').Symbol;
-
-/**
- *
- * @param self
- * @param eventName
- * @param fn
- * @param once
- * @return {Promise}
- * @private
- */
-const _receive = (self, eventName, fn, once = true) => {
-    let resolve, reject;
-    let func = (...args) => {
-        if (typeof fn === 'function') fn(...args);
-        return resolve(args);
-    };
-    setTimeout(i => reject(eventName.TIMEOUT.Symbol), 50);
-    const promise = new Promise((yes, no) => [resolve, reject] = [yes, no]);
-    (once ? self.Events.once(eventName, func) : self.Events.on(eventName, func));
-    return promise;
-};
-
-const _wait = (constructor, symbol) => {
-
-};
 
 /**
  *
@@ -53,6 +29,10 @@ class Std {
         const symbolStore = SymbolStore.init(symbol, null, symbol);
         if (!item) return symbolStore;
         else return symbolStore.item(ATTRIBUTE).item(item);
+    }
+    
+    get symbolStore() {
+        return this._symbolStore;
     }
     
     registerAttribute(name, attribute) {
@@ -85,21 +65,12 @@ class Std {
         return Std.receive(this._symbolStore.item(ATTRIBUTE).item(symbol));
     }
     
-    static get name() {return 'Std';}
-    
-    get(name) {
-        return this._attributes.get(name);
-    }
-    
-    get name() {return this._name}
-    
-    get originalName() {return this._originalName}
-    
     static createName(name) {
         name = name || Math.random().toString(36).substr(4, 6);
         return `[${this.name}]${name}`
     }
     
+    //region Initialization
     /**
      * @param identifier This is some sort of identifier for this object
      */
@@ -117,6 +88,10 @@ class Std {
         if (typeof identifier !== 'symbol') identifier = Symbol.for(this._name);
         this._Symbol      = identifier;
         const symbolStore = this.constructor.getSymbolStore(identifier);
+        /**
+         * @type {SymbolStore}
+         * @protected
+         */
         this._symbolStore = symbolStore;
         /**
          * Register Attributes as a Map
@@ -131,12 +106,25 @@ class Std {
         /** @type {SymbolStore} The Event that marks the beginning of this object's initialization */
         const BEGIN = Std.EVENTS.item('init').BEGIN;
         this.send(this.EVENTS.item(BEGIN).STATIC, this);
-        /**
-         * A promise that lets us know the parent initialization process has been completed
-         * @type {Promise}
-         * @protected
-         */
-        this._parentPromise = Promise.resolve(this._completeInit(Std.name));
+    }
+    
+    initialize(config) {
+        return Promise.resolve(this);
+    }
+    
+    /**
+     *
+     * @param {string|symbol}   identifier
+     * @param {{}}              config
+     * @return {Promise<this>}
+     */
+    static init(identifier, config = {}) {
+        const self                 = new this(...arguments);
+        const promise              = self
+            .initialize(config)
+            .then(self => self._sendInitComplete(this.name));
+        promise.initializingObject = self;
+        return promise;
     }
     
     /**
@@ -144,11 +132,14 @@ class Std {
      * @param {string}name Only if the name passed in matches the currently active class will we mark this class as complete
      * @return {Promise}
      */
-    _completeInit(name) {
+    _sendInitComplete(name) {
         if (name === this.constructor.name) {
-            const complete  = i => this.send(this.EVENTS.item(Std.EVENTS.item('init').COMPLETE).STATIC, this);
-            const available = this._available(name);
-            return available.then(i => this._isComplete = true).then(complete);
+            return this._sendAvailable(name)
+                       .then(i => {
+                           this._isComplete = true;
+                           this.send(this.EVENTS.item(Std.EVENTS.item('init').COMPLETE).STATIC, this);
+                           return this;
+                       });
         }
         return Promise.resolve(null);
     }
@@ -159,13 +150,17 @@ class Std {
      * @param {string} name The name of the class calling this function. Only the current class should call this function effectively
      * @private
      */
-    _available(name) {
+    _sendAvailable(name) {
         if (name === this.constructor.name && !this._isAvailable) {
             this._isAvailable = true;
             return this.send(this.EVENTS.item(Std.EVENTS.item('available')).STATIC, this);
         }
         return Promise.resolve(null);
     }
+    
+    //endregion
+    
+    //region Getters
     
     /**
      * Get this object when it is available.
@@ -174,6 +169,10 @@ class Std {
      */
     get available() {
         return this.receive(this.EVENTS.item(Std.EVENTS.item('available'))).then(i => i[1] || null);
+    }
+    
+    get(name) {
+        return this._attributes.get(name);
     }
     
     get initialized() {
@@ -192,6 +191,14 @@ class Std {
     get Symbol() { return this._Symbol; }
     
     get symbolName() {return this._Symbol.toString();}
+    
+    static get name() {return 'Std';}
+    
+    get name() {return this._name}
+    
+    get originalName() {return this._originalName}
+    
+    //endregion
     
     //region Events/EVENTS
     /**
@@ -220,9 +227,36 @@ class Std {
     //region Send/Receive
     static send(eventName, ...args) { this.Events.emit(eventName, ...args); }
     
-    static receive(eventName, fn, once = true) { return _receive(this, ...arguments); }
+    /**
+     *
+     * @param self
+     * @param eventName
+     * @param fn
+     * @param once
+     * @return {Promise}
+     * @private
+     */
+    static _receive(self, eventName, fn, once = true) {
+        let resolve, reject;
+        let func = (...args) => {
+            if (typeof fn === 'function') fn(...args);
+            return resolve(args);
+        };
+        
+        const granted_time = 500;
+        const timeoutError = new TimeoutError('Timeout in ' + (self.symbolName || self.name), eventName, granted_time);
+        setTimeout(i => {
+            return reject(timeoutError)
+        }, granted_time);
+        
+        const promise = new Promise((yes, no) => [resolve, reject] = [yes, no]);
+        (once ? self.Events.once(eventName, func) : self.Events.on(eventName, func));
+        return promise;
+    };
     
-    receive(eventName, fn, once = true) {return _receive(this, ...arguments);}
+    static receive(eventName, fn, once = true) { return this._receive(this, ...arguments); }
+    
+    receive(eventName, fn, once = true) {return this.constructor._receive(this, ...arguments);}
     
     send(eventName, ...args) {
         this._Events.emit(eventName, ...args);

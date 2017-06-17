@@ -9,6 +9,24 @@ const _   = require('lodash');
 export default class ConfiguredEntity extends Std {
     static get name() {return 'ConfiguredEntity'; }
     
+    constructor(name, config = {}) {
+        name = config.name || name;
+        super(name);
+        this._parentSymbols = new Set;
+        this._storeOriginalConfiguration(config);
+    }
+    
+    initialize(config) {
+        let inherits = config.inherits;
+        const name   = this.name;
+        if (!config && typeof name === 'object') config = name;
+        config.configName = config.configName || name;
+        return super.initialize(config)
+                    .then(i => this._completeInitialInheritance(inherits))
+                    .then(i => this.configure(config))
+                    .then(i => this)
+    }
+    
     get name() {return this._name;}
     
     /** @return {Set} */
@@ -34,15 +52,6 @@ export default class ConfiguredEntity extends Std {
     }
     
     /**
-     * Complete the initialization (shortcut for complete)
-     * @return {Promise}
-     * @private
-     */
-    _finishInit() {
-        return this._completeInit(ConfiguredEntity.name);
-    }
-    
-    /**
      * Inherit from all of the parent identifiers we said we want to inherit from in the original configuration
      * @param parent_identifiers
      * @return {Promise<Std>}
@@ -50,31 +59,16 @@ export default class ConfiguredEntity extends Std {
      */
     _completeInitialInheritance(parent_identifiers) {
         parent_identifiers     = Array.isArray(parent_identifiers) ? parent_identifiers : [parent_identifiers];
-        const INHERIT          = Std.EVENTS.item('inherit');
-        const inheritedFollows = parent_identifiers.map(item => this.inherit(item));
+        const INHERIT          = Std.EVENTS.item('inheritance').item('configuration');
+        const inheritedFollows = [];
+        parent_identifiers.forEach(item => {
+            const pId = this.inherit(item);
+            inheritedFollows.push(pId);
+        });
         return this.send(this.EVENTS.item(INHERIT.BEGIN).STATIC, this)
                    .then(i => Promise.all(inheritedFollows))
                    .then(i => this.send(this.EVENTS.item(INHERIT.COMPLETE).STATIC, this))
-    }
-    
-    constructor(name, config = {}) {
-        if (!config && typeof name === 'object') config = name;
-        name              = config.name || name;
-        config.configName = config.configName || name;
-        super(name);
-        this._parentSymbols = new Set;
-        this._storeOriginalConfiguration(config);
-        let inherits = config.inherits;
-        /**
-         * @protected
-         */
-        this._parentPromise = this._parentPromise
-                                  .then(i => this._completeInitialInheritance(inherits))
-                                  .then(i => this.configure(config))
-                                  .then(i => this._finishInit())
-                                  .catch(e => {
-                                      this.send(this.EVENTS.item(Std.EVENTS.item('init').ERROR), e)
-                                  });
+                   .catch(i => {throw i});
     }
     
     /**
@@ -92,8 +86,10 @@ export default class ConfiguredEntity extends Std {
      */
     configure(properties) {
         // Array of all the Promises we want to resolve before we count this as configured
-        let promises = [];
+        let promises    = [];
+        const CONFIGURE = this.EVENTS.item('configure');
         
+        this.send(CONFIGURE.BEGIN);
         // Iterate through the properties and wait for them to resolve
         for (let property_name in properties) {
             if (!properties.hasOwnProperty(property_name)) continue;
@@ -109,7 +105,7 @@ export default class ConfiguredEntity extends Std {
                           : Promise.resolve(fn_name);
             promises.push(loopPromise);
         }
-        return Promise.all(promises);
+        return Promise.all(promises).then(i => this.send(CONFIGURE.COMPLETE));
     }
     
     /**
@@ -131,14 +127,15 @@ export default class ConfiguredEntity extends Std {
      */
     inherit(item) {
         if (!item) return Promise.resolve([]);
-        
+    
+        const ITEM_INHERITANCE = Std.EVENTS.item('inheritance').item('item');
         return this.constructor
                    .resolve(item)
                    .then(
                        (result) => {
                            /** @type {Event} event */
                            let [event, parent] = result;
-                
+                           this.send(ITEM_INHERITANCE.BEGIN.Symbol, parent);
                            /** @type {ConfiguredEntity} parent */
                            if (!(parent instanceof this.constructor)) {
                                // We can only inherit from things that are part of this family.
@@ -149,7 +146,12 @@ export default class ConfiguredEntity extends Std {
                            this._parentSymbols.add(parent.Symbol);
                 
                            // Only inherit what the parent is willing to give
-                           return this.configure(Object.assign({}, parent.inheritables, this.getOriginalConfiguration()));
+                           const newConfiguration = Object.assign({}, parent.inheritables, this.getOriginalConfiguration());
+                           const configure        = this.configure(newConfiguration);
+    
+                           return configure.then(i => {
+                               return this.send(ITEM_INHERITANCE.COMPLETE, item);
+                           });
                        });
     }
 }

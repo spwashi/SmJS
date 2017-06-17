@@ -7,13 +7,12 @@ describe('ConfiguredEntity', () => {
     const ConfiguredEntity = Sm.entities.ConfiguredEntity;
     const Std              = Sm.std.Std;
     const EVENTS           = Sm.std.EventEmitter.EVENTS;
-    it('exists', done => {
-        ConfiguredEntity.init('test')
-                        .then(configuredEntity => {
-                            expect(configuredEntity.Symbol).to.be.a('symbol');
-                            expect(configuredEntity.Symbol.toString()).to.equal(Symbol(`[${ConfiguredEntity.name}]test`).toString())
-                            done();
-                        });
+    it('exists', () => {
+        return ConfiguredEntity.init('test')
+                               .then(configuredEntity => {
+                                   expect(configuredEntity.Symbol).to.be.a('symbol');
+                                   expect(configuredEntity.Symbol.toString()).to.equal(Symbol(`[${ConfiguredEntity.name}]test`).toString())
+                               });
     });
     
     it('Can resolve', d => {
@@ -62,9 +61,8 @@ describe('ConfiguredEntity', () => {
                                                     .then(i => {
                                                         const testChild = i[1];
                                                         let error_message;
-                
-                                                        if (!begin_called) error_message = 'Wrong order of events';
-                                                        else if (!(testChild instanceof ConfiguredEntity)) error_message = ['Improper child', testChild];
+    
+                                                        if (!(testChild instanceof ConfiguredEntity)) error_message = ['Improper child', testChild];
                                                         else if (!testChild.parents.has(testParent.Symbol)) error_message = 'COuld not inherit';
                 
                                                         d(error_message)

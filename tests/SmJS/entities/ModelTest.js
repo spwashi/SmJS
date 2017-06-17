@@ -5,10 +5,6 @@ const expect = require('chai').expect;
 const Sm     = require(SMJS_PATH);
 const models = Sm._config.models;
 describe('Model', () => {
-    process.on('unhandledRejection', (reason, p) => {
-        // console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
-        // application specific logging, throwing an error, or other logic here
-    });
     const Std         = Sm.std.Std;
     const SymbolStore = Sm.std.symbols.SymbolStore;
     const Model       = Sm.entities.Model;
@@ -34,7 +30,7 @@ describe('Model', () => {
                     });
     });
     
-    const INHERIT_COMPLETE = Std.EVENTS.item('inherit').COMPLETE;
+    const INHERIT_COMPLETE = Std.EVENTS.item('inheritance').item('configuration').COMPLETE;
     it('Can inherit another model', () => {
         const parentName  = 'ciam_pn';
         const c1          = Model.init('childModel', {inherits: parentName});
@@ -242,7 +238,7 @@ describe('Model', () => {
     
     it('Can pass DataSource on to properties', done => {
         const mn = 'M_cpdotp_mn', dsn = 'M_cpdotp_dsn', pn = 'M_cpdotp_pn';
-        DataSource.init(dsn, {type: 'database'})
+        DataSource.init(dsn, {type: 'database'});
         
         Model.init(mn, {source: dsn, properties: {[pn]: {}}})
              .then(model => model.resolve(pn))

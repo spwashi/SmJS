@@ -31,6 +31,10 @@ class Std {
         else return symbolStore.item(ATTRIBUTE).item(item);
     }
     
+    get symbolStore() {
+        return this._symbolStore;
+    }
+    
     registerAttribute(name, attribute) {
         const propertySymbolStore = this._symbolStore.item(ATTRIBUTE).item(name);
         this._attributes.set(name, attribute);

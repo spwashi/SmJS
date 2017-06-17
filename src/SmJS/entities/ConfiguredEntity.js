@@ -66,8 +66,8 @@ export default class ConfiguredEntity extends Std {
             inheritedFollows.push(pId);
         });
         return this.send(this.EVENTS.item(INHERIT.BEGIN).STATIC, this)
-                   .then(i => Promise.all(inheritedFollows), _reject_)
-                   .then(i => this.send(this.EVENTS.item(INHERIT.COMPLETE).STATIC, this), _reject_)
+                   .then(i => Promise.all(inheritedFollows))
+                   .then(i => this.send(this.EVENTS.item(INHERIT.COMPLETE).STATIC, this))
                    .catch(i => {throw i});
     }
     
@@ -135,7 +135,6 @@ export default class ConfiguredEntity extends Std {
                        (result) => {
                            /** @type {Event} event */
                            let [event, parent] = result;
-                           console.log(this.symbolName, parent.symbolName);
                            this.send(ITEM_INHERITANCE.BEGIN.Symbol, parent);
                            /** @type {ConfiguredEntity} parent */
                            if (!(parent instanceof this.constructor)) {
@@ -152,10 +151,7 @@ export default class ConfiguredEntity extends Std {
     
                            return configure.then(i => {
                                return this.send(ITEM_INHERITANCE.COMPLETE, item);
-                           }).catch(i => {
-                               console.error(i);
-                               throw  i;
-                           })
-                       }, null);
+                           });
+                       });
     }
 }

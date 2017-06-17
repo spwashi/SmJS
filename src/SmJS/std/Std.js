@@ -4,6 +4,7 @@
 
 import {default as EventEmitter, EVENTS} from "./EventEmitter";
 import SymbolStore from "./symbols/SymbolStore";
+import TimeoutError from "../errors/TimeoutError";
 
 const ATTRIBUTE = SymbolStore.$_$.item('_attribute_').Symbol;
 
@@ -83,6 +84,10 @@ class Std {
         if (typeof identifier !== 'symbol') identifier = Symbol.for(this._name);
         this._Symbol      = identifier;
         const symbolStore = this.constructor.getSymbolStore(identifier);
+        /**
+         * @type {SymbolStore}
+         * @protected
+         */
         this._symbolStore = symbolStore;
         /**
          * Register Attributes as a Map
@@ -97,32 +102,25 @@ class Std {
         /** @type {SymbolStore} The Event that marks the beginning of this object's initialization */
         const BEGIN = Std.EVENTS.item('init').BEGIN;
         this.send(this.EVENTS.item(BEGIN).STATIC, this);
-        /**
-         * A promise that lets us know the parent initialization process has been completed
-         * @type {Promise}
-         * @protected
-         */
-        this._parentPromise = Promise.resolve(this._sendInitComplete(Std.name));
+    }
+    
+    initialize(config) {
+        return Promise.resolve(this);
     }
     
     /**
      *
-     * @param identifier
+     * @param {string|symbol}   identifier
+     * @param {{}}              config
      * @return {Promise<this>}
      */
-    static init(identifier) {
-        return this.create(...arguments)._sendInitComplete(this.name).catch(i => {throw i});
-    }
-    
-    /**
-     *
-     * @param identifier
-     * @return {this|Std}
-     */
-    static create(identifier) {
-        const constructor = this;
-        const item        = new constructor(...arguments);
-        return item;
+    static init(identifier, config = {}) {
+        const self                 = new this(...arguments);
+        const promise              = self
+            .initialize(config)
+            .then(self => self._sendInitComplete(this.name));
+        promise.initializingObject = self;
+        return promise;
     }
     
     /**
@@ -240,7 +238,13 @@ class Std {
             if (typeof fn === 'function') fn(...args);
             return resolve(args);
         };
-        setTimeout(i => reject(eventName.TIMEOUT.Symbol), 50);
+        
+        const granted_time = 500;
+        const timeoutError = new TimeoutError('Timeout in ' + (self.symbolName || self.name), eventName, granted_time);
+        setTimeout(i => {
+            return reject(timeoutError)
+        }, granted_time);
+        
         const promise = new Promise((yes, no) => [resolve, reject] = [yes, no]);
         (once ? self.Events.once(eventName, func) : self.Events.on(eventName, func));
         return promise;

@@ -10,23 +10,21 @@ export default class ConfiguredEntity extends Std {
     static get name() {return 'ConfiguredEntity'; }
     
     constructor(name, config = {}) {
-        if (!config && typeof name === 'object') config = name;
-        name              = config.name || name;
-        config.configName = config.configName || name;
+        name = config.name || name;
         super(name);
         this._parentSymbols = new Set;
         this._storeOriginalConfiguration(config);
+    }
+    
+    initialize(config) {
         let inherits = config.inherits;
-        /**
-         * @protected
-         */
-        this._parentPromise = this._parentPromise
-                                  .then(i => this._completeInitialInheritance(inherits))
-                                  .then(i => this.configure(config))
-                                  .then(i => this._finishInit())
-                                  .catch(e => {
-                                      this.send(this.EVENTS.item(Std.EVENTS.item('init').ERROR), e)
-                                  });
+        const name   = this.name;
+        if (!config && typeof name === 'object') config = name;
+        config.configName = config.configName || name;
+        return super.initialize(config)
+                    .then(i => this._completeInitialInheritance(inherits))
+                    .then(i => this.configure(config))
+                    .then(i => this)
     }
     
     get name() {return this._name;}
@@ -51,15 +49,6 @@ export default class ConfiguredEntity extends Std {
      */
     getOriginalConfiguration() {
         return this._originalConfig;
-    }
-    
-    /**
-     * Complete the initialization (shortcut for complete)
-     * @return {Promise}
-     * @private
-     */
-    _finishInit() {
-        return this._sendInitComplete(ConfiguredEntity.name);
     }
     
     /**
@@ -92,8 +81,10 @@ export default class ConfiguredEntity extends Std {
      */
     configure(properties) {
         // Array of all the Promises we want to resolve before we count this as configured
-        let promises = [];
+        let promises    = [];
+        const CONFIGURE = this.EVENTS.item('configure');
         
+        this.send(CONFIGURE.BEGIN);
         // Iterate through the properties and wait for them to resolve
         for (let property_name in properties) {
             if (!properties.hasOwnProperty(property_name)) continue;
@@ -109,7 +100,7 @@ export default class ConfiguredEntity extends Std {
                           : Promise.resolve(fn_name);
             promises.push(loopPromise);
         }
-        return Promise.all(promises);
+        return Promise.all(promises).then(i => this.send(CONFIGURE.COMPLETE));
     }
     
     /**
@@ -150,6 +141,6 @@ export default class ConfiguredEntity extends Std {
                 
                            // Only inherit what the parent is willing to give
                            return this.configure(Object.assign({}, parent.inheritables, this.getOriginalConfiguration()));
-                       });
+                       }, null);
     }
 }

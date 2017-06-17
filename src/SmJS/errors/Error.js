@@ -9,9 +9,13 @@ export class GenericError extends Error {
         
         let symbolString;
         
-        if (typeof symbol instanceof SymbolStore) symbolString = symbol.symbolName;
-        else if (typeof symbol === "symbol") symbolString = symbol.toString();
-        else symbolString = symbol;
+        if (symbol instanceof SymbolStore) {
+            symbolString = symbol.name;
+        } else if (typeof symbol === "symbol") {
+            symbolString = symbol.toString();
+        } else {
+            symbolString = symbol;
+        }
         
         if (typeof message === 'string' && typeof symbolString === 'string') {
             message += ` (acting on Sym[ ${symbolString} ])`;
@@ -19,8 +23,8 @@ export class GenericError extends Error {
         
         super(message);
         
-        this.active_symbol = symbol;
-        this.name          = this.constructor.name;
+        this.activeSymbol = symbol;
+        this.name         = this.constructor.name;
         
         this._addToStack(message);
     }

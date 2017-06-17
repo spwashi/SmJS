@@ -1,81 +1,114 @@
 import {describe, it} from "mocha";
 import {SMJS_PATH} from "../paths";
+require(SMJS_PATH + '_config/');
 const expect = require('chai').expect;
 /** @alias {Sm}  */
 const Sm     = require(SMJS_PATH);
 const models = Sm._config.models;
 describe('Model', () => {
-    const Std             = Sm.std.Std;
-    const SymbolStore     = Sm.std.symbols.SymbolStore;
-    const Model           = Sm.entities.Model;
-    const DataSource      = Sm.entities.DataSource;
-    const Property        = Sm.entities.Property;
-    const getDefaultModel = i => { return Model.create('_', models._); };
+    process.on('unhandledRejection', (reason, p) => {
+        // console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+        // application specific logging, throwing an error, or other logic here
+    });
+    const Std         = Sm.std.Std;
+    const SymbolStore = Sm.std.symbols.SymbolStore;
+    const Model       = Sm.entities.Model;
+    const DataSource  = Sm.entities.DataSource;
+    const Property    = Sm.entities.Property;
     
     it('exists', () => {
-        const testModel = Model.create('test', {});
-        expect(testModel.Symbol).to.be.a('symbol');
-        expect(testModel.Symbol.toString()).to.equal(Symbol(`[${Model.name}]test`).toString());
-        const COMPLETE = Std.EVENTS.item('init').COMPLETE;
-        return Model.receive(testModel.EVENTS.item(COMPLETE));
+        return Model.init('test')
+                    .then(testModel => {
+                        expect(testModel.Symbol).to.be.a('symbol');
+                        expect(testModel.Symbol.toString()).to.equal(Symbol(`[${Model.name}]test`).toString());
+                        const COMPLETE = Std.EVENTS.item('init').COMPLETE;
+                        return Model.receive(testModel.EVENTS.item(COMPLETE));
+                    });
+        
     });
     
-    it('Can be initialized w properties', done => {
-        const testModel = getDefaultModel();
-        expect(testModel.Symbol).to.be.a('symbol');
-        expect(testModel.Symbol.toString()).to.equal(Symbol(`[${Model.name}]_`).toString());
-        Model.resolve('_').then(i => {done();});
+    it('Can be initialized w properties', () => {
+        return Model.init('_', {properties: {test: {}}})
+                    .then(testModel => {
+                        expect(testModel.Symbol).to.be.a('symbol');
+                        expect(testModel.Symbol.toString()).to.equal(Symbol(`[${Model.name}]_`).toString());
+                    });
     });
     
     const INHERIT_COMPLETE = Std.EVENTS.item('inherit').COMPLETE;
-    it('Can inherit another model', done => {
-        const parentModel = Model.create('parentModel');
-        const childModel  = Model.create('childModel', {inherits: parentModel.name});
+    it('Can inherit another model', () => {
+        const parentName  = 'ciam_pn';
+        const c1          = Model.init('childModel', {inherits: parentName});
+        const p1          = Model.init(parentName);
+        let parentModel   = p1.initializingObject;
+        const allResolved = Promise.all([p1, c1]);
         
-        childModel.receive(childModel.EVENTS.item(INHERIT_COMPLETE))
-                  .then(result => {
-                      let [event, childModel] = result;
+        return Promise.resolve(p1)
+                      .then(_parentModel => {
+                          parentModel = _parentModel;
+                      })
+                      .then(i => c1)
+                      .then(childModel => childModel.receive(childModel.EVENTS.item(INHERIT_COMPLETE)))
+                      .then(result => {
+                          let [event, childModel] = result;
             
-                      if (!(childModel instanceof Model)) return done(`Return is of wrong type (${typeof childModel})`);
+                          if (!(childModel instanceof Model)) {
+                              throw new TypeError(`Return is of wrong type (${typeof childModel})`);
+                          }
             
-                      if (childModel.parents.has(parentModel.Symbol)) return done();
+                          if (childModel.parents.has(parentModel.Symbol)) {
+                              return allResolved;
+                          }
             
-                      return done('Could not inherit parent');
-                  });
+                          throw new Error('Could not inherit parent');
+                      });
     });
     
-    it('Can inherit multiple models', done => {
-        const parentModel1 = Model.create('parentModel1');
-        const parentModel2 = Model.create('parentModel2');
-        const childModel   = Model.create('childModel', {inherits: ['parentModel2', 'parentModel1']});
+    it('Can inherit multiple models', () => {
+        const p1 = Model.init('parentModel1'),
+              p2 = Model.init('parentModel2'),
+              c1 = Model.init('childModel', {inherits: ['parentModel2', 'parentModel1']});
         
-        childModel.receive(childModel.EVENTS.item(INHERIT_COMPLETE)).then(i => {
-            let [event, childModel] = i;
-            if (childModel.parents.has(parentModel1.Symbol) && childModel.parents.has(parentModel2.Symbol)) return done();
-            done('Incomplete')
-        })
+        let parentModel1 = p1.initializingObject,
+            parentModel2 = p2.initializingObject;
+        
+        return Promise.all([p1, p2])
+                      .then(result => [parentModel1, parentModel2] = result)
+                      .then(i => c1)
+                      .then(childModel => {
+                          const childInherited = childModel.EVENTS.item(INHERIT_COMPLETE);
+                          return childModel.receive(childInherited).then(i => childModel);
+                      })
+                      .then(childModel => {
+                          if (childModel.parents.has(parentModel1.Symbol) && childModel.parents.has(parentModel2.Symbol)) return;
+                          throw new Error('Expected ' + (childModel.parents.toString()) + ' to contain parents. Does not');
+                      });
     });
     
     it('Can resolve properties', done => {
-        const model          = Model.create('testResolveProperties', {properties: {test_property: {}}});
         const modelName      = '[Model]testResolveProperties';
         const _property_name = 'test_property';
         
-        Std.resolve(`${modelName}|${_property_name}`).then(i => {
-            let [event, property] = i;
-            // [Property]{[Model]testResolveProperties}test_property
-            expect(model.properties.get(`[Property]\{${modelName}}${_property_name}`)).to.equal(property);
-            expect(property).to.be.instanceof(Property);
+        const model =
+                  Model.init('testResolveProperties', {properties: {test_property: {}}})
+                      .initializingObject;
+        Std.resolve(`${modelName}|${_property_name}`)
+           .then(i => {
+               let [event, property] = i;
             
-            return model.resolve(_property_name).then(prop => done());
-        });
+               // [Property]{[Model]testResolveProperties}test_property
+               expect(model.properties.get(`[Property]\{${modelName}}${_property_name}`)).to.equal(property);
+               expect(property).to.be.instanceof(Property);
+            
+               return model.resolve(_property_name).then(prop => done());
+           });
     });
     
     it('Can register Primary properties', done => {
         const _model_name    = 'primary_test_mn';
         const _property_name = 'primary_test_pn';
         const model_name     = `[Model]${_model_name}`;
-        const model          = Model.create(_model_name, {properties: {[_property_name]: {primary: true, unique: true}}});
+        const model          = Model.init(_model_name, {properties: {[_property_name]: {primary: true, unique: true}}}).initializingObject;
         Std.resolve(`${model_name}|${_property_name}`).then(i => {
             /** @type {Property} property */
             let [event, property] = i;
@@ -92,8 +125,8 @@ describe('Model', () => {
         const _property_name  = 'unique_test_pn';
         const _property_name2 = 'unique_test_pn2';
         const model_name      = `[Model]${_model_name}`;
-    
-        Model.create(_model_name, {
+        
+        Model.init(_model_name, {
             properties: {
                 [_property_name]:  {primary: true, unique: true},
                 [_property_name2]: {unique: true},
@@ -114,7 +147,7 @@ describe('Model', () => {
            });
     });
     
-    it('Can inherit properties', done => {
+    it('Can inherit properties', () => {
         const m1n     = 'cip_m1n', m2n = 'cip_m2n', m3n = 'cip_m3n';
         const _models = {
             [m1n]: {properties: {id: {primary: true}, last_name: {unique: true}}},
@@ -127,59 +160,53 @@ describe('Model', () => {
                                                .map(i => {
                                                    let [model_name, model_config] = i;
                                                    // Initialize the Model
-                                                   Model.create(model_name, model_config);
-                                                   return Model.resolve(model_name);
+                                                   return Model.init(model_name, model_config);
                                                });
-        const _assertProperty          = property => expect(property).to.be.instanceof(Property);
         /**
          * @param i
          * @return Property
          */
-        const _getPropertyFromEventArr = i => (_assertProperty(i[1]) , i[1]);
+        const _getPropertyFromEventArr = i => {
+            const property = i[1];
+            expect(property).to.be.instanceof(Property);
+            return property
+        };
         
         // Once all of the Models have been initialized
-        Promise.all(resolveModels)
-        
-               // Get all models from the returned array of event arrays & store them in an object
-               .then(i => {
-                   return new Map(i.map(event_model_arr => event_model_arr[1])
-                                   .map(/**@type {Model}*/
-                                        model => [model.originalName, model]));
-               })
-        
-               // Check to see if the Models have inherited properties correctly
-               .then(
-                   /** @param ModelMap {Map<string,Model>}  */
-                   (ModelMap) => {
-                       const m1         = ModelMap.get(m1n),
-                             m2         = ModelMap.get(m2n),
-                             m3         = ModelMap.get(m3n);
-                       const m1_promise = m1.resolve('id').then(i => {
-                           const property = _getPropertyFromEventArr(i);
-                       });
-                       const m2_promise = m2.resolve('first_name')
-                                            .then(i => {
-                                                const property     = _getPropertyFromEventArr(i);
-                                                const uniqueKeySet = m2.propertyMeta.getUniqueKeySet(property);
-                                                expect(uniqueKeySet).not.to.equal(false);
-                                            });
-                       const m3_promise = m3.resolve('first_name')
-                                            .then(i => {
-                                                const property     = _getPropertyFromEventArr(i);
-                                                const uniqueKeySet = m3.propertyMeta.getUniqueKeySet(property);
-                                                expect(uniqueKeySet).to.equal(false);
-                                            });
-                       return Promise.all([m1_promise, m2_promise, m3_promise]);
-                   })
-               .then(i => done());
-        
+        return Promise.all(resolveModels)
+                      // Get all models from the returned array of event arrays & store them in an object
+                      .then(i => new Map(i.map(model => [model.originalName, model])))
+                      // Check to see if the Models have inherited properties correctly
+                      .then(
+                          /** @param ModelMap {Map<string,Model>}  */
+                          (ModelMap) => {
+                              const m1         = ModelMap.get(m1n),
+                                    m2         = ModelMap.get(m2n),
+                                    m3         = ModelMap.get(m3n);
+                              const m1_promise = m1.resolve('id').then(i => {
+                                  const property = _getPropertyFromEventArr(i);
+                              });
+                              const m2_promise = m2.resolve('first_name')
+                                                   .then(i => {
+                                                       const property     = _getPropertyFromEventArr(i);
+                                                       const uniqueKeySet = m2.propertyMeta.getUniqueKeySet(property);
+                                                       expect(uniqueKeySet).not.to.equal(false);
+                                                   });
+                              const m3_promise = m3.resolve('first_name')
+                                                   .then(i => {
+                                                       const property     = _getPropertyFromEventArr(i);
+                                                       const uniqueKeySet = m3.propertyMeta.getUniqueKeySet(property);
+                                                       expect(uniqueKeySet).to.equal(false);
+                                                   });
+                              return Promise.all([m1_promise, m2_promise, m3_promise]);
+                          });
     });
     
     it('Can configure DataSource', done => {
         const mn  = 'ccd_mn';
         const dsn = 'ccd_dsn';
-        DataSource.create(dsn, {type: 'database'});
-        Model.create(mn, {source: dsn});
+        DataSource.init(dsn, {type: 'database'});
+        Model.init(mn, {source: dsn});
         Model.resolve(mn)
              .then(i => {
                  /** @type {Event|Model}  */
@@ -209,20 +236,17 @@ describe('Model', () => {
                  // failures in other places might be tied to this if it breaks, though
                  done();
              });
-    
-        DataSource.create(dsn, {type: 'database'});
-        Model.create(mn, {source: dsn});
+        
+        DataSource.init(dsn, {type: 'database'});
+        Model.init(mn, {source: dsn});
     });
     
     it('Can pass DataSource on to properties', done => {
         const mn = 'M_cpdotp_mn', dsn = 'M_cpdotp_dsn', pn = 'M_cpdotp_pn';
-        DataSource.create(dsn, {type: 'database'});
-        Model.create(mn, {source: dsn, properties: {[pn]: {}}});
-        Model.resolve(mn)
-             .then(i => {
-                 const [, model] = i;
-                 return model.resolve(pn);
-             })
+        DataSource.init(dsn, {type: 'database'})
+        
+        Model.init(mn, {source: dsn, properties: {[pn]: {}}})
+             .then(model => model.resolve(pn))
              .then(i => {
                  const [e, property] = i;
                  expect(property).to.be.instanceof(Property);

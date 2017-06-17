@@ -45,5 +45,4 @@ describe('Property', () => {
                           expect([...property.datatypes]).to.contain(datatypePromise.initializingObject.Symbol)
                       });
     });
-    
 });

@@ -20,9 +20,10 @@ export default class ConfiguredEntity extends Std {
         let inherits = config.inherits;
         const name   = this.name;
         if (!config && typeof name === 'object') config = name;
-        config.configName = config.configName || name;
+        config.configName                = config.configName || name;
+        const completeInitialInheritance = this._completeInitialInheritance(inherits);
         return super.initialize(config)
-                    .then(i => this._completeInitialInheritance(inherits))
+                    .then(i => completeInitialInheritance)
                     .then(i => this.configure(config))
                     .then(i => this)
     }
@@ -127,7 +128,7 @@ export default class ConfiguredEntity extends Std {
      */
     inherit(item) {
         if (!item) return Promise.resolve([]);
-    
+        
         const ITEM_INHERITANCE = Std.EVENTS.item('inheritance').item('item');
         return this.constructor
                    .resolve(item)
@@ -148,7 +149,7 @@ export default class ConfiguredEntity extends Std {
                            // Only inherit what the parent is willing to give
                            const newConfiguration = Object.assign({}, parent.inheritables, this.getOriginalConfiguration());
                            const configure        = this.configure(newConfiguration);
-    
+                
                            return configure.then(i => {
                                return this.send(ITEM_INHERITANCE.COMPLETE, item);
                            });

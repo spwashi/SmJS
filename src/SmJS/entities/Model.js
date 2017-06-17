@@ -69,7 +69,7 @@ export default class Model extends DataSourceHaver {
             property_config.configName = property_name;
             return this._addProperty(property_name, property_config)
                        .then(property => {
-                           this._attachDataSourceToProperty(property).then(i => property).catch(i => {console.error(i) ;});
+                           this._attachDataSourceToProperty(property).then(i => property).catch(i => {console.error(i);});
                        });
         });
         return Promise.all(promises);

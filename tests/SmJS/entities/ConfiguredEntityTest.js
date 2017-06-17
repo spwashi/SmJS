@@ -52,7 +52,7 @@ describe('ConfiguredEntity', () => {
         
         const INHERIT  = child.item(Std.EVENTS.item('inherit').COMPLETE);
         const COMPLETE = child.item(Std.EVENTS.item('init').COMPLETE);
-        
+    
         let begin_called = false;
         initTestParent.then(testParent => {
             const waitForInherit = ConfiguredEntity.receive(INHERIT)
@@ -61,16 +61,16 @@ describe('ConfiguredEntity', () => {
                                                     .then(i => {
                                                         const testChild = i[1];
                                                         let error_message;
-    
+            
                                                         if (!(testChild instanceof ConfiguredEntity)) error_message = ['Improper child', testChild];
                                                         else if (!testChild.parents.has(testParent.Symbol)) error_message = 'COuld not inherit';
-                
+            
                                                         d(error_message)
                                                     });
-            
+        
             // Create the inheriting child
             ConfiguredEntity.init('child', {inherits: 'parent'});
-            
+        
             return waitForComplete;
         });
         

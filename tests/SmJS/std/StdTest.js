@@ -31,7 +31,7 @@ describe('Std', () => {
     });
     it('Can resolve _properties_', _ => {
         const name = '[Std]test|title';
-        
+    
         const std     = Std.init('test').initializingObject;
         const resolve = Std.resolve(name);
         std.registerAttribute('title', {});

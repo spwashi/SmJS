@@ -19,7 +19,7 @@ describe('Model', () => {
                         const COMPLETE = Std.EVENTS.item('init').COMPLETE;
                         return Model.receive(testModel.EVENTS.item(COMPLETE));
                     });
-        
+    
     });
     
     it('Can be initialized w properties', () => {
@@ -83,18 +83,18 @@ describe('Model', () => {
     it('Can resolve properties', done => {
         const modelName      = '[Model]testResolveProperties';
         const _property_name = 'test_property';
-        
+    
         const model =
                   Model.init('testResolveProperties', {properties: {test_property: {}}})
                       .initializingObject;
         Std.resolve(`${modelName}|${_property_name}`)
            .then(i => {
                let [event, property] = i;
-            
+        
                // [Property]{[Model]testResolveProperties}test_property
                expect(model.properties.get(`[Property]\{${modelName}}${_property_name}`)).to.equal(property);
                expect(property).to.be.instanceof(Property);
-            
+        
                return model.resolve(_property_name).then(prop => done());
            });
     });
@@ -120,7 +120,7 @@ describe('Model', () => {
         const _property_name  = 'unique_test_pn';
         const _property_name2 = 'unique_test_pn2';
         const model_name      = `[Model]${_model_name}`;
-        
+    
         Model.init(_model_name, {
             properties: {
                 [_property_name]:  {primary: true, unique: true},
@@ -231,7 +231,7 @@ describe('Model', () => {
                  // failures in other places might be tied to this if it breaks, though
                  done();
              });
-        
+    
         DataSource.init(dsn, {type: 'database'});
         Model.init(mn, {source: dsn});
     });
@@ -239,7 +239,7 @@ describe('Model', () => {
     it('Can pass DataSource on to properties', done => {
         const mn = 'M_cpdotp_mn', dsn = 'M_cpdotp_dsn', pn = 'M_cpdotp_pn';
         DataSource.init(dsn, {type: 'database'});
-        
+    
         Model.init(mn, {source: dsn, properties: {[pn]: {}}})
              .then(model => model.resolve(pn))
              .then(i => {

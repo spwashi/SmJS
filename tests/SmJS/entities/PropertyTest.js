@@ -36,13 +36,25 @@ describe('Property', () => {
         const datatypePromise = Datatype.init('int');
         const childPromise    = Property.init(child_pn, {inherits: [parent_pn]});
         return Promise.resolve(parentPromise)
-                      .catch(i => {console.error(i)})
                       .then(i => datatypePromise)
-                      .catch(i => {console.error(i)})
                       .then(i => childPromise)
                       .then(/** @param {Property}  */property => {
                           expect([...property.parents]).to.contain((parentPromise.initializingObject.Symbol));
-                          expect([...property.datatypes]).to.contain(datatypePromise.initializingObject.Symbol)
+                          expect([...property.datatypes]).to.contain(datatypePromise.initializingObject)
                       });
     });
+    it('Can be JSON', () => {
+        Datatype.init('int');
+        Datatype.init('string');
+        return Property.init('P_cbj_cen', {
+                           datatypes: ['int', 'string']
+                       })
+                       .then(model => {
+                           const stringify = JSON.stringify(model);
+                           const parse     = JSON.parse(stringify);
+                           expect(parse).to.haveOwnProperty('smID');
+                           expect(parse).to.haveOwnProperty('datatypes');
+                           expect(parse.datatypes.length).to.equal(2);
+                       });
+    })
 });

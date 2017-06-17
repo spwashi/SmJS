@@ -31,7 +31,7 @@ class SymbolStore {
      */
     constructor(name, parent = null, symbol = null) {
         let parent_name;
-        if (parent instanceof SymbolStore) parent_name = parent.name;
+        if (parent instanceof SymbolStore) parent_name = parent.smID;
         
         const _new_name = (parent_name ? _to_string(parent_name || symbol) + ' ' : '') + _to_string(name);
         this._name      = _new_name;

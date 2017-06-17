@@ -21,7 +21,6 @@ describe('Datatype', () => {
                            expect([...datatype.parents]).to.contain(parent.Symbol);
                        });
     });
-    
     it('Can only inherit from one Datatype', () => {
         const p_dt_n     = 'cifd_p_dt_n1';
         const p_dt_n2    = 'cifd_p_dt_n2';
@@ -35,4 +34,13 @@ describe('Datatype', () => {
                            expect(e.message).to.contain('Can only inherit from one Datatype');
                        });
     });
+    it('Can be JSON', () => {
+        return Datatype.init('Dt_cbj_cen')
+                       .then(model => {
+                           const stringify = JSON.stringify(model);
+                           const parse     = JSON.parse(stringify);
+                           expect(parse).to.haveOwnProperty('smID');
+                           expect(parse).to.haveOwnProperty('name');
+                       });
+    })
 });

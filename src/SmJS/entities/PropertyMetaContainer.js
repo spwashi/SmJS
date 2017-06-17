@@ -38,11 +38,14 @@ class PropertyMetaContainer extends Std {
      * @private
      */
     _findPropertyKeySet(property, keySet) {
+        // default behavior- return the keyset
+        if (property === null || typeof property === "undefined") return keySet;
+        
         if (keySet instanceof Map) {
             let matchingKeysets = new Map;
             keySet.forEach((set, name, map) => {
                 const _keySet = this._findPropertyKeySet(property, set);
-    
+                
                 if (_keySet instanceof Set) {
                     matchingKeysets.set(name, _keySet);
                 }
@@ -50,9 +53,6 @@ class PropertyMetaContainer extends Std {
             if (!matchingKeysets.size) return false;
             return matchingKeysets;
         }
-        
-        // default behavior- return the keyset
-        if (property === null) return keySet;
         
         //If we pass in a property, interpret this as "get PrimaryKey where property = ___"
         return keySet.has(property) ? keySet : false;
@@ -74,6 +74,35 @@ class PropertyMetaContainer extends Std {
      */
     getUniqueKeySet(property) {
         return this._findPropertyKeySet(property, this._uniqueKeys);
+    }
+    
+    get primary() {
+        return this.getPrimaryKeySet();
+    }
+    
+    get unique() {
+        return this.getUniqueKeySet();
+    }
+    
+    toJSON_primary() {
+        return [...this.primary].map(property => property.smID);
+    }
+    
+    toJSON_unique() {
+        const unique         = {};
+        const selfUniqueKeys = this.unique;
+        
+        if (!selfUniqueKeys) return null;
+        
+        selfUniqueKeys.forEach((item, index) => {
+            unique[index] = [...item].map(property => property.smID);
+        });
+        return unique
+    }
+    
+    toJSON() {
+        let [primary, unique] = [this.toJSON_primary(), this.toJSON_unique()];
+        return {primary, unique}
     }
     
     /**

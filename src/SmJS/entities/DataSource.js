@@ -7,7 +7,7 @@ import SymbolStore from "../std/symbols/SymbolStore";
 import TypeError from "../errors/TypeError";
 
 export default class DataSource extends ConfiguredEntity {
-    static get name() {return 'DataSource'; }
+    static get smID() {return 'DataSource'; }
     
     /**
      *
@@ -41,6 +41,10 @@ export default class DataSource extends ConfiguredEntity {
         return this._type;
     }
     
+    get jsonFields() {
+        return new Set([...super.jsonFields, 'type'])
+    }
+    
     configure_type(type) {
         this._type = type;
         if (typeof type !== "string") throw  new TypeError("Can only use strings as types");
@@ -57,7 +61,7 @@ export default class DataSource extends ConfiguredEntity {
     }
 }
 
-export const    SOURCE = SymbolStore.$_$.item('_source_').Symbol;
+export const SOURCE = SymbolStore.$_$.item('_source_').Symbol;
 /**
  * @class DataSourceHaver
  * @name DataSourceHaver
@@ -90,7 +94,7 @@ export class DataSourceHaver extends ConfiguredEntity {
                              }
                              this._dataSource = dataSource;
                              this.registerAttribute(SOURCE, dataSource);
-                             
+            
                              return dataSource;
                          });
     }

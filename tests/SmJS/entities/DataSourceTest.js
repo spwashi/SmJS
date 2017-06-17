@@ -27,7 +27,6 @@ describe('DataSource', () => {
             done();
         });
     });
-    
     it('Has a type that is one of a few pre-configured values', done => {
         let ds_name = 'hatpcv_ds', ds_type = 'Json';
         DataSource.init(ds_name, {type: 'Moot'})
@@ -37,4 +36,13 @@ describe('DataSource', () => {
                   })
         
     });
+    it('Can be JSON', () => {
+        return DataSource.init('DS_cbj_cen', {type: 'database'})
+                         .then(model => {
+                             const stringify = JSON.stringify(model);
+                             const parse     = JSON.parse(stringify);
+                             expect(parse).to.haveOwnProperty('smID');
+                             expect(parse).to.haveOwnProperty('type');
+                         });
+    })
 });

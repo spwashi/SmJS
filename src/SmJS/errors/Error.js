@@ -10,7 +10,7 @@ export class GenericError extends Error {
         let symbolString;
         
         if (symbol instanceof SymbolStore) {
-            symbolString = symbol.name;
+            symbolString = symbol.smID;
         } else if (typeof symbol === "symbol") {
             symbolString = symbol.toString();
         } else {
@@ -24,7 +24,7 @@ export class GenericError extends Error {
         super(message);
         
         this.activeSymbol = symbol;
-        this.name         = this.constructor.name;
+        this.smID         = this.constructor.smID;
         
         this._addToStack(message);
     }

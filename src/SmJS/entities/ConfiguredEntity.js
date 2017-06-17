@@ -3,24 +3,23 @@
  */
 const Std = require('../std/').Std;
 const _   = require('lodash');
+import {mapToObj} from "../util/index";
 /**
  * @class ConfiguredEntity
  */
 export default class ConfiguredEntity extends Std {
-    static get name() {return 'ConfiguredEntity'; }
+    static get smID() {return 'ConfiguredEntity'; }
     
     constructor(name, config = {}) {
-        name = config.name || name;
+        name = name || config.name;
         super(name);
         this._parentSymbols = new Set;
+        config.configName   = config.configName || name;
         this._storeOriginalConfiguration(config);
     }
     
     initialize(config) {
-        let inherits = config.inherits;
-        const name   = this.name;
-        if (!config && typeof name === 'object') config = name;
-        config.configName                = config.configName || name;
+        let inherits                     = config.inherits;
         const completeInitialInheritance = this._completeInitialInheritance(inherits);
         return super.initialize(config)
                     .then(i => completeInitialInheritance)
@@ -28,55 +27,38 @@ export default class ConfiguredEntity extends Std {
                     .then(i => this)
     }
     
-    get name() {return this._name;}
-    
     /** @return {Set} */
     get parents() { return this._parentSymbols; }
-    
-    /**
-     * Add the Original Configuration as an attribute of this object.
-     * @param original_config
-     * @return {ConfiguredEntity}
-     * @private
-     */
-    _storeOriginalConfiguration(original_config) {
-        this._originalConfig = _.cloneDeep(original_config);
-        return this;
-    }
-    
-    /**
-     * Get the original obect (or a clone of it) that was used to configure this object
-     * @return {{}}
-     */
-    getOriginalConfiguration() {
-        return this._originalConfig;
-    }
-    
-    /**
-     * Inherit from all of the parent identifiers we said we want to inherit from in the original configuration
-     * @param parent_identifiers
-     * @return {Promise<Std>}
-     * @private
-     */
-    _completeInitialInheritance(parent_identifiers) {
-        parent_identifiers     = Array.isArray(parent_identifiers) ? parent_identifiers : [parent_identifiers];
-        const INHERIT          = Std.EVENTS.item('inheritance').item('configuration');
-        const inheritedFollows = [];
-        parent_identifiers.forEach(item => {
-            const pId = this.inherit(item);
-            inheritedFollows.push(pId);
-        });
-        return this.send(this.EVENTS.item(INHERIT.BEGIN).STATIC, this)
-                   .then(i => Promise.all(inheritedFollows))
-                   .then(i => this.send(this.EVENTS.item(INHERIT.COMPLETE).STATIC, this))
-                   .catch(i => {throw i});
-    }
     
     /**
      * This is the name as it was used when we were initially configuring whatever this was.
      */
     get configName() {
         return this.getOriginalConfiguration().configName;
+    }
+    
+    get inheritables() {
+        return this.getInheritables();
+    }
+    
+    /**
+     * Get an array of the Fields we're going to encode in JSON
+     * @return {Set<string>}
+     */
+    get jsonFields() {
+        return new Set(['smID']);
+    }
+    
+    toJSON() {
+        const jsonFields = this.jsonFields;
+        const json_obj   = {};
+        jsonFields.forEach(fieldName => {
+            const fn_name = `toJSON_${fieldName}`;
+            let item      = this[fn_name] ? this[fn_name]() : this[fieldName];
+            if (item instanceof Map) item = mapToObj(item);
+            json_obj[fieldName] = item;
+        });
+        return json_obj;
     }
     
     /**
@@ -117,10 +99,6 @@ export default class ConfiguredEntity extends Std {
         return this.getOriginalConfiguration();
     }
     
-    get inheritables() {
-        return this.getInheritables();
-    }
-    
     /**
      *
      * @param item
@@ -155,4 +133,45 @@ export default class ConfiguredEntity extends Std {
                            });
                        });
     }
+    
+    /**
+     * Get the original obect (or a clone of it) that was used to configure this object
+     * @return {{}}
+     */
+    getOriginalConfiguration() {
+        return this._originalConfig;
+    }
+    
+    //region PrivateMethods
+    /**
+     * Add the Original Configuration as an attribute of this object.
+     * @param original_config
+     * @return {ConfiguredEntity}
+     * @private
+     */
+    _storeOriginalConfiguration(original_config) {
+        this._originalConfig = _.cloneDeep(original_config);
+        return this;
+    }
+    
+    /**
+     * Inherit from all of the parent identifiers we said we want to inherit from in the original configuration
+     * @param parent_identifiers
+     * @return {Promise<Std>}
+     * @private
+     */
+    _completeInitialInheritance(parent_identifiers) {
+        parent_identifiers     = Array.isArray(parent_identifiers) ? parent_identifiers : [parent_identifiers];
+        const INHERIT          = Std.EVENTS.item('inheritance').item('configuration');
+        const inheritedFollows = [];
+        parent_identifiers.forEach(item => {
+            const pId = this.inherit(item);
+            inheritedFollows.push(pId);
+        });
+        return this.send(this.EVENTS.item(INHERIT.BEGIN).STATIC, this)
+                   .then(i => Promise.all(inheritedFollows))
+                   .then(i => this.send(this.EVENTS.item(INHERIT.COMPLETE).STATIC, this))
+                   .catch(i => {throw i});
+    }
+    //endregion
 }

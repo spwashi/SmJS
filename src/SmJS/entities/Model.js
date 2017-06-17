@@ -29,6 +29,19 @@ export default class Model extends DataSourceHaver {
      */
     get properties() { return this._properties; }
     
+    get jsonFields() {
+        return new Set([...super.jsonFields, 'propertyMeta', 'properties'])
+    }
+    
+    toJSON_properties() {
+        const properties = {};
+        this.properties
+            .forEach((property, name) => {
+                properties[property.configName] = property;
+            });
+        return properties;
+    }
+    
     //region Configure
     /**
      *
@@ -41,7 +54,7 @@ export default class Model extends DataSourceHaver {
                    .then(i => {
                        /** @type {DataSource}  */
                        const [, dataSource] = i;
-                       const dsn            = dataSource.configName || dataSource.name || null;
+                       const dsn            = dataSource.configName || dataSource.smID || null;
                        return property.configure({source: dsn}).then(i => property);
                    })
                    .catch(i => {
@@ -78,7 +91,7 @@ export default class Model extends DataSourceHaver {
     //endregion
     
     // region Inherited
-    static get name() {return 'Model'; }
+    static get smID() {return 'Model'; }
     
     getInheritables() {
         return {
@@ -134,7 +147,7 @@ export default class Model extends DataSourceHaver {
      * @return {string}
      * @private
      */
-    _nameProperty(original_property_name) { return `{${this.name}}${original_property_name}`; }
+    _nameProperty(original_property_name) { return `{${this.smID}}${original_property_name}`; }
     
     /**
      * Add the Property to the PropertyMeta to keep track of it.
@@ -162,7 +175,7 @@ export default class Model extends DataSourceHaver {
      * @private
      */
     _registerProperty(original_property_name, property) {
-        this._properties.set(property.name, property);
+        this._properties.set(property.smID, property);
         this._incorporatePropertyIntoMeta(property);
         this.registerAttribute(original_property_name, property);
         return property;

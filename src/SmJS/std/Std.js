@@ -20,7 +20,7 @@ class Std {
         /** @type {string} item If we are retrieving a property of this item */
         let item;
         if (typeof symbol === 'string') {
-            let identifer = this === Std ? '[' : `[${this.name}]`;
+            let identifer = this === Std ? '[' : `[${this.smID}]`;
             if (symbol.indexOf('|') > 0) [symbol, item] = symbol.split('|') || null;
             if (symbol.indexOf(identifer) !== 0) symbol = this.createName(symbol);
             symbol = Symbol.for(symbol);
@@ -67,7 +67,7 @@ class Std {
     
     static createName(name) {
         name = name || Math.random().toString(36).substr(4, 6);
-        return `[${this.name}]${name}`
+        return `[${this.smID}]${name}`
     }
     
     //region Initialization
@@ -120,9 +120,10 @@ class Std {
      */
     static init(identifier, config = {}) {
         const self                 = new this(...arguments);
+        config.configName          = config.configName || identifier;
         const promise              = self
             .initialize(config)
-            .then(self => self._sendInitComplete(this.name));
+            .then(self => self._sendInitComplete(this.smID));
         promise.initializingObject = self;
         return promise;
     }
@@ -133,7 +134,7 @@ class Std {
      * @return {Promise}
      */
     _sendInitComplete(name) {
-        if (name === this.constructor.name) {
+        if (name === this.constructor.smID) {
             return this._sendAvailable(name)
                        .then(i => {
                            this._isComplete = true;
@@ -151,7 +152,7 @@ class Std {
      * @private
      */
     _sendAvailable(name) {
-        if (name === this.constructor.name && !this._isAvailable) {
+        if (name === this.constructor.smID && !this._isAvailable) {
             this._isAvailable = true;
             return this.send(this.EVENTS.item(Std.EVENTS.item('available')).STATIC, this);
         }
@@ -192,9 +193,9 @@ class Std {
     
     get symbolName() {return this._Symbol.toString();}
     
-    static get name() {return 'Std';}
+    static get smID() {return 'Std';}
     
-    get name() {return this._name}
+    get smID() {return this._name}
     
     get originalName() {return this._originalName}
     
@@ -220,7 +221,7 @@ class Std {
     /**
      * @return {SymbolStore}
      */
-    static get EVENTS() { return this[EVENTS] || (this[EVENTS] = new SymbolStore(Symbol.for(this.name))); }
+    static get EVENTS() { return this[EVENTS] || (this[EVENTS] = new SymbolStore(Symbol.for(this.smID))); }
     
     //endregion
     
@@ -244,7 +245,7 @@ class Std {
         };
         
         const granted_time = 500;
-        const timeoutError = new TimeoutError('Timeout in ' + (self.symbolName || self.name), eventName, granted_time);
+        const timeoutError = new TimeoutError('Timeout in ' + (self.symbolName || self.smID), eventName, granted_time);
         setTimeout(i => {
             return reject(timeoutError)
         }, granted_time);

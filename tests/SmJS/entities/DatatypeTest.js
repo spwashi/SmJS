@@ -35,5 +35,4 @@ describe('Datatype', () => {
                            expect(e.message).to.contain('Can only inherit from one Datatype');
                        });
     });
-    
 });

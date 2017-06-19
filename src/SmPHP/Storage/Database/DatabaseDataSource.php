@@ -8,7 +8,7 @@
 namespace Sm\Storage\Database;
 
 
-use Sm\Entity\Source\DataSource;
+use Sm\Data\Source\DataSource;
 
 abstract class DatabaseDataSource extends DataSource {
     protected $database_name;

@@ -9,8 +9,8 @@ namespace Sm\Storage\Database;
 
 
 use Sm\Authentication\Authentication;
-use Sm\Entity\Property\PropertyContainer;
-use Sm\Entity\Source\DataSource;
+use Sm\Data\Property\PropertyContainer;
+use Sm\Data\Source\DataSource;
 
 /** @noinspection PhpSignatureMismatchDuringInheritanceInspection */
 

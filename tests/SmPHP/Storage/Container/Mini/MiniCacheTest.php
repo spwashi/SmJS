@@ -5,13 +5,13 @@
  * Time: 9:37 PM
  */
 
-namespace Sm\Storage\Container\Mini;
+namespace Sm\Core\Container\Mini;
 
 
 class MiniCacheTest extends \PHPUnit_Framework_TestCase {
-    /** @var  \Sm\Storage\Container\Mini\MiniCache $Keyed_MiniCache */
+    /** @var  \Sm\Core\Container\Mini\MiniCache $Keyed_MiniCache */
     protected static $Keyed_MiniCache;
-    /** @var  \Sm\Storage\Container\Mini\MiniCache $MiniCache */
+    /** @var  \Sm\Core\Container\Mini\MiniCache $MiniCache */
     protected static $MiniCache;
     public function testCanBegin() {
         $MiniCache = MiniCache::begin();

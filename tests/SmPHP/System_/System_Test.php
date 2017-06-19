@@ -5,12 +5,12 @@
  * Time: 6:33 PM
  */
 
-namespace Sm\System_;
+namespace Sm\Core\System_;
 
 
 use Monolog\Logger;
-use Sm\Resolvable\Resolvable;
-use Sm\Resolvable\ResolvableFactory;
+use Sm\Core\Resolvable\Resolvable;
+use Sm\Core\Resolvable\ResolvableFactory;
 
 
 class System_Test extends \PHPUnit_Framework_TestCase {

@@ -5,12 +5,12 @@
  * Time: 7:11 PM
  */
 
-namespace Sm\Storage\Container;
+namespace Sm\Core\Container;
 
 
-use Sm\Resolvable\NullResolvable;
-use Sm\Resolvable\OnceRunResolvable;
-use Sm\Resolvable\Resolvable;
+use Sm\Core\Resolvable\NullResolvable;
+use Sm\Core\Resolvable\OnceRunResolvable;
+use Sm\Core\Resolvable\Resolvable;
 
 class ContainerTest extends \PHPUnit_Framework_TestCase {
     public function setUp() { ; }
@@ -26,9 +26,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
      * @depends      testCanCreate
      * @dataProvider Container_Provider
      *
-     * @param \Sm\Storage\Container\Container $Container
+     * @param \Sm\Core\Container\Container $Container
      *
-     * @return \Sm\Storage\Container\Container
+     * @return \Sm\Core\Container\Container
      */
     public function testCanRegister(Container $Container) {
         return $this->_register_default($Container);
@@ -70,9 +70,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
     /**
      * @depends testCanCreate
      *
-     * @param \Sm\Storage\Container\Container $Container
+     * @param \Sm\Core\Container\Container $Container
      *
-     * @return \Sm\Storage\Container\Container
+     * @return \Sm\Core\Container\Container
      */
     public function testCanCopy(Container $Container) {
         $test_1_fn = function ($argument) {
@@ -87,7 +87,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
     }
     
     /**
-     * @param \Sm\Storage\Container\Container $Container
+     * @param \Sm\Core\Container\Container $Container
      *
      * @depends  testCanCreate
      */
@@ -130,9 +130,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals($array, $end);
     }
     /**
-     * @param \Sm\Storage\Container\Container $Container
+     * @param \Sm\Core\Container\Container $Container
      *
-     * @return \Sm\Storage\Container\Container
+     * @return \Sm\Core\Container\Container
      */
     protected function _register_default(Container $Container) {
         $Container->register('test_string', 'string');

@@ -5,24 +5,24 @@
  * Time: 12:22 PM
  */
 
-use Sm\App\App;
-use Sm\Data\Variable_\Variable_;
-use Sm\Entity\Property\Property;
-use Sm\EvaluableStatement\Constructs\And_;
-use Sm\EvaluableStatement\EqualityCondition\GreaterThanCondition;
-use Sm\EvaluableStatement\EqualityCondition\LessThanCondition;
-use Sm\EvaluableStatement\EvaluableStatementFactory;
-use Sm\Formatter\FormatterFactory;
-use Sm\Query\Interpreter\QueryInterpreterFactory;
-use Sm\Resolvable\FunctionResolvable;
+use Sm\Core\Application\App;
+use Sm\Core\Formatter\FormatterFactory;
+use Sm\Core\Resolvable\FunctionResolvable;
+use Sm\Data\Datatype\Variable_\Variable_;
+use Sm\Data\Property\Property;
+use Sm\Process\EvaluableStatement\Constructs\And_;
+use Sm\Process\EvaluableStatement\EqualityCondition\GreaterThanCondition;
+use Sm\Process\EvaluableStatement\EqualityCondition\LessThanCondition;
+use Sm\Process\EvaluableStatement\EvaluableStatementFactory;
+use Sm\Process\Query\Interpreter\QueryInterpreterFactory;
 use Sm\Storage\Database\TableSource;
 use Sm\Storage\Modules\Sql\MySql\Interpreter\MysqlQueryInterpreter;
 use Sm\Storage\Modules\Sql\MySql\MysqlDatabaseSource;
 use Sm\Storage\Modules\Sql\MySql\MysqlPdoAuthentication;
-use Sm\Storage\Modules\Sql\SqlModule;
+use Sm\Storage\Modules\Sql\SqlStandardModule;
 
 
-$SqlModule = SqlModule::init(function (App $App, SqlModule $SqlModule) {
+$SqlModule = SqlStandardModule::init(function (App $App, SqlStandardModule $SqlModule) {
     $FormatterFactory = new FormatterFactory;
     $path             = __DIR__ . '/mysql.sql.sm.formatter.php';
     $FormatterFactory->register(null, include $path ?? []);
@@ -47,7 +47,7 @@ $SqlModule = SqlModule::init(function (App $App, SqlModule $SqlModule) {
     $App->Factories->resolve(QueryInterpreterFactory::class)
                    ->register(MysqlDatabaseSource::class, $get_mysql_interpreter_fn);
 });
-$dispatch  = function (App $App, SqlModule $self) {
+$dispatch  = function (App $App, SqlStandardModule $self) {
     /** @var EvaluableStatementFactory $_ */
     $_ = $App->Factories->resolve(EvaluableStatementFactory::class);
     # region todo this is part of a test

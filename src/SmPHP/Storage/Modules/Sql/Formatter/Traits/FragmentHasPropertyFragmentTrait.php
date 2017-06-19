@@ -11,10 +11,10 @@ namespace Sm\Storage\Modules\Sql\Formatter\Traits;
 use Sm\Storage\Modules\Sql\Formatter\PropertyFragment;
 
 trait FragmentHasPropertyFragmentTrait {
-    /** @var  \Sm\Entity\Property\Property $Property The Property that this Fragment represents */
+    /** @var  \Sm\Data\Property\Property $Property The Property that this Fragment represents */
     protected $Property;
     /**
-     * @return \Sm\Entity\Property\Property
+     * @return \Sm\Data\Property\Property
      */
     public function getProperty() {
         return $this->Property;

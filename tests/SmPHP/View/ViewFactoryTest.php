@@ -5,7 +5,7 @@
  * Time: 11:23 PM
  */
 
-namespace Sm\View;
+namespace Sm\Communication\Response\View;
 
 
 class ViewFactoryTest extends \PHPUnit_Framework_TestCase {

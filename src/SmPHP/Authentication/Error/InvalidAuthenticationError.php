@@ -8,7 +8,7 @@
 namespace Sm\Authentication\Error;
 
 
-use Sm\Error\Error;
+use Sm\Core\Error\Error;
 
 class InvalidAuthenticationError extends Error {
     

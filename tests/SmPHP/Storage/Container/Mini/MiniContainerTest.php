@@ -5,11 +5,11 @@
  * Time: 9:30 PM
  */
 
-namespace Sm\Storage\Container\Mini;
+namespace Sm\Core\Container\Mini;
 
 
 class MiniContainerTest extends \PHPUnit_Framework_TestCase {
-    /** @var  \Sm\Storage\Container\Mini\MiniContainer $MiniContainer */
+    /** @var  \Sm\Core\Container\Mini\MiniContainer $MiniContainer */
     protected $MiniContainer;
     public function setUp() {
         $this->MiniContainer = new MiniContainer;
@@ -21,7 +21,7 @@ class MiniContainerTest extends \PHPUnit_Framework_TestCase {
         return $this->MiniContainer;
     }
     /**
-     * @param \Sm\Storage\Container\Mini\MiniContainer $results
+     * @param \Sm\Core\Container\Mini\MiniContainer $results
      *
      * @depends  testCanRegister
      */

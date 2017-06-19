@@ -5,7 +5,7 @@
  * Time: 10:36 PM
  */
 
-namespace Sm\Output;
+namespace Sm\Communication\Response\Output;
 
 ob_start();
 

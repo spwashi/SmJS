@@ -8,14 +8,14 @@
 namespace Sm\Storage\Modules\Sql\Formatter;
 
 
-use Sm\Error\WrongArgumentException;
+use Sm\Core\Error\WrongArgumentException;
 
 class InsertFragment extends SqlFragment {
     /** @var  \Sm\Storage\Modules\Sql\Formatter\PropertyFragment[] */
     protected $PropertyFragments = [];
-    /** @var  \Sm\Formatter\Fragment\Fragment[] */
+    /** @var  \Sm\Core\Formatter\Fragment\Fragment[] */
     protected $ValueFragments = [];
-    /** @var  \Sm\Entity\Source\DataSource[] */
+    /** @var  \Sm\Data\Source\DataSource[] */
     protected $Sources;
     /**
      * @return \Sm\Storage\Modules\Sql\Formatter\PropertyFragment[]
@@ -29,7 +29,7 @@ class InsertFragment extends SqlFragment {
      * @param $PropertyFragments
      *
      * @return $this
-     * @throws \Sm\Error\WrongArgumentException
+     * @throws \Sm\Core\Error\WrongArgumentException
      */
     public function setPropertyFragments($PropertyFragments) {
         foreach ($PropertyFragments as $property_fragment) {
@@ -41,7 +41,7 @@ class InsertFragment extends SqlFragment {
         return $this;
     }
     /**
-     * @param \Sm\Formatter\Fragment\Fragment[] $ValueFragments
+     * @param \Sm\Core\Formatter\Fragment\Fragment[] $ValueFragments
      *
      * @return InsertFragment
      */
@@ -50,7 +50,7 @@ class InsertFragment extends SqlFragment {
         return $this;
     }
     /**
-     * @return \Sm\Formatter\Fragment\Fragment[]
+     * @return \Sm\Core\Formatter\Fragment\Fragment[]
      */
     public function getValueFragmentArrays(): array {
         return $this->ValueFragments;

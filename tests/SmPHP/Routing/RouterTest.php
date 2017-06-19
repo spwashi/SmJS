@@ -5,12 +5,12 @@
  * Time: 8:27 PM
  */
 
-namespace Sm\Routing;
+namespace Sm\Communication\Routing;
 
 
-use Sm\Request\Request;
-use Sm\Resolvable\FunctionResolvable;
-use Sm\Resolvable\StringResolvable;
+use Sm\Communication\Request\Request;
+use Sm\Core\Resolvable\FunctionResolvable;
+use Sm\Core\Resolvable\StringResolvable;
 
 class Example {
     public function returnEleven() {
@@ -30,7 +30,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
     /**
      * @depends testCanCreate
      *
-     * @param \Sm\Routing\Router $Router
+     * @param \Sm\Communication\Routing\Router $Router
      */
     public function testCanRegister(Router $Router) {
         $Router->register(

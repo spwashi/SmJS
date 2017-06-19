@@ -5,12 +5,12 @@
  * Time: 11:29 AM
  */
 
-namespace Sm\App;
+namespace Sm\Core\Application;
 
 
-use Sm\App\Module\Module;
-use Sm\Resolvable\FunctionResolvable;
-use Sm\Routing\Router;
+use Sm\Communication\Routing\Router;
+use Sm\Core\Application\Module\StandardModule;
+use Sm\Core\Resolvable\FunctionResolvable;
 
 class AppTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreate() {
@@ -21,23 +21,23 @@ class AppTest extends \PHPUnit_Framework_TestCase {
     }
     public function testCanOwnModules() {
         $App                = App::init();
-        $Module             = Module::init([
+        $Module             = StandardModule::init([
                                                'init'     => FunctionResolvable::coerce(function () { }),
                                                'dispatch' => FunctionResolvable::coerce(function () { }),
                                            ]);
         $App->Modules->test = $Module;
-        /** @var Module $Module */
+        /** @var StandardModule $Module */
         $Module = $App->Modules->test;
-        $this->assertInstanceOf(Module::class, $Module);
+        $this->assertInstanceOf(StandardModule::class, $Module);
         $this->assertInstanceOf(App::class, $Module->getApp());
     }
     public function testCanBoot() {
         $App                  = App::init()->setName('Test');
         $App->Paths->app_path = TEST_PATH . 'ExampleApp';
-        Module::init(include APP_MODULE)->initialize($App);
+        StandardModule::init(include APP_MODULE)->initialize($App);
     
         $this->assertInstanceOf(Router::class, $App->Router);
-        $this->assertInstanceOf(Module::class, $App->Modules->routing);
+        $this->assertInstanceOf(StandardModule::class, $App->Modules->routing);
         $this->assertEquals('\\Test\\Controller\\', $App->controller_namespace);
     }
     

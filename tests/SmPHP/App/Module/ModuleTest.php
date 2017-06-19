@@ -5,20 +5,20 @@
  * Time: 2:27 PM
  */
 
-namespace Sm\App\Module;
+namespace Sm\Core\Application\Module;
 
 
-use Sm\Resolvable\StringResolvable;
+use Sm\Core\Resolvable\StringResolvable;
 
 class ModuleTest extends \PHPUnit_Framework_TestCase {
     public function testCanCoerce() {
-        $Module     = Module::init();
+        $Module     = StandardModule::init();
         $Module_two = [];
-        $this->assertEquals($Module, Module::coerce($Module));
-        $this->assertInstanceOf(Module::class, Module::coerce($Module_two));
+        $this->assertEquals($Module, StandardModule::coerce($Module));
+        $this->assertInstanceOf(StandardModule::class, StandardModule::coerce($Module_two));
         $number = 0;
     
-        $Module = Module::coerce([
+        $Module = StandardModule::coerce([
                                      'init'     => function () use (&$number) { ++$number; },
                                      'dispatch' => StringResolvable::coerce('Hello') ]);
     
@@ -27,9 +27,9 @@ class ModuleTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('Hello', $result);
         $this->assertEquals(1, $number);
     
-        $Module = Module::coerce([
+        $Module = StandardModule::coerce([
                                      'init' => function ($App, $self) {
-                                         $this->assertInstanceOf(Module::class, $self);
+                                         $this->assertInstanceOf(StandardModule::class, $self);
                                      } ]);
         $Module->dispatch();
     }

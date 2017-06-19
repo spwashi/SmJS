@@ -8,10 +8,10 @@
 namespace Sm\Storage\Database;
 
 
-use Sm\Entity\Property\Property;
-use Sm\Entity\Property\PropertyContainer;
-use Sm\Error\WrongArgumentException;
-use Sm\Util;
+use Sm\Core\Error\WrongArgumentException;
+use Sm\Core\Util;
+use Sm\Data\Property\Property;
+use Sm\Data\Property\PropertyContainer;
 
 /** @noinspection PhpHierarchyChecksInspection */
 
@@ -42,7 +42,7 @@ class ColumnContainer extends PropertyContainer {
      * @param $property
      *
      * @return bool
-     * @throws \Sm\Error\WrongArgumentException
+     * @throws \Sm\Core\Error\WrongArgumentException
      */
     public function isPrimarykey($property) {
         if (is_string($property)) {

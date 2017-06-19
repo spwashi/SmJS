@@ -5,10 +5,10 @@
  * Time: 4:04 PM
  */
 
-namespace Sm\View\Template;
+namespace Sm\Communication\Response\View\Template;
 
 
-use Sm\App\App;
+use Sm\Core\Application\App;
 
 class PhpTemplateTest extends \PHPUnit_Framework_TestCase {
     public function testCanInclude() {

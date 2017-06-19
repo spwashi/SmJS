@@ -7,10 +7,10 @@
 
 namespace Sm\Storage\Modules\Sql\Interpreter;
 
-use Sm\Query\Query;
-use Sm\Query\WhereClause;
+use Sm\Process\Query\Query;
+use Sm\Process\Query\WhereClause;
 use Sm\Storage\Modules\Sql\Formatter\WhereFragment;
-use Sm\Storage\Modules\Sql\SqlModule;
+use Sm\Storage\Modules\Sql\SqlStandardModule;
 
 /**
  * Class SubQueryInterpreter
@@ -20,7 +20,7 @@ use Sm\Storage\Modules\Sql\SqlModule;
  * @package Sm\Storage\Modules\Sql\MySql\Interpreter
  */
 abstract class QuerySubInterpreter {
-    /** @var  SqlModule $SqlModule */
+    /** @var  SqlStandardModule $SqlModule */
     protected $SqlModule;
     /** @var  array An array indexed by the object_id of the Property PropertyHaver that contains arrays indexed by the object_id of the PropertyHaver's Properties that we are Querying to the actual Property. */
     protected $PropertyHaver_object_id__Properties_map;
@@ -38,14 +38,14 @@ abstract class QuerySubInterpreter {
     /**
      * Create the sub interpreter to begin the process of interpreting one type of query
      *
-     * @param \Sm\Query\Query                   $Query
+     * @param \Sm\Process\Query\Query                   $Query
      *
-     * @param \Sm\Storage\Modules\Sql\SqlModule $SqlModule
+     * @param \Sm\Storage\Modules\Sql\SqlStandardModule $SqlModule
      *
      * @return static
      *
      */
-    abstract public static function init(Query $Query, SqlModule $SqlModule);
+    abstract public static function init(Query $Query, SqlStandardModule $SqlModule);
     /**
      * Create a semi-formatted string of the "Where" clause of this Query
      *

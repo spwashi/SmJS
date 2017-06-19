@@ -5,18 +5,18 @@
  * Time: 3:04 PM
  */
 
-use Sm\Abstraction\Identifier\Identifier;
-use Sm\Data\Variable_\Variable_;
-use Sm\Entity\Property\Property;
-use Sm\Error\UnimplementedError;
-use Sm\EvaluableStatement\Constructs\And_;
-use Sm\EvaluableStatement\Constructs\ChainableConstruct;
-use Sm\EvaluableStatement\EqualityCondition\EqualityCondition_;
-use Sm\Formatter\FormatterFactory;
-use Sm\Formatter\Fragment\ArrayFragment;
-use Sm\Resolvable\ArrayResolvable;
-use Sm\Resolvable\NativeResolvable;
-use Sm\Resolvable\StringResolvable;
+use Sm\Core\Error\UnimplementedError;
+use Sm\Core\Formatter\FormatterFactory;
+use Sm\Core\Formatter\Fragment\ArrayFragment;
+use Sm\Core\Internal\Identification\Identifier;
+use Sm\Core\Resolvable\ArrayResolvable;
+use Sm\Core\Resolvable\NativeResolvable;
+use Sm\Core\Resolvable\StringResolvable;
+use Sm\Data\Datatype\Variable_\Variable_;
+use Sm\Data\Property\Property;
+use Sm\Process\EvaluableStatement\Constructs\And_;
+use Sm\Process\EvaluableStatement\Constructs\ChainableConstruct;
+use Sm\Process\EvaluableStatement\EqualityCondition\EqualityCondition_;
 use Sm\Storage\Database\TableSource;
 use Sm\Storage\Modules\Sql\Formatter\ColumnAsDefinitionFragment;
 use Sm\Storage\Modules\Sql\Formatter\CreateTableFragment;

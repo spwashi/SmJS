@@ -5,11 +5,11 @@
  * Time: 8:23 PM
  */
 
-namespace Sm\Data\Variable_;
+namespace Sm\Data\Datatype\Variable_;
 
-use Sm\Resolvable\Error\UnresolvableError;
-use Sm\Resolvable\NativeResolvable;
-use Sm\Resolvable\Resolvable;
+use Sm\Core\Resolvable\Error\UnresolvableError;
+use Sm\Core\Resolvable\NativeResolvable;
+use Sm\Core\Resolvable\Resolvable;
 
 class Example_1 extends Resolvable {
     public function resolve($_ = null) { return 1; }

@@ -8,30 +8,30 @@
 namespace Sm\Storage\Modules\Sql\Interpreter;
 
 
-use Sm\Entity\EntityType;
-use Sm\Error\UnimplementedError;
-use Sm\Error\WrongArgumentException;
-use Sm\Query\Interpreter\Exception\UninterpretableError;
-use Sm\Query\Interpreter\QueryInterpreter;
-use Sm\Query\Query;
+use Sm\Core\Error\UnimplementedError;
+use Sm\Core\Error\WrongArgumentException;
+use Sm\Data\ORM\EntityType\EntityType;
+use Sm\Process\Query\Interpreter\Exception\UninterpretableError;
+use Sm\Process\Query\Interpreter\QueryInterpreter;
+use Sm\Process\Query\Query;
 use Sm\Storage\Modules\Sql\MySql\Interpreter\CreateTableSourceQuerySubInterpreter;
 use Sm\Storage\Modules\Sql\MySql\Interpreter\DeleteQuerySubInterpreter;
 use Sm\Storage\Modules\Sql\MySql\Interpreter\InsertQuerySubInterpreter;
 use Sm\Storage\Modules\Sql\MySql\Interpreter\SelectQuerySubInterpreter;
 use Sm\Storage\Modules\Sql\MySql\Interpreter\UpdateQuerySubInterpreter;
-use Sm\Storage\Modules\Sql\SqlModule;
+use Sm\Storage\Modules\Sql\SqlStandardModule;
 
 abstract class SqlQueryInterpreter extends QueryInterpreter {
-    /** @var  \Sm\Storage\Modules\Sql\SqlModule $SqlModule */
+    /** @var  \Sm\Storage\Modules\Sql\SqlStandardModule $SqlModule */
     protected $SqlModule;
     /**
      * Set the SqlModule that should be used alongside this QueryInterpreter
      *
-     * @param \Sm\Storage\Modules\Sql\SqlModule $sql_module
+     * @param \Sm\Storage\Modules\Sql\SqlStandardModule $sql_module
      *
      * @return $this
      */
-    public function setSqlModule(SqlModule $sql_module) {
+    public function setSqlModule(SqlStandardModule $sql_module) {
         $this->SqlModule = $sql_module;
         return $this;
     }
@@ -76,7 +76,7 @@ abstract class SqlQueryInterpreter extends QueryInterpreter {
      * A common thing that a query might be augmented for is adding an extra condition to the "Where" clause
      *
      * @param                 $PropertyHaver
-     * @param \Sm\Query\Query $Query
+     * @param \Sm\Process\Query\Query $Query
      * @param                 $property_array
      */
     private function augmentQueryForPropertyHaver($PropertyHaver, Query $Query) {

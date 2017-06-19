@@ -8,12 +8,12 @@
 namespace Sm\Storage\Modules\Sql\MySql\Interpreter;
 
 
-use Sm\Data\Integer_;
-use Sm\Data\Null_;
-use Sm\Data\String_;
-use Sm\Error\Error;
-use Sm\Error\UnimplementedError;
-use Sm\Resolvable\NullResolvable;
+use Sm\Core\Error\Error;
+use Sm\Core\Error\UnimplementedError;
+use Sm\Core\Resolvable\NullResolvable;
+use Sm\Data\Datatype\Integer_;
+use Sm\Data\Datatype\Null_;
+use Sm\Data\Datatype\String_;
 use Sm\Storage\Modules\Sql\Formatter\ColumnAsDefinitionFragment;
 use Sm\Storage\Modules\Sql\Formatter\CreateTableFragment;
 use Sm\Storage\Modules\Sql\Formatter\PropertyFragment;
@@ -68,12 +68,12 @@ class CreateTableSourceQuerySubInterpreter extends MysqlQuerySubInterpreter {
     /**
      * Create a Column Fragment based on the columns
      *
-     * @param \Sm\Entity\Property\Property         $Column
+     * @param \Sm\Data\Property\Property           $Column
      * @param \Sm\Storage\Database\ColumnContainer $Columns
      *
      * @return ColumnAsDefinitionFragment
-     * @throws \Sm\Error\Error
-     * @throws \Sm\Error\UnimplementedError
+     * @throws \Sm\Core\Error\Error
+     * @throws \Sm\Core\Error\UnimplementedError
      */
     private function createColumnFragment($Column, $Columns) {
         $name            = $Column->name;
@@ -171,7 +171,7 @@ class CreateTableSourceQuerySubInterpreter extends MysqlQuerySubInterpreter {
         
         /**
          * @var                              $name
-         * @var \Sm\Entity\Property\Property $Column
+         * @var \Sm\Data\Property\Property   $Column
          */
         foreach ($Columns as $name => $Column) {
             $ColumnFragment        = $this->createColumnFragment($Column, $Columns);

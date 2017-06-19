@@ -5,7 +5,7 @@
  * Time: 6:29 PM
  */
 
-namespace Sm\Abstraction\Identifier;
+namespace Sm\Core\Internal\Identification;
 
 class Identifiable_mock implements Identifiable {
     use HasObjectIdentityTrait;

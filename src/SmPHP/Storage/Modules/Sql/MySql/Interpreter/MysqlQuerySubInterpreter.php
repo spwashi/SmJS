@@ -8,21 +8,21 @@
 namespace Sm\Storage\Modules\Sql\MySql\Interpreter;
 
 
-use Sm\Abstraction\Identifier\Identifiable;
-use Sm\Abstraction\Identifier\Identifier;
-use Sm\Entity\Property\Property;
-use Sm\Entity\Property\PropertyContainer;
-use Sm\Entity\Property\PropertyHaver;
-use Sm\Error\Error;
-use Sm\Error\UnimplementedError;
-use Sm\Query\Query;
-use Sm\Storage\Container\Mini\MiniContainer;
+use Sm\Core\Container\Mini\MiniContainer;
+use Sm\Core\Error\Error;
+use Sm\Core\Error\UnimplementedError;
+use Sm\Core\Internal\Identification\Identifiable;
+use Sm\Core\Internal\Identification\Identifier;
+use Sm\Core\Util;
+use Sm\Data\Property\Property;
+use Sm\Data\Property\PropertyContainer;
+use Sm\Data\Property\PropertyHaver;
+use Sm\Process\Query\Query;
 use Sm\Storage\Modules\Sql\Formatter\FromFragment;
 use Sm\Storage\Modules\Sql\Formatter\PropertyFragment;
 use Sm\Storage\Modules\Sql\Formatter\SourceAsAliasFragment;
 use Sm\Storage\Modules\Sql\Interpreter\QuerySubInterpreter;
-use Sm\Storage\Modules\Sql\SqlModule;
-use Sm\Util;
+use Sm\Storage\Modules\Sql\SqlStandardModule;
 
 /**
  * Class MysqlQuerySubInterpreter
@@ -77,7 +77,7 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
      * Make an array of the Properties used in this table
      *
      * @return array
-     * @throws \Sm\Error\UnimplementedError
+     * @throws \Sm\Core\Error\UnimplementedError
      */
     public function createPropertyFragmentArray() {
         $PropertyArray          = $this->initPropertyArray(true)->PropertyArray;
@@ -122,7 +122,7 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         $this->SqlModule->FormatterFactory->reset();
         return $SqlStatement;
     }
-    public static function init(Query $Query, SqlModule $SqlModule) {
+    public static function init(Query $Query, SqlStandardModule $SqlModule) {
         $Instance            = new static;
         $Instance->Query     = $Query;
         $Instance->SqlModule = $SqlModule;
@@ -131,8 +131,8 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
     /**
      * Get the Properties that this Query Subinterpreter will use
      *
-     * @return \Sm\Entity\Property\Property[]|\Sm\Entity\Property\PropertyHaver[]
-     * @throws \Sm\Error\Error
+     * @return \Sm\Data\Property\Property[]|\Sm\Data\Property\PropertyHaver[]
+     * @throws \Sm\Core\Error\Error
      */
     protected function getQueryProperties() {
         $query_type = $this->Query->getQueryType();
@@ -191,7 +191,7 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
     
         # This is the array that contains a list of PropertyHavers that use a given DataSource
         $this->Source_object_id__PropertyHaver_object_id_array__map = new MiniContainer;
-        /** @var \Sm\Storage\Container\Mini\MiniContainer $src_ownr_map */
+        /** @var \Sm\Core\Container\Mini\MiniContainer $src_ownr_map */
         $src_ownr_map = &$this->Source_object_id__PropertyHaver_object_id_array__map;
         
         
@@ -316,8 +316,8 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
      *                                     Indexed by PropertyHaver, contains an array of properties indexed by their
      *                                     object id
      *
-     * @throws \Sm\Error\Error
-     * @throws \Sm\Error\UnimplementedError For now, we can only use Properties that only have one PropertyHaver
+     * @throws \Sm\Core\Error\Error
+     * @throws \Sm\Core\Error\UnimplementedError For now, we can only use Properties that only have one PropertyHaver
      */
     private static function addPropertyToPropertyHaverArray(Property $Property, &$PropertyHaverArray) {
         /** @var Identifiable[] $PropertyHavers */

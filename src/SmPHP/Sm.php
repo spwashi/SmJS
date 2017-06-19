@@ -17,7 +17,7 @@ define('FRAMEWORK_NAME', 'SmPHP');
 define('FRAMEWORK_FROM_SRC', FRAMEWORK_NAME . '/');
 define('SM_PATH', SRC_PATH . FRAMEWORK_FROM_SRC);
 define('SYSTEM_LOG_PATH', BASE_PATH . 'logs/');
-define('APP_MODULE', SM_PATH . 'App/app.sm.module.php');
+define('APP_MODULE', SM_PATH . 'Core/Application/app.sm.module.php');
 
 require_once SM_PATH . 'config/autoload.php';
 require_once SM_TEST_PATH . 'config/autoload.php';

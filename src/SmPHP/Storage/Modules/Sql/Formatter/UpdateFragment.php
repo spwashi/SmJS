@@ -8,7 +8,7 @@
 namespace Sm\Storage\Modules\Sql\Formatter;
 
 
-use Sm\Formatter\Fragment\Fragment;
+use Sm\Core\Formatter\Fragment\Fragment;
 use Sm\Storage\Modules\Sql\Formatter\Traits\FragmentHasPropertyFragmentArrayTrait;
 use Sm\Storage\Modules\Sql\Formatter\Traits\FragmentHasWhereFragmentTrait;
 

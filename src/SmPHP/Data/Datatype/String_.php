@@ -12,6 +12,6 @@ use Sm\Core\Resolvable\StringResolvable;
 
 class String_ extends Type {
     public static function resolveType($subject) {
-        return StringResolvable::coerce($subject);
+        return StringResolvable::init($subject);
     }
 }

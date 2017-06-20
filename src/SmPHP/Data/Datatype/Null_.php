@@ -12,6 +12,6 @@ use Sm\Core\Resolvable\NullResolvable;
 
 class Null_ extends Type {
     public static function resolveType($subject) {
-        return NullResolvable::coerce($subject);
+        return NullResolvable::init($subject);
     }
 }

@@ -8,7 +8,7 @@
 namespace Sm\Communication\Routing;
 
 
-use Sm\Communication\Request\Request;
+use Sm\Communication\Network\Http\HttpRequest;
 use Sm\Core\Resolvable\PassiveResolvable;
 use Sm\Core\Resolvable\StringResolvable;
 use Sm\Core\Resolvable\UnResolvable;
@@ -46,29 +46,29 @@ class RouteTest extends \PHPUnit_Framework_TestCase {
         $this->assertTrue($Route->matches('api/sections/test/10/'), 'multiple named parameters');
     
         $Route   = new Route(null, 'api/{test}:[a-zA-Z_\d]*');
-        $Request = Request::init()->setUrl('http://spwashi.com/api/sections');
+        $Request = HttpRequest::init()->setUrl('http://spwashi.com/api/sections');
         $this->assertTrue($Route->matches($Request), 'matching a simple request');
     }
     public function testCanCoerce() {
-        $Route = Route::coerce([ 'resolution' => StringResolvable::coerce('item'), 'pattern' => 'hello' ]);
-        $this->assertEquals('item', $Route->resolve(Request::coerce('hello')));
-        $this->assertNotEquals('it@em', $Route->resolve(Request::coerce('hello')));
-        
-        $Route = Route::coerce([
-                                   'resolution' => UnResolvable::coerce(),
-                                   'pattern'    => 'hello',
-                                   'default'    => StringResolvable::coerce('default'),
-                               ]);
-        $this->assertEquals('default', $Route->resolve(Request::coerce('hello')));
-        $this->assertNotEquals('defaul2t', $Route->resolve(Request::coerce('hello')));
+        $Route = Route::init([ 'resolution' => StringResolvable::init('item'), 'pattern' => 'hello' ]);
+        $this->assertEquals('item', $Route->resolve(HttpRequest::init('hello')));
+        $this->assertNotEquals('it@em', $Route->resolve(HttpRequest::init('hello')));
+    
+        $Route = Route::init([
+                                 'resolution' => UnResolvable::init(),
+                                 'pattern'    => 'hello',
+                                 'default'    => StringResolvable::init('default'),
+                             ]);
+        $this->assertEquals('default', $Route->resolve(HttpRequest::init('hello')));
+        $this->assertNotEquals('defaul2t', $Route->resolve(HttpRequest::init('hello')));
     }
     public function testCanResolve() {
         $Route = new Route(null, 'api/{test}:[a-zA-Z_\d]*/test/{id}:[\d]*');
         $Route->setResolution(PassiveResolvable::init());
-        $Request = Request::coerce('http://spwashi.com/api/pages/test/10');
-        
-        $Route = Route::coerce([ '11' => StringResolvable::coerce('hello') ]);
-        $Route->resolve(Request::coerce('11'));
+        $Request = HttpRequest::init('http://spwashi.com/api/pages/test/10');
+    
+        $Route = Route::init(StringResolvable::init('hello'), '11');
+        $Route->resolve(HttpRequest::init('11'));
         
     }
 }

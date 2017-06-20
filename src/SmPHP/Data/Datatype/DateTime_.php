@@ -15,6 +15,6 @@ class DateTime_ extends Type {
         return "" . $this->subject->resolve()->format('Y-m-d H:i:s.u');
     }
     public static function resolveType($subject) {
-        return DateResolvable::coerce($subject);
+        return DateResolvable::init($subject);
     }
 }

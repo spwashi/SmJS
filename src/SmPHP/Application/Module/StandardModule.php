@@ -5,11 +5,11 @@
  * Time: 2:11 PM
  */
 
-namespace Sm\Core\Application\Module;
+namespace Sm\Application\Module;
 
 
+use Sm\Application\App;
 use Sm\Core\Abstraction\Resolvable\Resolvable;
-use Sm\Core\Application\App;
 use Sm\Core\Resolvable\Error\UnresolvableError;
 use Sm\Core\Resolvable\ResolvableFactory;
 
@@ -30,7 +30,7 @@ class StandardModule extends \Sm\Core\Resolvable\Resolvable implements Module {
             $this->initialize();
         }
         $this->assertComplete();
-    
+        
         if ($this->has_dispatched) {
             return $this->last_dispatch_result;
         }
@@ -49,7 +49,7 @@ class StandardModule extends \Sm\Core\Resolvable\Resolvable implements Module {
         return $this->App;
     }
     /**
-     * @param \Sm\Core\Application\App $app
+     * @param \Sm\Application\App $app
      *
      * @return $this
      */

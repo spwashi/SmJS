@@ -5,7 +5,7 @@
  * Time: 2:12 PM
  */
 
-namespace Sm\Core\Application\Module;
+namespace Sm\Application\Module;
 
 
 interface Module {

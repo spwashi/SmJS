@@ -5,12 +5,12 @@
  * Time: 11:27 AM
  */
 
-namespace Sm\Core\Application;
+namespace Sm\Application;
 
 
+use Sm\Application\Module\StandardModule;
 use Sm\Communication\Request\Request;
 use Sm\Communication\Routing\Router;
-use Sm\Core\Application\Module\StandardModule;
 use Sm\Core\Container\Container;
 use Sm\Core\Factory\FactoryContainer;
 use Sm\Core\Resolvable\FunctionResolvable;
@@ -47,15 +47,15 @@ class App extends Container {
                 'base_path'   =>
                     SRC_PATH,
                 'app_path'    =>
-                    FunctionResolvable::coerce(function ($Paths, $App) {
+                    FunctionResolvable::init(function ($Paths, $App) {
                         return $Paths->base_path . ($App->name??'Sm');
                     }),
                 'template'    =>
-                    FunctionResolvable::coerce(function ($Paths) {
+                    FunctionResolvable::init(function ($Paths) {
                         return $Paths->app_path . 'templates/';
                     }),
                 'config_path' =>
-                    FunctionResolvable::coerce(function ($Paths, $App) {
+                    FunctionResolvable::init(function ($Paths, $App) {
                         $path = $Paths->app_path . 'config/';
                         return $path;
                     }),
@@ -138,14 +138,13 @@ class App extends Container {
         return $return;
     }
     /**
-     * @return \Sm\Core\Application\App|static
+     * @param Container|array $item
+     *
+     * @return \Sm\Application\App|static
      */
-    public static function init() {
-        return new static;
-    }
-    public static function coerce($item) {
-        $instance = new static();
-    
+    public static function init($item = null) {
+        $instance = new static;
+        
         if ($item instanceof Container) {
             $instance->inherit($item);
         } else if (is_array($item)) {

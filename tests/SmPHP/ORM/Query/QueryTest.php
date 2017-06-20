@@ -8,7 +8,7 @@
 namespace Sm\Process\Query;
 
 
-use Sm\Core\Application\App;
+use Sm\Application\App;
 use Sm\Core\Resolvable\ArrayResolvable;
 use Sm\Data\Datatype\Integer_;
 use Sm\Data\Datatype\Null_;

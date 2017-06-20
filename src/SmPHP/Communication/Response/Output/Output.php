@@ -27,7 +27,7 @@ class Output {
                 is_array($response) ||
                 is_bool($response) ||
                 is_null($response)
-                    ? Response::coerce($response)
+                    ? Response::init($response)
                     : null;
         }
         

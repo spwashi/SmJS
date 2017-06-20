@@ -8,7 +8,7 @@
 namespace Sm\Storage\Modules\Sql;
 
 
-use Sm\Core\Application\Module\StandardModule;
+use Sm\Application\Module\StandardModule;
 use Sm\Core\Container\Container;
 use Sm\Core\Formatter\FormatterFactory;
 use Sm\Core\Formatter\FormatterFactoryHaver;

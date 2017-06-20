@@ -31,7 +31,7 @@ $LoggerFactory = System_::Factory(LoggerFactory::class);
 
 $fn_get_default_logger = function ($name = null, $severity = null) {
     if (isset($name)) {
-        $name = StringResolvable::coerce($name)->resolve();
+        $name = StringResolvable::init($name)->resolve();
     }
     $Logger  = new Logger($name??'System');
     $Handler = new StreamHandler(SYSTEM_LOG_PATH . 'system.sm.log.html',

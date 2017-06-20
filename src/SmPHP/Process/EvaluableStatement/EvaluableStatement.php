@@ -159,7 +159,7 @@ abstract class EvaluableStatement extends Resolvable implements Formattable, \Js
         $registry    = $this->registry;
         $can_resolve = $this->resolvesToValue();
         if ($can_resolve !== true) {
-            return DeferredEvaluationStatement::coerce($this);
+            return DeferredEvaluationStatement::init($this);
         }
     
         $registry[] = \Closure::bind($this->getDefaultEvaluator(), $this);

@@ -8,8 +8,8 @@
 namespace Sm\Communication\Response\View;
 
 
+use Sm\Application\App;
 use Sm\Communication\Response\View\Template\PhpTemplate;
-use Sm\Core\Application\App;
 
 class ViewTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreate() {

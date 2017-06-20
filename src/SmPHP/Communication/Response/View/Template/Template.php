@@ -8,7 +8,7 @@
 namespace Sm\Communication\Response\View\Template;
 
 
-use Sm\Core\Application\App;
+use Sm\Application\App;
 use Sm\Core\Formatter\Formatter;
 use Sm\Core\Resolvable\Resolvable;
 use Sm\Core\Resolvable\StringResolvable;
@@ -24,8 +24,8 @@ abstract class Template extends Resolvable implements Formatter {
     /**
      * Template constructor.
      *
-     * @param null                          $subject
-     * @param \Sm\Core\Application\App|null $App
+     * @param null                     $subject
+     * @param \Sm\Application\App|null $App
      */
     public function __construct($subject, App $App = null) {
         if (isset($App)) {
@@ -36,7 +36,7 @@ abstract class Template extends Resolvable implements Formatter {
     /**
      * Set the Application that the Template would be acting relative to
      *
-     * @param \Sm\Core\Application\App $app
+     * @param \Sm\Application\App $app
      *
      * @return $this
      */
@@ -75,8 +75,8 @@ abstract class Template extends Resolvable implements Formatter {
         return $this;
     }
     /**
-     * @param string                        $item
-     * @param \Sm\Core\Application\App|null $App
+     * @param string                   $item
+     * @param \Sm\Application\App|null $App
      *
      * @return static
      */
@@ -109,7 +109,7 @@ abstract class Template extends Resolvable implements Formatter {
         
         # If the path isn't a string, we don't know what to do with it
         if (!is_string($_path_)) {
-            $_path_      = StringResolvable::coerce($_path_);
+            $_path_      = StringResolvable::init($_path_);
             $this->error = new Error\MalformedTemplateError("The requested route '{$_path_}' has not been created correctly");
             return $this->resolved_path = null;
         }
@@ -121,7 +121,7 @@ abstract class Template extends Resolvable implements Formatter {
         
         # If the path isn't existent, save an error to throw later
         if (!is_file($_path_)) {
-            $_path_      = StringResolvable::coerce($_path_);
+            $_path_      = StringResolvable::init($_path_);
             $this->error = new Error\MalformedTemplateError("The requested template '{$_path_}' does not exist" . ($this->App ? "in {$this->App->name}" : '.'));
             return $this->resolved_path = null;
         }

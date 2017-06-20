@@ -212,6 +212,6 @@ class Factory extends AbstractContainer {
      * @return null|\Sm\Core\Abstraction\Resolvable\Resolvable
      */
     protected function standardizeRegistrand($registrand) {
-        return is_callable($registrand) ? FunctionResolvable::coerce($registrand) : NativeResolvable::coerce($registrand);
+        return is_callable($registrand) ? FunctionResolvable::init($registrand) : NativeResolvable::init($registrand);
     }
 }

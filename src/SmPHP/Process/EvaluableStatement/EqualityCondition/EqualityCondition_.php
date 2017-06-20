@@ -45,7 +45,4 @@ abstract class EqualityCondition_ extends EvaluableStatement {
         $new->_right_side_ = $right_side;
         return $new;
     }
-    public static function coerce($left_side = null, $right_side = null) {
-        return static::init($left_side, $right_side);
-    }
 }

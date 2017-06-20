@@ -5,7 +5,7 @@
  * Time: 12:22 PM
  */
 
-use Sm\Core\Application\App;
+use Sm\Application\App;
 use Sm\Core\Formatter\FormatterFactory;
 use Sm\Core\Resolvable\FunctionResolvable;
 use Sm\Data\Datatype\Variable_\Variable_;
@@ -72,6 +72,6 @@ $dispatch  = function (App $App, SqlStandardModule $self) {
     
     # endregion
 };
-$SqlModule->setDispatch(FunctionResolvable::coerce($dispatch));
+$SqlModule->setDispatch(FunctionResolvable::init($dispatch));
 
 return $SqlModule;

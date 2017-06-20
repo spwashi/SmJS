@@ -38,8 +38,8 @@ class ResolvableFactoryTest extends \PHPUnit_Framework_TestCase {
     public function testCanCoerce() {
         $ResFact   = ResolvableFactory::init();
         $ResFact_3 = [];
-        $this->assertEquals($ResFact, ResolvableFactory::coerce($ResFact));
-        $this->assertInstanceOf(ResolvableFactory::class, ResolvableFactory::coerce($ResFact_3));
+        $this->assertEquals($ResFact, ResolvableFactory::init($ResFact));
+        $this->assertInstanceOf(ResolvableFactory::class, ResolvableFactory::init($ResFact_3));
     }
     
     /**

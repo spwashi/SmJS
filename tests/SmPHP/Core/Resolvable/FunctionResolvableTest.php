@@ -7,7 +7,7 @@
 
 namespace Sm\Core\Resolvable;
 
-use Sm\Core\Application\App;
+use Sm\Application\App;
 
 class FunctionResolvableTest_Support {
     public function __construct(App $app) {

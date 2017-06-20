@@ -11,8 +11,8 @@ use Sm\Core\Resolvable\StringResolvable;
 return [
     [ 'test' => '#Home::item', ],
     [ '{method}' => '#Home::test', ],
-    [ 'Sm/ea/Hello' => StringResolvable::coerce("HELLO"), ],
-    [ 'Hello' => StringResolvable::coerce("Hey there!"), ],
+    [ 'Sm/ea/Hello' => StringResolvable::init("HELLO"), ],
+    [ 'Hello' => StringResolvable::init("Hey there!"), ],
     [
         '$' =>
             FunctionResolvable::init(function (Request $Request = null) {

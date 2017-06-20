@@ -12,19 +12,19 @@ use Sm\Data\Datatype\DateTime_;
 
 class ResponseTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreate() {
-        $Response = Response::coerce();
+        $Response = Response::init();
         $this->assertInstanceOf(Response::class, $Response);
     }
     public function testCanGetDate() {
-        $Response = Response::coerce();
+        $Response = Response::init();
         $Date     = $Response->getCreationDt();
         $this->assertInstanceOf(DateTime_::class, $Date);
     }
     public function testCanResolve() {
-        $Response = Response::coerce('string');
+        $Response = Response::init('string');
         $this->assertEquals('string', $Response->resolve());
-        
-        $Response = Response::coerce([ 'string' ]);
+    
+        $Response = Response::init([ 'string' ]);
         $Response->setContentType(Response::TYPE_JSON);
         $this->assertJson($Response->resolve());
         $Response->setContentType(Response::TYPE_TEXT_HTML);

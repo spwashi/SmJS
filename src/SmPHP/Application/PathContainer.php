@@ -5,7 +5,7 @@
  * Time: 10:27 PM
  */
 
-namespace Sm\Core\Application;
+namespace Sm\Application;
 
 use Sm\Core\Container\Container;
 
@@ -13,7 +13,7 @@ use Sm\Core\Container\Container;
 /**
  * Class PathContainer
  *
- * @package Sm\Core\Application
+ * @package Sm\Application
  * @property string $base_path
  * @property string $config_path
  * @property string $app_path

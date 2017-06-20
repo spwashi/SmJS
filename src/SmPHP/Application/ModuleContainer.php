@@ -5,11 +5,11 @@
  * Time: 4:51 PM
  */
 
-namespace Sm\Core\Application;
+namespace Sm\Application;
 
 
+use Sm\Application\Module\StandardModule;
 use Sm\Communication\Request\Request;
-use Sm\Core\Application\Module\StandardModule;
 use Sm\Core\Container\Container;
 
 /**
@@ -40,7 +40,7 @@ class ModuleContainer extends Container {
     /**
      * Return a new instance of this class that inherits this registry
      *
-     * @param \Sm\Core\Application\App $App
+     * @param \Sm\Application\App $App
      *
      * @return $this|static
      */
@@ -70,9 +70,9 @@ class ModuleContainer extends Container {
             }
             return $this;
         } else {
-            $registrand = StandardModule::coerce($registrand);
+            $registrand = StandardModule::init($registrand);
             $registrand->setApp($this->App);
-    
+            
             if ($do_initialize) {
                 $registrand->initialize();
             }

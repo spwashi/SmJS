@@ -28,13 +28,10 @@ class ResolvableFactory extends Factory {
         }
         return new NativeResolvable($subject);
     }
-    public static function init() {
-        return new static;
-    }
-    public static function coerce($item) {
+    public static function init($item = null) {
         if ($item instanceof ResolvableFactory) {
             return $item;
         }
-        return static::init();
+        return new static($item);
     }
 }

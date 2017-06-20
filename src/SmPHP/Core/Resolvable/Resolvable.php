@@ -102,20 +102,10 @@ abstract class Resolvable implements Identifiable, \Sm\Core\Abstraction\Resolvab
      * @return static
      */
     public static function init($item = null) {
-        return new static($item);
-    }
-    /**
-     * Convert something to a Resolvable. Same thing as init usually (oops)
-     *
-     * @param mixed $item
-     *
-     * @return static|$this|Resolvable
-     */
-    public static function coerce($item = null) {
         if (is_a($item, static::class)) {
             return $item;
         }
-        return static::init(...func_get_args());
+        return new static($item);
     }
     protected function createIdentity() {
         return Identifier::generateIdentity($this);

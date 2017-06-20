@@ -5,10 +5,10 @@
  * Time: 1:28 PM
  */
 
+use Sm\Application\App;
 use Sm\Communication\Request\Request;
 use Sm\Communication\Routing\Router;
 use Sm\Core\Abstraction\Registry;
-use Sm\Core\Application\App;
 use Sm\Core\Resolvable\Error\UnresolvableError;
 
 return [
@@ -35,7 +35,7 @@ return [
         $App->Modules->_app->dispatch();
         
         # Standardize the request
-        $Request = $App->Request = Request::coerce($Request)->setApp($App);
+        $Request = $App->Request = Request::init($Request)->setApp($App);
         
         /** @var Router $Router */
         $Router = $App->Router;

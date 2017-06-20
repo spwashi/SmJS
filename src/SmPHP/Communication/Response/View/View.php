@@ -8,12 +8,12 @@
 namespace Sm\Communication\Response\View;
 
 
+use Sm\Application\App;
 use Sm\Communication\Request\Request;
 use Sm\Communication\Response\Response;
 use Sm\Communication\Response\View\Template\Error\MalformedTemplateError;
 use Sm\Communication\Response\View\Template\Template;
 use Sm\Communication\Response\View\Template\TemplateFactory;
-use Sm\Core\Application\App;
 use Sm\Core\Resolvable\ResolvableFactory;
 
 
@@ -83,7 +83,7 @@ class View extends Response {
         $Template =
             $this->getFactoryContainer()->resolve(TemplateFactory::class)
                  ->build($_template);
-    
+        
         if ($App = $this->getApp()) {
             $Template->setApp($App);
         }

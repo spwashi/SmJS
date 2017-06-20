@@ -38,9 +38,6 @@ class StringResolvable extends NativeResolvable implements \JsonSerializable {
     public function jsonSerialize() {
         return "$this";
     }
-    public static function coerce($item = null) {
-        return static::itemCanBeString($item) ? new static("{$item}") : new static;
-    }
     /**
      * Function to determine whether something can be a string
      * ::UTIL::

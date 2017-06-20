@@ -8,7 +8,7 @@
 namespace Sm\Process\Query\Sql;
 
 
-use Sm\Core\Application\App;
+use Sm\Application\App;
 use Sm\Storage\Database\DatabaseDataSource;
 
 class SqlModuleTest extends \PHPUnit_Framework_TestCase {

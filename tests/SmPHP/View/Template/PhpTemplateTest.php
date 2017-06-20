@@ -8,7 +8,7 @@
 namespace Sm\Communication\Response\View\Template;
 
 
-use Sm\Core\Application\App;
+use Sm\Application\App;
 
 class PhpTemplateTest extends \PHPUnit_Framework_TestCase {
     public function testCanInclude() {

@@ -37,6 +37,6 @@ class Type extends Resolvable implements \JsonSerializable {
         return "[" . $expl[ key($expl) ] . "]";
     }
     public static function resolveType($subject) {
-        return ResolvableFactory::coerce($subject);
+        return ResolvableFactory::init($subject);
     }
 }

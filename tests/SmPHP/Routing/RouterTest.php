@@ -8,7 +8,7 @@
 namespace Sm\Communication\Routing;
 
 
-use Sm\Communication\Request\Request;
+use Sm\Communication\Network\Http\HttpRequest;
 use Sm\Core\Resolvable\FunctionResolvable;
 use Sm\Core\Resolvable\StringResolvable;
 
@@ -45,24 +45,21 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
                           return 'Nothing';
                       },
                 ],
-                [ '11' => FunctionResolvable::coerce('\\' . Example::class . '::returnEleven'), ],
+                [ '11' => FunctionResolvable::init('\\' . Example::class . '::returnEleven'), ],
             ]);
         $this->assertTrue(Route::init(null, 'hello/1')->matches('hello/1'));
     
         $this->assertEquals('hello2',
-                            $Router->resolve(Request::init()->setUrl('hello/2')));
+                            $Router->resolve(HttpRequest::init()->setUrl('hello/2')));
     
         $this->assertEquals('hello',
-                            $Router->resolve(Request::init()->setUrl('hello/1')));
+                            $Router->resolve(HttpRequest::init()->setUrl('hello/1')));
     
+        
         $this->assertEquals('eleven',
-                            $Router->resolve(Request::init()->setUrl('11')));
+                            $Router->resolve(HttpRequest::init()->setUrl('11')));
     
-        $this->assertEquals('TEST',
-                            $Router->resolve(Request::init()->setUrl('test')));
-        
-        
         $this->assertEquals('API example',
-                            $Router->resolve(Request::init()->setUrl('api/sections')));
+                            $Router->resolve(HttpRequest::init()->setUrl('api/sections')));
     }
 }

@@ -55,7 +55,7 @@ class FormatterFactory extends Factory {
         if (!in_array($name, $this->registered_rule_names)) $this->registered_rule_names[] = $name;
         if (!isset($resolvable)) return $this;
         if (!($resolvable instanceof FunctionResolvable) && !($resolvable instanceof StringResolvable)) {
-            $resolvable = is_callable($resolvable) ? FunctionResolvable::coerce($resolvable) : StringResolvable::coerce($resolvable);
+            $resolvable = is_callable($resolvable) ? FunctionResolvable::init($resolvable) : StringResolvable::init($resolvable);
         }
         $this->Rules->register($name, $resolvable);
         return $this;
@@ -95,7 +95,7 @@ class FormatterFactory extends Factory {
      */
     public function build($item = null) {
         $result = parent::build($item, $this);
-        return PlainStringFormatter::coerce($result);
+        return PlainStringFormatter::init($result);
     }
     public function reset() {
         $this->endRulesCache(true);
@@ -108,7 +108,7 @@ class FormatterFactory extends Factory {
         if (is_array($item)) {
             $formatted_item = [];
             foreach ($item as $index => $value) {
-                if (!is_numeric($index)) $index = $this->format(StringResolvable::coerce($index));
+                if (!is_numeric($index)) $index = $this->format(StringResolvable::init($index));
                 $formatted_item[ $index ] = $this->format($value);
             }
             return $formatted_item;

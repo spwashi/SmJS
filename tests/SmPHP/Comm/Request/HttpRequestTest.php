@@ -8,15 +8,17 @@
 namespace Sm\Communication\Request;
 
 
-class RequestTest extends \PHPUnit_Framework_TestCase {
+use Sm\Communication\Network\Http\HttpRequest;
+
+class HttpRequestTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreate() {
-        $Request = Request::init();
-        $this->assertInstanceOf(Request::class, $Request);
+        $Request = HttpRequest::init();
+        $this->assertInstanceOf(HttpRequest::class, $Request);
         return $Request;
     }
     
     /**
-     * @param Request $Request
+     * @param HttpRequest $Request
      *
      * @depends testCanCreate
      */
@@ -26,15 +28,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
     }
     
     public function testCanGetPathCorrectly() {
-        $Request = Request::init();
+        $Request = HttpRequest::init();
         
         $Request->setUrl('http://spwashi.com/this/is/a/thing');
         $this->assertEquals('this/is/a/thing', $Request->getUrlPath());
         
         $Request->setUrl('//spwashi.com/this/is/a/thing');
         $this->assertEquals('this/is/a/thing', $Request->getUrlPath());
-        $Request->setChangePath('this/is');
-        $this->assertEquals('a/thing', $Request->getUrlPath());
     
         $Request->setUrl('one/two/three/four');
         $this->assertEquals('one/two/three/four', $Request->getUrlPath());

@@ -5,11 +5,11 @@
  * Time: 11:29 AM
  */
 
-namespace Sm\Core\Application;
+namespace Sm\Application;
 
 
+use Sm\Application\Module\StandardModule;
 use Sm\Communication\Routing\Router;
-use Sm\Core\Application\Module\StandardModule;
 use Sm\Core\Resolvable\FunctionResolvable;
 
 class AppTest extends \PHPUnit_Framework_TestCase {
@@ -22,9 +22,9 @@ class AppTest extends \PHPUnit_Framework_TestCase {
     public function testCanOwnModules() {
         $App                = App::init();
         $Module             = StandardModule::init([
-                                               'init'     => FunctionResolvable::coerce(function () { }),
-                                               'dispatch' => FunctionResolvable::coerce(function () { }),
-                                           ]);
+                                                       'init'     => FunctionResolvable::init(function () { }),
+                                                       'dispatch' => FunctionResolvable::init(function () { }),
+                                                   ]);
         $App->Modules->test = $Module;
         /** @var StandardModule $Module */
         $Module = $App->Modules->test;
@@ -35,7 +35,7 @@ class AppTest extends \PHPUnit_Framework_TestCase {
         $App                  = App::init()->setName('Test');
         $App->Paths->app_path = TEST_PATH . 'ExampleApp';
         StandardModule::init(include APP_MODULE)->initialize($App);
-    
+        
         $this->assertInstanceOf(Router::class, $App->Router);
         $this->assertInstanceOf(StandardModule::class, $App->Modules->routing);
         $this->assertEquals('\\Test\\Controller\\', $App->controller_namespace);
@@ -58,12 +58,12 @@ class AppTest extends \PHPUnit_Framework_TestCase {
         $App->name             = 'Test';
         $App->Paths->base_path = 'hello';
         $App->registerDefaults('test',
-                               FunctionResolvable::coerce(function ($App) {
+                               FunctionResolvable::init(function ($App) {
                                    return $App->name;
                                }),
                                true);
         $App->test_2 = 'hello';
-        $App->registerDefaults('test_2', FunctionResolvable::coerce(function ($App) { return $App->name; }), true);
+        $App->registerDefaults('test_2', FunctionResolvable::init(function ($App) { return $App->name; }), true);
         $this->assertEquals($App->name,
                             $App->test);
         $this->assertEquals('hello', $App->test_2);

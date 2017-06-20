@@ -8,22 +8,22 @@
 namespace Sm\Communication\Routing;
 
 
+use Sm\Application\App;
 use Sm\Communication\Request\Request;
 use Sm\Core\Abstraction\Registry;
-use Sm\Core\Application\App;
 use Sm\Core\Error\UnimplementedError;
 use Sm\Core\Resolvable\Error\UnresolvableError;
 
 class Router implements Registry {
     /** @var Route[] $routes */
     protected $routes = [];
-    /** @var \Sm\Core\Application\App $App */
+    /** @var \Sm\Application\App $App */
     protected $App;
     
     /**
      * Router constructor.
      *
-     * @param \Sm\Core\Application\App|null $App
+     * @param \Sm\Application\App|null $App
      */
     public function __construct(App $App = null) {
         if (isset($App)) {
@@ -33,6 +33,9 @@ class Router implements Registry {
     public function __get($name) {
         return $this->resolve($name);
     }
+    public function getRoutes() {
+        return $this->routes;
+    }
     public function register($name, $registrand = null) {
         if (is_array($name)) {
             foreach ($name as $index => $item) {
@@ -40,7 +43,17 @@ class Router implements Registry {
             }
             return $this;
         } else if (!($registrand instanceof Route)) {
-            $registrand = Route::coerce($registrand);
+            $resolution = $pattern = null;
+            
+            if (is_array($registrand)) {
+                if (count($registrand) === 1) {
+                    $pattern    = key($registrand);
+                    $resolution = $registrand[ $pattern ];
+                } else {
+                    $resolution = $registrand;
+                }
+            }
+            $registrand = Route::init($resolution, $pattern);
         }
         if (is_string($name)) {
             $this->routes[ $name ] = $registrand;
@@ -51,7 +64,7 @@ class Router implements Registry {
     }
     public function resolve($Request = null) {
         if (class_exists('\Sm\Communication\Request\Request')) {
-            $Request = Request::coerce($Request);
+            $Request = Request::init($Request);
         } else {
             throw new UnimplementedError("Can only deal with requests");
         }
@@ -62,7 +75,7 @@ class Router implements Registry {
             }
         }
         $msg = "No matching routes";
-    
+        
         if ($this->App) {
             $msg .= " in {$this->App->name}";
         }

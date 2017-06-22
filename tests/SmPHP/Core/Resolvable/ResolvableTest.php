@@ -35,12 +35,4 @@ class ResolvableTest extends \PHPUnit_Framework_TestCase {
         $Resolvable->setFactoryContainer(new FactoryContainer);
         $this->assertInstanceOf(FactoryContainer::class, $Resolvable->getFactoryContainer());
     }
-    /**
-     * @param Resolvable $Resolvable
-     *
-     * @depends testCanCreate
-     */
-    public function testCanReset($Resolvable) {
-        $Resolvable->reset();
-    }
 }

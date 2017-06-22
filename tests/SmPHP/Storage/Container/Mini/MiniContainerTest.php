@@ -15,6 +15,7 @@ class MiniContainerTest extends \PHPUnit_Framework_TestCase {
         $this->MiniContainer = new MiniContainer;
     }
     public function testCanRegister() {
+        $this->assertTrue(true);
         $this->MiniContainer->register('sam', 'test');
         $this->MiniContainer->register('hello', [ 'world' ]);
         $this->MiniContainer->set_test = 'This should be registered';

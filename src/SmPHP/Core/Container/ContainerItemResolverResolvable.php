@@ -14,10 +14,9 @@ use Sm\Core\Resolvable\OnceRunThenNullResolvable;
 /**
  * Class ContainerItemResolverResolvable
  *
- * Used in Containers to
+ * Used in Containers to return an item only once, then return Null afterwards.
  *
  * @package Sm\Core\Container
  */
 class ContainerItemResolverResolvable extends OnceRunThenNullResolvable {
-    
 }

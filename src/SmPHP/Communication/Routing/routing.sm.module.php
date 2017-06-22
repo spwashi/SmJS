@@ -26,7 +26,7 @@ return [
         
         
         # Define a router to use, register routes
-        $App->Router = Router::init($App)
+        $App->Router = Router::init()
                              ->register($config_arr);
     },
     
@@ -35,7 +35,7 @@ return [
         $App->Modules->_app->dispatch();
         
         # Standardize the request
-        $Request = $App->Request = Request::init($Request)->setApp($App);
+        $Request = $App->Request = Request::init($Request);
         
         /** @var Router $Router */
         $Router = $App->Router;

@@ -7,10 +7,8 @@
 
 namespace Sm\Core\Resolvable;
 
-use Sm\Application\App;
-
 class FunctionResolvableTest_Support {
-    public function __construct(App $app) {
+    public function __construct() {
         
     }
     public function fn() {

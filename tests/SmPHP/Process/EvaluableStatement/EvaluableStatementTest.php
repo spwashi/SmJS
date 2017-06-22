@@ -31,7 +31,4 @@ class EvaluableStatementTest extends \PHPUnit_Framework_TestCase {
         $EvaluableStatement = $this->EvaluableStatement;
         $this->assertInstanceOf(EvaluableStatement::class, $EvaluableStatement);
     }
-    public function testCanTellIfResolvesToValue() {
-        $this->EvaluableStatement;
-    }
 }

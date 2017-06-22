@@ -8,27 +8,26 @@
 use Monolog\Formatter\HtmlFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
-use Sm\Communication\Response\View\Template\TemplateFactory;
-use Sm\Communication\Response\View\ViewFactory;
+use Sm\Core\Context\ResolutionContext;
+use Sm\Core\Factory\FactoryContainer;
 use Sm\Core\Internal\Logging\LoggerFactory;
 use Sm\Core\Resolvable\OnceRunResolvable;
 use Sm\Core\Resolvable\ResolvableFactory;
 use Sm\Core\Resolvable\StringResolvable;
-use Sm\Core\System_\System_;
+use Sm\Core\System_\Sm;
+use Sm\Presentation\View\Template\TemplateFactory;
+use Sm\Presentation\View\ViewFactory;
 
+$resolutionContext = new ResolutionContext;
+$resolutionContext->setFactoryContainer(new FactoryContainer([
+                                                                 ResolvableFactory::class => new ResolvableFactory,
+                                                                 TemplateFactory::class   => new TemplateFactory,
+                                                                 ViewFactory::class       => new ViewFactory,
+                                                                 LoggerFactory::class     => new LoggerFactory,
+                                                             ]));
+Sm::setResolutionContext($resolutionContext);
 
-# todo Test this for integration
-#  because this is more of an integration-based thing, I didn't test it here.
-#   In the future, please please do
-
-
-System_::registerFactory(ResolvableFactory::class, new ResolvableFactory);
-System_::registerFactory(TemplateFactory::class, new TemplateFactory);
-System_::registerFactory(ViewFactory::class, new ViewFactory);
-System_::registerFactory(LoggerFactory::class, new LoggerFactory);
-
-$LoggerFactory = System_::Factory(LoggerFactory::class);
-
+# Set up Logging (basic)
 $fn_get_default_logger = function ($name = null, $severity = null) {
     if (isset($name)) {
         $name = StringResolvable::init($name)->resolve();
@@ -40,6 +39,6 @@ $fn_get_default_logger = function ($name = null, $severity = null) {
     $Logger->pushHandler($Handler);
     return $Logger;
 };
-
-
+/** @var LoggerFactory $LoggerFactory */
+$LoggerFactory = Sm::resolveFactory(LoggerFactory::class);
 $LoggerFactory->register('System', OnceRunResolvable::init($fn_get_default_logger));

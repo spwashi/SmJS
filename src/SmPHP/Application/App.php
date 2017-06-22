@@ -12,6 +12,8 @@ use Sm\Application\Module\StandardModule;
 use Sm\Communication\Request\Request;
 use Sm\Communication\Routing\Router;
 use Sm\Core\Container\Container;
+use Sm\Core\Context\ResolutionContext;
+use Sm\Core\Error\Error;
 use Sm\Core\Factory\FactoryContainer;
 use Sm\Core\Resolvable\FunctionResolvable;
 use Sm\Core\Resolvable\NativeResolvable;
@@ -31,39 +33,47 @@ use Sm\Process\Query\Query;
  */
 class App extends Container {
     protected $app_resolved = [];
-    protected $Paths;
-    protected $Factories;
+    
+    /** @var  \Sm\Core\Context\ResolutionContext A Context that tells us the kinds of Paths, Factories, etc we have access to */
+    protected $ResolutionContext;
     protected $Modules;
     #  Constructors/Initializers
     #-----------------------------------------------------------------------------------
     public function __construct() {
-        $PathContainer = PathContainer::init()->setApp($this);
-        $this->Paths   = $PathContainer;
         parent::__construct();
-        $this->Modules   = ModuleContainer::init()->setApp($this);
-        $this->Factories = FactoryContainer::init();
+        $this->ResolutionContext = new ResolutionContext();
+        $this->ResolutionContext->setPathContainer(PathContainer::init())
+                                ->setFactoryContainer(FactoryContainer::init());
+        
+        $this->Modules = ModuleContainer::init()->setApp($this);
+        $App           = $this;
         $this->Paths->registerDefaults(
             [
-                'base_path'   =>
-                    SRC_PATH,
+                'base_path'   => SRC_PATH,
                 'app_path'    =>
-                    FunctionResolvable::init(function ($Paths, $App) {
-                        return $Paths->base_path . ($App->name??'Sm');
-                    }),
+                    FunctionResolvable::init(function (PathContainer $Paths) use ($App) { return $Paths->base_path . ($App->name??'Sm'); }),
                 'template'    =>
-                    FunctionResolvable::init(function ($Paths) {
-                        return $Paths->app_path . 'templates/';
-                    }),
+                    FunctionResolvable::init(function (PathContainer $Paths) { return $Paths->app_path . 'templates/'; }),
                 'config_path' =>
-                    FunctionResolvable::init(function ($Paths, $App) {
-                        $path = $Paths->app_path . 'config/';
-                        return $path;
-                    }),
+                    FunctionResolvable::init(function (PathContainer $Paths) { return $Paths->app_path . 'config/'; }),
             ]);
     }
+    public function setModuleContainer(ModuleContainer $moduleContainer) {
+        $this->Modules = $moduleContainer;
+    }
     public function __get($name) {
-        if (in_array($name, [ 'Paths', 'Modules', 'Factories' ])) {
-            return $this->$name;
+        if (in_array($name, [ 'Paths', 'Factories' ])) {
+            /**
+             * @see \Sm\Core\Context\ResolutionContext::$Paths
+             * @see \Sm\Core\Context\ResolutionContext::$Factories
+             */
+            return $this->ResolutionContext->$name;
+        }
+        if ($name === 'Modules') {
+            if (isset($this->Modules)) {
+                return $this->Modules;
+            }
+            throw new Error("This app has not been configured to accept any Modules.");
         }
         return parent::__get($name);
     }
@@ -89,10 +99,10 @@ class App extends Container {
     }
     public function duplicate() {
         /** @var App $Duplicate */
-        $Duplicate            = parent::duplicate();
-        $Duplicate->Paths     = $this->Paths->duplicate()->setApp($Duplicate);
-        $Duplicate->Modules   = $this->Modules->duplicate($Duplicate);
-        $Duplicate->Factories = $this->Factories->duplicate();
+        $Duplicate = parent::duplicate();
+        $Duplicate->ResolutionContext->setPathContainer($this->Paths->duplicate());
+        $Duplicate->ResolutionContext->setFactoryContainer($this->Factories->duplicate());
+        $Duplicate->Modules = $this->Modules->duplicate($Duplicate);
         return $Duplicate;
     }
     public function register($name = null, $registrand = null, $register_with_app = false) {

@@ -8,7 +8,6 @@
 namespace Sm\Communication\Routing;
 
 
-use Sm\Application\App;
 use Sm\Communication\Request\Request;
 use Sm\Core\Abstraction\Registry;
 use Sm\Core\Error\UnimplementedError;
@@ -17,19 +16,7 @@ use Sm\Core\Resolvable\Error\UnresolvableError;
 class Router implements Registry {
     /** @var Route[] $routes */
     protected $routes = [];
-    /** @var \Sm\Application\App $App */
-    protected $App;
     
-    /**
-     * Router constructor.
-     *
-     * @param \Sm\Application\App|null $App
-     */
-    public function __construct(App $App = null) {
-        if (isset($App)) {
-            $this->App = $App;
-        }
-    }
     public function __get($name) {
         return $this->resolve($name);
     }
@@ -75,14 +62,9 @@ class Router implements Registry {
             }
         }
         $msg = "No matching routes";
-        
-        if ($this->App) {
-            $msg .= " in {$this->App->name}";
-        }
-        
         throw new UnresolvableError($msg);
     }
-    public static function init(App $App = null) {
-        return new static($App);
+    public static function init() {
+        return new static;
     }
 }

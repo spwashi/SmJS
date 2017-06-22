@@ -31,10 +31,6 @@ class Route implements Resolvable, \JsonSerializable {
         
         if (is_string($resolution) && strpos($resolution, '#') !== false && strpos($resolution, '::') !== false) {
             $resolution = FunctionResolvable::init(function ($Request = null) use ($pattern, $resolution) {
-                if ($Request instanceof Request) {
-                    $App        = $Request->getApp();
-                    $resolution = str_replace('#', $App ? $App->controller_namespace : '', $resolution);
-                }
                 $resolution_expl = explode('::', $resolution);
                 $class_name      = $resolution_expl[0];
                 $method_name     = $resolution_expl[1] ?? null;
@@ -45,7 +41,7 @@ class Route implements Resolvable, \JsonSerializable {
                 }
                 
                 $resolution = [
-                    new $class_name($App ?? null),
+                    new $class_name,
                     $method_name,
                 ];
                 return FunctionResolvable::init($resolution)->resolve(...func_get_args());

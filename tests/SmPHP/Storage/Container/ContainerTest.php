@@ -31,6 +31,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
      * @return \Sm\Core\Container\Container
      */
     public function testCanRegister(Container $Container) {
+        $this->assertTrue(true);
         return $this->_register_default($Container);
     }
     /**

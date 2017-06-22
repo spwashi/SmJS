@@ -25,29 +25,13 @@ use Sm\Core\Container\Container;
  * @method string|boolean to_template (string $path, boolean $do_verify = false)
  */
 class PathContainer extends Container {
-    public $App = null;
-    /**
-     * @return null
-     */
-    public function getApp() {
-        return $this->App;
-    }
-    /**
-     * @param null $App
-     *
-     * @return PathContainer
-     */
-    public function setApp($App) {
-        $this->App = $App;
-        return $this;
-    }
     /**
      * @param null $name
      *
      * @return null|string
      */
     public function resolve($name = null) {
-        $string = parent::resolve($name, $this, $this->App);
+        $string = parent::resolve($name, $this);
         if (!is_string($string)) {
             return $string;
         }

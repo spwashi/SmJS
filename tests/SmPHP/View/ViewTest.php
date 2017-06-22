@@ -5,11 +5,11 @@
  * Time: 11:46 PM
  */
 
-namespace Sm\Communication\Response\View;
+namespace Sm\Presentation\View;
 
 
 use Sm\Application\App;
-use Sm\Communication\Response\View\Template\PhpTemplate;
+use Sm\Presentation\View\Template\PhpTemplate;
 
 class ViewTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreate() {

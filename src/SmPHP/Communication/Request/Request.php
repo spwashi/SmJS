@@ -7,7 +7,6 @@
 
 namespace Sm\Communication\Request;
 
-use Sm\Application\App;
 use Sm\Communication\Response\Response;
 use Sm\Core\Resolvable\FunctionResolvable;
 
@@ -23,8 +22,6 @@ class Request implements \JsonSerializable {
     protected $path                   = '*';
     protected $method                 = null;
     protected $requested_content_type = Response::TYPE_TEXT_HTML;
-    /** @var App $App */
-    protected $App = null;
     /** @var null|FunctionResolvable $ChangePathResolvable */
     protected $ChangePathResolvable = null;
     
@@ -33,21 +30,6 @@ class Request implements \JsonSerializable {
     }
     function jsonSerialize() {
         return [ '_type' => 'Request' ];
-    }
-    /**
-     * @return App|null
-     */
-    public function getApp() {
-        return $this->App;
-    }
-    /**
-     * @param App $App
-     *
-     * @return Request
-     */
-    public function setApp(App $App): Request {
-        $this->App = $App;
-        return $this;
     }
     public static function init($item = null) {
         if ($item instanceof Request) return $item;

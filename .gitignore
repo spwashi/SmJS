@@ -7,3 +7,4 @@ node_modules/
 composer.lock
 index.php
 /gulpfile.babel.js
+/tests/results/

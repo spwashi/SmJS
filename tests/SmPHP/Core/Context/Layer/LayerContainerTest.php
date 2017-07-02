@@ -14,10 +14,10 @@ use Sm\Core\Exception\InvalidArgumentException;
 class LayerContainerTest extends \PHPUnit_Framework_TestCase {
     public function testCanRegister() {
         $layerContainer = new LayerContainer();
-        /** @var PHPUnit_Framework_MockObject_MockObject|\Sm\Core\Context\Layer\Layer $layer */
-        $layer = $this->getMockForAbstractClass(Layer::class);
+        /** @var PHPUnit_Framework_MockObject_MockObject|Layer $layer */
+        $layer = $this->getMockForAbstractClass(StandardLayer::class);
         $layerContainer->register('test_layer_1', $layer);
-        $this->assertInstanceOf(Layer::class, $layerContainer->resolve('test_layer_1'));
+        $this->assertInstanceOf(StandardLayer::class, $layerContainer->resolve('test_layer_1'));
         
         $this->expectException(InvalidArgumentException::class);
         $layerContainer->register('test', 'Not a Layer');

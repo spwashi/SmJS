@@ -8,7 +8,7 @@
 namespace Sm\Process\EvaluableStatement;
 
 
-use Sm\Core\Factory\AbstractFactory;
+use Sm\Core\Factory\StandardFactory;
 use Sm\Core\Util;
 
 /**
@@ -17,7 +17,7 @@ use Sm\Core\Util;
  * @package Sm\Process\EvaluableStatement
  * @method EvaluableStatement build(...$class_name)
  */
-class EvaluableStatementFactory extends AbstractFactory {
+class EvaluableStatementFactory extends StandardFactory {
     protected $evaluators = [];
     /**
      * Add an evaluator to a class. This is here to make it easier to register handlers for a specific set of

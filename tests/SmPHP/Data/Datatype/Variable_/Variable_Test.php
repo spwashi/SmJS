@@ -8,8 +8,8 @@
 namespace Sm\Data\Datatype\Variable_;
 
 use Sm\Core\Resolvable\AbstractResolvable;
-use Sm\Core\Resolvable\Error\UnresolvableError;
 use Sm\Core\Resolvable\NativeResolvable;
+use Sm\Data\Datatype\Variable_\Exception\InvalidVariableTypeError;
 
 class Example_1 extends AbstractResolvable {
     public function resolve($_ = null) { return 1; }
@@ -46,8 +46,8 @@ class Variable_Test extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(1, $this->Variable_->resolve());
         $this->Variable_->setValue(new Example_2);
         $this->assertEquals(2, $this->Variable_->resolve());
-        
-        $this->expectException(UnresolvableError::class);
+    
+        $this->expectException(InvalidVariableTypeError::class);
         $this->Variable_->setValue(new Example_3);
     }
 }

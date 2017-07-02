@@ -8,35 +8,51 @@
 namespace Sm\Core\System_;
 
 
+use Sm\Communication\CommunicationLayer;
+use Sm\Communication\Routing\Module\StandardRoutingModule;
+use Sm\Core\Context\Layer\LayerContainer;
+use Sm\Core\Context\Layer\LayerRoot;
 use Sm\Core\Context\ResolutionContext;
-use Sm\Core\Exception\UnimplementedError;
-use Sm\Core\Factory\Factory;
+use Sm\Core\Context\StandardContext;
+use Sm\Core\Paths\PathContainer;
 
-class Sm {
-    /** @var  \Sm\Core\Context\ResolutionContext */
-    protected static $ResolutionContext;
-    
-    public static function setDefaults() {
-        if (file_exists(__DIR__ . '/_initialize.php')) {
-            require __DIR__ . '/_initialize.php';
-        }
-    }
+class Sm extends StandardContext implements LayerRoot {
+    /** @var  Sm $instance */
+    public static $instance;
+    /** @var  $resolutionContext */
+    protected $resolutionContext;
+    /** @var  LayerContainer */
+    protected $layers;
     /**
-     * Register a Factory as being part of the system's defaults
+     * Sm constructor.
      *
-     * @param string  $root_class
-     * @param Factory $instance
+     * @param                                       $resolutionContext
+     * @param LayerContainer                        $layers
      */
-    public static function registerFactory(string $root_class, Factory $instance) {
-        static::$ResolutionContext->Factories->register($root_class, $instance);
-    }
-    public static function resolveFactory(string $root_class): Factory {
-        throw new UnimplementedError("Still thinking about this one");
+    public function __construct($resolutionContext, LayerContainer $layers) {
+        parent::__construct();
+        $this->resolutionContext = $resolutionContext;
+        $this->layers            = $layers;
     }
     
-    public static function setResolutionContext(ResolutionContext $ResolutionContext) {
-        static::$ResolutionContext = $ResolutionContext;
+    /**
+     * Get all of the child Layers under this Layer Root.
+     *
+     * @return LayerContainer
+     */
+    public function getLayers(): LayerContainer {
+        return $this->layers;
+    }
+    public function getResolutionContext(): ResolutionContext {
+        return $this->resolutionContext;
     }
 }
 
-Sm::setDefaults();
+$pathContainer     = new PathContainer;
+$resolutionContext = new ResolutionContext($pathContainer);
+Sm::$instance      = new Sm($resolutionContext, new LayerContainer);
+
+$routingModule      = new StandardRoutingModule;
+$communicationLayer = (new CommunicationLayer)->registerRoutingModule($routingModule);
+
+Sm::$instance->getLayers()->register('Communication', $communicationLayer);

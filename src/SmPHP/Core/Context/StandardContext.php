@@ -8,7 +8,7 @@
 namespace Sm\Core\Context;
 
 
-use Sm\Core\Container\Container;
+use Sm\Core\Container\Mini\MiniContainer;
 use Sm\Core\Internal\Identification\HasObjectIdentityTrait;
 
 /**
@@ -19,7 +19,7 @@ use Sm\Core\Internal\Identification\HasObjectIdentityTrait;
  * @package Sm\Core\Context
  *
  */
-abstract class AbstractContext implements Context {
+abstract class StandardContext implements Context {
     use HasObjectIdentityTrait;
     /**
      * @var  \Sm\Core\Container\Container A Container for the Attributes of this Context that make it special
@@ -34,7 +34,7 @@ abstract class AbstractContext implements Context {
      *
      */
     public function __construct() {
-        $this->items = Container::init();
+        $this->items = MiniContainer::init();
         $this->createSelfID();
         $this->incorporate('context_id', $this->getObjectId());
     }
@@ -49,9 +49,8 @@ abstract class AbstractContext implements Context {
      *
      * @return null|\Sm\Core\Container\Container
      */
-    public function readContextAttributes(): ?Container {
-        //todo readonly?
-        return $this->items;
+    public function readContextAttributes(): ?MiniContainer {
+        return $this->items; # todo readonly?
     }
     /**
      * Method to identify an item on this Context as being part of the Context.

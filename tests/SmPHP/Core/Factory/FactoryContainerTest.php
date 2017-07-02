@@ -8,19 +8,19 @@
 namespace Sm\Core\Factory;
 
 
-use Sm\Core\Resolvable\Error\UnresolvableError;
+use Sm\Core\Resolvable\Error\UnresolvableException;
 
 class FactoryContainerTest extends \PHPUnit_Framework_TestCase {
     public function testCanResolveFactory() {
-        $FactoryMock = $this->getMockBuilder(AbstractFactory::class)
+        $FactoryMock = $this->getMockBuilder(StandardFactory::class)
                             ->setMethods([ 'build' ])->getMock();
         $FactoryMock->method('build')->willReturn('test');
         $FactoryContainer = new FactoryContainer;
-        $FactoryContainer->register(AbstractFactory::class, $FactoryMock);
-        $this->assertEquals('test', $FactoryContainer->resolve(AbstractFactory::class)->build());
-        $this->assertEquals('test', $FactoryContainer->resolve('AbstractFactory')->build());
-        
-        $this->expectException(UnresolvableError::class);
+        $FactoryContainer->register(StandardFactory::class, $FactoryMock);
+        $this->assertEquals('test', $FactoryContainer->resolve(StandardFactory::class)->build());
+        $this->assertEquals('test', $FactoryContainer->resolve('StandardFactory')->build());
+    
+        $this->expectException(UnresolvableException::class);
         $FactoryContainer->resolve('DoesnotExistFactory')->build();
     }
 }

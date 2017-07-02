@@ -21,6 +21,7 @@ class MiniContainer implements Registry, \Iterator {
     use IteratorTrait;
     
     protected $registry = [];
+    public static function init() { return new static; }
     /**
      * Remove an item from the Registry, return it
      *
@@ -31,9 +32,7 @@ class MiniContainer implements Registry, \Iterator {
      * @return mixed
      */
     public function remove($name) {
-        if (isset($this->registry[ $name ])) {
-            unset($this->registry[ $name ]);
-        }
+        if (!isset($this->registry[ $name ])) return null;
         
         $variable = $this->registry[ $name ];
         unset($this->registry[ $name ]);

@@ -16,7 +16,7 @@ use Sm\Core\Container\Container;
  * A Container for Modules held (usually) by Layers.
  *
  * @package Sm\Core\Module
- * @method Module resolve($_ = null)
+ * @method Module|ModuleProxy resolve($_ = null)
  */
 class ModuleContainer extends Container {
 }

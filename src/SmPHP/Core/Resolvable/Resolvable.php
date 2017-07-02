@@ -21,11 +21,9 @@ interface Resolvable extends Identifiable {
     /**
      * Get the end value of a Resolvable
      *
-     * @param null $_
-     *
      * @return mixed
      */
-    public function resolve($_ = null);
+    public function resolve();
     public function reset();
     public function getSubject();
     public function setSubject($subject);

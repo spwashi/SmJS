@@ -9,7 +9,9 @@ namespace Sm\Core\Module;
 
 
 use Sm\Core\Context\Context;
-use Sm\Core\Context\Context_basedProxy;
+use Sm\Core\Context\Proxy\StandardContextualizedProxy;
+use Sm\Core\Exception\InvalidArgumentException;
+use Sm\Core\Resolvable\FunctionResolvable;
 
 /**
  * Class ModuleProxy
@@ -18,11 +20,9 @@ use Sm\Core\Context\Context_basedProxy;
  *
  * @package Sm\Core\Module
  */
-class ModuleProxy implements Context_basedProxy {
-    /** @var \Sm\Core\Context\Context $context The Context that this Proxy will pass into the Module */
-    protected $context;
-    /** @var \Sm\Core\Module\Module $module The module being proxied */
-    protected $module;
+class ModuleProxy extends StandardContextualizedProxy {
+    /** @var \Sm\Core\Module\Module $subject The module being proxied */
+    protected $subject;
     /**
      * ModuleProxy constructor.
      *
@@ -31,15 +31,11 @@ class ModuleProxy implements Context_basedProxy {
      * @param \Sm\Core\Context\Context $context
      */
     public function __construct(Module $module, Context $context) {
-        $this->context = $context;
-        $this->module  = $module;
+        parent::__construct($module, $context);
     }
-    /**
-     * Get the Context that the Proxy is referencing
-     *
-     * @return \Sm\Core\Context\Context
-     */
-    public function getContext(): Context {
-        return $this->context;
+    public function __call($name, $arguments) {
+        if (count($arguments) !== 1) throw new InvalidArgumentException("Cannot call with more or less than one argument");
+        $arguments[] = $this->getContext();
+        return FunctionResolvable::init([ $this->subject, $name ])->resolve(...$arguments);
     }
 }

@@ -12,7 +12,7 @@ use Sm\Core\Container\Container;
 use Sm\Core\Formatting\Formatter\FormatterFactory;
 use Sm\Core\Formatting\Formatter\FormatterFactoryHaver;
 use Sm\Core\Module\StandardModule;
-use Sm\Core\Resolvable\Error\UnresolvableError;
+use Sm\Core\Resolvable\Error\UnresolvableException;
 use Sm\Storage\Database\DatabaseDataSource;
 
 /**
@@ -23,7 +23,7 @@ use Sm\Storage\Database\DatabaseDataSource;
  *
  * @package Sm\Data\Query\Sql
  */
-class SqlStandardModule extends StandardModule {
+class SqlStandardModule {
     /** @var  FormatterFactory $FormatterFactory */
     protected $FormatterFactory;
     /** @var  \Sm\Core\Container\Container $DatabaseSourceContainer */
@@ -110,11 +110,11 @@ class SqlStandardModule extends StandardModule {
     }
     protected function assertComplete() {
         if (!isset($this->FormatterFactory) || !($this->FormatterFactory instanceof FormatterFactory)) {
-            throw new UnresolvableError("There needs to be a formatter factory in order for this Module to operate correctly.");
+            throw new UnresolvableException("There needs to be a formatter factory in order for this Module to operate correctly.");
         }
     
         if (!($this->DatabaseSource instanceof DatabaseDataSource)) {
-            throw new UnresolvableError("There must be a DatabaseSource in order for this SqlModule to work as predicted");
+            throw new UnresolvableException("There must be a DatabaseSource in order for this SqlModule to work as predicted");
         }
     }
 }

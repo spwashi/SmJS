@@ -19,7 +19,7 @@ use Sm\Core\Util;
  * @package Sm\Core\Container
  * @property-write $search_ancestry
  */
-abstract class AbstractContainer extends MiniContainer {
+abstract class StandardContainer extends MiniContainer {
     /** @var  \Sm\Core\Container\Mini\MiniCache $Cache */
     
     protected $Cache;
@@ -78,11 +78,11 @@ abstract class AbstractContainer extends MiniContainer {
     /**
      * Inherit the contents of another Container
      *
-     * @param \Sm\Core\Container\AbstractContainer $registry
+     * @param \Sm\Core\Container\StandardContainer $registry
      *
      * @return $this
      */
-    public function inherit(AbstractContainer $registry) {
+    public function inherit(StandardContainer $registry) {
         $this->register($registry->cloneRegistry());
         return $this;
     }

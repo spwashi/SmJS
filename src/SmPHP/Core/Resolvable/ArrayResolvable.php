@@ -8,7 +8,7 @@
 namespace Sm\Core\Resolvable;
 
 
-use Sm\Core\Resolvable\Error\UnresolvableError;
+use Sm\Core\Resolvable\Error\UnresolvableException;
 
 /**
  * Class ArrayResolvable
@@ -20,7 +20,7 @@ use Sm\Core\Resolvable\Error\UnresolvableError;
 class ArrayResolvable extends NativeResolvable implements \JsonSerializable {
     public function setSubject($subject = null) {
         if (!is_array($subject)) {
-            throw new UnresolvableError("Not sure how to resolve subjects that aren't arrays");
+            throw new UnresolvableException("Not sure how to resolve subjects that aren't arrays");
         }
         return parent::setSubject($subject);
     }

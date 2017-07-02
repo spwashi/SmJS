@@ -8,19 +8,18 @@
 namespace Sm\Core\Context\Layer\Module;
 
 
-use Sm\Core\Context\Context;
-use Sm\Core\Context\Exception\InvalidContextException;
 use Sm\Core\Context\Layer\Layer;
-use Sm\Core\Hook\HookContainer;
+use Sm\Core\Context\Layer\LayerRoot;
+use Sm\Core\Context\Layer\StandardLayer;
 
 class LayerModuleTest extends \PHPUnit_Framework_TestCase {
-    public function testCanOnlyRegisterLayeras() {
+    public function testCanOnlyRegisterLayers() {
+        /** @var \Sm\Core\Context\Layer\Module\LayerModule $layerModule */
         $layerModule = $this->getMockForAbstractClass(LayerModule::class);
-        $layerModule->method('getHookContainer')->willReturn(HookContainer::init());
-        
-        $layer = $this->getMockForAbstractClass(Layer::class);
-        $layerModule->initialize($layer);
-        $this->expectException(InvalidContextException::class);
-        $layerModule->initialize($this->createMock(Context::class));
+        /** @var Layer $layer */
+        $layer = $this->getMockForAbstractClass(StandardLayer::class);
+        /** @var LayerRoot $layerRootMock */
+        $layerRootMock = $this->createMock(LayerRoot::class);
+        $layerModule->initialize($layer->initialize($layerRootMock));
     }
 }

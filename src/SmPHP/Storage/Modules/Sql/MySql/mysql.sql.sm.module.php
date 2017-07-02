@@ -5,7 +5,6 @@
  * Time: 12:22 PM
  */
 
-use Sm\Application\App;
 use Sm\Core\Formatting\Formatter\FormatterFactory;
 use Sm\Core\Resolvable\FunctionResolvable;
 use Sm\Data\Datatype\Variable_\Variable_;
@@ -21,8 +20,8 @@ use Sm\Storage\Modules\Sql\MySql\MysqlDatabaseSource;
 use Sm\Storage\Modules\Sql\MySql\MysqlPdoAuthentication;
 use Sm\Storage\Modules\Sql\SqlStandardModule;
 
-
-$SqlModule = SqlStandardModule::init(function (App $App, SqlStandardModule $SqlModule) {
+return;
+$SqlModule = SqlStandardModule::init(function ($App, SqlStandardModule $SqlModule) {
     $FormatterFactory = new FormatterFactory;
     $path             = __DIR__ . '/mysql.sql.sm.formatter.php';
     $FormatterFactory->register(null, include $path ?? []);
@@ -47,7 +46,7 @@ $SqlModule = SqlStandardModule::init(function (App $App, SqlStandardModule $SqlM
     $App->Factories->resolve(QueryInterpreterFactory::class)
                    ->register(MysqlDatabaseSource::class, $get_mysql_interpreter_fn);
 });
-$dispatch  = function (App $App, SqlStandardModule $self) {
+$dispatch  = function ($App, SqlStandardModule $self) {
     /** @var EvaluableStatementFactory $_ */
     $_ = $App->Factories->resolve(EvaluableStatementFactory::class);
     # region todo this is part of a test

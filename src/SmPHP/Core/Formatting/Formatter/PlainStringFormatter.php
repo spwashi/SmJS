@@ -17,9 +17,9 @@ use Sm\Core\Resolvable\StringResolvable;
  *
  * @package Sm\Core\Formatting\Formatter
  */
-class PlainStringFormatter extends StringResolvable implements Formatter {
+class PlainStringFormatter implements Formatter {
     /** @return string */
     public function format() {
-        return parent::resolve(...func_get_args());
+        return StringResolvable::init(...func_get_args())->resolve();
     }
 }

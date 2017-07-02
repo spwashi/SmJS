@@ -8,8 +8,8 @@
 namespace Sm\Core\Context\Layer\Module;
 
 use Sm\Core\Context\Context;
-use Sm\Core\Context\Exception\InvalidContextException;
 use Sm\Core\Context\Layer\Layer;
+use Sm\Core\Hook\HookContainer;
 use Sm\Core\Module\AbstractModule;
 use Sm\Core\Module\ModuleProxy;
 
@@ -19,18 +19,22 @@ use Sm\Core\Module\ModuleProxy;
  * @package Sm\Core\Context\Layer
  */
 abstract class LayerModule extends AbstractModule {
+    /** @var \Sm\Core\Hook\HookContainer $hookContainer */
+    protected $hookContainer;
+    
+    /**
+     * Get the Hooks held by this class in a HookContainer
+     *
+     * @return null|\Sm\Core\Hook\HookContainer
+     */
+    protected function getHookContainer(): ?HookContainer {
+        return $this->hookContainer = $this->hookContainer ?? new HookContainer;
+    }
     protected function createModuleProxy(Context $context): ModuleProxy {
         return new LayerModuleProxy($this, $context);
     }
-    /**
-     * @param \Sm\Core\Context\Context $context
-     *
-     * @return bool|null
-     * @throws \Sm\Core\Context\Exception\InvalidContextException
-     */
-    protected function _check(Context $context) {
-        if (!($context instanceof Layer)) throw new InvalidContextException("Can only interact with this Module within a Layer Context");
-        return parent::_check($context);
-    }
     
+    protected function _check(Layer $context = null) { return parent::_check(); }
+    protected function _initialize(Layer $context = null) { return parent::_initialize(); }
+    protected function _deactivate(Layer $context = null) { return parent::_deactivate(); }
 }

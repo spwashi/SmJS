@@ -9,9 +9,9 @@ namespace Sm\Communication\Routing;
 
 
 use Sm\Communication\Request\Request;
+use Sm\Communication\Routing\Exception\RouteNotFoundException;
 use Sm\Core\Abstraction\Registry;
 use Sm\Core\Exception\UnimplementedError;
-use Sm\Core\Resolvable\Error\UnresolvableError;
 
 class Router implements Registry {
     /** @var Route[] $routes */
@@ -51,10 +51,8 @@ class Router implements Registry {
         }
         return $this;
     }
-    public function resolve($Request = null) {
-        if (class_exists('\Sm\Communication\Request\Request')) {
-            $Request = Request::init($Request);
-        } else {
+    public function resolve(Request $Request = null) {
+        if (!$Request) {
             throw new UnimplementedError("Can only deal with requests");
         }
         foreach ($this->routes as $index => $route) {
@@ -63,7 +61,6 @@ class Router implements Registry {
                 return $route->resolve($Request);
             }
         }
-        $msg = "No matching routes";
-        throw new UnresolvableError($msg);
+        throw new RouteNotFoundException("No matching routes");
     }
 }

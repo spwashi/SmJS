@@ -53,6 +53,7 @@ class Variable_ extends AbstractResolvable implements \JsonSerializable {
         $Instance->name = $name;
         return $Instance;
     }
+    
     public function __get($name) {
         if ($name === 'name') {
             return $this->_name;
@@ -90,6 +91,7 @@ class Variable_ extends AbstractResolvable implements \JsonSerializable {
                 break;
         }
     }
+    
     /**
      * Get an array of the potential types that this Variable can be
      *
@@ -109,6 +111,7 @@ class Variable_ extends AbstractResolvable implements \JsonSerializable {
         $this->_potential_types = $_potential_types;
         return $this;
     }
+    
     /**
      * Set the value of this Variable. Subject must be of the type specified.
      *
@@ -124,23 +127,9 @@ class Variable_ extends AbstractResolvable implements \JsonSerializable {
         }
     
         # Only deal with Resolvables
-        if (!($subject instanceof Resolvable)) {
-            throw new InvalidVariableTypeError("Cannot set Subject to be something that is not resolvable");
-        }
-        
-        $class = get_class($subject);
-        
-        # If we haven't given permission to set a Resolvable of this type, don't
-        if ($len = count($this->_potential_types)) {
-            # iterate through the potential types and see if we're allowed to continue;
-            for ($i = 0; $i < $len; $i++) {
-                if ($class === $this->_potential_types[ $i ] || is_subclass_of($class, $this->_potential_types[ $i ])) {
-                    break;
-                } else if ($i === $len - 1) {
-                    throw new InvalidVariableTypeError("Cannot set this class");
-                }
-            }
-        }
+        $subject = (new ResolvableFactory)->resolve($subject);
+    
+        $this->checkCanSetValue($subject);
         
         parent::setSubject($subject);
         return $this;
@@ -155,19 +144,18 @@ class Variable_ extends AbstractResolvable implements \JsonSerializable {
     public function setValue($value) {
         return $this->setSubject($value);
     }
+    
     /**
      * Return the Value of this subject or null if the subject doesn't exist
      *
      * @param null $_
      *
-     * @return $this|mixed
+     * @return Resolvable
      */
     public function resolve($_ = null) {
-        if (isset($this->subject)) {
-            return $this->subject->resolve();
-        }
-        return null;
+        return $this->subject ? $this->subject->resolve() : null;
     }
+    
     /**
      * Does this Variable have a value to resolve to?
      *
@@ -186,13 +174,31 @@ class Variable_ extends AbstractResolvable implements \JsonSerializable {
      *
      * @return Variable_
      */
-    public function setDefault($default): Variable_ {
-        $this->_default = $default instanceof Resolvable ? $default : $this->getFactoryContainer()
-                                                                           ->resolve(ResolvableFactory::class)
-                                                                           ->build($default);
+    public function setDefault(Resolvable $default): Variable_ {
+        $this->_default = $default;
         return $this;
     }
     public static function _($name) {
         return static::init($name);
+    }
+    /**
+     * @param $subject
+     *
+     * @throws \Sm\Data\Datatype\Variable_\Exception\InvalidVariableTypeError
+     */
+    protected function checkCanSetValue($subject) {
+        $class = get_class($subject);
+        
+        # If we haven't given permission to set a Resolvable of this type, don't
+        if ($len = count($this->_potential_types)) {
+            # iterate through the potential types and see if we're allowed to continue;
+            for ($i = 0; $i < $len; $i++) {
+                if ($class === $this->_potential_types[ $i ] || is_subclass_of($class, $this->_potential_types[ $i ])) {
+                    break;
+                } else if ($i === $len - 1) {
+                    throw new InvalidVariableTypeError("Cannot set this class");
+                }
+            }
+        }
     }
 }

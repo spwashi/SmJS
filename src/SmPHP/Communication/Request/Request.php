@@ -19,10 +19,4 @@ abstract class Request implements \JsonSerializable {
         if ($item instanceof Request) return $item;
         return new static;
     }
-    public function __toString() {
-        return json_encode($this);
-    }
-    function jsonSerialize() {
-        return [ '_type' => 'Request' ];
-    }
 }

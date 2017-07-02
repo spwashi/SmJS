@@ -8,7 +8,7 @@
 namespace Sm\Core\Module;
 
 
-use Sm\Core\Context\AbstractContext;
+use Sm\Core\Context\StandardContext;
 use Sm\Core\Hook\HookContainer;
 
 class AbstractModuleTest extends \PHPUnit_Framework_TestCase {
@@ -17,7 +17,7 @@ class AbstractModuleTest extends \PHPUnit_Framework_TestCase {
         $abstractModule = $this->getMockForAbstractClass(AbstractModule::class);
         $abstractModule->method('getHookContainer')->willReturn($this->createMock(HookContainer::class));
         /** @var \Sm\Core\Context\Context $context */
-        $context     = $this->getMockForAbstractClass(AbstractContext::class);
+        $context     = $this->getMockForAbstractClass(StandardContext::class);
         $moduleProxy = $abstractModule->initialize($context);
         $this->assertInstanceOf(ModuleProxy::class, $moduleProxy);
         $this->assertEquals($moduleProxy->getContext(), $context);
@@ -28,9 +28,9 @@ class AbstractModuleTest extends \PHPUnit_Framework_TestCase {
         $abstractModule = $this->getMockForAbstractClass(AbstractModule::class);
         $abstractModule->method('getHookContainer')->willReturn($this->createMock(HookContainer::class));
         /** @var \Sm\Core\Context\Context $context */
-        $context = $this->getMockForAbstractClass(AbstractContext::class);
+        $context = $this->getMockForAbstractClass(StandardContext::class);
         /** @var \Sm\Core\Context\Context $second_context */
-        $second_context = $this->getMockForAbstractClass(AbstractContext::class);
+        $second_context = $this->getMockForAbstractClass(StandardContext::class);
         $abstractModule->initialize($context);
         
         # Can deactivate known context

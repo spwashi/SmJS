@@ -9,7 +9,7 @@ namespace Sm\Core\Factory;
 
 
 use Sm\Core\Container\Container;
-use Sm\Core\Resolvable\Error\UnresolvableError;
+use Sm\Core\Resolvable\Error\UnresolvableException;
 
 /**
  * Class FactoryContainer
@@ -33,7 +33,7 @@ class FactoryContainer extends Container {
             return $Factories[0];
         } else if ($_factory_count < 2 && class_exists($name)) {
             $_class = new $name;
-            if ($_class instanceof AbstractFactory) {
+            if ($_class instanceof StandardFactory) {
                 if (!$_factory_count) {
                     $this->register($name, $_class);
                 }
@@ -41,7 +41,7 @@ class FactoryContainer extends Container {
             }
         }
     
-        throw new UnresolvableError("Cannot resolve Factory");
+        throw new UnresolvableException("Cannot resolve Factory");
     }
     /**
      * Function that allows us to take advantage of an assumed distinction Factory names.

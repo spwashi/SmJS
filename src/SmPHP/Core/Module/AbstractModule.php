@@ -8,7 +8,10 @@
 namespace Sm\Core\Module;
 
 
+use Sm\Core\Abstraction\Registry;
+use Sm\Core\Container\Mini\MiniContainer;
 use Sm\Core\Context\Context;
+use Sm\Core\Context\StandardContext;
 use Sm\Core\Hook\HasHooksTrait;
 use Sm\Core\Hook\Hook;
 use Sm\Core\Hook\HookHaver;
@@ -26,11 +29,19 @@ use Sm\Core\Hook\HookHaver;
  *
  * @package Sm\Core\Module
  */
-abstract class AbstractModule implements HookHaver, Module {
+abstract class AbstractModule extends StandardContext implements HookHaver, Module {
     use HasHooksTrait;
     
-    /** @var array An array of the object_ids of the Contexts this Module has access to. */
-    protected $verified_contexts = [];
+    /** @var MiniContainer An array of the object_ids of the Contexts this Module has access to. */
+    protected $verified_contexts;
+    /**
+     * AbstractModule constructor.
+     */
+    public function __construct() {
+        parent::__construct();
+        $this->verified_contexts = new MiniContainer;
+    }
+    
     
     /**
      * Get the Module 'primed' in whatever Context we call it.
@@ -63,7 +74,7 @@ abstract class AbstractModule implements HookHaver, Module {
         $this->resolveHook(Hook::CHECK, $context);
         $this->_check($context);
         
-        $this->addValidatedContext($context);
+        $this->createContextRegistry($context);
         return true;
     }
     /**
@@ -79,8 +90,7 @@ abstract class AbstractModule implements HookHaver, Module {
         $this->check($context);
         $this->resolveHook(Hook::DEACTIVATE, $context);
         $this->_deactivate($context);
-        $index = array_search($context->getObjectId(), $this->verified_contexts);
-        unset($this->verified_contexts[ $index ]);
+        $this->removeValidatedContext($context);
         return true;
     }
     
@@ -90,44 +100,60 @@ abstract class AbstractModule implements HookHaver, Module {
      * @return bool
      */
     protected function hasValidatedContext(Context $context): bool {
-        return in_array($context->getObjectId(), $this->verified_contexts);
+        return $this->verified_contexts->canResolve($context->getObjectId());
     }
     /**
      * Add it to a list of Contexts we've verified so we know that it's okay.
-     * subclasses might want to add some sort of exipiry functionality
+     * subclasses might want to add some sort of exipiry functionality.
+     *
+     * Also, add items that the Context will have registered to it
      *
      * @param \Sm\Core\Context\Context $context
      *
      * @return mixed
      */
-    protected function addValidatedContext(Context $context) {
-        return $this->verified_contexts[] = $context->getObjectId();
+    protected function createContextRegistry(Context $context): Registry {
+        return $this->verified_contexts->register($context->getObjectId(), new MiniContainer)
+                                       ->resolve($context->getObjectId());
+    }
+    /**
+     * Remove a Context from the "validated contexts" list
+     *
+     * @param \Sm\Core\Context\Context $context
+     *
+     * @return mixed
+     */
+    protected function removeValidatedContext(Context $context) {
+        return $this->verified_contexts->remove($context->getObjectId());
+    }
+    /**
+     *
+     * @param \Sm\Core\Context\Context $context
+     *
+     * @return \Sm\Core\Container\Mini\MiniContainer
+     */
+    protected function getContextRegistry(Context $context): MiniContainer {
+        return $this->verified_contexts->resolve($context->getObjectId());
     }
     
     /**
      * Set up the Class. Meant to be overridden
      *
      * @see \Sm\Core\Module\AbstractModule::initialize
-     *
-     * @param \Sm\Core\Context\Context $context
      */
-    protected function _initialize(Context $context) { }
+    protected function _initialize() { }
     /**
      * Set up the Class. Meant to be overridden
      *
      * @see \Sm\Core\Module\AbstractModule::deactivate
-     *
-     * @param \Sm\Core\Context\Context $context
      */
-    protected function _deactivate(Context $context) { }
+    protected function _deactivate() { }
     /**
      * Check to see if the Module is applicable in this context. Meant to be overridden
      *
      * @see \Sm\Core\Module\AbstractModule::check
-     *
-     * @param \Sm\Core\Context\Context $context
      */
-    protected function _check(Context $context) { }
+    protected function _check() { }
     
     /**
      * Return a ModuleProxy that maps on to this Module within a given Context
@@ -139,4 +165,5 @@ abstract class AbstractModule implements HookHaver, Module {
     protected function createModuleProxy(Context $context): ModuleProxy {
         return new ModuleProxy($this, $context);
     }
+    
 }

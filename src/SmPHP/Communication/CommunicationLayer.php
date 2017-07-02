@@ -8,8 +8,9 @@
 namespace Sm\Communication;
 
 
-use Sm\Core\Context\Layer\Layer;
-use Sm\Core\Module\Module;
+use Sm\Communication\Routing\Module\RoutingModule;
+use Sm\Core\Context\Layer\Module\Exception\MissingModuleException;
+use Sm\Core\Context\Layer\StandardLayer;
 
 /**
  * Class CommunicationLayer
@@ -19,10 +20,35 @@ use Sm\Core\Module\Module;
  *
  * @package Sm\Communication
  */
-class CommunicationLayer extends Layer {
+class CommunicationLayer extends StandardLayer {
     const ROUTING_MODULE = 'routing';
-    public function registerRoutingModule(Module $routingModule) {
-        $this->ModuleContainer->register(static::ROUTING_MODULE, $routingModule);
+    /**
+     * @param \Sm\Communication\Routing\Module\RoutingModule|\Sm\Core\Module\ModuleProxy $routingModule
+     *
+     * @return  static
+     * */
+    public function registerRoutingModule(RoutingModule $routingModule) {
+        return $this->registerModule(static::ROUTING_MODULE, $routingModule);
+    }
+    public function registerRoutes($request) {
+        $routingModule = $this->getRoutingModule();
+        return $routingModule->registerRoutes($request);
+    }
+    public function route($request) {
+        $routingModule = $this->getRoutingModule();
+        if (!$routingModule) throw new MissingModuleException("Missing a Routing Module");
+        return $routingModule->route($request);
+    }
+    /**
+     * Get the Module used for Routing
+     *
+     * @return null|\Sm\Communication\Routing\Module\RoutingModule|\Sm\Core\Module\Module
+     * @throws \Sm\Core\Context\Layer\Module\Exception\MissingModuleException
+     */
+    protected function getRoutingModule(): RoutingModule {
+        $routingModule = $this->getModule(CommunicationLayer::ROUTING_MODULE);
+        if (!$routingModule) throw new MissingModuleException("Missing a Routing Module");
+        return $routingModule;
     }
     /**
      * @return array An array of strings corresponding to the names of the modules that this layer needs to have

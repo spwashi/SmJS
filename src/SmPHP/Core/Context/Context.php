@@ -8,7 +8,7 @@
 namespace Sm\Core\Context;
 
 
-use Sm\Core\Container\Container;
+use Sm\Core\Container\Mini\MiniContainer;
 use Sm\Core\Internal\Identification\Identifiable;
 
 /**
@@ -26,7 +26,7 @@ interface Context extends Identifiable {
      * (readonly if that's an option).
      * This is what we use to know if a Context matches another one
      *
-     * @return \Sm\Core\Container\Container|null
+     * @return MiniContainer|null
      */
-    public function readContextAttributes(): ?Container;
+    public function readContextAttributes(): ?MiniContainer;
 }

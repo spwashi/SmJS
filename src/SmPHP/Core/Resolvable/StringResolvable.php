@@ -8,7 +8,7 @@
 namespace Sm\Core\Resolvable;
 
 
-use Sm\Core\Resolvable\Error\UnresolvableError;
+use Sm\Core\Resolvable\Error\UnresolvableException;
 
 /**
  * Class StringResolvable
@@ -22,7 +22,7 @@ class StringResolvable extends NativeResolvable implements \JsonSerializable {
     protected $subject;
     public function __construct($subject = null) {
         if (!static::itemCanBeString($subject)) {
-            throw new UnresolvableError("Could not resolve subject");
+            throw new UnresolvableException("Could not resolve subject");
         }
         parent::__construct($subject);
     }

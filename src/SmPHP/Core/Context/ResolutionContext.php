@@ -15,11 +15,11 @@ use Sm\Core\Paths\PathContainer;
  * Class ResolutionContext
  *
  * A Context that tells us about what we, in the development enviroment, have access to resolve.
- * Primarily Core things like Factories or
+ * Primarily Core things like PathContainers, etc
  *
- * @property-read PathContainer $Paths
+ * @property-read PathContainer $paths
  */
-class ResolutionContext extends AbstractContext {
+class ResolutionContext extends StandardContext {
     use HasObjectIdentityTrait;
     /**
      * ResolutionContext constructor.
@@ -41,7 +41,7 @@ class ResolutionContext extends AbstractContext {
      * @return $this
      */
     public function setPathContainer(PathContainer $pathContainer) {
-        $this->incorporate('Paths', $pathContainer);
+        $this->incorporate('paths', $pathContainer);
         return $this;
     }
 }

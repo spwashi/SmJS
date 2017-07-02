@@ -11,11 +11,21 @@ namespace Sm\Communication\Network\Http;
 use Sm\Communication\Request\Request;
 use Sm\Communication\Response\Response;
 
+/**
+ * Class HttpRequest
+ *
+ * @package Sm\Communication\Network\Http
+ */
 class HttpRequest extends Request {
     protected $url                    = '*';
     protected $path                   = '*';
     protected $method                 = null;
     protected $requested_content_type = Response::TYPE_TEXT_HTML;
+    /**
+     * @param null $url
+     *
+     * @return \Sm\Communication\Network\Http\HttpRequest|Request
+     */
     public static function init($url = null) {
         if (is_string($url)) return (new static)->setUrl($url);
         return parent::init($url);
@@ -35,12 +45,13 @@ class HttpRequest extends Request {
         $this->requested_content_type = $requested_content_type;
         return $this;
     }
+    
     /**
      * Get the request method used to make this request. Defaults to "get"
      *
      * @return null|string
      */
-    public function getMethod() {
+    public function getRequestMethod() {
         return $this->method ?? 'get';
     }
     /**
@@ -50,7 +61,7 @@ class HttpRequest extends Request {
      *
      * @return $this
      */
-    public function setMethod($method) {
+    public function setRequestMethod($method) {
         $this->method = $method;
         return $this;
     }
@@ -86,15 +97,21 @@ class HttpRequest extends Request {
         return parent::jsonSerialize() + [
                 'url'      => $this->getUrl(),
                 'url_path' => $this->getUrlPath(),
-                'method'   => $this->getMethod(),
+                'method'   => $this->getRequestMethod(),
             ];
     }
+    
+    ##################################
+    #
+    ##################################
+    
+    
     /**
      * Get the URL of however we entered
      *
      * @return string
      */
-    public static function getRequestUrl() {
+    public static function getEnvironmentRequestURL() {
         $host        = $_SERVER['HTTP_HOST']??'';
         $request_uri = $_SERVER['REQUEST_URI']??'';
         return "//{$host}{$request_uri}";
@@ -104,7 +121,16 @@ class HttpRequest extends Request {
      *
      * @return string
      */
-    public static function getRequestMethod() {
+    public static function getEnvironmentRequestMethod() {
         return strtolower($_SERVER['REQUEST_METHOD']);
+    }
+    /**
+     * Initialize an HttpRequest from the Environment
+     *
+     * @return \Sm\Communication\Network\Http\HttpRequest
+     */
+    public static function getRequestFromEnvironment() {
+        return static::init(static::getEnvironmentRequestURL())
+                     ->setRequestMethod(static::getEnvironmentRequestMethod());
     }
 }

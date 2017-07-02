@@ -11,7 +11,7 @@ namespace Sm\Communication\Routing;
 use Sm\Communication\Network\Http\HttpRequest;
 use Sm\Communication\Request\Request;
 use Sm\Core\Resolvable\AbstractResolvable;
-use Sm\Core\Resolvable\Error\UnresolvableError;
+use Sm\Core\Resolvable\Error\UnresolvableException;
 use Sm\Core\Resolvable\FunctionResolvable;
 use Sm\Core\Resolvable\Resolvable;
 use Sm\Core\Resolvable\ResolvableFactory;
@@ -38,7 +38,7 @@ class Route extends AbstractResolvable implements \JsonSerializable {
                 
                 # If the class doesn't have the requested method, skip it
                 if ((!$class_name || !$method_name) || !(class_exists($class_name) || !method_exists($class_name, $method_name))) {
-                    throw new UnresolvableError("Malformed method- {$resolution}");
+                    throw new UnresolvableException("Malformed method- {$resolution}");
                 }
                 
                 $resolution = [
@@ -132,7 +132,7 @@ class Route extends AbstractResolvable implements \JsonSerializable {
      * @param Request $Request ,..
      *
      * @return mixed
-     * @throws \Sm\Core\Resolvable\Error\UnresolvableError
+     * @throws \Sm\Core\Resolvable\Error\UnresolvableException
      * @throws \Sm\Communication\Routing\MalformedRouteException
      */
     public function resolve($Request = null) {
@@ -140,7 +140,7 @@ class Route extends AbstractResolvable implements \JsonSerializable {
             if (!($Request instanceof Request)) {
                 throw new MalformedRouteException("Cannot resolve request.");
             } else if (!($this->Resolution instanceof Resolvable)) {
-                throw new UnresolvableError("No way to resolve request.");
+                throw new UnresolvableException("No way to resolve request.");
             }
             
             if ($this->matches($Request)) {
@@ -149,7 +149,7 @@ class Route extends AbstractResolvable implements \JsonSerializable {
                 $res = $this->Resolution->resolve(...array_values($arguments));
                 return $res;
             } else {
-                throw new UnresolvableError("Cannot match the route");
+                throw new UnresolvableException("Cannot match the route");
             }
         } catch (\Exception $e) {
             if ($e instanceof MalformedRouteException) {
@@ -158,11 +158,11 @@ class Route extends AbstractResolvable implements \JsonSerializable {
             if (isset($this->DefaultResolvable)) {
                 return $this->DefaultResolvable->resolve($Request);
             }
-            if ($e instanceof UnresolvableError) {
+            if ($e instanceof UnresolvableException) {
                 throw $e;
             }
         }
-        throw new UnresolvableError("Cannot resolve route");
+        throw new UnresolvableException("Cannot resolve route");
     }
     public function __debugInfo() {
         return $this->jsonSerialize();

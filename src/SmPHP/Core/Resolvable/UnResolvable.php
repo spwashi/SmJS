@@ -8,7 +8,7 @@
 namespace Sm\Core\Resolvable;
 
 
-use Sm\Core\Resolvable\Error\UnresolvableError;
+use Sm\Core\Resolvable\Error\UnresolvableException;
 
 /**
  * Class UnResolvable
@@ -23,11 +23,11 @@ class UnResolvable extends AbstractResolvable {
      * @param null $_
      *
      * @return mixed
-     * @throws \Sm\Core\Resolvable\Error\UnresolvableError
+     * @throws \Sm\Core\Resolvable\Error\UnresolvableException
      * @internal param mixed|null|\Sm\Core\Abstraction\Resolvable\Arguments $arguments ,..
      *
      */
     public function resolve($_ = null) {
-        throw new UnresolvableError("Cannot resolve");
+        throw new UnresolvableException("Cannot resolve");
     }
 }

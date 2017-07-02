@@ -8,7 +8,7 @@
 namespace Sm\Core\Factory;
 
 
-use Sm\Core\Container\AbstractContainer;
+use Sm\Core\Container\StandardContainer;
 use Sm\Core\Exception\ClassNotFoundException;
 use Sm\Core\Factory\Exception\FactoryCannotBuildException;
 use Sm\Core\Factory\Exception\WrongFactoryException;
@@ -24,7 +24,7 @@ use Sm\Core\Util;
  *
  * @package Sm\Core\Factory
  */
-abstract class AbstractFactory extends AbstractContainer implements Factory {
+abstract class StandardFactory extends StandardContainer implements Factory {
     /** Mode of creating factories: Create classes that aren't registered (as long as it's okay to) */
     const MODE_DO_CREATE_MISSING = 'do_create_missing';
     
@@ -44,8 +44,8 @@ abstract class AbstractFactory extends AbstractContainer implements Factory {
      *
      * @return $this
      */
-    public function setCreationMode($mode = AbstractFactory::MODE_DO_CREATE_MISSING) {
-        $this->do_create_missing = $mode === AbstractFactory::MODE_DO_CREATE_MISSING;
+    public function setCreationMode($mode = StandardFactory::MODE_DO_CREATE_MISSING) {
+        $this->do_create_missing = $mode === StandardFactory::MODE_DO_CREATE_MISSING;
         return $this;
     }
     public function resolve($name = null) {
@@ -152,7 +152,7 @@ abstract class AbstractFactory extends AbstractContainer implements Factory {
      *
      * @return mixed|null
      * @throws \Sm\Core\Factory\Exception\WrongFactoryException
-     * @throws \Sm\Core\Resolvable\Error\UnresolvableError
+     * @throws \Sm\Core\Resolvable\Error\UnresolvableException
      */
     protected function buildClassInstance(string $class_name, array $args = []) {
         # If there is a function to help us create the class, call that function with the original class name that we

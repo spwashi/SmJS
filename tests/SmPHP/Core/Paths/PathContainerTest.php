@@ -8,7 +8,7 @@
 namespace Sm\Core\Paths;
 
 
-use Sm\Core\Resolvable\Error\UnresolvableError;
+use Sm\Core\Resolvable\Error\UnresolvableException;
 
 class PathContainerTest extends \PHPUnit_Framework_TestCase {
     public function testCanResolvePaths() {
@@ -16,8 +16,8 @@ class PathContainerTest extends \PHPUnit_Framework_TestCase {
         $pathContainer->register('test', 'dirt');
         $resolve = $pathContainer->resolve('test');
         $this->assertEquals('dirt/', $resolve);
-        
-        $this->expectException(UnresolvableError::class);
+    
+        $this->expectException(UnresolvableException::class);
         PathContainer::init()->resolve('nothing');
     }
 }

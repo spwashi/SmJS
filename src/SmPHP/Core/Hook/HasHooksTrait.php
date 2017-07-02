@@ -50,5 +50,5 @@ trait HasHooksTrait {
      * @return null|\Sm\Core\Hook\HookContainer
      * @throws \Sm\Core\Exception\UnimplementedError
      */
-    abstract public function getHookContainer(): ?HookContainer;
+    abstract protected function getHookContainer(): ?HookContainer;
 }

@@ -15,8 +15,8 @@ use Sm\Core\Module\Module;
 
 class LayerTest extends \PHPUnit_Framework_TestCase {
     public function testCanInitialize() {
-        /** @var \Sm\Core\Context\Layer\Layer|PHPUnit_Framework_MockObject_MockObject $mock */
-        $mock = $this->getMockForAbstractClass(Layer::class);
+        /** @var StandardLayer|PHPUnit_Framework_MockObject_MockObject $mock */
+        $mock = $this->getMockForAbstractClass(StandardLayer::class);
         $mock->method('_listExpectedModules')->willReturn([ 'test_module_1' ]);
         
         /** @var \Sm\Core\Context\Layer\LayerRoot|PHPUnit_Framework_MockObject_MockObject $layerRoot */
@@ -25,8 +25,8 @@ class LayerTest extends \PHPUnit_Framework_TestCase {
         return $mock->initialize($layerRoot);
     }
     public function testCanRegisterModule() {
-        /** @var \Sm\Core\Context\Layer\Layer|PHPUnit_Framework_MockObject_MockObject $mock */
-        $mock = $this->getMockForAbstractClass(Layer::class);
+        /** @var Layer|PHPUnit_Framework_MockObject_MockObject $mock */
+        $mock = $this->getMockForAbstractClass(StandardLayer::class);
         $mock->method('_listExpectedModules')->willReturn([ 'test_module_1' ]);
         /** @var Module $module */
         $module = $this->createMock(Module::class);

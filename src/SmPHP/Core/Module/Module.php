@@ -21,7 +21,7 @@ use Sm\Core\Context\Context;
  *
  * @package Sm\Core\Module
  */
-interface Module {
+interface Module extends Context {
     /**
      * Initialize a Module on a Context
      *

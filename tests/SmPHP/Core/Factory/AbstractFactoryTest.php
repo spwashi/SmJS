@@ -10,7 +10,7 @@ namespace Sm\Core\Factory;
 
 use Sm\Core\Factory\Exception\WrongFactoryException;
 
-class FactoryStub extends AbstractFactory {
+class FactoryStub extends StandardFactory {
     public function canCreateClass($classname) {
         return false;
     }
@@ -18,7 +18,7 @@ class FactoryStub extends AbstractFactory {
 
 class AbstractFactoryTest extends \PHPUnit_Framework_TestCase {
     public function testCannotRegisterUnlessAllowedTo() {
-        /** @var \Sm\Core\Factory\AbstractFactory $mockFactory */
+        /** @var \Sm\Core\Factory\StandardFactory $mockFactory */
         $mockFactory = new FactoryStub;
         $mockFactory->setCreationMode();
         $this->expectException(WrongFactoryException::class);

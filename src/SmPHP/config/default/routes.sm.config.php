@@ -23,11 +23,7 @@ return [
     [ FRAMEWORK_FROM_SRC . 'ea' =>
           FunctionResolvable::init(function (\Sm\Communication\Network\Http\HttpRequest $Request) {
               /** @var App $App */
-              $App                  = $Request->getApp()->duplicate();
-              $App->name            = 'ExampleApp';
-              $App->Paths->app_path = EXAMPLE_APP_PATH;
-              $Request->setChangePath(FRAMEWORK_FROM_SRC . "ea");
-              return $App->Modules->routing->dispatch($Request);
+    
           }),
     ],
 ];

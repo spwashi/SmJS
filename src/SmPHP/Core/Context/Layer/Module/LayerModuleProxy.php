@@ -7,8 +7,8 @@
 
 namespace Sm\Core\Context\Layer\Module;
 
-use Sm\Core\Context\Context_basedProxy;
-use Sm\Core\Context\Layer\Layer;
+use Sm\Core\Context\Layer\StandardLayer;
+use Sm\Core\Context\Proxy\ContextualizedProxy;
 use Sm\Core\Module\ModuleProxy;
 
 /** @noinspection PhpHierarchyChecksInspection */
@@ -17,7 +17,7 @@ use Sm\Core\Module\ModuleProxy;
  * Class LayerModuleProxy
  *
  * @package Sm\Core\Context\Layer\Module
- * @method Layer getContext()
+ * @method StandardLayer getContext()
  */
-class LayerModuleProxy extends ModuleProxy implements Context_basedProxy {
+class LayerModuleProxy extends ModuleProxy implements ContextualizedProxy {
 }

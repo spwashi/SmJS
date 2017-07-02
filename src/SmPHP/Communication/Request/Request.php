@@ -7,9 +7,6 @@
 
 namespace Sm\Communication\Request;
 
-use Sm\Communication\Response\Response;
-use Sm\Core\Resolvable\FunctionResolvable;
-
 /**
  * Class Request
  *
@@ -17,22 +14,15 @@ use Sm\Core\Resolvable\FunctionResolvable;
  *
  * @package Sm\Communication\Request
  */
-class Request implements \JsonSerializable {
-    protected $url                    = '*';
-    protected $path                   = '*';
-    protected $method                 = null;
-    protected $requested_content_type = Response::TYPE_TEXT_HTML;
-    /** @var null|FunctionResolvable $ChangePathResolvable */
-    protected $ChangePathResolvable = null;
-    
+abstract class Request implements \JsonSerializable {
+    public static function init($item = null) {
+        if ($item instanceof Request) return $item;
+        return new static;
+    }
     public function __toString() {
         return json_encode($this);
     }
     function jsonSerialize() {
         return [ '_type' => 'Request' ];
-    }
-    public static function init($item = null) {
-        if ($item instanceof Request) return $item;
-        return new static;
     }
 }

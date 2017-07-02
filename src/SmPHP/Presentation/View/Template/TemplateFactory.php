@@ -8,7 +8,7 @@
 namespace Sm\Presentation\View\Template;
 
 
-use Sm\Core\Formatter\FormatterFactory;
+use Sm\Core\Formatting\Formatter\FormatterFactory;
 
 class TemplateFactory extends FormatterFactory {
     /**

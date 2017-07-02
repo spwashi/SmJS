@@ -35,6 +35,11 @@ class StringResolvable extends NativeResolvable implements \JsonSerializable {
     public function resolve($_ = null) {
         return "$this->subject";
     }
+    /**
+     * JSON Serialization just returns the stringified version of this
+     *
+     * @return string
+     */
     public function jsonSerialize() {
         return "$this";
     }

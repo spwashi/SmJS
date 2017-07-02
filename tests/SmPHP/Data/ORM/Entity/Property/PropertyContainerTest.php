@@ -8,7 +8,7 @@
 namespace Sm\Data\Property;
 
 
-use Sm\Core\Error\WrongArgumentException;
+use Sm\Core\Exception\InvalidArgumentException;
 
 class PropertyContainerTest extends \PHPUnit_Framework_TestCase {
     /** @var  \Sm\Data\Property\PropertyContainer */
@@ -19,8 +19,8 @@ class PropertyContainerTest extends \PHPUnit_Framework_TestCase {
     public function testCanRegisterProperty() {
         $Property = new Property;
         $this->PropertyContainer->register('title', $Property);
-        
-        $this->expectException(WrongArgumentException::class);
+    
+        $this->expectException(InvalidArgumentException::class);
         $this->PropertyContainer->register('first_name', new \stdClass);
     }
     public function testCanRemoveProperty() {

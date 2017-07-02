@@ -9,14 +9,13 @@ namespace Sm\Data\ORM\EntityType;
 
 use Sm\Core\Factory\Factory;
 use Sm\Core\Internal\Identification\HasObjectIdentityTrait;
-use Sm\Core\Internal\Identification\Identifier;
 use Sm\Data\Property\NonexistentPropertyException;
 use Sm\Data\Property\Property;
 use Sm\Data\Property\PropertyContainer;
 use Sm\Data\Property\PropertyHaver;
-use Sm\Process\Query\Query;
-use Sm\Process\Query\QueryAugmentor;
-use Sm\Process\Query\WhereClause;
+use Sm\Data\Query\Query;
+use Sm\Data\Query\QueryAugmentor;
+use Sm\Data\Query\WhereClause;
 
 
 /**
@@ -44,7 +43,7 @@ class EntityType implements PropertyHaver, QueryAugmentor {
     protected $EntityTypeMeta;
     /** @var  PropertyContainer */
     protected $Properties;
-    /** @var \Sm\Core\Factory\Factory $IdentifyingConditionFactory */
+    /** @var Factory $IdentifyingConditionFactory */
     protected $IdentifyingConditionFactory;
     /** @var  \Sm\Core\Container\Container $ExistenceCheckers A container that contains the functions that
      *                                                   should be called to check the existence
@@ -62,7 +61,7 @@ class EntityType implements PropertyHaver, QueryAugmentor {
      * @param PropertyContainer $Properties The Entity's Property
      */
     public function __construct(EntityTypeMeta $EntityTypeMeta, PropertyContainer $Properties = null) {
-        $this->setObjectId(Identifier::generateIdentity($this));
+        $this->createSelfID();
         
         $this->EntityTypeMeta = $EntityTypeMeta;
         # Inherit the properties of the EntityMeta (serves as the prototype to this class)

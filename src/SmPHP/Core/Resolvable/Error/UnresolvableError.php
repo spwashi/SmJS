@@ -8,7 +8,7 @@
 namespace Sm\Core\Resolvable\Error;
 
 
-use Sm\Core\Error\Error;
+use Sm\Core\Exception\Exception;
 
-class UnresolvableError extends Error {
+class UnresolvableError extends Exception {
 }

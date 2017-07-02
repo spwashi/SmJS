@@ -21,7 +21,7 @@ class LoggerContainer extends Container {
     /**
      * @param null|string|null $name
      *
-     * @return mixed|null|\Sm\Core\Abstraction\Resolvable\Resolvable
+     * @return mixed|null|\Sm\Core\Resolvable\Resolvable
      */
     public function resolve($name = null) {
         return parent::resolve($name);

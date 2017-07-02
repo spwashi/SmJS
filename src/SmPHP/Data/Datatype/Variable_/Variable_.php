@@ -8,13 +8,11 @@
 namespace Sm\Data\Datatype\Variable_;
 
 
-use Sm\Core\Internal\Identification\HasObjectIdentityTrait;
-use Sm\Core\Internal\Identification\Identifiable;
-use Sm\Core\Internal\Identification\Identifier;
-use Sm\Core\Resolvable\Error\UnresolvableError;
+use Sm\Core\Resolvable\AbstractResolvable;
 use Sm\Core\Resolvable\NullResolvable;
 use Sm\Core\Resolvable\Resolvable;
 use Sm\Core\Resolvable\ResolvableFactory;
+use Sm\Data\Datatype\Variable_\Exception\InvalidVariableTypeError;
 
 /**
  * Class Variable_
@@ -27,8 +25,7 @@ use Sm\Core\Resolvable\ResolvableFactory;
  *
  * @package Sm\Type\Variable_
  */
-class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
-    use HasObjectIdentityTrait;
+class Variable_ extends AbstractResolvable implements \JsonSerializable {
     /** @var  Resolvable $subject */
     protected $subject;
     /** @var  Resolvable $_default */
@@ -42,10 +39,20 @@ class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
      */
     public function __construct($subject = null) {
         $subject = $subject ?? NullResolvable::init();
-        $this->setObjectId(Identifier::generateIdentity($this));
         parent::__construct($subject);
     }
-    
+    /**
+     * Create a Variable
+     *
+     * @param string|null $name The name of the Variable
+     *
+     * @return static
+     */
+    public static function init($name = null) {
+        $Instance       = new static;
+        $Instance->name = $name;
+        return $Instance;
+    }
     public function __get($name) {
         if ($name === 'name') {
             return $this->_name;
@@ -83,7 +90,6 @@ class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
                 break;
         }
     }
-    
     /**
      * Get an array of the potential types that this Variable can be
      *
@@ -103,25 +109,23 @@ class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
         $this->_potential_types = $_potential_types;
         return $this;
     }
-    
     /**
-     * Set the value of this Variable. Subject must be
+     * Set the value of this Variable. Subject must be of the type specified.
      *
      * @param Resolvable $subject
      *
      * @return $this
-     * @throws \Sm\Core\Resolvable\Error\UnresolvableError
+     * @throws \Sm\Data\Datatype\Variable_\Exception\InvalidVariableTypeError
      */
     public function setSubject($subject) {
+        # todo check CanBeNull
         if ($subject === null) {
             return $this;
         }
-        # Only deal with ResolvablesL
-        
-        $subject = $this->getFactoryContainer()->resolve(ResolvableFactory::class)->build($subject);
-        
+    
+        # Only deal with Resolvables
         if (!($subject instanceof Resolvable)) {
-            throw new UnresolvableError("Cannot set Subject to be something that is not resolvable");
+            throw new InvalidVariableTypeError("Cannot set Subject to be something that is not resolvable");
         }
         
         $class = get_class($subject);
@@ -133,7 +137,7 @@ class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
                 if ($class === $this->_potential_types[ $i ] || is_subclass_of($class, $this->_potential_types[ $i ])) {
                     break;
                 } else if ($i === $len - 1) {
-                    throw new UnresolvableError("Cannot set this class");
+                    throw new InvalidVariableTypeError("Cannot set this class");
                 }
             }
         }
@@ -152,7 +156,9 @@ class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
         return $this->setSubject($value);
     }
     /**
-     * Return the Value of the Variable or just return the Variable
+     * Return the Value of this subject or null if the subject doesn't exist
+     *
+     * @param null $_
      *
      * @return $this|mixed
      */
@@ -185,18 +191,6 @@ class Variable_ extends Resolvable implements Identifiable, \JsonSerializable {
                                                                            ->resolve(ResolvableFactory::class)
                                                                            ->build($default);
         return $this;
-    }
-    /**
-     * Create a Variable
-     *
-     * @param string|null $name The name of the Variable
-     *
-     * @return static
-     */
-    public static function init($name = null) {
-        $Instance       = new static;
-        $Instance->name = $name;
-        return $Instance;
     }
     public static function _($name) {
         return static::init($name);

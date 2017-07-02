@@ -9,7 +9,6 @@ namespace Sm\Data\ORM\EntityType;
 
 use Sm\Core\Internal\Identification\HasObjectIdentityTrait;
 use Sm\Core\Internal\Identification\Identifiable;
-use Sm\Core\Internal\Identification\Identifier;
 use Sm\Data\Property\PropertyContainer;
 
 /**
@@ -27,8 +26,16 @@ class EntityTypeMeta implements Identifiable {
     public $name;
     
     protected function __construct() {
-        $this->setObjectId(Identifier::generateIdentity($this));
+        $this->createSelfID();
         $this->Properties = (new PropertyContainer)->addPropertyPropertyHavers(EntityTypeVariable::init());
+    }
+    /**
+     * Static constructor of the EntityType
+     *
+     * @return static
+     */
+    public static function init() {
+        return new static;
     }
     public function __clone() {
         $this->Properties = $this->cloneProperties();
@@ -80,13 +87,5 @@ class EntityTypeMeta implements Identifiable {
     public function setName(string $name): EntityTypeMeta {
         $this->_name = $name;
         return $this;
-    }
-    /**
-     * Static constructor of the EntityType
-     *
-     * @return static
-     */
-    public static function init() {
-        return new static;
     }
 }

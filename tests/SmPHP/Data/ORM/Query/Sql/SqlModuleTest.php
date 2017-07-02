@@ -5,7 +5,7 @@
  * Time: 11:46 AM
  */
 
-namespace Sm\Process\Query\Sql;
+namespace Sm\Data\Query\Sql;
 
 
 use Sm\Application\App;

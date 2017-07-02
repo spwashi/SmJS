@@ -8,7 +8,7 @@
 namespace Sm\Storage\Modules\Sql\Formatter;
 
 
-use Sm\Process\Query\WhereClause;
+use Sm\Data\Query\WhereClause;
 
 class WhereFragment extends SqlFragment {
     /** @var  WhereClause $where The WHERE clause */

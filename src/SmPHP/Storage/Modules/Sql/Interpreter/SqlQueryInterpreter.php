@@ -8,12 +8,12 @@
 namespace Sm\Storage\Modules\Sql\Interpreter;
 
 
-use Sm\Core\Error\UnimplementedError;
-use Sm\Core\Error\WrongArgumentException;
+use Sm\Core\Exception\InvalidArgumentException;
+use Sm\Core\Exception\UnimplementedError;
 use Sm\Data\ORM\EntityType\EntityType;
-use Sm\Process\Query\Interpreter\Exception\UninterpretableError;
-use Sm\Process\Query\Interpreter\QueryInterpreter;
-use Sm\Process\Query\Query;
+use Sm\Data\Query\Interpreter\Exception\UninterpretableException;
+use Sm\Data\Query\Interpreter\QueryInterpreter;
+use Sm\Data\Query\Query;
 use Sm\Storage\Modules\Sql\MySql\Interpreter\CreateTableSourceQuerySubInterpreter;
 use Sm\Storage\Modules\Sql\MySql\Interpreter\DeleteQuerySubInterpreter;
 use Sm\Storage\Modules\Sql\MySql\Interpreter\InsertQuerySubInterpreter;
@@ -37,7 +37,7 @@ abstract class SqlQueryInterpreter extends QueryInterpreter {
     }
     
     public function interpret(Query $Query) {
-        if (!isset($this->SqlModule)) throw new UninterpretableError("Cannot interpret query without a SqlModule.");
+        if (!isset($this->SqlModule)) throw new UninterpretableException("Cannot interpret query without a SqlModule.");
     
         $queryType = $Query->getQueryType();
         switch ($queryType) {
@@ -58,7 +58,7 @@ abstract class SqlQueryInterpreter extends QueryInterpreter {
         
                 if (!is_object($Item)) {
                     $type = gettype($Item);
-                    throw new WrongArgumentException("Not sure how to create objects of type '{$type}'");
+                    throw new InvalidArgumentException("Not sure how to create objects of type '{$type}'");
                 }
                 $Interpreter = CreateTableSourceQuerySubInterpreter::init($Query, $this->SqlModule);
                 break;
@@ -76,7 +76,7 @@ abstract class SqlQueryInterpreter extends QueryInterpreter {
      * A common thing that a query might be augmented for is adding an extra condition to the "Where" clause
      *
      * @param                 $PropertyHaver
-     * @param \Sm\Process\Query\Query $Query
+     * @param \Sm\Data\Query\Query $Query
      * @param                 $property_array
      */
     private function augmentQueryForPropertyHaver($PropertyHaver, Query $Query) {

@@ -8,9 +8,9 @@
 namespace Sm\Core\Container;
 
 
-use Sm\Core\Abstraction\Resolvable\Resolvable;
 use Sm\Core\Container\Mini\MiniCache;
 use Sm\Core\Container\Mini\MiniContainer;
+use Sm\Core\Resolvable\Resolvable;
 use Sm\Core\Util;
 
 /**
@@ -37,6 +37,13 @@ abstract class AbstractContainer extends MiniContainer {
     public function __construct() {
         $this->Cache = new MiniCache;
     }
+    /**
+     * @return \Sm\Core\Container\Container|static
+     */
+    public static function init() { return new static; }
+    #-----------------------------------------------------------------------------------
+    #  Public Methods
+    #-----------------------------------------------------------------------------------
     public function __get($name) {
         if ($name === 'Cache') {
             return $this->Cache;
@@ -44,9 +51,6 @@ abstract class AbstractContainer extends MiniContainer {
             return parent::__get($name);
         }
     }
-    #-----------------------------------------------------------------------------------
-    #  Public Methods
-    #-----------------------------------------------------------------------------------
     /**
      * @param $name
      * @param $value
@@ -141,10 +145,6 @@ abstract class AbstractContainer extends MiniContainer {
         $result = $item->resolve(...$args);
         return $result;
     }
-    /**
-     * @return \Sm\Core\Container\Container|static
-     */
-    public static function init() { return new static; }
     
     #-----------------------------------------------------------------------------------
     #  Private/Protected methods
@@ -171,15 +171,15 @@ abstract class AbstractContainer extends MiniContainer {
     /**
      * @param mixed $registrand Whatever is being registered
      *
-     * @return null|\Sm\Core\Abstraction\Resolvable\Resolvable
+     * @return null|Resolvable
      */
-    abstract protected function standardizeRegistrand($registrand);
+    abstract protected function standardizeRegistrand($registrand):? Resolvable;
     /**
      * Add something to the registry (meant to represent the actual action)
      *
-     * @param string                                     $name
+     * @param string     $name
      *
-     * @param \Sm\Core\Abstraction\Resolvable\Resolvable $item
+     * @param Resolvable $item
      *
      * @return $this
      */
@@ -199,7 +199,7 @@ abstract class AbstractContainer extends MiniContainer {
      *
      * @param string $name The class or index of the item that we are looking for
      *
-     * @return \Sm\Core\Abstraction\Resolvable\Resolvable|null
+     * @return Resolvable|null
      */
     protected function getItem($name) {
         if (!is_string($name)) {

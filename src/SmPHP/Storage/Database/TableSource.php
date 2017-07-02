@@ -24,7 +24,7 @@ use Sm\Data\Source\DataSource;
  * @method static TableSource init(DatabaseDataSource $DatabaseSource, string $table_name = null)
  * @package Sm\Storage\Database
  */
-class TableSource extends DatabaseDataSource {
+class TableSource extends DataSource {
     protected $table_name;
     /** @var  DatabaseDataSource $DatabaseSource */
     protected $DatabaseSource;

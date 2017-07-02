@@ -8,10 +8,9 @@
 namespace Sm\Process\EvaluableStatement;
 
 
-use Sm\Core\Formatter\Formattable;
-use Sm\Core\Formatter\FormatterFactory;
-use Sm\Core\Formatter\FormatterFactoryHaver;
-use Sm\Core\Resolvable\Resolvable;
+use Sm\Core\Formatting\Formatter\FormatterFactory;
+use Sm\Core\Formatting\Formatter\FormatterFactoryHaver;
+use Sm\Core\Resolvable\AbstractResolvable;
 use Sm\Data\Datatype\Variable_\Variable_;
 
 /**
@@ -21,7 +20,7 @@ use Sm\Data\Datatype\Variable_\Variable_;
  *
  * @package Sm\Process\EvaluableStatement
  */
-abstract class EvaluableStatement extends Resolvable implements Formattable, \JsonSerializable, FormatterFactoryHaver {
+abstract class EvaluableStatement extends AbstractResolvable implements \JsonSerializable, FormatterFactoryHaver {
     protected $registry = [];
     /** @var  FormatterFactory $FormatterFactory The FormatterFactory that is to be used in formatting this Evaluable statement */
     protected $FormatterFactory;
@@ -108,7 +107,7 @@ abstract class EvaluableStatement extends Resolvable implements Formattable, \Js
      * an SQL Formatter could stylize that as "1 > :sam"
      *
      *
-     * @param \Sm\Core\Formatter\FormatterFactory $FormatterFactory
+     * @param \Sm\Core\Formatting\Formatter\FormatterFactory $FormatterFactory
      *
      * @return $this
      */

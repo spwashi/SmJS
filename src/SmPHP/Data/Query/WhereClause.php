@@ -5,7 +5,7 @@
  * Time: 11:20 AM
  */
 
-namespace Sm\Process\Query;
+namespace Sm\Data\Query;
 
 
 use Sm\Core\Factory\FactoryContainer;
@@ -20,7 +20,7 @@ use Sm\Process\EvaluableStatement\EvaluableStatementFactory;
 /**
  * Class Where
  *
- * @package Sm\Process\Query
+ * @package Sm\Data\Query
  * @method static WhereClause greater_($left, $right);
  * @method static WhereClause less_($left, $right);
  * @method static WhereClause equals_($left, $right);
@@ -34,7 +34,10 @@ class WhereClause {
     protected $Condition;
     protected $conditions            = [];
     protected $registered_conditions = [];
-    
+    /**
+     * @return static
+     */
+    public static function init() { return new static; }
     /**
      * Get the EvaluableStatementFactory that this class will use to createEvaluableStatements
      *
@@ -124,10 +127,6 @@ class WhereClause {
         $instance = new static;
         return $instance->__call($name, $arguments);
     }
-    /**
-     * @return static
-     */
-    public static function init() { return new static; }
     /**
      * @param $classname
      * @param $left

@@ -8,8 +8,8 @@
 namespace Sm\Storage\Modules\Sql\MySql\Interpreter;
 
 
-use Sm\Core\Error\Error;
-use Sm\Core\Error\UnimplementedError;
+use Sm\Core\Exception\Exception;
+use Sm\Core\Exception\UnimplementedError;
 use Sm\Core\Resolvable\NullResolvable;
 use Sm\Data\Datatype\Integer_;
 use Sm\Data\Datatype\Null_;
@@ -72,8 +72,8 @@ class CreateTableSourceQuerySubInterpreter extends MysqlQuerySubInterpreter {
      * @param \Sm\Storage\Database\ColumnContainer $Columns
      *
      * @return ColumnAsDefinitionFragment
-     * @throws \Sm\Core\Error\Error
-     * @throws \Sm\Core\Error\UnimplementedError
+     * @throws \Sm\Core\Exception\Exception
+     * @throws \Sm\Core\Exception\UnimplementedError
      */
     private function createColumnFragment($Column, $Columns) {
         $name            = $Column->name;
@@ -91,7 +91,7 @@ class CreateTableSourceQuerySubInterpreter extends MysqlQuerySubInterpreter {
         
         # region Data type
         if (($num_types = count($potential_types)) !== 1) {
-            throw new Error("Not sure how to determine the column type when there are {$num_types} in {$name}");
+            throw new Exception("Not sure how to determine the column type when there are {$num_types} in {$name}");
         }
         
         $datatype_string = $potential_types[0] ?? null;

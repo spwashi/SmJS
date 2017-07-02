@@ -15,7 +15,7 @@ namespace Sm\Data\Source;
  *
  * @package Sm\Data\ORM\EntityType\DataSource
  */
-interface SourceHaver {
+interface  SourceHaver {
     /**
      * Return the DataSource of ths object
      *

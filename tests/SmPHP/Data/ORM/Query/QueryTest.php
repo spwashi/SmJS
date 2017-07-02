@@ -5,7 +5,7 @@
  * Time: 8:38 PM
  */
 
-namespace Sm\Process\Query;
+namespace Sm\Data\Query;
 
 
 use Sm\Application\App;
@@ -106,7 +106,6 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
         $SectionsTable->Columns->content      = Property::init()->setMaxLength(75)->setPotentialTypes(Null_::class, String_::class)->setDefault('title');
         $SectionsTable->Columns->title        = Property::init()->setMaxLength(25)->setPotentialTypes(Null_::class, String_::class)->setDefault('title');
         $SectionsTable->Columns->section_type = Property::init()
-                                                        ->setReferenceResolvable($SectionTypesTable->Columns->id)
                                                         ->setPotentialTypes(Null_::class, Integer_::class)
                                                         ->setDefault(4);
         

@@ -11,7 +11,7 @@ namespace Sm\Core\Resolvable;
 /**
  * Class OnceCalledResolvable
  *
- * Resolvable that runs a function, but only once
+ * Resolvable that resolves to a value, but only once. Otherwise, it resolves to null.
  *
  * @package Sm\Core\Resolvable
  */

@@ -8,8 +8,8 @@
 namespace Sm\Data\ORM\EntityType\Error;
 
 
-use Sm\Core\Error\Error;
+use Sm\Core\Exception\Exception;
 
-class NoMatchingEntityTypeError extends Error {
+class NoMatchingEntityTypeError extends Exception {
     
 }

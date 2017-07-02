@@ -11,7 +11,6 @@ namespace Sm\Data\Source;
 use Sm\Authentication\Authentication;
 use Sm\Core\Internal\Identification\HasObjectIdentityTrait;
 use Sm\Core\Internal\Identification\Identifiable;
-use Sm\Core\Internal\Identification\Identifier;
 
 /**
  * Class DataSource
@@ -32,9 +31,18 @@ abstract class DataSource implements Identifiable {
         if (isset($Authentication)) {
             $this->Authentication = $Authentication;
         }
-        $this->setObjectId(Identifier::generateIdentity($this));
+        $this->createSelfID();
     }
-    
+    /**
+     * Static constructor
+     *
+     * @param null $Authentication
+     *
+     * @return static
+     */
+    public static function init($Authentication = null) {
+        return new static(...func_get_args());
+    }
     abstract public function isAuthenticated();
     public function authenticate(Authentication $Authentication = null) {
         $this->Authentication = $Authentication;
@@ -48,15 +56,5 @@ abstract class DataSource implements Identifiable {
      */
     public function getRootSource(): DataSource {
         return $this;
-    }
-    /**
-     * Static constructor
-     *
-     * @param null $Authentication
-     *
-     * @return static
-     */
-    public static function init($Authentication = null) {
-        return new static(...func_get_args());
     }
 }

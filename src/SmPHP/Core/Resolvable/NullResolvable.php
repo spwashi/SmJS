@@ -16,7 +16,4 @@ class NullResolvable extends NativeResolvable {
     public function resolve($arguments = null) {
         return null;
     }
-    protected function createIdentity() {
-        return '---';
-    }
 }

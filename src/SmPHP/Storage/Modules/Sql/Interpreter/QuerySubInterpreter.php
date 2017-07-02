@@ -7,8 +7,8 @@
 
 namespace Sm\Storage\Modules\Sql\Interpreter;
 
-use Sm\Process\Query\Query;
-use Sm\Process\Query\WhereClause;
+use Sm\Data\Query\Query;
+use Sm\Data\Query\WhereClause;
 use Sm\Storage\Modules\Sql\Formatter\WhereFragment;
 use Sm\Storage\Modules\Sql\SqlStandardModule;
 
@@ -28,17 +28,10 @@ abstract class QuerySubInterpreter {
     protected $Query;
     /** @var  array An array that maps the object_id of the Source to the object_id of the PropertyHavers that use it */
     protected $Source_object_id__PropertyHaver_object_id_array__map;
-    
-    /**
-     * Complete the QueryInterpreter, returning a string that represents the Query to execute
-     *
-     * @return string
-     */
-    abstract public function createFragment();
     /**
      * Create the sub interpreter to begin the process of interpreting one type of query
      *
-     * @param \Sm\Process\Query\Query                   $Query
+     * @param \Sm\Data\Query\Query                      $Query
      *
      * @param \Sm\Storage\Modules\Sql\SqlStandardModule $SqlModule
      *
@@ -46,6 +39,12 @@ abstract class QuerySubInterpreter {
      *
      */
     abstract public static function init(Query $Query, SqlStandardModule $SqlModule);
+    /**
+     * Complete the QueryInterpreter, returning a string that represents the Query to execute
+     *
+     * @return string
+     */
+    abstract public function createFragment();
     /**
      * Create a semi-formatted string of the "Where" clause of this Query
      *

@@ -8,7 +8,7 @@
 use Sm\Application\App;
 use Sm\Communication\Request\Request;
 use Sm\Core\Resolvable\OnceRunResolvable;
-use Sm\Process\Query\Query;
+use Sm\Data\Query\Query;
 
 return [
     'init' => function (App $App) {

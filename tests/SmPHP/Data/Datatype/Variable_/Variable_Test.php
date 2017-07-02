@@ -7,19 +7,19 @@
 
 namespace Sm\Data\Datatype\Variable_;
 
+use Sm\Core\Resolvable\AbstractResolvable;
 use Sm\Core\Resolvable\Error\UnresolvableError;
 use Sm\Core\Resolvable\NativeResolvable;
-use Sm\Core\Resolvable\Resolvable;
 
-class Example_1 extends Resolvable {
+class Example_1 extends AbstractResolvable {
     public function resolve($_ = null) { return 1; }
 }
 
-class Example_2 extends Resolvable {
+class Example_2 extends AbstractResolvable {
     public function resolve($_ = null) { return 2; }
 }
 
-class Example_3 extends Resolvable {
+class Example_3 extends AbstractResolvable {
     public function resolve($_ = null) { return 3; }
 }
 

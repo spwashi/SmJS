@@ -10,8 +10,8 @@ namespace Sm\Data\Property;
 
 use Sm\Core\Abstraction\ReadonlyTrait;
 use Sm\Core\Container\Container;
-use Sm\Core\Error\Error;
-use Sm\Core\Error\WrongArgumentException;
+use Sm\Core\Exception\Exception;
+use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Data\Source\DataSource;
 use Sm\Data\Source\NullDataSource;
 
@@ -60,7 +60,7 @@ class PropertyContainer extends Container {
      *                                                       this PropertyContainer while the
      *                                                       readonly flag is set
      *
-     * @throws \Sm\Core\Error\WrongArgumentException If we try to register anything
+     * @throws \Sm\Core\Exception\InvalidArgumentException If we try to register anything
      *                                          that isn't a named Property or array of named properties
      */
     public function register($name = null, $registrand = null) {
@@ -81,12 +81,12 @@ class PropertyContainer extends Container {
             }
             # We can only register Properties
             if (!($registrand instanceof Property)) {
-                throw new WrongArgumentException("Can only add Properties to the PropertyContainer");
+                throw new InvalidArgumentException("Can only add Properties to the PropertyContainer");
             }
             
             # We can only register named Properties
             if (!isset($name)) {
-                throw new WrongArgumentException("Must name properties.");
+                throw new InvalidArgumentException("Must name properties.");
             }
             
             # Set the name of the property based on this one
@@ -193,7 +193,7 @@ class PropertyContainer extends Container {
      * @param $name
      *
      * @return $this
-     * @throws \Sm\Core\Error\Error
+     * @throws \Sm\Core\Exception\Exception
      */
     protected function addPropertyHaverToProperty($name) {
         if (isset($this->PropertyHaver)) {
@@ -202,7 +202,7 @@ class PropertyContainer extends Container {
             if ($Property) {
                 $Property->addPropertyHaver($this->PropertyHaver);
             } else {
-                throw new Error("Cannot find property {$name}");
+                throw new Exception("Cannot find property {$name}");
             }
         }
         return $this;

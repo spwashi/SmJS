@@ -8,8 +8,8 @@
 namespace Sm\Data\Property;
 
 
-use Sm\Core\Error\Error;
+use Sm\Core\Exception\Exception;
 
-class ReadonlyPropertyException extends Error {
+class ReadonlyPropertyException extends Exception {
     
 }

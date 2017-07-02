@@ -5,9 +5,9 @@
  * Time: 3:04 PM
  */
 
-use Sm\Core\Error\UnimplementedError;
-use Sm\Core\Formatter\FormatterFactory;
-use Sm\Core\Formatter\Fragment\ArrayFragment;
+use Sm\Core\Exception\UnimplementedError;
+use Sm\Core\Formatting\Formatter\FormatterFactory;
+use Sm\Core\Formatting\Fragment\ArrayFragment;
 use Sm\Core\Internal\Identification\Identifier;
 use Sm\Core\Resolvable\ArrayResolvable;
 use Sm\Core\Resolvable\NativeResolvable;
@@ -129,7 +129,7 @@ return [
     },
     PropertyAsColumnFragment::class   => function (PropertyAsColumnFragment $PropertyFragment, FormatterFactory $FormatterFactory) {
         /** @var Property $Property */
-        $Property       = $PropertyFragment->getVariables()['Property'] ?? null;
+        $Property       = $PropertyFragment->getFormattedAttributes()['Property'] ?? null;
         $object_id      = $Property->object_id;
         $SourceFragment = $PropertyFragment->getSourceFragment();
         $source_name    = $FormatterFactory->format($SourceFragment);

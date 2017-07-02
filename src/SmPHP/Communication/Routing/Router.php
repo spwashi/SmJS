@@ -10,13 +10,15 @@ namespace Sm\Communication\Routing;
 
 use Sm\Communication\Request\Request;
 use Sm\Core\Abstraction\Registry;
-use Sm\Core\Error\UnimplementedError;
+use Sm\Core\Exception\UnimplementedError;
 use Sm\Core\Resolvable\Error\UnresolvableError;
 
 class Router implements Registry {
     /** @var Route[] $routes */
     protected $routes = [];
-    
+    public static function init() {
+        return new static;
+    }
     public function __get($name) {
         return $this->resolve($name);
     }
@@ -63,8 +65,5 @@ class Router implements Registry {
         }
         $msg = "No matching routes";
         throw new UnresolvableError($msg);
-    }
-    public static function init() {
-        return new static;
     }
 }

@@ -8,7 +8,7 @@
 namespace Sm\Storage\Database;
 
 
-use Sm\Core\Error\WrongArgumentException;
+use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Util;
 use Sm\Data\Property\Property;
 use Sm\Data\Property\PropertyContainer;
@@ -42,7 +42,7 @@ class ColumnContainer extends PropertyContainer {
      * @param $property
      *
      * @return bool
-     * @throws \Sm\Core\Error\WrongArgumentException
+     * @throws \Sm\Core\Exception\InvalidArgumentException
      */
     public function isPrimarykey($property) {
         if (is_string($property)) {
@@ -51,7 +51,7 @@ class ColumnContainer extends PropertyContainer {
             $property_name = $property->name;
         } else {
             $_property_type = Util::getShapeOfItem($property);
-            throw new WrongArgumentException("Cannot tell if {$_property_type} is primary or not");
+            throw new InvalidArgumentException("Cannot tell if {$_property_type} is primary or not");
         }
         return in_array($property_name, $this->_primary_keys);
     }
@@ -62,7 +62,7 @@ class ColumnContainer extends PropertyContainer {
                 $property = $property->getName();
             } else if (!is_string($property)) {
                 $type = Util::getShapeOfItem($property);
-                throw new WrongArgumentException("Cannot set '{$type}' as primary key.");
+                throw new InvalidArgumentException("Cannot set '{$type}' as primary key.");
             }
             
             $this->_primary_keys[] = $property;

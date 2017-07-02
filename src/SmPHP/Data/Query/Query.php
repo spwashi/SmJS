@@ -5,20 +5,20 @@
  * Time: 7:18 PM
  */
 
-namespace Sm\Process\Query;
+namespace Sm\Data\Query;
 
-use Sm\Core\Error\Error;
-use Sm\Core\Error\UnimplementedError;
-use Sm\Core\Error\WrongArgumentException;
+use Sm\Core\Exception\Exception;
+use Sm\Core\Exception\InvalidArgumentException;
+use Sm\Core\Exception\UnimplementedError;
 use Sm\Core\Factory\HasFactoryContainerTrait;
 use Sm\Core\Util;
 use Sm\Data\Property\Property;
 use Sm\Data\Property\PropertyContainer;
+use Sm\Data\Query\Interpreter\QueryInterpreterFactory;
 use Sm\Data\Source\DataSource;
-use Sm\Data\Source\Exception\UnauthorizedConnectionError;
+use Sm\Data\Source\Exception\UnauthorizedConnectionException;
 use Sm\Data\Source\NullDataSource;
 use Sm\Data\Source\SourceHaver;
-use Sm\Process\Query\Interpreter\QueryInterpreterFactory;
 
 /**
  * Class Query
@@ -27,15 +27,15 @@ use Sm\Process\Query\Interpreter\QueryInterpreterFactory;
  *
  * todo THINK ABOUT THIS AF
  *
- * @package Sm\Process\Query
+ * @package Sm\Data\Query
  *
- * @property-read Property[]                    $select
- * @property-read Property[]                    $delete
- * @property-read Property[]                    $insert
- * @property-read Property[]                    $update
- * @property-read mixed                         $create_item
- * @property-read array                         $values
- * @property-read \Sm\Process\Query\WhereClause $WhereClause
+ * @property-read Property[]                 $select
+ * @property-read Property[]                 $delete
+ * @property-read Property[]                 $insert
+ * @property-read Property[]                 $update
+ * @property-read mixed                      $create_item
+ * @property-read array                      $values
+ * @property-read \Sm\Data\Query\WhereClause $WhereClause
  *
  * @method  static Query select(...$items) Properties to select.
  * @method  static Query delete(...$items) Properties to delete.
@@ -59,7 +59,7 @@ class Query {
     protected $query_type = null;
     # endregion
     
-    /** @var  \Sm\Process\Query\WhereClause $WhereClause The overall Where clause that accompanies this Query */
+    /** @var  \Sm\Data\Query\WhereClause $WhereClause The overall Where clause that accompanies this Query */
     protected $WhereClause;
     /** @var array An array of the Properties that this Query is aware that it uses */
     protected $PropertyArray = [];
@@ -83,6 +83,14 @@ class Query {
     
     #
     ##  Constructor
+    /**
+     * Static constructor for Query
+     *
+     * @return static
+     */
+    public static function init() {
+        return new static;
+    }
     public function __call($name, $arguments) {
         if (in_array($name, [ 'select', 'update', 'delete', 'insert' ])) {
             $PropertyArray       = $this->runStdQueryTypeFunction($name, $arguments);
@@ -92,13 +100,13 @@ class Query {
         
         if ($name === 'values') {
             foreach ($arguments as $index => $array) {
-                if (!is_array($array)) throw new WrongArgumentException("Can only insert using arrays");
+                if (!is_array($array)) throw new InvalidArgumentException("Can only insert using arrays");
             }
             $this->values_array = array_merge($this->values_array, $arguments);
             return $this;
         }
     
-        throw new WrongArgumentException("There is no method {$name}");
+        throw new InvalidArgumentException("There is no method {$name}");
     }
     public function __get($name) {
         if (in_array($name, [ 'select', 'update', 'delete', 'insert', 'values', ])) {
@@ -108,6 +116,9 @@ class Query {
         if ($name === 'WhereClause') return $this->WhereClause;
         return null;
     }
+    
+    #
+    ##  Getters and Setters
     /**
      * Get the type of Query we are going to be executing
      *
@@ -116,13 +127,10 @@ class Query {
     public function getQueryType() {
         return $this->query_type;
     }
-    
-    #
-    ##  Getters and Setters
     /**
      * Set the Where clause of the query
      *
-     * @param \Sm\Process\Query\WhereClause $where
+     * @param \Sm\Data\Query\WhereClause $where
      *
      * @return $this
      */
@@ -135,19 +143,19 @@ class Query {
         
         return $this;
     }
+    #
+    ## Public Query methods
     public function create($item) {
         $this->query_type = static::QUERY_TYPE_CREATE;
         $this->create     = $item;
         return $this;
     }
-    #
-    ## Public Query methods
     /**
      * Run the Query, delegating subqueries to the proper source
      *
      * @return mixed
-     * @throws \Sm\Core\Error\Error
-     * @throws \Sm\Core\Error\UnimplementedError
+     * @throws \Sm\Core\Exception\Exception
+     * @throws \Sm\Core\Exception\UnimplementedError
      */
     public function run() {
         $SourceArray = $this->getSourcesUsed();
@@ -155,7 +163,7 @@ class Query {
         if (count($SourceArray) > 1) {
             throw new UnimplementedError("Cannot query across root sources");
         } else if (!count($SourceArray)) {
-            throw new Error("There is no DataSource to execute this Query.");
+            throw new Exception("There is no DataSource to execute this Query.");
         }
     
     
@@ -164,7 +172,7 @@ class Query {
         $Factories               = $this->getFactoryContainer();
         $QueryInterpreterFactory = $Factories->resolve(QueryInterpreterFactory::class);
     
-        /** @var \Sm\Process\Query\Interpreter\QueryInterpreter $QueryInterpreter */
+        /** @var \Sm\Data\Query\Interpreter\QueryInterpreter $QueryInterpreter */
         $QueryInterpreter = $QueryInterpreterFactory->build($RootSource);
     
         $Owners = $this->getPropertyHaversFromArray($this->PropertyArray);
@@ -176,14 +184,6 @@ class Query {
         }
     
         return isset($QueryInterpreter) ? $QueryInterpreter->interpret($Query) : null;
-    }
-    /**
-     * Static constructor for Query
-     *
-     * @return static
-     */
-    public static function init() {
-        return new static;
     }
     
     #
@@ -197,8 +197,8 @@ class Query {
      * @param bool $throw_an_error
      *
      * @return bool
-     * @throws \Sm\Core\Error\WrongArgumentException
-     * @throws \Sm\Data\Source\Exception\UnauthorizedConnectionError
+     * @throws \Sm\Core\Exception\InvalidArgumentException
+     * @throws \Sm\Data\Source\Exception\UnauthorizedConnectionException
      */
     protected function canUseProperties($item, $throw_an_error = false) {
         
@@ -213,7 +213,7 @@ class Query {
         if (isset($Source)) {
             $source_is_active = $Source && $Source->isAuthenticated();
             if (!$source_is_active && $throw_an_error) {
-                throw new UnauthorizedConnectionError("The Connection to this object's source is invalid.");
+                throw new UnauthorizedConnectionException("The Connection to this object's source is invalid.");
             }
             return $source_is_active;
         }
@@ -230,7 +230,7 @@ class Query {
         $source_haver_class = SourceHaver::class;
         
         # Throw an error if we want because the item can't be used
-        if ($throw_an_error) throw new WrongArgumentException("Item must be an instance of {$source_haver_class}");
+        if ($throw_an_error) throw new InvalidArgumentException("Item must be an instance of {$source_haver_class}");
         
         return false;
     }
@@ -282,7 +282,7 @@ class Query {
                 $RootSource = static::getRootSourceFromSourceHaver($component);
             } else {
                 $_type = Util::getShapeOfItem($component);
-                throw new WrongArgumentException("Cannot get DataSource from type {$_type}");
+                throw new InvalidArgumentException("Cannot get DataSource from type {$_type}");
             }
         
             if ($RootSource) $Sources[ $RootSource->getObjectId() ] = $RootSource;
@@ -321,7 +321,7 @@ class Query {
      * @param $arguments
      *
      * @return Property[]
-     * @throws \Sm\Core\Error\WrongArgumentException
+     * @throws \Sm\Core\Exception\InvalidArgumentException
      */
     private function runStdQueryTypeFunction($name, $arguments) {
         $this->query_type = $this->query_type ?? $name;
@@ -335,8 +335,8 @@ class Query {
         # Check to see if all of the items are OK.
         try {
             $this->canUseProperties($arguments, true);
-        } catch (Error $e) {
-            throw new WrongArgumentException(
+        } catch (Exception $e) {
+            throw new InvalidArgumentException(
                 "Argument cannot be queried --  " .
                 "Please check that it is a (or an array of) SourceHaver Object(s) " .
                 "and the DataSource is properly authenticated and connected. \n", null, $e);

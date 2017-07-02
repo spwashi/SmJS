@@ -5,10 +5,10 @@
  * Time: 4:19 PM
  */
 
-namespace Sm\Process\Query\Interpreter;
+namespace Sm\Data\Query\Interpreter;
 
 
-use Sm\Core\Factory\Factory;
+use Sm\Core\Factory\AbstractFactory;
 
-class QueryInterpreterFactory extends Factory {
+class QueryInterpreterFactory extends AbstractFactory {
 }

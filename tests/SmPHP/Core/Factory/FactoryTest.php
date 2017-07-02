@@ -10,23 +10,27 @@ namespace Sm\Core\Factory;
 
 class FactoryTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreate() {
-        $Factory = new Factory;
-        $this->assertInstanceOf(Factory::class, $Factory);
+        $Factory = $this->getMockForAbstractClass(AbstractFactory::class);
+        $this->assertInstanceOf(AbstractFactory::class, $Factory);
     }
     public function testCanCreateClasses() {
-        $Factory = new Factory;
-        $this->assertInstanceOf(Factory::class, $Factory->build(Factory::class));
+        /** @var \Sm\Core\Factory\AbstractFactory $Factory */
+        $Factory = $this->getMockForAbstractClass(AbstractFactory::class);
+        $this->assertInstanceOf(\stdClass::class, $Factory->build(\stdClass::class));
     }
     public function testCanRegister() {
         $return_eleven = function () { return 11; };
-        $Factory       = new Factory();
+        /** @var \Sm\Core\Factory\AbstractFactory $Factory */
+        $Factory = $this->getMockForAbstractClass(AbstractFactory::class);
+        
         $Factory->register(null, $return_eleven);
         $response = $Factory->build();
         $this->assertEquals(11, $response);
     
-    
-        $Factory = new Factory();
-    
+        /** @var \Sm\Core\Factory\AbstractFactory $Factory */
+        $Factory = $this->getMockForAbstractClass(AbstractFactory::class);
+        
+        
         $add_1 = function (int $int) { return $int + 1; };
         $Factory->register(null, $add_1);
         $response_1 = $Factory->build(2);
@@ -39,12 +43,14 @@ class FactoryTest extends \PHPUnit_Framework_TestCase {
         $Mock->method('test')->willReturn('test_works');
     
         ###
-        $Factory = new Factory();
+        /** @var \Sm\Core\Factory\AbstractFactory $Factory */
+        $Factory = $this->getMockForAbstractClass(AbstractFactory::class);
         $Factory->register(\stdClass::class, $Mock);
         $MockFromFactory = $Factory->build(\stdClass::class);
         $this->assertEquals('test_works', $MockFromFactory->test());
         ###
-        $Factory = new Factory();
+        /** @var \Sm\Core\Factory\AbstractFactory $Factory */
+        $Factory = $this->getMockForAbstractClass(AbstractFactory::class);
         $Factory->register(\DOMAttr::class, function () { return 'hello'; });
         $this->assertEquals('hello', $Factory->build(new \DOMAttr('name')));
         

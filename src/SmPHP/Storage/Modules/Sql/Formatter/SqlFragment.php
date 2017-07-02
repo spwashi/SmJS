@@ -8,10 +8,8 @@
 namespace Sm\Storage\Modules\Sql\Formatter;
 
 
-use Sm\Core\Formatter\Fragment\Fragment;
+use Sm\Core\Formatting\Fragment\Fragment;
 
 abstract class SqlFragment extends Fragment {
-    public function getVariables(): array {
-        return get_object_vars($this);
-    }
+
 }

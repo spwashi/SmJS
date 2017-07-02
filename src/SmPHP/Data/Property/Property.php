@@ -9,12 +9,11 @@ namespace Sm\Data\Property;
 
 
 use Sm\Core\Abstraction\ReadonlyTrait;
-use Sm\Core\Error\Error;
-use Sm\Core\Error\UnimplementedError;
+use Sm\Core\Exception\Exception;
+use Sm\Core\Exception\UnimplementedError;
+use Sm\Core\Internal\Identification\HasObjectIdentityTrait;
+use Sm\Core\Internal\Identification\Identifiable;
 use Sm\Core\Resolvable\NullResolvable;
-use Sm\Core\Resolvable\Resolvable;
-use Sm\Core\Resolvable\ResolvableFactory;
-use Sm\Core\Resolvable\ResolvableResolvable;
 use Sm\Data\Datatype\Variable_\Variable_;
 use Sm\Data\ORM\EntityType\EntityTypeVariable;
 use Sm\Data\Source\DataSource;
@@ -36,15 +35,13 @@ use Sm\Data\Source\SourceHaver;
  * @property-read string                           $object_id
  * @property-read array                            $potential_types
  */
-class Property extends Variable_ implements SourceHaver {
-    use ReadonlyTrait;
+class Property extends Variable_ implements Identifiable, SourceHaver {
+    use ReadonlyTrait, HasObjectIdentityTrait;
     
     /** @var  string $name */
     protected $_name;
     /** @var  DataSource $Source */
     protected $Source;
-    /** @var  \Sm\Core\Resolvable\Resolvable $ReferenceResolvable This is the Resolvable that returns a Property that this Property is a Reference to */
-    protected $ReferenceResolvable;
     /**
      * @var \Sm\Data\Property\PropertyHaver[] $PropertyHavers The objects that hold this property
      */
@@ -72,11 +69,10 @@ class Property extends Variable_ implements SourceHaver {
         parent::__construct(null);
     }
     public function __get($name) {
-        if ($name === 'object_id') {
-            return $this->_object_id;
-        }
-        if ($name === 'reference') return $this->resolveReference();
+        if ($name === 'object_id') return $this->getObjectId();
+        
         if ($name === 'potential_types') return $this->getPotentialTypes();
+    
         # todo (bug or feature?) returns $this when "value" would resolves to null bc of variable resolution thing
         return parent::__get($name);
     }
@@ -163,30 +159,12 @@ class Property extends Variable_ implements SourceHaver {
         $this->Source = $Source;
         return $this;
     }
-    /**
-     * If this property is a "mirror" of another property, this resolves the reference to that property
-     *
-     * @param \Sm\Core\Resolvable\Resolvable|mixed $ReferenceResolvable
-     *
-     * @return Property
-     */
-    public function setReferenceResolvable($ReferenceResolvable): Property {
-        if ($ReferenceResolvable instanceof Property) {
-            $this->ReferenceResolvable = ResolvableResolvable::init($ReferenceResolvable);
-            return $this;
-        }
-        
-        if (!($ReferenceResolvable instanceof Resolvable)) {
-            $this->ReferenceResolvable = $this->getFactoryContainer()->resolve(ResolvableFactory::class)->build($ReferenceResolvable);
-        }
-        
-        return $this;
-    }
+    
     /**
      * Get the Property that this property is a reference to
      *
      * @return false|\Sm\Data\Property\Property
-     * @throws \Sm\Core\Error\Error
+     * @throws \Sm\Core\Exception\Exception
      */
     public function resolveReference() {
         if (!isset($this->ReferenceResolvable)) {
@@ -196,11 +174,12 @@ class Property extends Variable_ implements SourceHaver {
         $result = $this->ReferenceResolvable->resolve();
         
         if (isset($result) && !($result instanceof Property)) {
-            throw new Error("Can only resolve references to Properties! Please check the definition for {$this->name}");
+            throw new Exception("Can only resolve references to Properties! Please check the definition for {$this->name}");
         }
         
         return $result ?? false;
     }
+    
     /**
      * @return string
      */
@@ -218,6 +197,7 @@ class Property extends Variable_ implements SourceHaver {
         $this->_name = $name;
         return $this;
     }
+    
     /**
      * @return float
      */

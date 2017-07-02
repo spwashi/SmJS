@@ -9,8 +9,17 @@ namespace Sm\Communication\Network\Http;
 
 
 use Sm\Communication\Request\Request;
+use Sm\Communication\Response\Response;
 
 class HttpRequest extends Request {
+    protected $url                    = '*';
+    protected $path                   = '*';
+    protected $method                 = null;
+    protected $requested_content_type = Response::TYPE_TEXT_HTML;
+    public static function init($url = null) {
+        if (is_string($url)) return (new static)->setUrl($url);
+        return parent::init($url);
+    }
     /**
      * @return null
      */
@@ -71,9 +80,6 @@ class HttpRequest extends Request {
      * @return null
      */
     public function getUrlPath() {
-        if ($this->ChangePathResolvable) {
-            return $this->ChangePathResolvable->resolve($this->path);
-        }
         return $this->path ?? null;
     }
     public function jsonSerialize() {
@@ -82,10 +88,6 @@ class HttpRequest extends Request {
                 'url_path' => $this->getUrlPath(),
                 'method'   => $this->getMethod(),
             ];
-    }
-    public static function init($url = null) {
-        if (is_string($url)) return (new static)->setUrl($url);
-        return parent::init($url);
     }
     /**
      * Get the URL of however we entered

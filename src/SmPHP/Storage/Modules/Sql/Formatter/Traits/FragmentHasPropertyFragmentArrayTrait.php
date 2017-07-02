@@ -8,7 +8,7 @@
 namespace Sm\Storage\Modules\Sql\Formatter\Traits;
 
 
-use Sm\Core\Error\WrongArgumentException;
+use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Storage\Modules\Sql\Formatter\PropertyFragment;
 
 trait FragmentHasPropertyFragmentArrayTrait {
@@ -25,13 +25,13 @@ trait FragmentHasPropertyFragmentArrayTrait {
      *
      * @param $PropertyFragmentArray
      *
-     * @return static|\Sm\Storage\Modules\Sql\Formatter\SqlFragment|\Sm\Core\Formatter\Fragment\Fragment
-     * @throws \Sm\Core\Error\WrongArgumentException
+     * @return static|\Sm\Storage\Modules\Sql\Formatter\SqlFragment|\Sm\Core\Formatting\Fragment\Fragment
+     * @throws \Sm\Core\Exception\InvalidArgumentException
      */
     public function setPropertyFragmentArray($PropertyFragmentArray) {
         foreach ($PropertyFragmentArray as $property_fragment) {
             if (!($property_fragment instanceof PropertyFragment)) {
-                throw new WrongArgumentException("Can only set PropertyFragments to be used in SelectFragments");
+                throw new InvalidArgumentException("Can only set PropertyFragments to be used in SelectFragments");
             }
         }
         $this->PropertyFragmentArray = $PropertyFragmentArray;

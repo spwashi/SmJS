@@ -9,15 +9,15 @@ namespace Sm\Storage\Modules\Sql\MySql\Interpreter;
 
 
 use Sm\Core\Container\Mini\MiniContainer;
-use Sm\Core\Error\Error;
-use Sm\Core\Error\UnimplementedError;
+use Sm\Core\Exception\Exception;
+use Sm\Core\Exception\UnimplementedError;
 use Sm\Core\Internal\Identification\Identifiable;
 use Sm\Core\Internal\Identification\Identifier;
 use Sm\Core\Util;
 use Sm\Data\Property\Property;
 use Sm\Data\Property\PropertyContainer;
 use Sm\Data\Property\PropertyHaver;
-use Sm\Process\Query\Query;
+use Sm\Data\Query\Query;
 use Sm\Storage\Modules\Sql\Formatter\FromFragment;
 use Sm\Storage\Modules\Sql\Formatter\PropertyFragment;
 use Sm\Storage\Modules\Sql\Formatter\SourceAsAliasFragment;
@@ -35,7 +35,12 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
     protected $PropertyArray;
     /** @var bool Should we alias any of the sources? Mainly for select, update, and delete queries */
     protected $do_alias_sources = true;
-    
+    public static function init(Query $Query, SqlStandardModule $SqlModule) {
+        $Instance            = new static;
+        $Instance->Query     = $Query;
+        $Instance->SqlModule = $SqlModule;
+        return $Instance;
+    }
     public function execute() {
         $statement = $this->createStatement();
         echo "{$statement}\n\n--------------------------\n\n";
@@ -46,6 +51,9 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         $stmt     = $this->completeStatementFormatting($this->SqlModule->format($Fragment));
         return $stmt;
     }
+    
+    #
+    ##
     /**
      * Make an array for the Fragments of Sources used in this Query
      *
@@ -59,7 +67,7 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         $SourceArray          = $this->Source_object_id__PropertyHaver_object_id_array__map;
         $SourceFragment_array = [];
         foreach ($SourceArray as $_Source_object_id => $_PropertyHaver_object_id_array) {
-            $_Source = Identifier::identify($_Source_object_id);
+            $_Source = Identifier::getItemFromRegistry($_Source_object_id);
             if (!$_Source) continue;
             
             foreach ($_PropertyHaver_object_id_array as $_PropertyHaver_object_id => $count) {
@@ -70,14 +78,11 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         }
         return $SourceFragment_array;
     }
-    
-    #
-    ##
     /**
      * Make an array of the Properties used in this table
      *
      * @return array
-     * @throws \Sm\Core\Error\UnimplementedError
+     * @throws \Sm\Core\Exception\UnimplementedError
      */
     public function createPropertyFragmentArray() {
         $PropertyArray          = $this->initPropertyArray(true)->PropertyArray;
@@ -122,23 +127,17 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         $this->SqlModule->FormatterFactory->reset();
         return $SqlStatement;
     }
-    public static function init(Query $Query, SqlStandardModule $SqlModule) {
-        $Instance            = new static;
-        $Instance->Query     = $Query;
-        $Instance->SqlModule = $SqlModule;
-        return $Instance;
-    }
     /**
      * Get the Properties that this Query Subinterpreter will use
      *
      * @return \Sm\Data\Property\Property[]|\Sm\Data\Property\PropertyHaver[]
-     * @throws \Sm\Core\Error\Error
+     * @throws \Sm\Core\Exception\Exception
      */
     protected function getQueryProperties() {
         $query_type = $this->Query->getQueryType();
         # todo something is smelly about this. Maybe this shuld be a part of a Trait?
         $properties = $this->Query->{$query_type};
-        if (!is_array($properties)) throw new Error("There was an error getting the Properties used by {$query_type}");
+        if (!is_array($properties)) throw new Exception("There was an error getting the Properties used by {$query_type}");
         return $properties;
     }
     
@@ -265,7 +264,7 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         }
         
         foreach (array_keys($PropertyHaver_object_id__Properties_map) as $PropertyHaver_id) {
-            $this->augmentQueryForPropertyHaver(Identifier::identify($PropertyHaver_id));
+            $this->augmentQueryForPropertyHaver(Identifier::getItemFromRegistry($PropertyHaver_id));
         }
         $this->PropertyHaver_object_id__Properties_map = $PropertyHaver_object_id__Properties_map;
         
@@ -316,8 +315,8 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
      *                                     Indexed by PropertyHaver, contains an array of properties indexed by their
      *                                     object id
      *
-     * @throws \Sm\Core\Error\Error
-     * @throws \Sm\Core\Error\UnimplementedError For now, we can only use Properties that only have one PropertyHaver
+     * @throws \Sm\Core\Exception\Exception
+     * @throws \Sm\Core\Exception\UnimplementedError For now, we can only use Properties that only have one PropertyHaver
      */
     private static function addPropertyToPropertyHaverArray(Property $Property, &$PropertyHaverArray) {
         /** @var Identifiable[] $PropertyHavers */
@@ -326,7 +325,7 @@ abstract class MysqlQuerySubInterpreter extends QuerySubInterpreter {
         if (count($PropertyHavers) > 1) {
             throw new UnimplementedError("Functionality required to interact with properties that have more than one PropertyHaver is not yet implemented.");
         } else if (count($PropertyHavers) < 1) {
-            throw new Error("The property must be owned. $Property");
+            throw new Exception("The property must be owned. $Property");
         }
         
         # An array, indexed by the object_id of the Source

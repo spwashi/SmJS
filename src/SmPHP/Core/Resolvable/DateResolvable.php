@@ -16,15 +16,23 @@ use Sm\Core\Resolvable\Error\UnresolvableError;
  *
  * @package Sm\Core\Resolvable
  */
-class DateResolvable extends Resolvable {
-    public function __construct($subject = null) {
+class DateResolvable extends AbstractResolvable {
+    /**
+     *
+     * @param $subject
+     *
+     * @return $this
+     * @throws \Sm\Core\Resolvable\Error\UnresolvableError
+     */
+    public function setSubject($subject) {
         if (!isset($subject)) {
             $subject = \DateTime::createFromFormat('U.u', number_format(microtime(true), 6, '.', ''));
         } else {
             throw new UnresolvableError("Cannot yet resolve dates from other types");
         }
-        
-        parent::__construct($subject);
+        /** @var static $self */
+        $self = parent::setSubject($subject);
+        return $self;
     }
     
     public function resolve($arguments = null) {

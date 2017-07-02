@@ -9,6 +9,7 @@ namespace Sm\Core\Factory;
 
 
 use Sm\Core\Container\Container;
+use Sm\Core\Resolvable\Error\UnresolvableError;
 
 /**
  * Class FactoryContainer
@@ -32,7 +33,7 @@ class FactoryContainer extends Container {
             return $Factories[0];
         } else if ($_factory_count < 2 && class_exists($name)) {
             $_class = new $name;
-            if ($_class instanceof Factory) {
+            if ($_class instanceof AbstractFactory) {
                 if (!$_factory_count) {
                     $this->register($name, $_class);
                 }
@@ -40,7 +41,7 @@ class FactoryContainer extends Container {
             }
         }
     
-        return $this->createFactory($Factories);
+        throw new UnresolvableError("Cannot resolve Factory");
     }
     /**
      * Function that allows us to take advantage of an assumed distinction Factory names.
@@ -68,65 +69,5 @@ class FactoryContainer extends Container {
         }
         
         return [];
-    }
-    /**
-     * Create a factory on the fly that emulates the behavior of one Factory - useful if there is an array
-     * being registered.
-     *
-     * @param $Factories
-     *
-     * @return \Sm\Core\Factory\Factory
-     */
-    private function createFactory($Factories): Factory {
-        /**
-         * Method to either return the completed Object or to return null;
-         *
-         * @return null
-         */
-        $attempt_build_method = function () use ($Factories) {
-            foreach ($Factories as $LastFactory) {
-                /** @var \Sm\Core\Factory\Factory $LastFactory */
-                $result = $LastFactory->attempt_build(...func_get_args());
-                if ($result) {
-                    return $result;
-                }
-            }
-            return null;
-        };
-        
-        /**
-         * Function to try to build something
-         *
-         * @return null
-         */
-        $build_method = function () use ($Factories, $attempt_build_method) {
-            $result = $attempt_build_method(...func_get_args());
-            if ($result) {
-                return $result;
-            }
-            $LastFactory = $Factories[ count($Factories) - 1 ] ?? null;
-            return $LastFactory ? $LastFactory->build(...func_get_args()) : null;
-        };
-        
-        /** @var Factory $Factory */
-        $Factory = new class($build_method, $attempt_build_method) extends Factory {
-            protected $build_method         = null;
-            protected $attempt_build_method = null;
-            public function __construct($build_method, $attempt_build_method) {
-                $this->build_method         = $build_method;
-                $this->attempt_build_method = $attempt_build_method;
-                parent::__construct();
-            }
-            public function build() {
-                return call_user_func_array($this->build_method, func_get_args());
-            }
-            public function canCreateClass($item) {
-                return class_exists($item);
-            }
-            public function attempt_build() {
-                return call_user_func_array($this->attempt_build_method, func_get_args());
-            }
-        };
-        return $Factory;
     }
 }

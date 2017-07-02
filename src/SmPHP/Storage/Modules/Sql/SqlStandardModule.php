@@ -8,10 +8,10 @@
 namespace Sm\Storage\Modules\Sql;
 
 
-use Sm\Application\Module\StandardModule;
 use Sm\Core\Container\Container;
-use Sm\Core\Formatter\FormatterFactory;
-use Sm\Core\Formatter\FormatterFactoryHaver;
+use Sm\Core\Formatting\Formatter\FormatterFactory;
+use Sm\Core\Formatting\Formatter\FormatterFactoryHaver;
+use Sm\Core\Module\StandardModule;
 use Sm\Core\Resolvable\Error\UnresolvableError;
 use Sm\Storage\Database\DatabaseDataSource;
 
@@ -21,7 +21,7 @@ use Sm\Storage\Database\DatabaseDataSource;
  * @property-read FormatterFactory                             $FormatterFactory
  * @property-read \Sm\Storage\Database\DatabaseDataSource|null $DatabaseSource
  *
- * @package Sm\Process\Query\Sql
+ * @package Sm\Data\Query\Sql
  */
 class SqlStandardModule extends StandardModule {
     /** @var  FormatterFactory $FormatterFactory */

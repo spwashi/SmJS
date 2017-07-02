@@ -8,11 +8,11 @@
 namespace Sm\Data\Datatype;
 
 
-use Sm\Core\Resolvable\Resolvable;
+use Sm\Core\Resolvable\AbstractResolvable;
 use Sm\Core\Resolvable\ResolvableFactory;
 
-class Type extends Resolvable implements \JsonSerializable {
-    /** @var  Resolvable $subject */
+class Type extends AbstractResolvable implements \JsonSerializable {
+    /** @var  AbstractResolvable $subject */
     public $subject;
     public function __construct($subject) {
         $subject = static::resolveType($subject);

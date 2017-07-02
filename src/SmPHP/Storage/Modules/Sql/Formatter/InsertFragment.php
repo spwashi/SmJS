@@ -8,12 +8,12 @@
 namespace Sm\Storage\Modules\Sql\Formatter;
 
 
-use Sm\Core\Error\WrongArgumentException;
+use Sm\Core\Exception\InvalidArgumentException;
 
 class InsertFragment extends SqlFragment {
     /** @var  \Sm\Storage\Modules\Sql\Formatter\PropertyFragment[] */
     protected $PropertyFragments = [];
-    /** @var  \Sm\Core\Formatter\Fragment\Fragment[] */
+    /** @var  \Sm\Core\Formatting\Fragment\Fragment[] */
     protected $ValueFragments = [];
     /** @var  \Sm\Data\Source\DataSource[] */
     protected $Sources;
@@ -29,19 +29,19 @@ class InsertFragment extends SqlFragment {
      * @param $PropertyFragments
      *
      * @return $this
-     * @throws \Sm\Core\Error\WrongArgumentException
+     * @throws \Sm\Core\Exception\InvalidArgumentException
      */
     public function setPropertyFragments($PropertyFragments) {
         foreach ($PropertyFragments as $property_fragment) {
             if (!($property_fragment instanceof PropertyFragment)) {
-                throw new WrongArgumentException("Can only set PropertyFragments to be used in InsertFragments");
+                throw new InvalidArgumentException("Can only set PropertyFragments to be used in InsertFragments");
             }
         }
         $this->PropertyFragments = $PropertyFragments;
         return $this;
     }
     /**
-     * @param \Sm\Core\Formatter\Fragment\Fragment[] $ValueFragments
+     * @param \Sm\Core\Formatting\Fragment\Fragment[] $ValueFragments
      *
      * @return InsertFragment
      */
@@ -50,7 +50,7 @@ class InsertFragment extends SqlFragment {
         return $this;
     }
     /**
-     * @return \Sm\Core\Formatter\Fragment\Fragment[]
+     * @return \Sm\Core\Formatting\Fragment\Fragment[]
      */
     public function getValueFragmentArrays(): array {
         return $this->ValueFragments;

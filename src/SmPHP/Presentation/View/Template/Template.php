@@ -9,11 +9,18 @@ namespace Sm\Presentation\View\Template;
 
 
 use Sm\Application\App;
-use Sm\Core\Formatter\Formatter;
-use Sm\Core\Resolvable\Resolvable;
+use Sm\Core\Formatting\Formatter\Formatter;
+use Sm\Core\Resolvable\AbstractResolvable;
 use Sm\Core\Resolvable\StringResolvable;
 
-abstract class Template extends Resolvable implements Formatter {
+/**
+ * Class Template
+ *
+ * Defines
+ *
+ * @package Sm\Presentation\View\Template
+ */
+abstract class Template extends AbstractResolvable implements Formatter {
     protected $content_type;
     protected $resolved_path    = null;
     protected $path_is_absolute = false;
@@ -21,6 +28,15 @@ abstract class Template extends Resolvable implements Formatter {
     protected $error;
     /** @var  App $App */
     protected $App;
+    /**
+     * @param string                   $item
+     * @param \Sm\Application\App|null $App
+     *
+     * @return static
+     */
+    public static function init($item = null) {
+        return new static($item);
+    }
     /**
      * Fill the template from an array of passed-in variables, return a string
      *
@@ -50,15 +66,6 @@ abstract class Template extends Resolvable implements Formatter {
         $this->subject          = $_path_;
         $this->resolved_path    = null;
         return $this;
-    }
-    /**
-     * @param string                   $item
-     * @param \Sm\Application\App|null $App
-     *
-     * @return static
-     */
-    public static function init($item = null) {
-        return new static($item);
     }
     /**
      * Fill the template with the passed-in array of variables, return the output as a string

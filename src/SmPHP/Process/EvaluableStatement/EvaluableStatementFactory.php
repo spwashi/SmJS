@@ -8,7 +8,7 @@
 namespace Sm\Process\EvaluableStatement;
 
 
-use Sm\Core\Factory\Factory;
+use Sm\Core\Factory\AbstractFactory;
 use Sm\Core\Util;
 
 /**
@@ -16,9 +16,8 @@ use Sm\Core\Util;
  *
  * @package Sm\Process\EvaluableStatement
  * @method EvaluableStatement build(...$class_name)
- * @method EvaluableStatement __invoke(...$class_name)
  */
-class EvaluableStatementFactory extends Factory {
+class EvaluableStatementFactory extends AbstractFactory {
     protected $evaluators = [];
     /**
      * Add an evaluator to a class. This is here to make it easier to register handlers for a specific set of
@@ -46,9 +45,9 @@ class EvaluableStatementFactory extends Factory {
         }
         return $this;
     }
-    public function create_class(string $class_name, array $args = null) {
+    public function buildClassInstance(string $class_name, array $args = null) {
         /** @var EvaluableStatement $class */
-        $class     = parent::create_class(...func_get_args());
+        $class     = parent::buildClassInstance(...func_get_args());
         $parents   = Util::getAncestorClasses(get_class($class));
         $parents   = array_reverse($parents);
         $parents[] = $class_name;

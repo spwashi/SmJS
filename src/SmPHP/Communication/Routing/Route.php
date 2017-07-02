@@ -10,16 +10,17 @@ namespace Sm\Communication\Routing;
 
 use Sm\Communication\Network\Http\HttpRequest;
 use Sm\Communication\Request\Request;
-use Sm\Core\Abstraction\Resolvable\Resolvable;
+use Sm\Core\Resolvable\AbstractResolvable;
 use Sm\Core\Resolvable\Error\UnresolvableError;
 use Sm\Core\Resolvable\FunctionResolvable;
+use Sm\Core\Resolvable\Resolvable;
 use Sm\Core\Resolvable\ResolvableFactory;
 use Sm\Core\Resolvable\StringResolvable;
 
-class Route implements Resolvable, \JsonSerializable {
-    /** @var  Resolvable $DefaultResolvable */
+class Route extends AbstractResolvable implements \JsonSerializable {
+    /** @var  AbstractResolvable $DefaultResolvable */
     protected $DefaultResolvable;
-    /** @var  Resolvable $Resolution */
+    /** @var  AbstractResolvable $Resolution */
     protected $Resolution;
     protected $pattern;
     protected $parameters = [];
@@ -57,6 +58,33 @@ class Route implements Resolvable, \JsonSerializable {
             $this->setDefaultResolution($default);
         }
     }
+    public static function init($resolution = null, $pattern = null, $default = null) {
+        if ($resolution instanceof Route) return $resolution;
+        
+        if (is_string($resolution) && !$pattern) $pattern = $resolution;
+        
+        if (is_array($resolution)) {
+            $config = $resolution;
+            
+            $pattern    = $config['pattern'] ?? null;
+            $default    = $config['default'] ?? null;
+            $resolution = $resolution['resolution'] ?? null;
+            if (count($resolution) === 1 && !$resolution && !$pattern) {
+                $k          = key($resolution);
+                $resolution = $resolution[ $k ];
+                $pattern    = $k;
+            }
+            if (!($resolution && $pattern)) {
+                throw new MalformedRouteException("Malformed route configuration '{$pattern}'");
+            }
+            $Route = new static($resolution, $pattern, $default);
+        } else if (is_string($resolution)) {
+            $Route = new static(null, $resolution);
+        } else {
+            $Route = new static($resolution, $pattern, $default);
+        }
+        return $Route;
+    }
     /**
      * @param string|Request $item
      *
@@ -84,15 +112,15 @@ class Route implements Resolvable, \JsonSerializable {
     /**
      * Set the Resolvable that is to be used in case this function conks out
      *
-     * @param \Sm\Core\Abstraction\Resolvable\Resolvable $DefaultResolvable
+     * @param \Sm\Core\Resolvable\AbstractResolvable $DefaultResolvable
      *
      * @return \Sm\Communication\Routing\Route
      */
-    public function setDefaultResolution(Resolvable $DefaultResolvable): Route {
+    public function setDefaultResolution(AbstractResolvable $DefaultResolvable): Route {
         $this->DefaultResolvable = $DefaultResolvable;
         return $this;
     }
-    public function setResolution(Resolvable $resolvable = null): Route {
+    public function setResolution(AbstractResolvable $resolvable = null): Route {
         $this->Resolution = $resolvable;
         return $this;
     }
@@ -139,42 +167,15 @@ class Route implements Resolvable, \JsonSerializable {
     public function __debugInfo() {
         return $this->jsonSerialize();
     }
+    
+    #  protected
+    ##############################################################################################
     public function jsonSerialize() {
         return [
             $this->pattern,
             is_object($this->Resolution) ? get_class($this->Resolution) : $this->Resolution,
             StringResolvable::init($this->Resolution),
         ];
-    }
-    
-    #  protected
-    ##############################################################################################
-    public static function init($resolution = null, $pattern = null, $default = null) {
-        if ($resolution instanceof Route) return $resolution;
-        
-        if (is_string($resolution) && !$pattern) $pattern = $resolution;
-        
-        if (is_array($resolution)) {
-            $config = $resolution;
-            
-            $pattern    = $config['pattern'] ?? null;
-            $default    = $config['default'] ?? null;
-            $resolution = $resolution['resolution'] ?? null;
-            if (count($resolution) === 1 && !$resolution && !$pattern) {
-                $k          = key($resolution);
-                $resolution = $resolution[ $k ];
-                $pattern    = $k;
-            }
-            if (!($resolution && $pattern)) {
-                throw new MalformedRouteException("Malformed route configuration '{$pattern}'");
-            }
-            $Route = new static($resolution, $pattern, $default);
-        } else if (is_string($resolution)) {
-            $Route = new static(null, $resolution);
-        } else {
-            $Route = new static($resolution, $pattern, $default);
-        }
-        return $Route;
     }
     /**
      * This is a setter used when we want to set the "pattern" of the class to be a string.

@@ -10,6 +10,15 @@ namespace Sm\Core\Internal\Identification;
 
 use Sm\Core\Util;
 
+/**
+ * Class Identifier
+ *
+ * Keep track of objects that we interact with in the system
+ *
+ * @todo    BIG!!! RETHINK THIS!!! THIS IS STATIC???
+ *
+ * @package Sm\Core\Internal\Identification
+ */
 class Identifier {
     /** @var  array $items_by_class An array, indexed by classname, of Identifiable items, indexed by id */
     protected static $items_by_class;
@@ -23,20 +32,31 @@ class Identifier {
      * @return string
      */
     public static function generateIdentity(Identifiable $item) {
-        if ($id = $item->getObjectId()) {
+        # Don't allow us to create an object ID for tings that already have one.
+        $id = $item->getObjectId();
+    
+        # If the ObjectID is already registered, return that
+        if (static::has($id)) {
             return $id;
         }
-        $class_name                                   = get_class($item);
-        $random_string                                = Util::generateRandomString(15, Util::getAlphaCharacters() . '_');
-        static::$items_by_class[ $class_name ]        = static::$items_by_class[ $class_name ] ??[];
-        $number                                       = count(static::$items_by_class[ $class_name ]);
-        $id                                           = "{{object:{$class_name}|{$random_string}|{$number}}}";
-        static::$items[ $id ]                         = $item;
-        static::$items_by_class[ $class_name ][ $id ] =& static::$items[ $id ];
+    
+        $id = self::createIdForItem($item);
+        static::setItemInRegistry($id, $item);
         return $id;
     }
-    public static function setItemInRegistry($id, $item) {
-        static::$items[ $id ] = $item;
+    /**
+     * Add an item to the registry
+     *
+     * @param string                                        $object_id
+     * @param \Sm\Core\Internal\Identification\Identifiable $item
+     */
+    public static function setItemInRegistry($object_id, Identifiable $item) {
+        static::$items[ $object_id ] = $item;
+        
+        $class_name = get_class($item);
+        
+        # Make Identities accessible by classname as well
+        static::$items_by_class[ $class_name ][ $object_id ] =& static::$items[ $object_id ];
     }
     /**
      * Get an item from the registry by identifier.
@@ -45,7 +65,7 @@ class Identifier {
      *
      * @return mixed|null
      */
-    public static function identify($identity) {
+    public static function getItemFromRegistry($identity) {
         return static::$items[ $identity ] ?? null;
     }
     /**
@@ -56,26 +76,35 @@ class Identifier {
      * @return bool
      */
     public static function has($identity) {
-        return isset(static::$items[ $identity ]);
+        $item = static::getItemFromRegistry($identity);
+        return isset($item);
     }
     /**
-     * Get a reference to something with a given identity. Must check to see if it exists first.
+     * Utility function to make it easier to reference objects together
      *
-     * @todo this should probably throw an error.
+     * @param array ...$object_ids
      *
-     * @param $identity
-     *
-     * @return mixed
+     * @return string
      */
-    public static function &identify_ref($identity) {
-        return static::$items[ $identity ];
-    }
-    public static function objectIdAs(string $type, string $object_id) {
-        return str_replace('{{object', "{{{$type}", $object_id);
-    }
     public static function combineObjectIds(...$object_ids) {
         $object_ids = array_filter($object_ids);
         sort($object_ids);
         return '~' . str_replace('}}{{', '*', join('', $object_ids)) . '~';
+    }
+    /**
+     * Give an object an ID
+     *
+     * @param \Sm\Core\Internal\Identification\Identifiable $item
+     *
+     * @return string
+     */
+    protected static function createIdForItem(Identifiable $item): string {
+        $class_name                            = get_class($item);
+        $random_string                         = Util::generateRandomString(15, Util::getAlphaCharacters() . '_');
+        static::$items_by_class[ $class_name ] = static::$items_by_class[ $class_name ] ??[];
+        $number                                = count(static::$items_by_class[ $class_name ]);
+        /** @var string $id Contains the "type" of thing we're referring to, a random string(avoid collisions), and a number (just to keep track of when things get initialized) */
+        $id = "{{object:{$class_name}|{$random_string}|{$number}}}";
+        return $id;
     }
 }

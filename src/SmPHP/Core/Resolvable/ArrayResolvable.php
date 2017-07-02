@@ -18,15 +18,15 @@ use Sm\Core\Resolvable\Error\UnresolvableError;
  * @package Sm\Core\Resolvable
  */
 class ArrayResolvable extends NativeResolvable implements \JsonSerializable {
-    /** @var */
-    protected $subject;
-    public function __construct($subject = null) {
+    public function setSubject($subject = null) {
         if (!is_array($subject)) {
-            throw new UnresolvableError("Could not resolve subject");
+            throw new UnresolvableError("Not sure how to resolve subjects that aren't arrays");
         }
-        parent::__construct($subject);
+        return parent::setSubject($subject);
     }
     /**
+     * @param null $_
+     *
      * @return array
      */
     public function resolve($_ = null) {

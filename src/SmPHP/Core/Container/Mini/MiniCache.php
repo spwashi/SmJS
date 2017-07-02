@@ -25,6 +25,9 @@ use Sm\Core\Util;
 class MiniCache extends MiniContainer implements CacheInterface {
     protected $is_invalid = false;
     protected $cache_key;
+    public static function init() {
+        return new static;
+    }
     /**
      * Has the Cache been started?
      *
@@ -72,12 +75,10 @@ class MiniCache extends MiniContainer implements CacheInterface {
         if (!isset($this->cache_key)) return null;
         return $this->getItem($args, true)->resolve() ?? null;
     }
-    
     public function canResolve($args) {
         if (!$this->isCaching()) return false;
         return parent::canResolve($args) && isset($this->cache_key);
     }
-    
     /**
      * @param string $args
      * @param bool   $as_resolvable
@@ -103,7 +104,6 @@ class MiniCache extends MiniContainer implements CacheInterface {
         
         return $null;
     }
-    
     public function remove($args) {
         $item = $this->getItem($args);
         if ($item instanceof CacheItem) {
@@ -111,32 +111,29 @@ class MiniCache extends MiniContainer implements CacheInterface {
         }
         return $item;
     }
-    
+    /**
+     * Only here because the MiniCache is also a registry. This is just used as an alias for cache
+     *
+     * @param mixed $identity
+     * @param mixed $result
+     *
+     * @return \Sm\Core\Container\Mini\MiniCache
+     */
     public function register($identity = null, $result = null) {
         return $this->cache(...func_get_args());
     }
     public function start($key = '-') {
-        if (isset($this->cache_key) && $key !== $this->cache_key) {
-            # If the cache key doesn't match what was already set, we're trying to do something we don't intend on doing
-            return $this;
-        }
+        if (isset($this->cache_key)) return $this;
         $this->cache_key = $key;
         return $this;
     }
     public function end($key = '-') {
         if ($key !== $this->cache_key) {
-            return $this;
+            throw new InvalidCacheKeyException("Cannot end Cache - invalid key.");
         }
-        $this->cache_key = null;
         $this->clear($key);
+        $this->cache_key = null;
         return $this;
-    }
-    public static function init() {
-        return new static;
-    }
-    public static function begin($key = '-') {
-        $instance = static::init()->start($key);
-        return $instance;
     }
     /**
      * Empty out the cache
@@ -146,13 +143,18 @@ class MiniCache extends MiniContainer implements CacheInterface {
      * @param string $key The "key" that we are using to control access to the cache.
      *
      * @return $this
+     * @throws \Sm\Core\Container\Mini\InvalidCacheKeyException
      */
-    protected function clear($key = '-') {
+    public function clear($key = '-') {
         if ($key !== $this->cache_key) {
-            return $this;
+            throw new InvalidCacheKeyException("Cannot clear Cache - invalid key.");
         }
         $this->registry = [];
         return $this;
+    }
+    public static function begin($key = '-') {
+        $instance = static::init()->start($key);
+        return $instance;
     }
     /**
      * Generate the Index at which the result of Container::resolve will be held for a set of arguments

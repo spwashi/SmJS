@@ -11,23 +11,32 @@ namespace Sm\Core\Resolvable;
 /**
  * Class OnceCalledResolvable
  *
- * Resolvable that runs a function, but only once
+ * Resolvable that runs a function, but only once.
  *
  * @package Sm\Core\Resolvable
  */
-class OnceRunResolvable extends Resolvable {
+class OnceRunResolvable extends AbstractResolvable {
     /**
      * Has the Function already been run?
      *
      * @var bool
      */
     public $has_been_called = false;
-    public $last_value      = null;
-    /** @var  \Sm\Core\Resolvable\Resolvable $subject */
+    /** @var mixed $last_value The value of the OnceRunResolvable if it hasn't already been run */
+    public $last_value = null;
+    /** @var  \Sm\Core\Resolvable\Resolvable $subject The thing that we are going to resolve once */
     protected $subject;
+    /**
+     * @param \Sm\Core\Resolvable\Resolvable|mixed $subject
+     *
+     * @return $this
+     */
     public function setSubject($subject) {
-        $subject = $this->getFactoryContainer()->resolve(ResolvableFactory::class)->build($subject);
-        return parent::setSubject($subject);
+        $subject = $this->getFactoryContainer()
+                        ->resolve(ResolvableFactory::class)
+                        ->build($subject);
+        parent::setSubject($subject);
+        return $this;
     }
     /**
      * Method for what happens when the Singleton Function is cloned

@@ -8,7 +8,7 @@
 namespace Sm\Process\EvaluableStatement\EqualityCondition;
 
 
-use Sm\Core\Formatter\Formatter;
+use Sm\Core\Formatting\Formatter\Formatter;
 use Sm\Process\EvaluableStatement\EvaluableStatement;
 
 /**
@@ -29,7 +29,12 @@ abstract class EqualityCondition_ extends EvaluableStatement {
     protected $_symbol_;
     protected $_left_side_  = null;
     protected $_right_side_ = null;
-    
+    public static function init($left_side = null, $right_side = null) {
+        $new               = new static;
+        $new->_left_side_  = $left_side;
+        $new->_right_side_ = $right_side;
+        return $new;
+    }
     public function set($left_side = null, $right_side = null): EvaluableStatement {
         if (isset($left_side)) {
             $this->_left_side_ = $left_side;
@@ -38,11 +43,5 @@ abstract class EqualityCondition_ extends EvaluableStatement {
             $this->_right_side_ = $right_side;
         }
         return $this;
-    }
-    public static function init($left_side = null, $right_side = null) {
-        $new               = new static;
-        $new->_left_side_  = $left_side;
-        $new->_right_side_ = $right_side;
-        return $new;
     }
 }

@@ -17,7 +17,7 @@ namespace Sm\Core\Resolvable;
  *
  * @package Sm\Core\Resolvable
  */
-class PassiveResolvable extends Resolvable {
+class PassiveResolvable extends AbstractResolvable {
     
     /**
      * @param null|mixed $arguments ,..

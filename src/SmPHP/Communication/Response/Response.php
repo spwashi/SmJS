@@ -8,12 +8,11 @@
 namespace Sm\Communication\Response;
 
 
-use Sm\Core\Formatter\Formattable;
-use Sm\Core\Resolvable\Resolvable;
+use Sm\Core\Resolvable\AbstractResolvable;
 use Sm\Core\Util;
 use Sm\Data\Datatype\DateTime_;
 
-class Response extends Resolvable implements Formattable {
+class Response extends AbstractResolvable {
     const TYPE_TEXT_HTML = 'text/html';
     const TYPE_JSON      = 'application/json';
     #

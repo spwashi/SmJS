@@ -8,6 +8,8 @@
 namespace Sm\Core\Container;
 
 
+use Sm\Core\Internal\Identification\HasObjectIdentityTrait;
+use Sm\Core\Internal\Identification\Identifiable;
 use Sm\Core\Resolvable\OnceRunThenNullResolvable;
 
 
@@ -18,5 +20,11 @@ use Sm\Core\Resolvable\OnceRunThenNullResolvable;
  *
  * @package Sm\Core\Container
  */
-class ContainerItemResolverResolvable extends OnceRunThenNullResolvable {
+class ContainerItemResolverResolvable extends OnceRunThenNullResolvable implements Identifiable {
+    use HasObjectIdentityTrait;
+    
+    public function __construct() {
+        parent::__construct(...func_get_args());
+        $this->createSelfID();
+    }
 }

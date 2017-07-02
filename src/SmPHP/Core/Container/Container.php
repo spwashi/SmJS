@@ -11,12 +11,12 @@
 namespace Sm\Core\Container;
 
 
-use Sm\Core\Abstraction\Resolvable\Resolvable;
 use Sm\Core\Container\Mini\MiniCache;
-use Sm\Core\Error\WrongArgumentException;
+use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Factory\Factory;
 use Sm\Core\Resolvable\FunctionResolvable;
 use Sm\Core\Resolvable\NullResolvable;
+use Sm\Core\Resolvable\Resolvable;
 use Sm\Core\Resolvable\ResolvableFactory;
 
 /**
@@ -24,14 +24,11 @@ use Sm\Core\Resolvable\ResolvableFactory;
  *
  * @package Sm\Core\Container
  *
- * @method Resolvable current()
  * @property \Sm\Core\Container\Mini\MiniCache $Cache
  *
- * @coupled \Sm\Core\Abstraction\Resolvable\Resolvable
+ * @coupled \Sm\Core\Resolvable\Resolvable
  */
 class Container extends AbstractContainer {
-    use ContainerHasMiniCacheTrait;
-    
     /**
      * @var Factory
      */
@@ -110,12 +107,12 @@ class Container extends AbstractContainer {
     /**
      * "Return" an item to the checkout.
      *
-     * @param \Sm\Core\Resolvable\Resolvable $Resolver
+     * @param Resolvable $Resolver
      *
      * @return bool|null
-     * @throws \Sm\Core\Error\Error
+     * @throws \Sm\Core\Exception\Exception
      */
-    public function checkBackIn(\Sm\Core\Resolvable\Resolvable &$Resolver) {
+    public function checkBackIn(Resolvable &$Resolver) {
         # Because the "checkout" function returns ContainerItemResolverResolvables, only accept those.
         #todo error
         if (!($Resolver instanceof ContainerItemResolverResolvable)) return null;
@@ -125,7 +122,7 @@ class Container extends AbstractContainer {
         $args         = $FnResolvable instanceof FunctionResolvable ? $FnResolvable->getArguments() : null;
         
         # If there aren't any arguments, something's probably wrong
-        if (!isset($args)) throw new WrongArgumentException("Cannot identify checked out resource.");
+        if (!isset($args)) throw new InvalidArgumentException("Cannot identify checked out resource.");
         
         # Compare the arguments of the Resolver to see if they match what we expect.
         $checkout_key = $this->CheckedOutItems->resolve($args);
@@ -200,13 +197,28 @@ class Container extends AbstractContainer {
         $this->ConsumedItems->cache($args, true);
         return $this->ConsumedItems->canResolve($args);
     }
-    protected function markCheckedOut($args, \Sm\Core\Resolvable\Resolvable $Resolvable) {
+    /**
+     * Identify a Resolvable as being Checked Out
+     *
+     * @param                                $args
+     * @param \Sm\Core\Resolvable\Resolvable $Resolvable
+     *
+     * @return bool
+     */
+    protected function markCheckedOut($args, Resolvable $Resolvable) {
         # Add the Item using the Resolvable's object ID.
         # Items can only be used once per. The result of this is the object ID of the Resolvable
         $this->CheckedOutItems->cache($args, $Resolvable->getObjectId());
         return $this->CheckedOutItems->canResolve($args);
     }
-    protected function standardizeRegistrand($registrand) {
+    /**
+     * @inheritdoc
+     *
+     * @param mixed $registrand
+     *
+     * @return null|\Sm\Core\Resolvable\FunctionResolvable|\Sm\Core\Resolvable\NativeResolvable|\Sm\Core\Resolvable\StringResolvable
+     */
+    protected function standardizeRegistrand($registrand):?Resolvable {
         return isset($this->ResolvableFactory) ? $this->ResolvableFactory->build($registrand) : null;
     }
 }

@@ -8,9 +8,9 @@
 namespace Sm\Presentation\View;
 
 
-use Sm\Core\Factory\Factory;
+use Sm\Core\Factory\AbstractFactory;
 
-class ViewFactory extends Factory {
+class ViewFactory extends AbstractFactory {
     
     /**
      * Return whatever this factory refers to based on some sort of operand

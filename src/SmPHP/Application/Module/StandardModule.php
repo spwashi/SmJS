@@ -5,25 +5,56 @@
  * Time: 2:11 PM
  */
 
-namespace Sm\Application\Module;
+namespace Sm\Core\Module;
 
 
 use Sm\Application\App;
-use Sm\Core\Abstraction\Resolvable\Resolvable;
+use Sm\Core\Resolvable\AbstractResolvable;
 use Sm\Core\Resolvable\Error\UnresolvableError;
+use Sm\Core\Resolvable\Resolvable;
 use Sm\Core\Resolvable\ResolvableFactory;
 
-class StandardModule extends \Sm\Core\Resolvable\Resolvable implements Module {
-    /** @var Resolvable */
+class StandardModule extends AbstractResolvable {
+    /** @var AbstractResolvable */
     protected $Dispatch = null;
-    /** @var Resolvable */
+    /** @var AbstractResolvable */
     protected $Init = null;
     /** @var bool $is_init */
     protected $is_init              = false;
     protected $has_dispatched       = false;
     protected $last_dispatch_result = null;
     protected $App;
-    
+    /**
+     * @param null $item
+     *
+     * @return static
+     * @throws \Sm\Core\Resolvable\Error\UnresolvableError
+     */
+    public static function init($item = null) {
+        if ($item instanceof StandardModule) {
+            return $item;
+        }
+        $init = null;
+        if (is_array($item)) {
+            $init = $item['init'] ?? null;
+            $item = $item['dispatch'] ?? null;
+        } else if (is_callable($item)) {
+            $init = $item;
+        }
+        if (class_exists('\Sm\Core\Resolvable\ResolvableFactory')) {
+            $item = ResolvableFactory::init()->build($item);
+            $init = ResolvableFactory::init()->build($init);
+        }
+        if (!($item instanceof Resolvable)) {
+            throw new UnresolvableError("Cannot resolve module");
+        }
+        $Module = new static;
+        if ($init instanceof Resolvable) {
+            $Module->Init = $init;
+        }
+        $Module->setDispatch($item);
+        return $Module;
+    }
     public function dispatch() {
         $arguments = func_get_args();
         if (!$this->is_init) {
@@ -57,7 +88,7 @@ class StandardModule extends \Sm\Core\Resolvable\Resolvable implements Module {
         $this->App = $app;
         return $this;
     }
-    public function setDispatch(Resolvable $resolvable) {
+    public function setDispatch(AbstractResolvable $resolvable) {
         $this->Dispatch = $resolvable;
         return $this;
     }
@@ -79,37 +110,6 @@ class StandardModule extends \Sm\Core\Resolvable\Resolvable implements Module {
     public function resolve($_ = null) {
         $this->initialize();
         return $this;
-    }
-    /**
-     * @param null $item
-     *
-     * @return static
-     * @throws \Sm\Core\Resolvable\Error\UnresolvableError
-     */
-    public static function init($item = null) {
-        if ($item instanceof StandardModule) {
-            return $item;
-        }
-        $init = null;
-        if (is_array($item)) {
-            $init = $item['init'] ?? null;
-            $item = $item['dispatch'] ?? null;
-        } else if (is_callable($item)) {
-            $init = $item;
-        }
-        if (class_exists('\Sm\Core\Resolvable\ResolvableFactory')) {
-            $item = ResolvableFactory::init()->build($item);
-            $init = ResolvableFactory::init()->build($init);
-        }
-        if (!($item instanceof Resolvable)) {
-            throw new UnresolvableError("Cannot resolve module");
-        }
-        $Module = new static;
-        if ($init instanceof Resolvable) {
-            $Module->Init = $init;
-        }
-        $Module->setDispatch($item);
-        return $Module;
     }
     /**
      * Throw an error if this class is not complete.

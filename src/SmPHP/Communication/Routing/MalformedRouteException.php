@@ -8,8 +8,8 @@
 namespace Sm\Communication\Routing;
 
 
-use Sm\Core\Error\Error;
+use Sm\Core\Exception\Exception;
 
-class MalformedRouteException extends Error {
+class MalformedRouteException extends Exception {
     
 }

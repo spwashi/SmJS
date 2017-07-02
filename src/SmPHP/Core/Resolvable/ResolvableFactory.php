@@ -8,10 +8,15 @@
 namespace Sm\Core\Resolvable;
 
 
-use Sm\Core\Abstraction\Resolvable\Resolvable;
-use Sm\Core\Factory\Factory;
+use Sm\Core\Factory\AbstractFactory;
 
-class ResolvableFactory extends Factory {
+class ResolvableFactory extends AbstractFactory {
+    public static function init($item = null) {
+        if ($item instanceof ResolvableFactory) {
+            return $item;
+        }
+        return new static($item);
+    }
     public function build($subject = null) {
         if ($subject instanceof Resolvable) {
             return $subject;
@@ -27,11 +32,5 @@ class ResolvableFactory extends Factory {
             return new FunctionResolvable($subject);
         }
         return new NativeResolvable($subject);
-    }
-    public static function init($item = null) {
-        if ($item instanceof ResolvableFactory) {
-            return $item;
-        }
-        return new static($item);
     }
 }

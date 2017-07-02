@@ -17,7 +17,7 @@ use Sm\Core\Resolvable\Error\UnresolvableError;
  *
  * @package Sm\Core\Resolvable
  */
-class UnResolvable extends Resolvable {
+class UnResolvable extends AbstractResolvable {
     
     /**
      * @param null $_

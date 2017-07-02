@@ -8,16 +8,18 @@
 namespace Sm\Application;
 
 
-use Sm\Application\Module\StandardModule;
 use Sm\Communication\Request\Request;
 use Sm\Communication\Routing\Router;
 use Sm\Core\Container\Container;
 use Sm\Core\Context\ResolutionContext;
-use Sm\Core\Error\Error;
+use Sm\Core\Exception\Exception;
 use Sm\Core\Factory\FactoryContainer;
+use Sm\Core\Module\ModuleContainer;
+use Sm\Core\Module\StandardModule;
+use Sm\Core\Paths\PathContainer;
 use Sm\Core\Resolvable\FunctionResolvable;
 use Sm\Core\Resolvable\NativeResolvable;
-use Sm\Process\Query\Query;
+use Sm\Data\Query\Query;
 
 /**
  * Class Application
@@ -41,11 +43,9 @@ class App extends Container {
     #-----------------------------------------------------------------------------------
     public function __construct() {
         parent::__construct();
-        $this->ResolutionContext = new ResolutionContext();
-        $this->ResolutionContext->setPathContainer(PathContainer::init())
-                                ->setFactoryContainer(FactoryContainer::init());
-        
-        $this->Modules = ModuleContainer::init()->setApp($this);
+        $this->ResolutionContext = new ResolutionContext(PathContainer::init());
+    
+        $this->Modules = ModuleContainer::init();
         $App           = $this;
         $this->Paths->registerDefaults(
             [
@@ -57,6 +57,22 @@ class App extends Container {
                 'config_path' =>
                     FunctionResolvable::init(function (PathContainer $Paths) { return $Paths->app_path . 'config/'; }),
             ]);
+    }
+    /**
+     * @param Container|array $item
+     *
+     * @return \Sm\Application\App|static
+     */
+    public static function init($item = null) {
+        $instance = new static;
+        
+        if ($item instanceof Container) {
+            $instance->inherit($item);
+        } else if (is_array($item)) {
+            $instance->register($item);
+        }
+        
+        return $instance;
     }
     public function setModuleContainer(ModuleContainer $moduleContainer) {
         $this->Modules = $moduleContainer;
@@ -73,7 +89,7 @@ class App extends Container {
             if (isset($this->Modules)) {
                 return $this->Modules;
             }
-            throw new Error("This app has not been configured to accept any Modules.");
+            throw new Exception("This app has not been configured to accept any Modules.");
         }
         return parent::__get($name);
     }
@@ -99,10 +115,8 @@ class App extends Container {
     }
     public function duplicate() {
         /** @var App $Duplicate */
-        $Duplicate = parent::duplicate();
-        $Duplicate->ResolutionContext->setPathContainer($this->Paths->duplicate());
-        $Duplicate->ResolutionContext->setFactoryContainer($this->Factories->duplicate());
-        $Duplicate->Modules = $this->Modules->duplicate($Duplicate);
+        $Duplicate                    = parent::duplicate();
+        $Duplicate->ResolutionContext = new ResolutionContext($this->Factories, $this->Paths);
         return $Duplicate;
     }
     public function register($name = null, $registrand = null, $register_with_app = false) {
@@ -146,21 +160,5 @@ class App extends Container {
         $return          = $this->getAll();
         $return['Paths'] = $this->Paths;
         return $return;
-    }
-    /**
-     * @param Container|array $item
-     *
-     * @return \Sm\Application\App|static
-     */
-    public static function init($item = null) {
-        $instance = new static;
-        
-        if ($item instanceof Container) {
-            $instance->inherit($item);
-        } else if (is_array($item)) {
-            $instance->register($item);
-        }
-        
-        return $instance;
     }
 }

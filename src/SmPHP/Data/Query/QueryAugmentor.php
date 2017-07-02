@@ -5,16 +5,16 @@
  * Time: 10:52 PM
  */
 
-namespace Sm\Process\Query;
+namespace Sm\Data\Query;
 
 
 interface QueryAugmentor {
     /**
      * Modify a Query to fulfill a certain purpose
      *
-     * @param \Sm\Process\Query\Query $Query
+     * @param \Sm\Data\Query\Query $Query
      *
-     * @return \Sm\Process\Query\Query The Query that we are trying to run
+     * @return \Sm\Data\Query\Query The Query that we are trying to run
      */
     public function augmentQuery(Query $Query): Query;
 }

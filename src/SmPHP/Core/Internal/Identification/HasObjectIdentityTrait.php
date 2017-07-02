@@ -7,24 +7,24 @@
 
 namespace Sm\Core\Internal\Identification;
 
-
 /**
  * Class HasObjectIdentityTrait
  *
+ *
  * Used for objects that implement the Identifiable interface.
  *
- * @see     \Sm\Core\Internal\Identification\Identifiable
- * @package Sm\Core\Internal\Identification
+ * @see        \Sm\Core\Internal\Identification\Identifiable
+ * @package    \Sm\Core\Internal\Identification
+ * @mixin      Identifiable
  */
 trait HasObjectIdentityTrait {
     protected $_object_id;
-    
     /**
      * Get the ID that uniquely identifies this object.
      *
      * @return string
      */
-    public function getObjectId() {
+    public function getObjectId():?string {
         return $this->_object_id;
     }
     /**
@@ -38,7 +38,10 @@ trait HasObjectIdentityTrait {
         $this->_object_id = $this->_object_id ?? $object_id;
         return $this;
     }
-    public function __toString() {
-        return "{$this->_object_id}";
+    /**
+     * Generate an ID and set it on this class
+     */
+    protected function createSelfID() {
+        $this->setObjectId(Identifier::generateIdentity($this));
     }
 }

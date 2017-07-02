@@ -12,13 +12,13 @@ use Sm\Core\Factory\FactoryContainer;
 
 class ResolvableTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreate() {
-        $Resolvable = $this->getMockForAbstractClass(Resolvable::class, [ null ]);
-        $this->assertInstanceOf(Resolvable::class, $Resolvable);
+        $Resolvable = $this->getMockForAbstractClass(AbstractResolvable::class, [ null ]);
+        $this->assertInstanceOf(AbstractResolvable::class, $Resolvable);
         return $Resolvable;
     }
     public function testCanInvoke() {
-        /** @var Resolvable|\PHPUnit_Framework_MockObject_MockObject $Resolvable */
-        $Resolvable = $this->getMockForAbstractClass(Resolvable::class, [ null ]);
+        /** @var AbstractResolvable|\PHPUnit_Framework_MockObject_MockObject $Resolvable */
+        $Resolvable = $this->getMockForAbstractClass(AbstractResolvable::class, [ null ]);
         
         $Resolvable->expects($this->any())
                    ->method('resolve')
@@ -27,11 +27,11 @@ class ResolvableTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('87', $Resolvable());
     }
     public function testCanMakeResolvableFactory() {
-        /** @var Resolvable $Resolvable */
-        $Resolvable = $this->getMockForAbstractClass(Resolvable::class, [ null ]);
+        /** @var AbstractResolvable $Resolvable */
+        $Resolvable = $this->getMockForAbstractClass(AbstractResolvable::class, [ null ]);
         $this->assertInstanceOf(FactoryContainer::class, $Resolvable->getFactoryContainer());
-        
-        $Resolvable = $this->getMockForAbstractClass(Resolvable::class, [ null ]);
+    
+        $Resolvable = $this->getMockForAbstractClass(AbstractResolvable::class, [ null ]);
         $Resolvable->setFactoryContainer(new FactoryContainer);
         $this->assertInstanceOf(FactoryContainer::class, $Resolvable->getFactoryContainer());
     }

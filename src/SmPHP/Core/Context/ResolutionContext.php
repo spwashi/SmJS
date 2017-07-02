@@ -8,9 +8,8 @@
 namespace Sm\Core\Context;
 
 
-use Sm\Application\PathContainer;
-use Sm\Core\Error\UnimplementedError;
-use Sm\Core\Factory\FactoryContainer;
+use Sm\Core\Internal\Identification\HasObjectIdentityTrait;
+use Sm\Core\Paths\PathContainer;
 
 /**
  * Class ResolutionContext
@@ -18,44 +17,31 @@ use Sm\Core\Factory\FactoryContainer;
  * A Context that tells us about what we, in the development enviroment, have access to resolve.
  * Primarily Core things like Factories or
  *
- * @property-read PathContainer                                              $Paths
- * @property-read FactoryContainer                                           $Factories
+ * @property-read PathContainer $Paths
  */
-class ResolutionContext implements Context {
+class ResolutionContext extends AbstractContext {
+    use HasObjectIdentityTrait;
     /**
-     * @var \Sm\Core\Factory\FactoryContainer A Container that allows to register different factories for different purposes
-     */
-    protected $FactoryContainer;
-    /**
-     * @var \Sm\Application\PathContainer A Container that allows us to create and name different Paths
-     */
-    protected $PathContainer;
-    
-    public function __get($name) {
-        if ($name === 'Paths') return $this->PathContainer;
-        if ($name === 'Factories') return $this->FactoryContainer;
-        throw new UnimplementedError("Cannot resolve {$name}");
-    }
-    /**
-     * Set the FactoryContainer for this class for FactoryResolution
+     * ResolutionContext constructor.
      *
-     * @param \Sm\Core\Factory\FactoryContainer $FactoryContainer
+     * @see \Sm\Core\Context\ResolutionContext::$pathContainer
+     * @see \Sm\Core\Context\ResolutionContext::$factoryContainer
      *
-     * @return $this
+     * @param \Sm\Core\Paths\PathContainer $pathContainer
      */
-    public function setFactoryContainer(FactoryContainer $FactoryContainer) {
-        $this->FactoryContainer = $FactoryContainer;
-        return $this;
+    public function __construct(PathContainer $pathContainer) {
+        parent::__construct();
+        $this->setPathContainer($pathContainer);
     }
     /**
      * Set the PathContainer of this class for Path resolution
      *
-     * @param \Sm\Application\PathContainer $PathContainer
+     * @param \Sm\Core\Paths\PathContainer $pathContainer
      *
      * @return $this
      */
-    public function setPathContainer(PathContainer $PathContainer) {
-        $this->PathContainer = $PathContainer;
+    public function setPathContainer(PathContainer $pathContainer) {
+        $this->incorporate('Paths', $pathContainer);
         return $this;
     }
 }

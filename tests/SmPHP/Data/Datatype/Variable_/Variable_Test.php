@@ -5,11 +5,11 @@
  * Time: 8:23 PM
  */
 
-namespace Sm\Data\Datatype\Variable_;
+namespace Sm\Data\Type\Variable_;
 
 use Sm\Core\Resolvable\AbstractResolvable;
 use Sm\Core\Resolvable\NativeResolvable;
-use Sm\Data\Datatype\Variable_\Exception\InvalidVariableTypeError;
+use Sm\Data\Type\Variable_\Exception\InvalidVariableTypeError;
 
 class Example_1 extends AbstractResolvable {
     public function resolve($_ = null) { return 1; }

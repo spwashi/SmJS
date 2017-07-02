@@ -5,9 +5,9 @@
  * Time: 5:17 PM
  */
 
-namespace Sm\Data\Datatype;
+namespace Sm\Data\Type;
 
 
-class Integer_ extends Type {
+class Integer_ extends StandardType {
     
 }

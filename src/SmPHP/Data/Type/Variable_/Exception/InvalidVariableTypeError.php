@@ -5,7 +5,7 @@
  * Time: 10:44 PM
  */
 
-namespace Sm\Data\Datatype\Variable_\Exception;
+namespace Sm\Data\Type\Variable_\Exception;
 
 
 use Sm\Core\Exception\Error;

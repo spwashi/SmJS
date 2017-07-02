@@ -5,13 +5,13 @@
  * Time: 8:46 PM
  */
 
-namespace Sm\Data\Datatype;
+namespace Sm\Data\Type;
 
 
 use Sm\Core\Resolvable\AbstractResolvable;
 use Sm\Core\Resolvable\ResolvableFactory;
 
-class Type extends AbstractResolvable implements \JsonSerializable {
+abstract class StandardType extends AbstractResolvable implements Type {
     /** @var  AbstractResolvable $subject */
     public $subject;
     public function __construct($subject) {

@@ -11,7 +11,7 @@ namespace Sm\Process\EvaluableStatement;
 use Sm\Core\Formatting\Formatter\FormatterFactory;
 use Sm\Core\Formatting\Formatter\FormatterFactoryHaver;
 use Sm\Core\Resolvable\AbstractResolvable;
-use Sm\Data\Datatype\Variable_\Variable_;
+use Sm\Data\Type\Variable_\Variable_;
 
 /**
  * Class EvaluableStatement

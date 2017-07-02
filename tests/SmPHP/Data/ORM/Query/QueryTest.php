@@ -9,13 +9,13 @@ namespace Sm\Data\Query;
 
 
 use Sm\Core\Resolvable\ArrayResolvable;
-use Sm\Data\Datatype\Integer_;
-use Sm\Data\Datatype\Null_;
-use Sm\Data\Datatype\String_;
 use Sm\Data\ORM\EntityType\EntityType;
 use Sm\Data\ORM\EntityType\EntityTypeMeta;
 use Sm\Data\Property\Property;
 use Sm\Data\Property\PropertyContainer;
+use Sm\Data\Type\Integer_;
+use Sm\Data\Type\Null_;
+use Sm\Data\Type\String_;
 use Sm\Storage\Database\TableSource;
 use Sm\Storage\Modules\Sql\MySql\MysqlDatabaseSource;
 use Sm\Storage\Modules\Sql\MySql\MysqlPdoAuthentication;

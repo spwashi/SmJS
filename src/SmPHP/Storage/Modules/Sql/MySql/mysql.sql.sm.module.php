@@ -7,9 +7,9 @@
 
 use Sm\Core\Formatting\Formatter\FormatterFactory;
 use Sm\Core\Resolvable\FunctionResolvable;
-use Sm\Data\Datatype\Variable_\Variable_;
 use Sm\Data\Property\Property;
 use Sm\Data\Query\Interpreter\QueryInterpreterFactory;
+use Sm\Data\Type\Variable_\Variable_;
 use Sm\Process\EvaluableStatement\Constructs\And_;
 use Sm\Process\EvaluableStatement\EqualityCondition\GreaterThanCondition;
 use Sm\Process\EvaluableStatement\EqualityCondition\LessThanCondition;

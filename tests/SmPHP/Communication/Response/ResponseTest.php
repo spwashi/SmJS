@@ -8,7 +8,7 @@
 namespace Sm\Communication\Response;
 
 
-use Sm\Data\Datatype\DateTime_;
+use Sm\Data\Type\DateTime_;
 
 class ResponseTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreate() {

@@ -14,11 +14,11 @@ use Sm\Core\Exception\UnimplementedError;
 use Sm\Core\Internal\Identification\HasObjectIdentityTrait;
 use Sm\Core\Internal\Identification\Identifiable;
 use Sm\Core\Resolvable\NullResolvable;
-use Sm\Data\Datatype\Variable_\Variable_;
 use Sm\Data\ORM\EntityType\EntityTypeVariable;
 use Sm\Data\Source\DataSource;
+use Sm\Data\Source\DataSourcedItem;
 use Sm\Data\Source\NullDataSource;
-use Sm\Data\Source\SourceHaver;
+use Sm\Data\Type\Variable_\Variable_;
 
 /**
  * Class Property
@@ -35,7 +35,7 @@ use Sm\Data\Source\SourceHaver;
  * @property-read string                           $object_id
  * @property-read array                            $potential_types
  */
-class Property extends Variable_ implements Identifiable, SourceHaver {
+class Property extends Variable_ implements Identifiable, DataSourcedItem {
     use ReadonlyTrait, HasObjectIdentityTrait;
     
     /** @var  string $name */

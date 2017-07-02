@@ -16,9 +16,9 @@ use Sm\Data\Property\Property;
 use Sm\Data\Property\PropertyContainer;
 use Sm\Data\Query\Interpreter\QueryInterpreterFactory;
 use Sm\Data\Source\DataSource;
+use Sm\Data\Source\DataSourcedItem;
 use Sm\Data\Source\Exception\UnauthorizedConnectionException;
 use Sm\Data\Source\NullDataSource;
-use Sm\Data\Source\SourceHaver;
 
 /**
  * Class Query
@@ -203,7 +203,7 @@ class Query {
     protected function canUseProperties($item, $throw_an_error = false) {
         
         # We assume that it has a source
-        if ($item instanceof SourceHaver) {
+        if ($item instanceof DataSourcedItem) {
             $Source = $item->getSource();
         } else if ($item instanceof DataSource) {
             $Source = $item;
@@ -226,8 +226,8 @@ class Query {
             }
             return true;
         }
-        
-        $source_haver_class = SourceHaver::class;
+    
+        $source_haver_class = DataSourcedItem::class;
         
         # Throw an error if we want because the item can't be used
         if ($throw_an_error) throw new InvalidArgumentException("Item must be an instance of {$source_haver_class}");
@@ -278,7 +278,7 @@ class Query {
     
             if ($component instanceof DataSource) {
                 $RootSource = $component->getRootSource();
-            } else if ($component instanceof SourceHaver) {
+            } else if ($component instanceof DataSourcedItem) {
                 $RootSource = static::getRootSourceFromSourceHaver($component);
             } else {
                 $_type = Util::getShapeOfItem($component);
@@ -295,12 +295,12 @@ class Query {
     /**
      * For everything that has a source, get the Root DataSource of that
      *
-     * @param \Sm\Data\Source\SourceHaver $SourceHaver
+     * @param \Sm\Data\Source\DataSourcedItem $SourceHaver
      *
      * @return null|\Sm\Data\Source\DataSource
      */
-    protected static function getRootSourceFromSourceHaver(SourceHaver $SourceHaver) {
-        if (!($SourceHaver instanceof SourceHaver)) {
+    protected static function getRootSourceFromSourceHaver(DataSourcedItem $SourceHaver) {
+        if (!($SourceHaver instanceof DataSourcedItem)) {
             return null;
         }
         $RootSource = $SourceHaver->getSource()->getRootSource();

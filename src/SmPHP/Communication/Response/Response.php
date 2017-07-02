@@ -10,7 +10,7 @@ namespace Sm\Communication\Response;
 
 use Sm\Core\Resolvable\AbstractResolvable;
 use Sm\Core\Util;
-use Sm\Data\Datatype\DateTime_;
+use Sm\Data\Type\DateTime_;
 
 class Response extends AbstractResolvable {
     const TYPE_TEXT_HTML = 'text/html';

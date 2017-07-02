@@ -5,14 +5,14 @@
  * Time: 10:23 PM
  */
 
-namespace Sm\Data\Datatype\Variable_;
+namespace Sm\Data\Type\Variable_;
 
 
 use Sm\Core\Resolvable\AbstractResolvable;
 use Sm\Core\Resolvable\NullResolvable;
 use Sm\Core\Resolvable\Resolvable;
 use Sm\Core\Resolvable\ResolvableFactory;
-use Sm\Data\Datatype\Variable_\Exception\InvalidVariableTypeError;
+use Sm\Data\Type\Variable_\Exception\InvalidVariableTypeError;
 
 /**
  * Class Variable_
@@ -118,7 +118,7 @@ class Variable_ extends AbstractResolvable implements \JsonSerializable {
      * @param Resolvable $subject
      *
      * @return $this
-     * @throws \Sm\Data\Datatype\Variable_\Exception\InvalidVariableTypeError
+     * @throws \Sm\Data\Type\Variable_\Exception\InvalidVariableTypeError
      */
     public function setSubject($subject) {
         # todo check CanBeNull
@@ -184,7 +184,7 @@ class Variable_ extends AbstractResolvable implements \JsonSerializable {
     /**
      * @param $subject
      *
-     * @throws \Sm\Data\Datatype\Variable_\Exception\InvalidVariableTypeError
+     * @throws \Sm\Data\Type\Variable_\Exception\InvalidVariableTypeError
      */
     protected function checkCanSetValue($subject) {
         $class = get_class($subject);

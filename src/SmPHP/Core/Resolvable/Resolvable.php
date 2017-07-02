@@ -24,7 +24,26 @@ interface Resolvable extends Identifiable {
      * @return mixed
      */
     public function resolve();
+    
+    /**
+     * Return the resolvable back to its previous state
+     *
+     * @return mixed
+     */
     public function reset();
+    
+    /**
+     * Get the thing we are resolving
+     *
+     * @return mixed
+     */
     public function getSubject();
+    /**
+     * Set the thing that we will resolve
+     *
+     * @param $subject
+     *
+     * @return mixed
+     */
     public function setSubject($subject);
 }

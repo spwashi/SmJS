@@ -5,12 +5,12 @@
  * Time: 5:16 PM
  */
 
-namespace Sm\Data\Datatype;
+namespace Sm\Data\Type;
 
 
 use Sm\Core\Resolvable\DateResolvable;
 
-class DateTime_ extends Type {
+class DateTime_ extends StandardType {
     public function __toString() {
         return "" . $this->subject->resolve()->format('Y-m-d H:i:s.u');
     }

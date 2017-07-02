@@ -5,12 +5,12 @@
  * Time: 5:18 PM
  */
 
-namespace Sm\Data\Datatype;
+namespace Sm\Data\Type;
 
 
 use Sm\Core\Resolvable\NullResolvable;
 
-class Null_ extends Type {
+class Null_ extends StandardType {
     public static function resolveType($subject) {
         return NullResolvable::init($subject);
     }

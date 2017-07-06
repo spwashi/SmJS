@@ -19,7 +19,6 @@ use Sm\Data\Type\Variable_\Exception\InvalidVariableTypeError;
  * Class Variable_
  *
  * @property-read mixed $default_value      The Resolvable that holds the value of the Variable_
- * @property-read mixed $default            The default of the Variable_
  * @property string     $name               The name of the Variable_
  * @property mixed      $value              The resolved value of this Variable_'s subject
  * @property Resolvable $raw_value          The raw, unresolved Resolvable that this Variable_ holds a reference to
@@ -50,9 +49,9 @@ class Variable_ extends AbstractResolvable implements \JsonSerializable {
      * @return static
      */
     public static function init($name = null) {
-        $Instance       = new static;
-        $Instance->name = $name;
-        return $Instance;
+        $inst       = new static;
+        $inst->name = $name;
+        return $inst;
     }
     
     public function __get($name) {
@@ -64,12 +63,6 @@ class Variable_ extends AbstractResolvable implements \JsonSerializable {
         }
         if ($name === 'raw_value') {
             return $this->subject;
-        }
-        if ($name === 'default_value') {
-            return $this->_default->resolve();
-        }
-        if ($name === 'default') {
-            return $this->_default;
         }
         return null;
     }
@@ -86,9 +79,6 @@ class Variable_ extends AbstractResolvable implements \JsonSerializable {
                 break;
             case 'value':
                 $this->setValue($value);
-                break;
-            case 'default':
-                $this->setDefault($value);
                 break;
         }
     }
@@ -122,11 +112,6 @@ class Variable_ extends AbstractResolvable implements \JsonSerializable {
      * @throws \Sm\Data\Type\Variable_\Exception\InvalidVariableTypeError
      */
     public function setSubject($subject) {
-        # todo check CanBeNull
-        if ($subject === null) {
-            return $this;
-        }
-    
         # Only deal with Resolvables
         $subject = (new ResolvableFactory)->resolve($subject);
     
@@ -153,20 +138,13 @@ class Variable_ extends AbstractResolvable implements \JsonSerializable {
      *
      * @return Resolvable
      */
-    public function resolve($_ = null) {
+    public function resolve() {
         return $this->subject ? $this->subject->resolve() : null;
     }
     
-    /**
-     * Does this Variable have a value to resolve to?
-     *
-     * @return bool
-     */
-    public function canResolve() {
-        return isset($this->subject);
-    }
     function jsonSerialize() {
-        return [ 'name' => $this->_name, '_type' => Variable_::class ];
+        return [ 'name'  => $this->_name,
+                 'value' => json_decode(json_encode($this->subject)) ];
     }
     /**
      * Set the Default Value
@@ -179,19 +157,16 @@ class Variable_ extends AbstractResolvable implements \JsonSerializable {
         $this->_default = $default;
         return $this;
     }
-    public static function _($name) {
-        return static::init($name);
-    }
     /**
+     * Check to see if we are allowed to assign a value to a variable
+     *
      * @param $subject
      *
      * @throws \Sm\Data\Type\Variable_\Exception\InvalidVariableTypeError
      */
     protected function checkCanSetValue($subject) {
-        
         # If we haven't given permission to set a Resolvable of this type, don't
         $potential_types = $this->_potential_types;
-    
         if (!Util::isOneOfListedTypes($subject, $potential_types)) {
             throw new InvalidVariableTypeError("Cannot set subject to be this value");
         }

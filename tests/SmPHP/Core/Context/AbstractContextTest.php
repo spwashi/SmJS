@@ -16,8 +16,8 @@ class AbstractContextTest extends \PHPUnit_Framework_TestCase {
         $abstr_2 = $this->getMockForAbstractClass(StandardContext::class);
         /** @var \Sm\Core\Context\StandardContext $abstr_3 */
         $abstr_3 = $this->getMockForAbstractClass(StandardContext::class);
-        $this->assertNotEquals($abstr_1->readContextAttributes(), $abstr_2->readContextAttributes());
-        $this->assertNotEquals($abstr_3->readContextAttributes(), $abstr_2->readContextAttributes());
-        $this->assertNotEquals($abstr_1->readContextAttributes(), $abstr_3->readContextAttributes());
+        $this->assertNotEquals($abstr_1->getObjectId(), $abstr_2->getObjectId());
+        $this->assertNotEquals($abstr_3->getObjectId(), $abstr_2->getObjectId());
+        $this->assertNotEquals($abstr_1->getObjectId(), $abstr_3->getObjectId());
     }
 }

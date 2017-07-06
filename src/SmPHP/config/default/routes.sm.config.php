@@ -21,7 +21,7 @@ return [
           }),
     ],
     [ FRAMEWORK_FROM_SRC . 'ea' =>
-          FunctionResolvable::init(function (\Sm\Communication\Network\Http\HttpRequest $Request) {
+          FunctionResolvable::init(function (\Sm\Communication\Network\Http\Request\HttpRequest $Request) {
               /** @var App $App */
     
           }),

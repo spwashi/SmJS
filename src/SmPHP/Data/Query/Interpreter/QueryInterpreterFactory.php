@@ -8,7 +8,7 @@
 namespace Sm\Data\Query\Interpreter;
 
 
-use Sm\Core\Factory\StandardFactory;
+use Sm\Core\Factory\AbstractFactory;
 
-class QueryInterpreterFactory extends StandardFactory {
+class QueryInterpreterFactory extends AbstractFactory {
 }

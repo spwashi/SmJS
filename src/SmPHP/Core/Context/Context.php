@@ -8,7 +8,6 @@
 namespace Sm\Core\Context;
 
 
-use Sm\Core\Container\Mini\MiniContainer;
 use Sm\Core\Internal\Identification\Identifiable;
 
 /**
@@ -21,12 +20,4 @@ use Sm\Core\Internal\Identification\Identifiable;
  * @package Sm\Core\Context
  */
 interface Context extends Identifiable {
-    /**
-     * Get the attributes of a Context that are important for identification of that context
-     * (readonly if that's an option).
-     * This is what we use to know if a Context matches another one
-     *
-     * @return MiniContainer|null
-     */
-    public function readContextAttributes(): ?MiniContainer;
 }

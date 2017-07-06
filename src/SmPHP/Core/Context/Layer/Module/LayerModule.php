@@ -10,15 +10,15 @@ namespace Sm\Core\Context\Layer\Module;
 use Sm\Core\Context\Context;
 use Sm\Core\Context\Layer\Layer;
 use Sm\Core\Hook\HookContainer;
-use Sm\Core\Module\AbstractModule;
 use Sm\Core\Module\ModuleProxy;
+use Sm\Core\Module\StandardModule;
 
 /**
  * Class LayerModule
  *
  * @package Sm\Core\Context\Layer
  */
-abstract class LayerModule extends AbstractModule {
+abstract class LayerModule extends StandardModule {
     /** @var \Sm\Core\Hook\HookContainer $hookContainer */
     protected $hookContainer;
     

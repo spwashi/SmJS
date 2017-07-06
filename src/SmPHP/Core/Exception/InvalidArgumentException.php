@@ -8,5 +8,5 @@
 namespace Sm\Core\Exception;
 
 
-class InvalidArgumentException extends Exception {
+class InvalidArgumentException extends TypeMismatchException {
 }

@@ -20,7 +20,10 @@ use Sm\Core\Paths\PathContainer;
  * @property-read PathContainer $paths
  */
 class ResolutionContext extends StandardContext {
+    protected $pathContainer;
     use HasObjectIdentityTrait;
+    
+    
     /**
      * ResolutionContext constructor.
      *
@@ -41,7 +44,7 @@ class ResolutionContext extends StandardContext {
      * @return $this
      */
     public function setPathContainer(PathContainer $pathContainer) {
-        $this->incorporate('paths', $pathContainer);
+        $this->pathContainer = $pathContainer;
         return $this;
     }
 }

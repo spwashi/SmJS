@@ -8,7 +8,8 @@
 namespace Sm\Communication\Request;
 
 
-use Sm\Communication\Network\Http\HttpRequest;
+use Sm\Communication\Network\Http\Request\HttpRequest;
+use Sm\Communication\Network\Http\Request\HttpRequestDescriptor;
 
 class HttpRequestTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreate() {
@@ -25,6 +26,12 @@ class HttpRequestTest extends \PHPUnit_Framework_TestCase {
     public function testCanSetUrl($Request) {
         $Request->setUrl('http://spwashi.com');
         $this->assertEquals('http://spwashi.com', $Request->getUrl());
+    }
+    
+    public function testCanCompareUrlToDescriptor() {
+        $descriptor = new HttpRequestDescriptor;
+        $descriptor->setMatchingUrlPattern('boonman');
+        $descriptor->compare(HttpRequest::init('boonman'));
     }
     
     public function testCanGetPathCorrectly() {

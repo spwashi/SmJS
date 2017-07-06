@@ -5,11 +5,10 @@
  * Time: 12:38 PM
  */
 
-namespace Sm\Communication\Network\Http;
+namespace Sm\Communication\Network\Http\Request;
 
 
 use Sm\Communication\Request\Request;
-use Sm\Communication\Response\Response;
 
 /**
  * Class HttpRequest
@@ -20,17 +19,23 @@ class HttpRequest extends Request {
     protected $url                    = '*';
     protected $path                   = '*';
     protected $method                 = null;
-    protected $requested_content_type = Response::TYPE_TEXT_HTML;
+    protected $requested_content_type = null;
     /**
      * @param null $url
      *
-     * @return \Sm\Communication\Network\Http\HttpRequest|Request
+     * @return \Sm\Communication\Network\Http\Request\HttpRequest|Request
      */
     public static function init($url = null) {
         if (is_string($url)) return (new static)->setUrl($url);
         return parent::init($url);
     }
+    
+    ####################################################
+    #   Getters & Setters
+    ####################################################
     /**
+     * Get the Content type that we want this to be
+     *
      * @return null
      */
     public function getRequestedContentType() {
@@ -39,13 +44,12 @@ class HttpRequest extends Request {
     /**
      * @param null $requested_content_type
      *
-     * @return Request
+     * @return $this
      */
     public function setRequestedContentType($requested_content_type) {
         $this->requested_content_type = $requested_content_type;
         return $this;
     }
-    
     /**
      * Get the request method used to make this request. Defaults to "get"
      *
@@ -93,44 +97,17 @@ class HttpRequest extends Request {
     public function getUrlPath() {
         return $this->path ?? null;
     }
+    
+    
+    ####################################################
+    #   Serialization?
+    ####################################################
     public function jsonSerialize() {
-        return parent::jsonSerialize() + [
-                'url'      => $this->getUrl(),
-                'url_path' => $this->getUrlPath(),
-                'method'   => $this->getRequestMethod(),
-            ];
-    }
-    
-    ##################################
-    #
-    ##################################
-    
-    
-    /**
-     * Get the URL of however we entered
-     *
-     * @return string
-     */
-    public static function getEnvironmentRequestURL() {
-        $host        = $_SERVER['HTTP_HOST']??'';
-        $request_uri = $_SERVER['REQUEST_URI']??'';
-        return "//{$host}{$request_uri}";
-    }
-    /**
-     * Get the Request Method that was used to make the request initially
-     *
-     * @return string
-     */
-    public static function getEnvironmentRequestMethod() {
-        return strtolower($_SERVER['REQUEST_METHOD']);
-    }
-    /**
-     * Initialize an HttpRequest from the Environment
-     *
-     * @return \Sm\Communication\Network\Http\HttpRequest
-     */
-    public static function getRequestFromEnvironment() {
-        return static::init(static::getEnvironmentRequestURL())
-                     ->setRequestMethod(static::getEnvironmentRequestMethod());
+        return [
+            'url'          => $this->getUrl(),
+            'url_path'     => $this->getUrlPath(),
+            'method'       => $this->getRequestMethod(),
+            'content_type' => $this->getRequestedContentType(),
+        ];
     }
 }

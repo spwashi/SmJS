@@ -10,25 +10,25 @@ namespace Sm\Core\Factory;
 
 class FactoryTest extends \PHPUnit_Framework_TestCase {
     public function testCanCreate() {
-        $Factory = $this->getMockForAbstractClass(StandardFactory::class);
-        $this->assertInstanceOf(StandardFactory::class, $Factory);
+        $Factory = $this->getMockForAbstractClass(AbstractFactory::class);
+        $this->assertInstanceOf(AbstractFactory::class, $Factory);
     }
     public function testCanCreateClasses() {
-        /** @var \Sm\Core\Factory\StandardFactory $Factory */
-        $Factory = $this->getMockForAbstractClass(StandardFactory::class);
+        /** @var \Sm\Core\Factory\AbstractFactory $Factory */
+        $Factory = $this->getMockForAbstractClass(AbstractFactory::class);
         $this->assertInstanceOf(\stdClass::class, $Factory->build(\stdClass::class));
     }
     public function testCanRegister() {
         $return_eleven = function () { return 11; };
-        /** @var \Sm\Core\Factory\StandardFactory $Factory */
-        $Factory = $this->getMockForAbstractClass(StandardFactory::class);
+        /** @var \Sm\Core\Factory\AbstractFactory $Factory */
+        $Factory = $this->getMockForAbstractClass(AbstractFactory::class);
         
         $Factory->register(null, $return_eleven);
         $response = $Factory->build();
         $this->assertEquals(11, $response);
     
-        /** @var \Sm\Core\Factory\StandardFactory $Factory */
-        $Factory = $this->getMockForAbstractClass(StandardFactory::class);
+        /** @var \Sm\Core\Factory\AbstractFactory $Factory */
+        $Factory = $this->getMockForAbstractClass(AbstractFactory::class);
         
         
         $add_1 = function (int $int) { return $int + 1; };
@@ -43,14 +43,14 @@ class FactoryTest extends \PHPUnit_Framework_TestCase {
         $Mock->method('test')->willReturn('test_works');
     
         ###
-        /** @var \Sm\Core\Factory\StandardFactory $Factory */
-        $Factory = $this->getMockForAbstractClass(StandardFactory::class);
+        /** @var \Sm\Core\Factory\AbstractFactory $Factory */
+        $Factory = $this->getMockForAbstractClass(AbstractFactory::class);
         $Factory->register(\stdClass::class, $Mock);
         $MockFromFactory = $Factory->build(\stdClass::class);
         $this->assertEquals('test_works', $MockFromFactory->test());
         ###
-        /** @var \Sm\Core\Factory\StandardFactory $Factory */
-        $Factory = $this->getMockForAbstractClass(StandardFactory::class);
+        /** @var \Sm\Core\Factory\AbstractFactory $Factory */
+        $Factory = $this->getMockForAbstractClass(AbstractFactory::class);
         $Factory->register(\DOMAttr::class, function () { return 'hello'; });
         $this->assertEquals('hello', $Factory->build(new \DOMAttr('name')));
         

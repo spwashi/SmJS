@@ -7,6 +7,9 @@
 
 namespace Sm\Communication\Request;
 
+use Sm\Core\Context\Context;
+use Sm\Core\Internal\Identification\HasObjectIdentityTrait;
+
 /**
  * Class Request
  *
@@ -14,7 +17,9 @@ namespace Sm\Communication\Request;
  *
  * @package Sm\Communication\Request
  */
-abstract class Request implements \JsonSerializable {
+abstract class Request implements Context, \JsonSerializable {
+    use HasObjectIdentityTrait;
+    
     public static function init($item = null) {
         if ($item instanceof Request) return $item;
         return new static;

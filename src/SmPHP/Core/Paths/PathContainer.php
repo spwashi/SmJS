@@ -14,6 +14,8 @@ use Sm\Core\Resolvable\Error\UnresolvableException;
 /**
  * Class PathContainer
  *
+ * Contains paths to directories
+ *
  * @package Sm\Application
  */
 class PathContainer extends Container {

@@ -8,5 +8,5 @@
 namespace Sm\Core\Exception;
 
 
-class Error extends \Sm\Core\Exception\Exception {
+class Error extends Exception {
 }

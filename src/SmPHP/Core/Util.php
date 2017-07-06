@@ -153,4 +153,26 @@ class Util {
         }
         return $end;
     }
+    /**
+     * Check to see if something is one of a fre listed types
+     *
+     * @param $subject
+     * @param $potential_types
+     *
+     * @throws \Sm\Core\Exception\InvalidArgumentException
+     */
+    public static function isOneOfListedTypes($subject, $potential_types) {
+        $class = get_class($subject);
+        if ($len = count($potential_types)) {
+            # iterate through the potential types and see if we're allowed to continue;
+            for ($i = 0; $i < $len; $i++) {
+                if ($class === $potential_types[ $i ] || is_subclass_of($class, $potential_types[ $i ])) {
+                    return true;
+                } else if ($i === $len - 1) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 }

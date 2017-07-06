@@ -28,7 +28,7 @@ use Sm\Core\Resolvable\ResolvableFactory;
  *
  * @coupled \Sm\Core\Resolvable\Resolvable
  */
-class Container extends StandardContainer {
+class Container extends AbstractContainer {
     /**
      * @var Factory
      */

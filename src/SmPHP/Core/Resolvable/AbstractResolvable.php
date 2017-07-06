@@ -75,6 +75,12 @@ abstract class AbstractResolvable implements Resolvable {
     public function __invoke() {
         return $this->resolve(...func_get_args());
     }
+    public function __debugInfo() {
+        return [
+            'id'      => $this->getObjectId(),
+            'subject' => $this->subject,
+        ];
+    }
     
     #########################################################################
     

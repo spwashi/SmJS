@@ -36,21 +36,6 @@ abstract class StandardContext implements Context {
     public function __construct() {
         $this->items = MiniContainer::init();
         $this->createSelfID();
-        $this->incorporate('context_id', $this->getObjectId());
-    }
-    
-    public function __get($name) {
-        $item = $this->items->resolve($name);
-//        if (!$item) throw new UnimplementedError("Have not yey thought about what to do in this situation");
-        return $item;
-    }
-    /**
-     * @inheritdoc
-     *
-     * @return null|\Sm\Core\Container\Container
-     */
-    public function readContextAttributes(): ?MiniContainer {
-        return $this->items; # todo readonly?
     }
     /**
      * Method to identify an item on this Context as being part of the Context.

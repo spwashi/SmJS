@@ -29,7 +29,7 @@ use Sm\Core\Hook\HookHaver;
  *
  * @package Sm\Core\Module
  */
-abstract class AbstractModule extends StandardContext implements HookHaver, Module {
+abstract class StandardModule extends StandardContext implements HookHaver, Module {
     use HasHooksTrait;
     
     /** @var MiniContainer An array of the object_ids of the Contexts this Module has access to. */
@@ -139,19 +139,19 @@ abstract class AbstractModule extends StandardContext implements HookHaver, Modu
     /**
      * Set up the Class. Meant to be overridden
      *
-     * @see \Sm\Core\Module\AbstractModule::initialize
+     * @see \Sm\Core\Module\StandardModule::initialize
      */
     protected function _initialize() { }
     /**
      * Set up the Class. Meant to be overridden
      *
-     * @see \Sm\Core\Module\AbstractModule::deactivate
+     * @see \Sm\Core\Module\StandardModule::deactivate
      */
     protected function _deactivate() { }
     /**
      * Check to see if the Module is applicable in this context. Meant to be overridden
      *
-     * @see \Sm\Core\Module\AbstractModule::check
+     * @see \Sm\Core\Module\StandardModule::check
      */
     protected function _check() { }
     

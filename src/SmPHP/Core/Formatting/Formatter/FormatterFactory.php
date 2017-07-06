@@ -8,10 +8,10 @@
 namespace Sm\Core\Formatting\Formatter;
 
 
+use Sm\Core\Factory\AbstractFactory;
 use Sm\Core\Factory\Exception\FactoryCannotBuildException;
-use Sm\Core\Factory\StandardFactory;
 
-class FormatterFactory extends StandardFactory {
+class FormatterFactory extends AbstractFactory {
     public function build() {
         try {
             return parent::build(...func_get_args());

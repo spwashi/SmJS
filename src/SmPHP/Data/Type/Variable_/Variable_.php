@@ -12,6 +12,7 @@ use Sm\Core\Resolvable\AbstractResolvable;
 use Sm\Core\Resolvable\NullResolvable;
 use Sm\Core\Resolvable\Resolvable;
 use Sm\Core\Resolvable\ResolvableFactory;
+use Sm\Core\Util;
 use Sm\Data\Type\Variable_\Exception\InvalidVariableTypeError;
 
 /**
@@ -187,18 +188,12 @@ class Variable_ extends AbstractResolvable implements \JsonSerializable {
      * @throws \Sm\Data\Type\Variable_\Exception\InvalidVariableTypeError
      */
     protected function checkCanSetValue($subject) {
-        $class = get_class($subject);
         
         # If we haven't given permission to set a Resolvable of this type, don't
-        if ($len = count($this->_potential_types)) {
-            # iterate through the potential types and see if we're allowed to continue;
-            for ($i = 0; $i < $len; $i++) {
-                if ($class === $this->_potential_types[ $i ] || is_subclass_of($class, $this->_potential_types[ $i ])) {
-                    break;
-                } else if ($i === $len - 1) {
-                    throw new InvalidVariableTypeError("Cannot set this class");
-                }
-            }
+        $potential_types = $this->_potential_types;
+    
+        if (!Util::isOneOfListedTypes($subject, $potential_types)) {
+            throw new InvalidVariableTypeError("Cannot set subject to be this value");
         }
     }
 }

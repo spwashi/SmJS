@@ -8,243 +8,167 @@
 namespace Sm\Communication\Routing;
 
 
-use Sm\Communication\Network\Http\HttpRequest;
+use Sm\Communication\Network\Http\Request\HttpRequestDescriptor;
 use Sm\Communication\Request\Request;
+use Sm\Communication\Request\RequestDescriptor;
+use Sm\Core\Exception\Exception;
+use Sm\Core\Exception\InvalidArgumentException;
+use Sm\Core\Exception\TypeMismatchException;
+use Sm\Core\Exception\UnimplementedError;
 use Sm\Core\Resolvable\AbstractResolvable;
 use Sm\Core\Resolvable\Error\UnresolvableException;
 use Sm\Core\Resolvable\FunctionResolvable;
 use Sm\Core\Resolvable\Resolvable;
 use Sm\Core\Resolvable\ResolvableFactory;
-use Sm\Core\Resolvable\StringResolvable;
 
-class Route extends AbstractResolvable implements \JsonSerializable {
-    /** @var  AbstractResolvable $DefaultResolvable */
-    protected $DefaultResolvable;
-    /** @var  AbstractResolvable $Resolution */
-    protected $Resolution;
+class Route extends FunctionResolvable {
+    /** @var  AbstractResolvable $backupResolvable */
+    protected $backupResolvable;
+    /** @var  AbstractResolvable $subject */
+    protected $subject;
     protected $pattern;
+    /** @var  \Sm\Communication\Request\RequestDescriptor $requestDescriptor */
+    protected $requestDescriptor;
     protected $parameters = [];
     
-    public function __construct($resolution = null, $pattern = null, $default = null) {
-        if (is_string($pattern) || is_numeric($pattern)) {
-            $this->setStringPattern($pattern);
+    ####################################################
+    #   Initializers
+    ####################################################
+    public function __construct($resolution, $requestDescriptor, $backup = null) {
+        if (!isset($requestDescriptor)) {
         }
         
-        if (is_string($resolution) && strpos($resolution, '#') !== false && strpos($resolution, '::') !== false) {
-            $resolution = FunctionResolvable::init(function ($Request = null) use ($pattern, $resolution) {
-                $resolution_expl = explode('::', $resolution);
-                $class_name      = $resolution_expl[0];
-                $method_name     = $resolution_expl[1] ?? null;
-                
-                # If the class doesn't have the requested method, skip it
-                if ((!$class_name || !$method_name) || !(class_exists($class_name) || !method_exists($class_name, $method_name))) {
-                    throw new UnresolvableException("Malformed method- {$resolution}");
-                }
-                
-                $resolution = [
-                    new $class_name,
-                    $method_name,
-                ];
-                return FunctionResolvable::init($resolution)->resolve(...func_get_args());
-            });
+        if ($requestDescriptor instanceof RequestDescriptor) {
+            $this->setRequestDescriptor($requestDescriptor);
+        } else if (class_exists(HttpRequestDescriptor::class) && is_scalar($requestDescriptor)) {
+            $this->setRequestDescriptor(new HttpRequestDescriptor($requestDescriptor));
         } else {
-            $resolution = ResolvableFactory::init()->build($resolution);
+            # Trying to register something that isn't a string (when we have the Http module) and isn't a RequestDescriptor
+            throw new UnimplementedError("Cannot accept RequestDescriptors that aren't RequestDescriptors ");
         }
         
-        if ($resolution instanceof Resolvable) {
-            $this->setResolution($resolution);
-        }
-        if ($default instanceof Resolvable) {
-            $this->setDefaultResolution($default);
-        }
+        if ($backup instanceof Resolvable) $this->setBackup($backup);
+        /** @var Resolvable $resolution */
+        $resolution = $this->standardizeResolution($resolution);
+        parent::__construct($resolution);
     }
     public static function init($resolution = null, $pattern = null, $default = null) {
+        if (!isset($resolution)) throw new InvalidArgumentException("Cannot initialize route without a resolution");
         if ($resolution instanceof Route) return $resolution;
-        
-        if (is_string($resolution) && !$pattern) $pattern = $resolution;
-        
-        if (is_array($resolution)) {
-            $config = $resolution;
-            
-            $pattern    = $config['pattern'] ?? null;
-            $default    = $config['default'] ?? null;
-            $resolution = $resolution['resolution'] ?? null;
-            if (count($resolution) === 1 && !$resolution && !$pattern) {
-                $k          = key($resolution);
-                $resolution = $resolution[ $k ];
-                $pattern    = $k;
-            }
-            if (!($resolution && $pattern)) {
-                throw new MalformedRouteException("Malformed route configuration '{$pattern}'");
-            }
-            $Route = new static($resolution, $pattern, $default);
-        } else if (is_string($resolution)) {
-            $Route = new static(null, $resolution);
-        } else {
-            $Route = new static($resolution, $pattern, $default);
-        }
+    
+        $Route = new static($resolution, $pattern, $default);
         return $Route;
     }
+    function __debugInfo() {
+        return parent::__debugInfo() + [
+                'pattern' => $this->requestDescriptor,
+            ];
+    }
+    ####################################################
+    #   Resolution
+    ####################################################
     /**
-     * @param string|Request $item
+     * Check to see if two Requests match
+     *
+     * @param \Sm\Communication\Request\Request $request
      *
      * @return bool
      */
-    public function matches($item) {
-        if ($item instanceof HttpRequest) {
-            $item = $item->getUrlPath();
+    public function matches(Request $request) {
+        try {
+            $this->requestDescriptor->compare($request);
+        } catch (Exception $e) {
+            return false;
         }
-        if (is_string($item)) {
-            $item = trim($item, '\\ /');
-        }
-        if ($item === $this->pattern) {
-            return true;
-        }
-        if (is_string($item) && is_string($this->pattern)) {
-            preg_match("~^{$this->pattern}~x", $item, $matches);
-            $this->getArgumentsFromString($item);
-            if (!empty($matches)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    /**
-     * Set the Resolvable that is to be used in case this function conks out
-     *
-     * @param \Sm\Core\Resolvable\AbstractResolvable $DefaultResolvable
-     *
-     * @return \Sm\Communication\Routing\Route
-     */
-    public function setDefaultResolution(AbstractResolvable $DefaultResolvable): Route {
-        $this->DefaultResolvable = $DefaultResolvable;
-        return $this;
-    }
-    public function setResolution(AbstractResolvable $resolvable = null): Route {
-        $this->Resolution = $resolvable;
-        return $this;
+        return true;
     }
     /**
      * Resolve the Route.
-     * This takes either an "Arguments" object or just the arguments passed in as arguments.
-     * The First argument is assumed to be a Request
      *
-     * @param Request $Request ,..
+     * @param Request $request ,..
      *
      * @return mixed
-     * @throws \Sm\Core\Resolvable\Error\UnresolvableException
      * @throws \Sm\Communication\Routing\MalformedRouteException
+     * @throws \Sm\Core\Exception\InvalidArgumentException
+     * @throws \Sm\Core\Resolvable\Error\UnresolvableException
      */
-    public function resolve($Request = null) {
+    public function resolve($request = null) {
+        if (!($request instanceof Request)) throw new InvalidArgumentException('Can only route requests');
+        if (!($this->subject instanceof Resolvable)) throw new UnresolvableException("No way to resolve request.");
+        
         try {
-            if (!($Request instanceof Request)) {
-                throw new MalformedRouteException("Cannot resolve request.");
-            } else if (!($this->Resolution instanceof Resolvable)) {
-                throw new UnresolvableException("No way to resolve request.");
+            if ($this->matches($request)) {
+                $arguments = $this->requestDescriptor->getArguments($request);
+                array_unshift($arguments, $request);
+                return $this->subject->resolve(...array_values($arguments));
             }
-            
-            if ($this->matches($Request)) {
-                $arguments = $this->getArgumentsFromString($Request->getUrlPath());
-                array_unshift($arguments, $Request);
-                $res = $this->Resolution->resolve(...array_values($arguments));
-                return $res;
-            } else {
-                throw new UnresolvableException("Cannot match the route");
-            }
-        } catch (\Exception $e) {
-            if ($e instanceof MalformedRouteException) {
-                throw $e;
-            }
-            if (isset($this->DefaultResolvable)) {
-                return $this->DefaultResolvable->resolve($Request);
-            }
-            if ($e instanceof UnresolvableException) {
-                throw $e;
-            }
+    
+            throw new UnresolvableException("Cannot match route with this request");
+    
+        } catch (UnresolvableException $e) {
+            if (isset($this->backupResolvable)) return $this->backupResolvable->resolve($request);
+        } catch (InvalidArgumentException $e) {
+            if (isset($this->backupResolvable)) return $this->backupResolvable->resolve($request);
+        } catch (TypeMismatchException $e) {
+            if (isset($this->backupResolvable)) return $this->backupResolvable->resolve($request);
         }
+        
         throw new UnresolvableException("Cannot resolve route");
     }
-    public function __debugInfo() {
-        return $this->jsonSerialize();
-    }
-    
-    #  protected
-    ##############################################################################################
-    public function jsonSerialize() {
-        return [
-            $this->pattern,
-            is_object($this->Resolution) ? get_class($this->Resolution) : $this->Resolution,
-            StringResolvable::init($this->Resolution),
-        ];
+    ####################################################
+    #   Setters/Getters
+    ####################################################
+    /**
+     * Set the Resolvable that is to be used in case this function conks out
+     *
+     * @param \Sm\Core\Resolvable\AbstractResolvable|\Sm\Core\Resolvable\Resolvable $DefaultResolvable
+     *
+     * @return \Sm\Communication\Routing\Route
+     */
+    public function setBackup(Resolvable $DefaultResolvable): Route {
+        $this->backupResolvable = $DefaultResolvable;
+        return $this;
     }
     /**
-     * This is a setter used when we want to set the "pattern" of the class to be a string.
-     * This has to be used with a URL-like route pattern.
+     * Set the Descriptor we'll use to see if a Request matches
      *
-     * examples:
-     *  spwashi/{param_1}:[a-zA-Z_]+
-     *  spwashi$
-     *  spwashi/
+     * @param \Sm\Communication\Request\RequestDescriptor $requestDescriptor
      *
-     * @param string $pattern
-     *
-     * @return string
+     * @return $this
+     * @throws \Sm\Core\Exception\UnimplementedError
      */
-    protected function setStringPattern(string $pattern) {
-        $pattern       = trim($pattern, ' \\/');
-        $pattern_arr   = explode('/', $pattern);
-        $fixed_pattern = '';
-        $count         = 0;
-        foreach ($pattern_arr as $portion) {
-            $last_char = substr($portion, -1);
-            
-            preg_match("`\\{(.+)\\}:?(.+)?(/|$)`", $portion, $match);
-            if (isset($match[1])) {
-                $this->parameters[] = $match[1];
-                if (!empty($match[2])) {
-                    $portion = $match[2];
-                } else {
-                    $portion = '[a-zA-Z_]+[a-zA-Z_\d]*';
-                }
-                $portion = "($portion)";
-            }
-            
-            if ($count) {
-                if ($last_char === '*') {
-                    $fixed_pattern .= "(?:$|{$portion}|/?$) ";
-                } else {
-                    $fixed_pattern .= "{$portion}";
-                }
-            } else {
-                $fixed_pattern = $portion;
-            }
-            $fixed_pattern .= '(?:/|$)   ';
-            ++$count;
-        }
-        return $this->pattern = $fixed_pattern;
+    public function setRequestDescriptor(RequestDescriptor $requestDescriptor) {
+        $this->requestDescriptor = $requestDescriptor;
+        return $this;
     }
-    private function getArgumentsFromString(string $item) {
-        preg_match("~^{$this->pattern}~x", $item, $matches);
-        if (!count($matches)) {
-            return [];
-        }
-        array_shift($matches);
-        $Arguments = [];
-        foreach ($this->parameters as $parameter_name) {
-            if (!count($matches)) {
-                continue;
-            }
-            $parameter_value = array_shift($matches);
+    /**
+     * Make sure the Resolvable is the way we want it
+     *
+     * @param $resolution
+     *
+     * @return  Resolvable
+     */
+    protected function standardizeResolution($resolution) {
+        if (is_string($resolution) && strpos($resolution, '#') !== false && strpos($resolution, '::') !== false) {
+            $resolveMethod =
+                function ($Request = null) use ($resolution) {
+                    $resolution_expl = explode('::', $resolution);
+                    $class_name      = $resolution_expl[0];
+                    $method_name     = $resolution_expl[1] ?? null;
+                    
+                    # If the class doesn't have the requested method, skip it
+                    if ((!$class_name || !$method_name) || !(class_exists($class_name) || !method_exists($class_name, $method_name))) {
+                        throw new UnresolvableException("Malformed method- {$resolution}");
+                    }
+                    
+                    $resolution = [ new $class_name, $method_name, ];
+                    return FunctionResolvable::init($resolution)->resolve(...func_get_args());
+                };
             
-            if ($parameter_name) {
-                $Arguments[ $parameter_name ] = $parameter_value;
-            } else {
-                $Arguments[] = $parameter_value;
-            }
+            $resolution = FunctionResolvable::init($resolveMethod);
+        } else {
+            $resolution = ResolvableFactory::init()->build($resolution);
         }
-        if (count($matches)) {
-            $Arguments = array_merge($Arguments, $matches);
-        }
-        return $Arguments;
+        return $resolution;
     }
 }

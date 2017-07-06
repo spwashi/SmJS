@@ -9,12 +9,14 @@ namespace Sm\Core\System_;
 
 
 use Sm\Communication\CommunicationLayer;
+use Sm\Communication\Module\HttpCommunicationModule;
 use Sm\Communication\Routing\Module\StandardRoutingModule;
 use Sm\Core\Context\Layer\LayerContainer;
 use Sm\Core\Context\Layer\LayerRoot;
 use Sm\Core\Context\ResolutionContext;
 use Sm\Core\Context\StandardContext;
 use Sm\Core\Paths\PathContainer;
+use Sm\Core\Resolvable\StringResolvable;
 
 class Sm extends StandardContext implements LayerRoot {
     /** @var  Sm $instance */
@@ -53,6 +55,9 @@ $resolutionContext = new ResolutionContext($pathContainer);
 Sm::$instance      = new Sm($resolutionContext, new LayerContainer);
 
 $routingModule      = new StandardRoutingModule;
-$communicationLayer = (new CommunicationLayer)->registerRoutingModule($routingModule);
+$communicationLayer = new CommunicationLayer;
+$communicationLayer->registerRoutingModule($routingModule)
+                   ->registerModule(CommunicationLayer::HTTP_MODULE, new HttpCommunicationModule)
+                   ->registerRoutes([ 'Sm' => StringResolvable::init('sam') ]);
 
 Sm::$instance->getLayers()->register('Communication', $communicationLayer);

@@ -14,6 +14,15 @@ use Sm\Core\Module\Error\InvalidModuleException;
 use Sm\Core\Module\Module;
 use Sm\Core\Module\ModuleContainer;
 
+/**
+ * Class StandardLayer
+ *
+ * @inheritdoc
+ *
+ * Represents standard functionality of a Layer
+ *
+ * @package Sm\Core\Context\Layer
+ */
 abstract class StandardLayer extends StandardContext implements Layer {
     const COMMUNICATION = 'Communication';
     

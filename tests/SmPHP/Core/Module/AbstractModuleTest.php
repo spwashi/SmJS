@@ -13,8 +13,8 @@ use Sm\Core\Hook\HookContainer;
 
 class AbstractModuleTest extends \PHPUnit_Framework_TestCase {
     public function testCanInitializeOnContext() {
-        /** @var \Sm\Core\Module\AbstractModule $abstractModule */
-        $abstractModule = $this->getMockForAbstractClass(AbstractModule::class);
+        /** @var \Sm\Core\Module\StandardModule $abstractModule */
+        $abstractModule = $this->getMockForAbstractClass(StandardModule::class);
         $abstractModule->method('getHookContainer')->willReturn($this->createMock(HookContainer::class));
         /** @var \Sm\Core\Context\Context $context */
         $context     = $this->getMockForAbstractClass(StandardContext::class);
@@ -24,8 +24,8 @@ class AbstractModuleTest extends \PHPUnit_Framework_TestCase {
     }
     
     public function testCanRunDetach() {
-        /** @var \Sm\Core\Module\AbstractModule $abstractModule */
-        $abstractModule = $this->getMockForAbstractClass(AbstractModule::class);
+        /** @var \Sm\Core\Module\StandardModule $abstractModule */
+        $abstractModule = $this->getMockForAbstractClass(StandardModule::class);
         $abstractModule->method('getHookContainer')->willReturn($this->createMock(HookContainer::class));
         /** @var \Sm\Core\Context\Context $context */
         $context = $this->getMockForAbstractClass(StandardContext::class);

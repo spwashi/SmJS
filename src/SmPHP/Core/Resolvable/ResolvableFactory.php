@@ -8,9 +8,9 @@
 namespace Sm\Core\Resolvable;
 
 
-use Sm\Core\Factory\StandardFactory;
+use Sm\Core\Factory\AbstractFactory;
 
-class ResolvableFactory extends StandardFactory {
+class ResolvableFactory extends AbstractFactory {
     public static function init($item = null) {
         if ($item instanceof ResolvableFactory) {
             return $item;

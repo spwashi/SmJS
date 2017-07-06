@@ -15,5 +15,12 @@ namespace Sm\Core\Schema;
  * @package Sm\Core\Schema
  */
 interface Schema {
-    
+    /**
+     * Check to see if a Schema matches an item
+     *
+     * @param $item
+     *
+     * @return
+     */
+    public function compare($item);
 }

@@ -8,7 +8,7 @@
 namespace Sm\Core\Factory;
 
 
-use Sm\Core\Container\StandardContainer;
+use Sm\Core\Container\AbstractContainer;
 use Sm\Core\Exception\ClassNotFoundException;
 use Sm\Core\Factory\Exception\FactoryCannotBuildException;
 use Sm\Core\Factory\Exception\WrongFactoryException;
@@ -24,7 +24,7 @@ use Sm\Core\Util;
  *
  * @package Sm\Core\Factory
  */
-abstract class StandardFactory extends StandardContainer implements Factory {
+abstract class AbstractFactory extends AbstractContainer implements Factory {
     /** Mode of creating factories: Create classes that aren't registered (as long as it's okay to) */
     const MODE_DO_CREATE_MISSING = 'do_create_missing';
     
@@ -44,8 +44,8 @@ abstract class StandardFactory extends StandardContainer implements Factory {
      *
      * @return $this
      */
-    public function setCreationMode($mode = StandardFactory::MODE_DO_CREATE_MISSING) {
-        $this->do_create_missing = $mode === StandardFactory::MODE_DO_CREATE_MISSING;
+    public function setCreationMode($mode = AbstractFactory::MODE_DO_CREATE_MISSING) {
+        $this->do_create_missing = $mode === AbstractFactory::MODE_DO_CREATE_MISSING;
         return $this;
     }
     public function resolve($name = null) {
@@ -78,8 +78,8 @@ abstract class StandardFactory extends StandardContainer implements Factory {
      * @return $this
      */
     public function register($name = null, $registrand = null) {
-        if (is_array($registrand)) {
-            foreach ($registrand as $key => $value) {
+        if (is_array($name)) {
+            foreach ($name as $key => $value) {
                 $this->register(is_numeric($key) ? null : $key, $value);
             }
             return $this;
@@ -168,13 +168,12 @@ abstract class StandardFactory extends StandardContainer implements Factory {
         if ($class_handler instanceof Resolvable) {
             $class_handler = $class_handler->resolve(...$args);
         }
-        
+    
+        $this->_checkCanInit($class_name);
         # If the class name is an object, clone it
         if (is_object($class_handler)) {
             $this->_checkCanInit(get_class($class_handler));
             return clone $class_handler;
-        } else {
-            $this->_checkCanInit($class_handler);
         }
         
         

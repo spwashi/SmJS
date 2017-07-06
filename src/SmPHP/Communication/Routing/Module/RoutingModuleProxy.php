@@ -21,10 +21,10 @@ use Sm\Core\Module\ModuleProxy;
 class RoutingModuleProxy extends ModuleProxy implements RoutingModule {
     /** @var  \Sm\Core\Context\Layer\LayerProxy $context */
     protected $context;
-    /** @var  \Sm\Communication\Routing\StandardRoutingModule $subject */
+    /** @var  \Sm\Communication\Routing\Module\StandardRoutingModule $subject */
     protected $subject;
     public function registerRoutes($routes) {
-        return $this->__call('registerRoutes', [ $routes ]);
+        return $this->subject->registerRoutes([ $routes ], $this->getContext());
     }
     public function route(Request $request) {
         return $this->__call('route', [ $request ]);

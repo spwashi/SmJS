@@ -33,7 +33,7 @@ class FactoryContainer extends Container {
             return $Factories[0];
         } else if ($_factory_count < 2 && class_exists($name)) {
             $_class = new $name;
-            if ($_class instanceof StandardFactory) {
+            if ($_class instanceof AbstractFactory) {
                 if (!$_factory_count) {
                     $this->register($name, $_class);
                 }

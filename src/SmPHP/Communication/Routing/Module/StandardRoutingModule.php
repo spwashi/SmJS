@@ -9,6 +9,7 @@ namespace Sm\Communication\Routing\Module;
 
 
 use Sm\Communication\Request\Request;
+use Sm\Communication\Routing\Route;
 use Sm\Communication\Routing\Router;
 use Sm\Core\Context\Context;
 use Sm\Core\Context\Layer\Layer;
@@ -17,13 +18,16 @@ use Sm\Core\Module\ModuleProxy;
 
 class StandardRoutingModule extends LayerModule implements RoutingModule {
     public function registerRoutes($routes, Layer $layerProxy = null) {
-        $this->getRouter($layerProxy)->register($routes);
+        $this->getRouter($layerProxy)->registerBatch($routes);
     }
     public function route(Request $request, Layer $layerProxy = null) {
         return $this->getRouter($layerProxy)->resolve($request);
     }
     protected function _initialize(Layer $layer = null) {
         $this->setRouter($layer, new Router);
+        $route = new Route(function () { var_dump('HTHTHT'); }, 'Smd');
+    
+        $this->registerRoutes([ 't' => $route ], $layer);
     }
     /**
      * @param \Sm\Core\Context\Context $context

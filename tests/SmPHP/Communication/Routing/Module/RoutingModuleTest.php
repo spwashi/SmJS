@@ -9,6 +9,8 @@ namespace Sm\Communication\Routing\Module;
 
 
 use Sm\Communication\CommunicationLayer;
+use Sm\Communication\Network\Http\Request\HttpRequest;
+use Sm\Core\Resolvable\StringResolvable;
 
 class RoutingModuleTest extends \PHPUnit_Framework_TestCase {
     /** @var  CommunicationLayer $communicationLayer */
@@ -19,6 +21,8 @@ class RoutingModuleTest extends \PHPUnit_Framework_TestCase {
         $this->communicationLayer = $layer->registerRoutingModule($routingModule);
     }
     public function testCanRegisterRoutes() {
-        $this->communicationLayer->registerRoutes([]);
+        $this->communicationLayer->registerRoutes([ 'test' => StringResolvable::init(123) ]);
+        $resp = $this->communicationLayer->route(HttpRequest::init('test'));
+        $this->assertEquals('123', $resp);
     }
 }

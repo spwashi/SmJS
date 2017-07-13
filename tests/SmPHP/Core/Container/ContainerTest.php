@@ -16,89 +16,96 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
     public function setUp() { ; }
     public function tearDown() { }
     public function testCanCreate() {
-        $Container = new Container;
-        $this->assertInstanceOf(Container::class, $Container);
-        $Container = Container::init();
-        $this->assertInstanceOf(Container::class, $Container);
-        return $Container;
+        $container = new Container;
+        $this->assertInstanceOf(Container::class, $container);
+        $container = Container::init();
+        $this->assertInstanceOf(Container::class, $container);
+        return $container;
     }
     /**
      * @depends      testCanCreate
      * @dataProvider Container_Provider
      *
-     * @param \Sm\Core\Container\Container $Container
+     * @param \Sm\Core\Container\Container $container
      *
      * @return \Sm\Core\Container\Container
      */
-    public function testCanRegister(Container $Container) {
+    public function testCanRegister(Container $container) {
         $this->assertTrue(true);
-        return $this->_register_default($Container);
+        return $this->_register_default($container);
     }
     /**
      *
      * @return array
      */
     public function Container_Provider() {
-        $Container = Container::init();
-        $this->_register_default($Container);
+        $container = Container::init();
+        $this->_register_default($container);
         return [
-            'original'  => [ $Container ],
-            'duplicate' => [ $Container->duplicate() ],
+            'original'  => [ $container ],
+            'duplicate' => [ $container->duplicate() ],
         ];
     }
     /**
      * @dataProvider Container_Provider
      *
-     * @param Container $Container
+     * @param Container $container
      */
-    public function testCanResolve(Container $Container) {
-        $string_result = $Container->resolve('test_string');
+    public function testCanResolve(Container $container) {
+        $string_result = $container->resolve('test_string');
         $this->assertEquals("string", $string_result);
         
-        $string_result = $Container->resolve('other_test_string');
+        $string_result = $container->resolve('other_test_string');
         $this->assertEquals('This is a thing', $string_result);
         
-        $fn_result = $Container->resolve('test_fn');
+        $fn_result = $container->resolve('test_fn');
         $this->assertEquals("fn", $fn_result);
         
-        $test_arr_1_result = $Container->resolve('test_arr_1');
+        $test_arr_1_result = $container->resolve('test_arr_1');
         $this->assertEquals(1, $test_arr_1_result);
         
-        $test_arr_2_result = $Container->resolve('test_arr_2');
+        $test_arr_2_result = $container->resolve('test_arr_2');
         $this->assertEquals("2", $test_arr_2_result);
         
     }
     /**
      * @depends testCanCreate
      *
-     * @param \Sm\Core\Container\Container $Container
+     * @param \Sm\Core\Container\Container $container
      *
      * @return \Sm\Core\Container\Container
      */
-    public function testCanCopy(Container $Container) {
+    public function testCanCopy(Container $container) {
         $test_1_fn = function ($argument) {
             return $argument + 1;
         };
         $test_1    = OnceRunResolvable::init($test_1_fn);
-        $Container->register('test.1', $test_1);
-        $this->assertEquals(3, $Container->resolve('test.1', 2));
-        $NewContainer = $Container->duplicate();
+        $container->register('test.1', $test_1);
+        $this->assertEquals(3, $container->resolve('test.1', 2));
+        $NewContainer = $container->duplicate();
         $this->assertEquals(6, $NewContainer->resolve('test.1', 5));
         return $NewContainer;
     }
-    
     /**
-     * @param \Sm\Core\Container\Container $Container
+     * @depends  testCanCreate
+     *
+     * @param \Sm\Core\Container\Container $container
+     */
+    public function testCanGetAll(Container $container) {
+        $this->assertInternalType('array', $container->getAll());
+    }
+    /**
+     * @param \Sm\Core\Container\Container $container
      *
      * @depends  testCanCreate
      */
-    public function testCanCheckout(Container $Container) {
-        $Container->register([ 'test'  => 1,
+    public function testCanCheckout(Container $container) {
+        $container->register([ 'test'  => 1,
                                'hello' => 'Another',
                                'last'  => function () { return 'fifteen'; },
                              ]);
         
-        $test_Resolvable = $Container->checkout('test');
+        $test_Resolvable = $container->checkout('test');
         
         $this->assertInstanceOf(Resolvable::class, $test_Resolvable);
         $this->assertNotInstanceOf(NullResolvable::class, $test_Resolvable);
@@ -106,15 +113,15 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(1, $resolve);
         $this->assertNull($test_Resolvable->resolve());
         
-        $this->assertTrue($Container->checkBackIn($test_Resolvable));
+        $this->assertTrue($container->checkBackIn($test_Resolvable));
         $this->assertNull($test_Resolvable);
-        $this->assertEquals(1, $Container->checkout('test')->resolve());
+        $this->assertEquals(1, $container->checkout('test')->resolve());
         
         
-        $this->assertEquals('Another', $Container->checkout('hello')
+        $this->assertEquals('Another', $container->checkout('hello')
                                                  ->resolve());
         
-        $this->assertEquals('fifteen', $Container->checkout('last')
+        $this->assertEquals('fifteen', $container->checkout('last')
                                                  ->resolve());
         
         
@@ -123,27 +130,27 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
     public function testCanIterate() {
         $end       = [];
         $array     = [ 'sam', 'bob', 'jan' ];
-        $Container = Container::init();
-        $Container->register($array);
-        
-        foreach ($Container as $index => $item) $end[] = $item->resolve();
+        $container = Container::init();
+        $container->register($array);
+    
+        foreach ($container as $index => $item) $end[] = $item->resolve();
         
         $this->assertEquals($array, $end);
     }
     /**
-     * @param \Sm\Core\Container\Container $Container
+     * @param \Sm\Core\Container\Container $container
      *
      * @return \Sm\Core\Container\Container
      */
-    protected function _register_default(Container $Container) {
-        $Container->register('test_string', 'string');
-        $Container->registerDefaults('test_string', 'This is a thing');
-        $Container->registerDefaults('other_test_string', 'This is a thing');
-        $Container->register('test_fn', function () { return 'fn'; });
-        $Container->register([
+    protected function _register_default(Container $container) {
+        $container->register('test_string', 'string');
+        $container->registerDefaults('test_string', 'This is a thing');
+        $container->registerDefaults('other_test_string', 'This is a thing');
+        $container->register('test_fn', function () { return 'fn'; });
+        $container->register([
                                  'test_arr_1' => 1,
                                  'test_arr_2' => function () { return '2'; },
                              ]);
-        return $Container;
+        return $container;
     }
 }

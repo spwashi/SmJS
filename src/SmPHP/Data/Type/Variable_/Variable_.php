@@ -9,7 +9,6 @@ namespace Sm\Data\Type\Variable_;
 
 
 use Sm\Core\Resolvable\AbstractResolvable;
-use Sm\Core\Resolvable\NullResolvable;
 use Sm\Core\Resolvable\Resolvable;
 use Sm\Core\Resolvable\ResolvableFactory;
 use Sm\Core\Util;
@@ -35,11 +34,11 @@ class Variable_ extends AbstractResolvable implements \JsonSerializable {
     /**
      * Variable_ constructor.
      *
-     * @param mixed|null $subject
+     * @param string|null $name The name of the Variable_
      */
-    public function __construct($subject = null) {
-        $subject = $subject ?? NullResolvable::init();
-        parent::__construct($subject);
+    public function __construct($name = null) {
+        if (isset($name)) $this->_name = $name;
+        parent::__construct(null);
     }
     /**
      * Create a Variable

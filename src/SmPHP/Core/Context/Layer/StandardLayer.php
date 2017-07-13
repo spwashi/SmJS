@@ -65,6 +65,21 @@ abstract class StandardLayer extends StandardContext implements Layer {
         return new LayerProxy($this, $layerRoot);
     }
     /**
+     * Throw an error if the Module isn't one that we expect
+     *
+     * @param                        $name
+     * @param \Sm\Core\Module\Module $module
+     *
+     * @throws \Sm\Core\Module\Error\InvalidModuleException
+     */
+    public function checkCanRegisterModule($name, Module $module) {
+        $expected_modules = $this->_listExpectedModules();
+        if (!in_array($name, $expected_modules)) {
+            $st_class = static::class;
+            throw new InvalidModuleException("Cannot register module {$name} on layer {$st_class}");
+        }
+    }
+    /**
      * Register a Module under this Layer
      *
      * @param string                                             $name   The name that this Module will take under this Layer
@@ -74,11 +89,7 @@ abstract class StandardLayer extends StandardContext implements Layer {
      * @throws \Sm\Core\Module\Error\InvalidModuleException If we try to register a Module that we actually can't
      */
     public function registerModule(string $name, Module $module) {
-        $expected_modules = $this->_listExpectedModules();
-        if (!in_array($name, $expected_modules)) {
-            $st_class = static::class;
-            throw new InvalidModuleException("Cannot register module {$name} on layer {$st_class}");
-        }
+        $this->checkCanRegisterModule($name, $module);
         $proxy = $module->initialize($this);
         $this->ModuleContainer->register($name, $proxy);
         return $this;
@@ -97,5 +108,7 @@ abstract class StandardLayer extends StandardContext implements Layer {
     /**
      * @return array An array of strings corresponding to the names of the modules that this layer needs to have
      */
-    abstract protected function _listExpectedModules(): array;
+    protected function _listExpectedModules(): array {
+        return [];
+    }
 }

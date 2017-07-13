@@ -107,13 +107,4 @@ abstract class AbstractResolvable implements Resolvable {
     #########################################################################
     
     abstract public function resolve();
-    /**
-     * Revert a Resolvable back to its original state.
-     * Only really meant to be used in cases where Resolvables are inherited
-     *
-     * @return $this
-     */
-    public function reset() {
-        return $this;
-    }
 }

@@ -22,6 +22,6 @@ abstract class DatabaseDataSource extends DataSource {
         return $this->database_name;
     }
     public function getConnection() {
-        return isset($this->Authentication) ? $this->Authentication->getConnection() : null;
+        return isset($this->authentication) ? $this->authentication->getConnection() : null;
     }
 }

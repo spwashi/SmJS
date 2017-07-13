@@ -146,7 +146,7 @@ abstract class EvaluableStatement extends AbstractResolvable implements \JsonSer
         if ($component instanceof Variable_) {
             return $component;
         }
-        $result = $component instanceof Resolvable ? $component->resolve() : $component;
+        $result = $component instanceof Resolvabfunctionle ? $component->resolve() : $component;
         return $result;
     }
     /**

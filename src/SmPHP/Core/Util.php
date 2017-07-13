@@ -159,6 +159,7 @@ class Util {
      * @param $subject
      * @param $potential_types
      *
+     * @return bool
      * @throws \Sm\Core\Exception\InvalidArgumentException
      */
     public static function isOneOfListedTypes($subject, $potential_types) {

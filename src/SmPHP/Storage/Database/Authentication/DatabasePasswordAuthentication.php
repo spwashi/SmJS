@@ -8,9 +8,7 @@
 namespace Sm\Storage\Database\Authentication;
 
 
-use Sm\Authentication\PasswordAuthentication;
-
-abstract class DatabasePasswordAuthentication extends PasswordAuthentication {
+abstract class DatabasePasswordAuthentication {
     protected $connection;
     
     /**

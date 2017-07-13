@@ -18,8 +18,12 @@ use Sm\Core\Resolvable\StringResolvable;
  * @package Sm\Core\Formatting\Formatter
  */
 class PlainStringFormatter implements Formatter {
-    /** @return string */
-    public function format() {
-        return StringResolvable::init(...func_get_args())->resolve();
+    /**
+     * @param $statement
+     *
+     * @return string
+     */
+    public function format($statement) {
+        return StringResolvable::init()->setSubject($statement)->resolve();
     }
 }

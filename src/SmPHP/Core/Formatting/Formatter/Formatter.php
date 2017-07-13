@@ -20,7 +20,9 @@ interface Formatter {
     /**
      * Return the item Formatted in the specific way
      *
+     * @param $statement
+     *
      * @return mixed
      */
-    public function format();
+    public function format($statement);
 }

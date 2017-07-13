@@ -55,22 +55,14 @@ class MiniContainer implements Registry, \Iterator {
     public function getAll() {
         return $this->registry;
     }
+    /**
+     * @param string|mixed|null $name
+     * @param mixed|null        $registrand
+     *
+     * @return $this
+     */
     public function register($name = null, $registrand = null) {
         $this->addToRegistry($name, $registrand);
-        return $this;
-    }
-    /**
-     * Only register something if something in this Container can't resolve it
-     *
-     * @param $name
-     * @param $registrand
-     *
-     * @return $this|\Sm\Core\Container\Mini\MiniContainer
-     */
-    public function registerDefault($name, $registrand) {
-        if (!$this->canResolve($name)) {
-            return $this->register($name, $registrand);
-        }
         return $this;
     }
     /**

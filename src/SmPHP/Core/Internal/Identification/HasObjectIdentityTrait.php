@@ -43,5 +43,6 @@ trait HasObjectIdentityTrait {
      */
     protected function createSelfID() {
         $this->setObjectId(Identifier::generateIdentity($this));
+        return $this->_object_id;
     }
 }

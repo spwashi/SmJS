@@ -9,7 +9,10 @@ namespace Sm\Core\Formatting\Formatter;
 
 
 class PlainStringFormatterTest extends \PHPUnit_Framework_TestCase {
+    # todo improve the spec here
     public function testResolvesToStrings() {
-        $plainStringFormatter = new PlainStringFormatter;
+        $this->assertInternalType('string', (new PlainStringFormatter)->format("This is a test"));
+        $this->assertInternalType('string', (new PlainStringFormatter)->format(1));
+        $this->assertInternalType('string', (new PlainStringFormatter)->format(null));
     }
 }

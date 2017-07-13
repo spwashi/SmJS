@@ -20,8 +20,8 @@ use Sm\Core\Internal\Identification\Identifiable;
  */
 abstract class DataSource implements Identifiable {
     use HasObjectIdentityTrait;
-    /** @var  Authentication $Authentication Represents the Authenticated connection to whatever source */
-    protected $Authentication;
+    /** @var  Authentication $authentication Represents the Authenticated connection to whatever source */
+    protected $authentication;
     /**
      * DataSource constructor.
      *
@@ -29,7 +29,7 @@ abstract class DataSource implements Identifiable {
      */
     public function __construct(Authentication $Authentication = null) {
         if (isset($Authentication)) {
-            $this->Authentication = $Authentication;
+            $this->authentication = $Authentication;
         }
         $this->createSelfID();
     }
@@ -43,18 +43,22 @@ abstract class DataSource implements Identifiable {
     public static function init($Authentication = null) {
         return new static(...func_get_args());
     }
-    abstract public function isAuthenticated();
-    public function authenticate(Authentication $Authentication = null) {
-        $this->Authentication = $Authentication;
-        return $this;
-    }
-    abstract public function getName();
     /**
      * Get the root DataSource of this DataSource. Useful for subsources
      *
      * @return \Sm\Data\Source\DataSource
      */
     public function getRootSource(): DataSource {
+        return $this;
+    }
+    abstract public function isAuthenticated();
+    
+    ####################################################
+    #   Action methods
+    ####################################################
+    abstract public function getName();
+    protected function authenticate(Authentication $Authentication = null) {
+        $this->authentication = $Authentication;
         return $this;
     }
 }

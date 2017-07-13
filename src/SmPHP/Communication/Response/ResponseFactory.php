@@ -9,7 +9,7 @@ namespace Sm\Communication\Response;
 
 
 use Sm\Core\Exception\UnimplementedError;
-use Sm\Core\Factory\AbstractFactory;
+use Sm\Core\Factory\StandardFactory;
 
 /**
  * Class ResponseFactory
@@ -18,7 +18,7 @@ use Sm\Core\Factory\AbstractFactory;
  *
  * @package Sm\Communication\Response
  */
-class ResponseFactory extends AbstractFactory {
+class ResponseFactory extends StandardFactory {
     protected $do_create_missing = false;
     
     /**

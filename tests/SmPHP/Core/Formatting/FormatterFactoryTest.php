@@ -11,10 +11,11 @@ namespace Sm\Core\Formatting\Formatter;
 class FormatterFactoryTest extends \PHPUnit_Framework_TestCase {
     public function testCanBuild() {
         $formatterFactory = new FormatterFactory();
-        $result           = $formatterFactory->build('This is a test');
-        
-        # By default returns PlainStringFormatter
-        # todo why??
-        $this->assertInstanceOf(PlainStringFormatter::class, $result);
+    }
+    public function testCanCreateFormattersOnTheFly() {
+        $formatterFactory = new FormatterFactory;
+        $formatter        = $formatterFactory->createFormatter(function ($item) { return strtolower($item); });
+        $result           = $formatter->format('HELLO');
+        $this->assertEquals('hello', $result);
     }
 }

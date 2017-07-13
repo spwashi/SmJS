@@ -14,27 +14,6 @@ namespace Sm\Authentication;
  *
  * @package Sm\Authentication
  */
-abstract class PasswordAuthentication extends Authentication {
-    private $username;
-    private $password;
-    
-    /**
-     * Set the credentials
-     *
-     * @param null $username
-     * @param null $password
-     *
-     * @return static
-     */
-    public function setCredentials($username = null, $password = null) {
-        if (isset($username)) {
-            $this->username = $username;
-        }
-        if (isset($password)) {
-            $this->password = $password;
-        }
-        return $this;
-    }
-    protected final function getPassword() { return $this->password; }
-    protected final function getUsername() { return $this->username; }
+abstract class PasswordAuthenticSqlQueryFormatteration extends Authentication {
+
 }

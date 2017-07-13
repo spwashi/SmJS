@@ -15,5 +15,4 @@ namespace Sm\Core\Formatting;
  * @package Sm\Core\Formatting
  */
 interface FormattingProxy {
-    
 }

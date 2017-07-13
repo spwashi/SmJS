@@ -10,10 +10,7 @@ namespace Sm\Data\Property;
 
 use Sm\Core\Abstraction\ReadonlyTrait;
 use Sm\Core\Container\Container;
-use Sm\Core\Exception\Exception;
 use Sm\Core\Exception\InvalidArgumentException;
-use Sm\Data\Source\DataSource;
-use Sm\Data\Source\NullDataSource;
 
 /**
  * Class PropertyContainer
@@ -64,43 +61,34 @@ class PropertyContainer extends Container {
      *                                          that isn't a named Property or array of named properties
      */
     public function register($name = null, $registrand = null) {
-        # Don't register readonly PropertyContainers
-        if ($this->readonly) {
-            throw new ReadonlyPropertyException("Trying to add a property to a readonly PropertyContainer.");
-        }
-        
+        # Don't register to readonly PropertyContainers
+        if ($this->readonly) throw new ReadonlyPropertyException("Trying to add a property to a readonly PropertyContainer.");
+    
+        # Iterate through an array if we're registering multiple at a time
         if (is_array($name)) {
             foreach ($name as $index => $item) {
                 $this->register(!is_numeric($index) ? $index : null, $item);
             }
             return $this;
-        } else {
-            # If the first parameter is a property
-            if ($name instanceof Property && isset($name->name)) {
-                return $this->register($name->name, $name);
-            }
-            # We can only register Properties
-            if (!($registrand instanceof Property)) {
-                throw new InvalidArgumentException("Can only add Properties to the PropertyContainer");
-            }
-            
-            # We can only register named Properties
-            if (!isset($name)) {
-                throw new InvalidArgumentException("Must name properties.");
-            }
-            
-            # Set the name of the property based on this one
-            if (!isset($registrand->name)) {
-                $registrand->setName($name);
-            }
         }
+    
+        # If the first parameter is a named property, register it
+        if ($name instanceof Property && isset($name->name)) return $this->register($name->name, $name);
+    
+        # We can only register Properties
+        if (!($registrand instanceof Property)) throw new InvalidArgumentException("Can only add Properties to the PropertyContainer");
+    
+    
+        # We can only register named Properties
+        if (!isset($name)) throw new InvalidArgumentException("Must name properties.");
+    
+    
+        # Set the name of the property based on this one
+        if (!isset($registrand->name)) $registrand->setName($name);
+        
         /** @var static $result */
-        $result = parent::register($name, $registrand);
-        $this->addPropertyHaverToProperty($registrand);
-        if ($registrand->getSource() instanceof NullDataSource && isset($this->Source)) {
-            $registrand->setSource($this->Source);
-        }
-        return $result;
+        parent::register($name, $registrand);
+        return $this;
     }
     /**
      * Remove an element from this property container.
@@ -125,86 +113,5 @@ class PropertyContainer extends Container {
      */
     public function getPropertyHaver() {
         return $this->PropertyHaver;
-    }
-    /**
-     * Set the PropertyHaver of this PropertyContainer.
-     * Allows us to have a reference to whatever holds these Properties.
-     *
-     * @todo This is probably a bad idea...
-     *
-     * @param PropertyHaver $PropertyHaver
-     *
-     * @return $this
-     */
-    public function setPropertyHaver(PropertyHaver $PropertyHaver = null) {
-        $this->PropertyHaver = $PropertyHaver;
-        return $this;
-    }
-    /**
-     * Sets the PropertyHaver for all of the Properties as well as the PropertyContainer
-     *
-     * @param \Sm\Data\Property\PropertyHaver|null $PropertyHaver
-     *
-     * @return $this
-     */
-    public function addPropertyPropertyHavers(PropertyHaver $PropertyHaver = null) {
-        $this->setPropertyHaver($PropertyHaver);
-        # Add the PropertyHaver to each property
-        foreach ($this as $name => $Property) {
-            if (isset($PropertyHaver)) {
-                $this->addPropertyHaverToProperty($name);
-            } else {
-                # remove the PropertyHaver from the Property
-                $Property->setPropertyHaver(null);
-            }
-        }
-        return $this;
-    }
-    /**
-     * Get all of the PropertyHavers held by the Properties in a PropertyContainer
-     *
-     * @return array
-     */
-    public function getPropertyPropertyHavers(): array {
-        $PropertyHavers = [];
-        foreach ($this as $index => $property) {
-            $PropertyHavers = array_merge($PropertyHavers, $property->getPropertyHavers());
-        }
-        return array_unique($PropertyHavers);
-    }
-    /**
-     * @return \Sm\Data\Source\DataSource
-     */
-    public function getSource() {
-        return $this->Source;
-    }
-    /**
-     * @param \Sm\Data\Source\DataSource $Source
-     *
-     * @return PropertyContainer
-     */
-    public function setSource(DataSource $Source) {
-        $this->Source = $Source;
-        return $this;
-    }
-    /**
-     * Add an PropertyHaver to the Property with the following name
-     *
-     * @param $name
-     *
-     * @return $this
-     * @throws \Sm\Core\Exception\Exception
-     */
-    protected function addPropertyHaverToProperty($name) {
-        if (isset($this->PropertyHaver)) {
-            $Property = $name instanceof Property ? $name : $this->resolve($name);
-    
-            if ($Property) {
-                $Property->addPropertyHaver($this->PropertyHaver);
-            } else {
-                throw new Exception("Cannot find property {$name}");
-            }
-        }
-        return $this;
     }
 }

@@ -18,7 +18,6 @@ trait ReadonlyTrait {
     /** @var bool Can we modify the contents of this object? */
     protected $readonly = false;
     
-    
     /**
      * Mark the object as not being readonly. Then we can modify its contents as well
      *

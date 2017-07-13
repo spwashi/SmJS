@@ -125,9 +125,8 @@ abstract class AbstractContainer extends MiniContainer {
         }
     
         $registrand = $this->standardizeRegistrand($registrand);
-        /** @var static $result */
-        $result = parent::register($name, $registrand);
-        return $result;
+        parent::register($name, $registrand);
+        return $this;
     }
     /**
      * @param string $name The name of whatever we are going to resolve

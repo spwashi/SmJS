@@ -34,10 +34,5 @@ class MiniContainerTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('This should be registered', $results->set_test);
         $this->assertEquals([ 'world' ], $results->hello);
     }
-    /**
-     * @depends testCanRegister
-     */
-    public function testCanGetAll() {
-        $this->assertInternalType('array', $this->MiniContainer->getAll());
-    }
+    
 }

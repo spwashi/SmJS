@@ -53,12 +53,10 @@ class OnceRunResolvable extends AbstractResolvable {
         $arguments = func_get_args();
         
         # If we've already called this function, we don't need to bother trying to call it again
-        if ($this->has_been_called) {
-            return $this->last_value;
-        } else {
-            $new_result            = $this->subject->resolve(...$arguments);
-            $this->has_been_called = true;
-            return ($this->last_value = $new_result);
-        }
+        if ($this->has_been_called) return $this->last_value;
+    
+        $new_result            = $this->subject->resolve(...$arguments);
+        $this->has_been_called = true;
+        return ($this->last_value = $new_result);
     }
 }

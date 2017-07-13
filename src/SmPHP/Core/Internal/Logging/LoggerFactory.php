@@ -8,7 +8,7 @@
 namespace Sm\Core\Internal\Logging;
 
 
-use Sm\Core\Factory\AbstractFactory;
+use Sm\Core\Factory\StandardFactory;
 
 /**
  * Class LoggerFactory.
@@ -17,7 +17,7 @@ use Sm\Core\Factory\AbstractFactory;
  *
  * @package Sm\Logger
  */
-class LoggerFactory extends AbstractFactory {
+class LoggerFactory extends StandardFactory {
     /**
      * @param string $name
      * @param int    $severity

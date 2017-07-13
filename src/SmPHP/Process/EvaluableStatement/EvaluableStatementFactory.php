@@ -8,7 +8,9 @@
 namespace Sm\Process\EvaluableStatement;
 
 
-use Sm\Core\Factory\AbstractFactory;
+use Sm\Core\Factory\StandardFactory;
+use Sm\Core\Resolvable\Resolvable;
+use Sm\Core\Resolvable\ResolvableFactory;
 use Sm\Core\Util;
 
 /**
@@ -17,7 +19,7 @@ use Sm\Core\Util;
  * @package Sm\Process\EvaluableStatement
  * @method EvaluableStatement build(...$class_name)
  */
-class EvaluableStatementFactory extends AbstractFactory {
+class EvaluableStatementFactory extends StandardFactory {
     protected $evaluators = [];
     /**
      * Add an evaluator to a class. This is here to make it easier to register handlers for a specific set of
@@ -34,7 +36,11 @@ class EvaluableStatementFactory extends AbstractFactory {
     public function registerEvaluatorForClass($classname, $evaluator) {
         # The EvaluableStatement will get an array of all of the evaluators that have to be registered
         $this->evaluators[ $classname ] = $this->evaluators[ $classname ] ?? [];
-        if (is_callable($evaluator)) {
+        if (!($evaluator instanceof Resolvable) && !is_array($evaluator)) {
+            $evaluator = ResolvableFactory::init()->resolve($evaluator);
+        }
+    
+        if ($evaluator instanceof Resolvable) {
             # Add the evaluator function to the Evaluator
             $this->evaluators[ $classname ][] = $evaluator;
         } else if (is_array($evaluator)) {

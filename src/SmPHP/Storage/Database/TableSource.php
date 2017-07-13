@@ -19,36 +19,32 @@ use Sm\Data\Source\DataSource;
  *
  * Represents a Source from a Table
  *
- * @property-read \Sm\Storage\Database\ColumnContainer $Columns
+ * @property-read \Sm\Storage\Database\ColumnContainer $columns
  *
  * @method static TableSource init(DatabaseDataSource $DatabaseSource, string $table_name = null)
  * @package Sm\Storage\Database
  */
 class TableSource extends DataSource {
     protected $table_name;
-    /** @var  DatabaseDataSource $DatabaseSource */
-    protected $DatabaseSource;
-    /** @var PropertyContainer $_Columns */
-    protected $_Columns;
+    /** @var  DatabaseDataSource $databaseSource */
+    protected $databaseSource;
+    /** @var PropertyContainer $columnContainer */
+    protected $columnContainer;
+    
     public function __construct(DatabaseDataSource $DatabaseSource, $table_name) {
-        $this->DatabaseSource = $DatabaseSource;
-        $this->table_name     = $table_name;
-        $this->_Columns       = ColumnContainer::init()->setSource($this);
+        $this->databaseSource  = $DatabaseSource;
+        $this->table_name      = $table_name;
+        $this->columnContainer = ColumnContainer::init()->setSource($this);
         parent::__construct();
     }
     public function __get($name) {
-        if ($name === 'Columns') return $this->_Columns;
+        if ($name === 'columns') return $this->columnContainer;
         return null;
     }
-    public function authenticate(Authentication $authentication = null) {
-        $this->DatabaseSource->authenticate($authentication);
-        return $this;
-    }
-    public function isAuthenticated() { return $this->DatabaseSource->isAuthenticated(); }
+    public function isAuthenticated() { return $this->databaseSource->isAuthenticated(); }
     public function getRootSource(): DataSource {
-        return $this->DatabaseSource->getRootSource();
+        return $this->databaseSource->getRootSource();
     }
-    
     /**
      * Get the name of the table
      *
@@ -64,6 +60,10 @@ class TableSource extends DataSource {
      */
     public function setTableName($table_name) {
         $this->table_name = $table_name;
+        return $this;
+    }
+    protected function authenticate(Authentication $authentication = null) {
+        $this->databaseSource->authenticate($authentication);
         return $this;
     }
 }

@@ -13,7 +13,7 @@ use Sm\Core\Resolvable\ResolvableFactory;
 
 abstract class StandardType extends AbstractResolvable implements Type {
     /** @var  AbstractResolvable $subject */
-    public $subject;
+    protected $subject;
     public function __construct($subject) {
         $subject = static::resolveType($subject);
         parent::__construct($subject);

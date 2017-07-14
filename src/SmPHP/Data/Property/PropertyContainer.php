@@ -11,6 +11,7 @@ namespace Sm\Data\Property;
 use Sm\Core\Abstraction\ReadonlyTrait;
 use Sm\Core\Container\Container;
 use Sm\Core\Exception\InvalidArgumentException;
+use Sm\Data\Property\Exception\ReadonlyPropertyException;
 
 /**
  * Class PropertyContainer

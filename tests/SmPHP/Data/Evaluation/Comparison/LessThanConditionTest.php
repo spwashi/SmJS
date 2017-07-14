@@ -17,6 +17,6 @@ class LessThanConditionTest extends \PHPUnit_Framework_TestCase {
         $this->assertTrue($ltc_2->resolve());
         
         $ltc_3 = new LessThanCondition(1, 1);
-        $this->assertFalse($ltc_2->resolve());
+        $this->assertFalse($ltc_3->resolve());
     }
 }

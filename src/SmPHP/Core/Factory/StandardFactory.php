@@ -106,13 +106,15 @@ class StandardFactory extends AbstractContainer implements Factory {
     /**
      * Try to build something without returning a default
      *
+     * @param $item
+     *
      * @return mixed
      * @throws \Sm\Core\Factory\Exception\FactoryCannotBuildException If we can't build the item
      */
-    protected function attempt_build() {
+    protected function attempt_build($item = null) {
         $args = func_get_args();
         /** @var string $class_name */
-        $class_name = $args[0] ?? null;
+        $class_name = $item ?? null;
         $class_name = is_object($class_name) ? get_class($class_name) : $class_name;
         
         $previous_exception = null;
@@ -120,6 +122,7 @@ class StandardFactory extends AbstractContainer implements Factory {
         ) {
             
             try {
+                array_shift($args);
                 # If the original class exists or we found a match, create the class
                 return $this->buildClassInstance($class_name, $args);
             } catch (ClassNotFoundException $e) {
@@ -215,6 +218,6 @@ class StandardFactory extends AbstractContainer implements Factory {
      * @return bool
      */
     private static function isProbablyClassname($class_name): bool {
-        return is_string($class_name) && strpos($class_name, '\\') !== false;
+        return is_string($class_name) && (strpos($class_name, '\\') !== false || class_exists($class_name));
     }
 }

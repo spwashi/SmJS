@@ -10,6 +10,7 @@ namespace Sm\Data\Property;
 
 use Sm\Core\Abstraction\Readonly_able;
 use Sm\Core\Abstraction\ReadonlyTrait;
+use Sm\Data\Property\Exception\ReadonlyPropertyException;
 use Sm\Data\Source\DataSource;
 use Sm\Data\Source\DataSourceContainer;
 use Sm\Data\Type\Variable_\Variable_;
@@ -67,7 +68,7 @@ class Property extends Variable_ implements Readonly_able {
      * @param $name
      * @param $value
      *
-     * @throws \Sm\Data\Property\ReadonlyPropertyException
+     * @throws \Sm\Data\Property\Exception\ReadonlyPropertyException
      */
     public function __set($name, $value) {
         if ($this->isReadonly()) throw new ReadonlyPropertyException("Cannot modify a readonly property");

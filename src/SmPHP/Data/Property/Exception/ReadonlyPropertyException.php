@@ -5,7 +5,7 @@
  * Time: 11:09 PM
  */
 
-namespace Sm\Data\Property;
+namespace Sm\Data\Property\Exception;
 
 
 use Sm\Core\Exception\Exception;

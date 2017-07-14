@@ -9,6 +9,7 @@ namespace Sm\Data\Property;
 
 
 use Sm\Core\Exception\InvalidArgumentException;
+use Sm\Data\Property\Exception\ReadonlyPropertyException;
 
 class PropertyContainerTest extends \PHPUnit_Framework_TestCase {
     /** @var  \Sm\Data\Property\PropertyContainer */

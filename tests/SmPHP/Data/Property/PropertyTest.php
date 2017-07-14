@@ -9,8 +9,7 @@ namespace Sm\Data\Property;
 
 
 use Sm\Core\Resolvable\StringResolvable;
-use Sm\Storage\Modules\Sql\MySql\MysqlDatabaseSource;
-use Sm\Storage\Modules\Sql\MySql\MysqlPdoAuthentication;
+use Sm\Data\Property\Exception\ReadonlyPropertyException;
 
 class PropertyTest extends \PHPUnit_Framework_TestCase {
     /** @var  \Sm\Data\Property\Property $Property */

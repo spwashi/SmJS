@@ -8,9 +8,9 @@
 namespace Sm\Query\Modules\Sql\Formatting\Proxy;
 
 
+use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Exception\UnimplementedError;
-use Sm\Core\Factory\Factory;
-use Sm\Core\Formatting\FormattingProxy;
+use Sm\Core\Formatting\Formatter\FormattingProxyFactory;
 
 /**
  * Class ColumnFormattingProxy
@@ -19,7 +19,7 @@ use Sm\Core\Formatting\FormattingProxy;
  *
  * @package Sm\Query\Modules\Sql\Formatting\Proxy
  */
-class ColumnFormattingProxy implements FormattingProxy {
+class ColumnFormattingProxy extends SqlFormattingProxy {
     protected $subject;
     #
     protected $column_name;
@@ -29,35 +29,47 @@ class ColumnFormattingProxy implements FormattingProxy {
     protected $can_be_null;
     protected $default;
     #
-    /** @var \Sm\Core\Factory\Factory How we know how to build other Proxies */
-    private $proxyFactory;
-    #
-    protected function __construct($column, Factory $proxyFactory) {
-        if (is_string($column)) $this->subject = $column;
-        else throw new UnimplementedError("+ format anything but a string as a column");
-        
-        $this->column_name  = $this->figureColumnName();
-        $this->proxyFactory = $proxyFactory;
+    public function __construct($column, FormattingProxyFactory $formattingProxyFactory) {
+        if (!is_string($column)) throw new UnimplementedError("+ format anything but a string as a column");
+        parent::__construct($column, $formattingProxyFactory);
     }
-    public function figureColumnTable() {
+    /**
+     * @return \Sm\Query\Modules\Sql\Formatting\Proxy\SqlFormattingProxy|\Sm\Query\Modules\Sql\Formatting\Proxy\TableFormattingProxy
+     */
+    public function getTable(): ?TableFormattingProxy {
         if (isset($this->table)) return $this->table;
         
+        
+        if (strpos($this->subject, '.') === false) return null;
+        
+        $table_name = null;
+        $explode    = explode('.', $this->subject);
+        $count      = count($explode);
+        if ($count === 2) {
+            $table_name = $explode[0];
+        } else if ($count === 3) {
+            $table_name = $explode[1];
+        } else {
+            throw new InvalidArgumentException("Improper subject for table");
+        }
+        
+        return $this->table = $this->getFormattingProxyFactory()->build(TableFormattingProxy::class, $table_name);
     }
     /**
      * Returns the assumed name of the column based on everything we know
      *
      * @return null|string
      */
-    public function figureColumnName():?string {
+    public function getColumnName():?string {
         if (isset($this->column_name)) return $this->column_name;
         # If we are doing something separated by column name
         if (strpos($this->subject, '.')) {
             $explode = explode('.', $this->subject);
-            return end($explode);
+            return $this->column_name = end($explode);
         }
         
         #todo check to see if the column name is malformed?
         
-        return $this->subject;
+        return $this->column_name = $this->subject;
     }
 }

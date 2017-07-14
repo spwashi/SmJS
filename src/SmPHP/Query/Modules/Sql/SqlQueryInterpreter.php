@@ -74,7 +74,7 @@ abstract class SqlQueryInterpreter extends QueryInterpreter {
     protected function format($query_or_statement): string {
         # If this is a string already, assume that it is already SQL
         if (is_string($query_or_statement)) return $query_or_statement;
-        throw new UnimplementedError("Anything but Sql");
+        throw new UnimplementedError("+ anything but Sql");
     }
     abstract protected function execute(string $formatted_query);
     /**

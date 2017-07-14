@@ -12,7 +12,6 @@ use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Exception\UnimplementedError;
 use Sm\Core\Formatting\Formatter\Formatter;
 use Sm\Query\Modules\Sql\Formatting\SqlQueryFormatter;
-use Sm\Query\Statements\Clauses\WhereClause;
 use Sm\Query\Statements\SelectStatement;
 
 class SelectStatementFormatter extends SqlQueryFormatter implements Formatter {
@@ -26,16 +25,12 @@ class SelectStatementFormatter extends SqlQueryFormatter implements Formatter {
      */
     public function format($statement): string {
         if (!($statement instanceof SelectStatement)) throw new InvalidArgumentException("Can only format SelectStatements");
+    
         $select_expression_list = $this->formatSelectExpressionList($statement->getSelectedItems());
-        $sources                = $this->formatFromList($statement->getFromSources());
-        $from_string            = "FROM {$sources}";
-        $where_string           = "";
-        if ($whereClause = $statement->getWhereClause()) {
-            $whereFormatter       = $this->formatterFactory->resolve(WhereClause::class);
-            $formattedWhereClause = $whereFormatter->format($whereClause);
-            $where_string         = "{$formattedWhereClause}";
-        }
-        $select_stmt_string = "SELECT {$select_expression_list} {$from_string} {$where_string}";
+        $where_string           = $this->formatterFactory->format($statement->getWhereClause());
+        $from_string            = 'FROM ' . $this->formatFromList($statement->getFromSources());
+    
+        $select_stmt_string = "SELECT {$select_expression_list}\n{$from_string}\n{$where_string}";
         
         return $select_stmt_string;
     }
@@ -51,12 +46,12 @@ class SelectStatementFormatter extends SqlQueryFormatter implements Formatter {
         $expression_list = [];
         foreach ($selects as $item) {
             if (is_string($item)) $expression_list[] = $item;
-            else throw new UnimplementedError("+ Anything but strings in the expression list");
+            else throw new UnimplementedError("+ anything but strings in the expression list");
         }
         return join(", ", $expression_list);
     }
     /**
-     * Format the list of things that will form the "FROM" clause
+     * What we will put the values in
      *
      * @param $source_array
      *
@@ -64,9 +59,7 @@ class SelectStatementFormatter extends SqlQueryFormatter implements Formatter {
      */
     protected function formatFromList($source_array): string {
         $sources = [];
-        foreach ($source_array as $index => $source) {
-            $sources[] = $source;
-        }
+        foreach ($source_array as $index => $source) $sources[] = $source;
         return join(', ', $sources);
     }
 }

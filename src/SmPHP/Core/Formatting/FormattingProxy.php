@@ -7,6 +7,8 @@
 
 namespace Sm\Core\Formatting;
 
+use Sm\Core\Proxy\Proxy;
+
 /**
  * Interface FormattingProxy
  *
@@ -14,5 +16,5 @@ namespace Sm\Core\Formatting;
  *
  * @package Sm\Core\Formatting
  */
-interface FormattingProxy {
+interface FormattingProxy extends Proxy {
 }

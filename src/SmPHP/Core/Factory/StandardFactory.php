@@ -116,7 +116,7 @@ class StandardFactory extends AbstractContainer implements Factory {
         $class_name = is_object($class_name) ? get_class($class_name) : $class_name;
         
         $previous_exception = null;
-        if (is_string($class_name) || ($class_name = gettype($class_name)) && isset($this->class_registry[ $class_name ])
+        if (self::isProbablyClassname($class_name) || ($class_name = gettype($class_name)) && isset($this->class_registry[ $class_name ])
         ) {
             
             try {
@@ -208,5 +208,13 @@ class StandardFactory extends AbstractContainer implements Factory {
             $type = is_string($class_name) ? $class_name : Util::getShapeOfItem($class_name);
             throw new WrongFactoryException("Not allowed to create class of type {$type}");
         }
+    }
+    /**
+     * @param $class_name
+     *
+     * @return bool
+     */
+    private static function isProbablyClassname($class_name): bool {
+        return is_string($class_name) && strpos($class_name, '\\') !== false;
     }
 }

@@ -5,12 +5,14 @@
  * Time: 8:36 AM
  */
 
-namespace Sm\Query\Modules\Sql\Formatting\Proxy;
+namespace Sm\Query\Modules\Sql\Formatting\Proxy\Table;
 
 
 use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Exception\UnimplementedError;
 use Sm\Core\Formatting\Formatter\FormattingProxyFactory;
+use Sm\Query\Modules\Sql\Formatting\Proxy\Database\DatabaseFormattingProxy;
+use Sm\Query\Modules\Sql\Formatting\Proxy\Database\String_DatabaseFormattingProxy;
 
 /**
  * Class TableFormattingProxy
@@ -19,10 +21,7 @@ use Sm\Core\Formatting\Formatter\FormattingProxyFactory;
  *
  * @package Sm\Query\Modules\Sql\Formatting\Proxy
  */
-class TableFormattingProxy extends SqlFormattingProxy {
-    protected $table_name;
-    /** @var  DatabaseFormattingProxy */
-    protected $database;
+class String_TableIdentifierFormattingProxy extends TableIdentifierFormattingProxy {
     /**
      * TableFormattingProxy constructor.
      *
@@ -38,7 +37,7 @@ class TableFormattingProxy extends SqlFormattingProxy {
     /**
      * Get a formatting proxy representing the Database that this will belong to
      *
-     * @return \Sm\Query\Modules\Sql\Formatting\Proxy\DatabaseFormattingProxy|null
+     * @return null|\Sm\Query\Modules\Sql\Formatting\Proxy\Database\DatabaseFormattingProxy
      * @throws \Sm\Core\Exception\InvalidArgumentException
      */
     public function getDatabase():? DatabaseFormattingProxy {
@@ -52,8 +51,8 @@ class TableFormattingProxy extends SqlFormattingProxy {
         # database.table_name
         if (count($expl) === 2) $database_name = $expl[0];
         else throw new InvalidArgumentException("Cannot format subjects of 'xxx.database.table_name*' format");
-        
-        $this->database = $this->getFormattingProxyFactory()->build(DatabaseFormattingProxy::class, $database_name);
+    
+        $this->database = $this->getFormattingProxyFactory()->build(String_DatabaseFormattingProxy::class, $database_name);
         
         return $this->database;
     }

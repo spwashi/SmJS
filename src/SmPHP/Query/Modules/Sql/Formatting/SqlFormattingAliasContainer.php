@@ -26,18 +26,26 @@ class SqlFormattingAliasContainer extends Container {
      * Keep trying to find the alias of something if we can
      *
      * @param string $item
+     * @param null   $fallback Something to fall back on if the Alias doesn't actually exist.
      *
      * @return mixed|null|string
      * @throws \Sm\Core\Exception\Error
      */
-    public function getFinalAlias(string $item) {
+    public function getFinalAlias($item, $fallback = null) {
         $aliased = $item;
         $count   = 0;
+        # Loop through, replacing "next_alias" with the result of "resolve". Stop once there are no more aliases
         while ($next_alias = $this->resolve($aliased)) {
             $count++;
             $aliased = $next_alias;
             if ($count === 15) throw new Error("Looks like there might be some recursion. 15 calls to 'resolve'");
         }
+        
+        # If we've provided a fallback, use it
+        if ($item === $aliased && isset($fallback)) {
+            $this->register($fallback, $item);
+        }
+        
         return $aliased;
     }
 }

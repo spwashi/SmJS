@@ -27,10 +27,7 @@ abstract class DataSource implements Identifiable {
      *
      * @param Authentication $Authentication
      */
-    public function __construct(Authentication $Authentication = null) {
-        if (isset($Authentication)) {
-            $this->authentication = $Authentication;
-        }
+    public function __construct() {
         $this->createSelfID();
     }
     /**
@@ -48,15 +45,14 @@ abstract class DataSource implements Identifiable {
      *
      * @return \Sm\Data\Source\DataSource
      */
-    public function getRootSource(): DataSource {
-        return $this;
+    public function getParentSource() {
+        return null;
     }
     abstract public function isAuthenticated();
     
     ####################################################
     #   Action methods
     ####################################################
-    abstract public function getName();
     protected function authenticate(Authentication $Authentication = null) {
         $this->authentication = $Authentication;
         return $this;

@@ -20,7 +20,7 @@ use Sm\Core\Formatting\Formatter\Formatter;
  */
 class SqlQueryFormatter implements Formatter {
     /** @var  \Sm\Query\Modules\Sql\Formatting\SqlQueryFormatterFactory $formatterFactory */
-    public $formatterFactory;
+    protected $formatterFactory;
     /**
      * @var \Sm\Core\Container\Mini\MiniContainer
      */

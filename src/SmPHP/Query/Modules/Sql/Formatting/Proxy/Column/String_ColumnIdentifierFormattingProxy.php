@@ -1,25 +1,18 @@
 <?php
 /**
  * User: Sam Washington
- * Date: 7/14/17
- * Time: 7:44 AM
+ * Date: 7/17/17
+ * Time: 7:47 PM
  */
 
-namespace Sm\Query\Modules\Sql\Formatting\Proxy;
+namespace Sm\Query\Modules\Sql\Formatting\Proxy\Column;
 
 
-use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Exception\UnimplementedError;
 use Sm\Core\Formatting\Formatter\FormattingProxyFactory;
+use Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableIdentifierFormattingProxy;
 
-/**
- * Class ColumnFormattingProxy
- *
- * Class that is going to help tell us stuff about an item in the context of being a column
- *
- * @package Sm\Query\Modules\Sql\Formatting\Proxy
- */
-class ColumnFormattingProxy extends SqlFormattingProxy {
+class String_ColumnIdentifierFormattingProxy extends ColumnIdentifierFormattingProxy {
     protected $subject;
     #
     protected $column_name;
@@ -34,9 +27,10 @@ class ColumnFormattingProxy extends SqlFormattingProxy {
         parent::__construct($column, $formattingProxyFactory);
     }
     /**
-     * @return \Sm\Query\Modules\Sql\Formatting\Proxy\SqlFormattingProxy|\Sm\Query\Modules\Sql\Formatting\Proxy\TableFormattingProxy
+     * @return null|\Sm\Query\Modules\Sql\Formatting\Proxy\SqlFormattingProxy|\Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableIdentifierFormattingProxy
+     * @throws \Sm\Core\Exception\InvalidArgumentException
      */
-    public function getTable(): ?TableFormattingProxy {
+    public function getTable(): ?TableIdentifierFormattingProxy {
         if (isset($this->table)) return $this->table;
         
         
@@ -53,7 +47,7 @@ class ColumnFormattingProxy extends SqlFormattingProxy {
             throw new InvalidArgumentException("Improper subject for table");
         }
         
-        return $this->table = $this->getFormattingProxyFactory()->build(TableFormattingProxy::class, $table_name);
+        return $this->table = $this->getFormattingProxyFactory()->build(TableIdentifierFormattingProxy::class, $table_name);
     }
     /**
      * Returns the assumed name of the column based on everything we know

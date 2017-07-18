@@ -10,6 +10,7 @@ namespace Sm\Core\Factory;
 
 use Sm\Core\Container\AbstractContainer;
 use Sm\Core\Exception\ClassNotFoundException;
+use Sm\Core\Exception\RecursiveError;
 use Sm\Core\Factory\Exception\FactoryCannotBuildException;
 use Sm\Core\Factory\Exception\WrongFactoryException;
 use Sm\Core\Resolvable\FunctionResolvable;
@@ -36,6 +37,8 @@ class StandardFactory extends AbstractContainer implements Factory {
     protected $class_registry = [];
     /** @var bool If there is a class that isn't registered in the factory (and doesn't have ancestor that is), should we create it anyways? */
     protected $do_create_missing = true;
+    /** @var array An array of the parents we've already gone through */
+    protected $searched_parents = [];
     
     /**
      * Set the Mode of Creating Factories
@@ -124,7 +127,9 @@ class StandardFactory extends AbstractContainer implements Factory {
             try {
                 array_shift($args);
                 # If the original class exists or we found a match, create the class
-                return $this->buildClassInstance($class_name, $args);
+                $result                 = $this->buildClassInstance($class_name, $args);
+                $this->searched_parents = [];
+                return $result;
             } catch (ClassNotFoundException $e) {
                 $previous_exception = $e;
             }
@@ -160,6 +165,10 @@ class StandardFactory extends AbstractContainer implements Factory {
         #  are trying to create
         $class_handler = Util::getItemByClassAncestry($class_name, $this->class_registry);
         $instance      = null;
+    
+        if (in_array($class_handler, $this->searched_parents)) throw new RecursiveError("Recursively calling class handler for {$class_name}");
+        $this->searched_parents[] = $class_handler;
+        
         
         # If we are resolving a function, return that result.
         # Otherwise, set the class handler to be whatever the classhandler resolves to
@@ -178,7 +187,6 @@ class StandardFactory extends AbstractContainer implements Factory {
         if (!class_exists($class_name)) {
             throw new ClassNotFoundException("Class {$class_name} not found");
         }
-        
         $class = new $class_name(...$args);
         return $class;
     }

@@ -9,40 +9,36 @@ namespace Sm\Query\Modules\Sql\Formatting\Statements;
 
 
 use Sm\Core\Exception\InvalidArgumentException;
+use Sm\Query\Modules\Sql\Formatting\Proxy\Column\ColumnIdentifierFormattingProxy;
 use Sm\Query\Modules\Sql\Formatting\SqlQueryFormatter;
 use Sm\Query\Statements\InsertStatement;
 
 class InsertStatementFormatter extends SqlQueryFormatter {
+    use MightFormatSourceListTrait;
+    
     public function format($statement): string {
         if (!($statement instanceof InsertStatement)) throw new InvalidArgumentException("Can only format InsertStatements");
         
         list($column_string, $insertExpressionList) = $this->formatInsertExpressionList($statement->getInsertedItems());
         $source_string = $this->formatSourceList($statement->getIntoSources());
-        
-        
-        $update_stmt = "INSERT INTO {$source_string} ({$column_string}) VALUES {$insertExpressionList}";
+    
+    
+        $update_stmt = "INSERT INTO {$source_string}\n\t\t({$column_string})\nVALUES\t{$insertExpressionList}";
         
         return $update_stmt;
     }
-    /**
-     * What we will put the values in
-     *
-     * @param $source_array
-     *
-     * @return string
-     */
-    protected function formatSourceList(array $source_array): string {
-        $sources = [];
-        foreach ($source_array as $index => $source) $sources[] = $source;
-        return join(', ', $sources);
-    }
     protected function formatInsertExpressionList(array $inserted_items): array {
-        $columns = [];
+        $columns           = [];
+        $formatted_columns = [];
         foreach ($inserted_items as $number => $insert_collection) {
             if (!is_array($insert_collection)) throw new InvalidArgumentException("Trying to insert a non-array (index {$number})");
             foreach ($insert_collection as $column_name => $value) {
                 if (is_numeric($column_name)) throw new InvalidArgumentException("Trying to insert a non-associative array (index {$column_name} in {$number})");
                 $columns[ $column_name ] = null;
+                # Assume it's a column - otherwise, we'd use a different object
+                $formatter           = $this->formatterFactory;
+                $formatted_columns[] = $formatter->format($formatter->proxy($column_name,
+                                                                            ColumnIdentifierFormattingProxy::class));
             }
         }
         # todo Sets in PHP?
@@ -59,6 +55,8 @@ class InsertStatementFormatter extends SqlQueryFormatter {
             }
             $insert_array[] = '(' . join(', ', $_insert_arr) . ')';
         }
-        return [ join(', ', $columns), join(', ', $insert_array) ];
+    
+        # column string (what we insert into) and the insert array (what we're inserting)
+        return [ join(', ', array_unique($formatted_columns)), join(",\n\t\t", $insert_array) ];
     }
 }

@@ -8,20 +8,34 @@
 namespace Sm\Storage\Database;
 
 
+use Sm\Authentication\Authentication;
 use Sm\Data\Source\DataSource;
 
-abstract class DatabaseDataSource extends DataSource {
-    protected $database_name;
-    
+class DatabaseDataSource extends DataSource {
+    protected $name;
+    /**
+     * DatabaseDataSource constructor.
+     *
+     * @param \Sm\Authentication\Authentication|null $Authentication The thing that will hold a reference to the connection
+     * @param string                                 $name
+     */
+    public function __construct(Authentication $Authentication = null, string $name = null) {
+        if (isset($Authentication)) $this->authentication = $Authentication;
+        $this->name = $name;
+        parent::__construct();
+    }
     /**
      * Get the name of the database
      *
      * @return mixed
      */
-    public function getName() {
-        return $this->database_name;
+    public function getName(): ?string {
+        return $this->name;
     }
     public function getConnection() {
         return isset($this->authentication) ? $this->authentication->getConnection() : null;
+    }
+    public function isAuthenticated() {
+        return $this->authentication->isValid();
     }
 }

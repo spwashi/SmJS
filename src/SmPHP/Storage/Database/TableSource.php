@@ -32,25 +32,23 @@ class TableSource extends DataSource {
     protected $columnContainer;
     
     public function __construct(DatabaseDataSource $DatabaseSource, $table_name) {
-        $this->databaseSource  = $DatabaseSource;
-        $this->table_name      = $table_name;
-        $this->columnContainer = ColumnContainer::init()->setSource($this);
-        parent::__construct();
+        $this->databaseSource = $DatabaseSource;
+        $this->table_name     = $table_name;
     }
     public function __get($name) {
         if ($name === 'columns') return $this->columnContainer;
         return null;
     }
     public function isAuthenticated() { return $this->databaseSource->isAuthenticated(); }
-    public function getRootSource(): DataSource {
-        return $this->databaseSource->getRootSource();
+    public function getParentSource(): ?DatabaseDataSource {
+        return $this->databaseSource;
     }
     /**
      * Get the name of the table
      *
      * @return string
      */
-    public function getName() {
+    public function getName():?string {
         return $this->table_name;
     }
     /**

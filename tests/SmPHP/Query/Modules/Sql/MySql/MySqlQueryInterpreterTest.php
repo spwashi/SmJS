@@ -8,6 +8,7 @@
 namespace Sm\Query\Modules\Sql\MySql;
 
 
+use Sm\Query\Modules\Sql\Formatting\Aliasing\SqlFormattingAliasContainer;
 use Sm\Query\Modules\Sql\Formatting\SqlFormattingProxyFactory;
 use Sm\Query\Modules\Sql\Formatting\SqlQueryFormatter;
 use Sm\Query\Modules\Sql\Formatting\SqlQueryFormatterFactory;
@@ -20,7 +21,7 @@ class MySqlQueryInterpreterTest extends \PHPUnit_Framework_TestCase {
     }
     public function testCanSelect() {
         /** @var SqlQueryFormatter $sqlQueryFormatter */
-        $sqlQueryFormatter = $this->getMockForAbstractClass(SqlQueryFormatter::class, [ new SqlQueryFormatterFactory(new SqlFormattingProxyFactory) ]);
+        $sqlQueryFormatter = $this->getMockForAbstractClass(SqlQueryFormatter::class, [ new SqlQueryFormatterFactory(new SqlFormattingProxyFactory, new SqlFormattingAliasContainer) ]);
         $interpreter       = new MySqlQueryInterpreter($this->getAuthentication(),
                                                        $sqlQueryFormatter);
         

@@ -8,9 +8,11 @@
 namespace Sm\Query\Modules\Sql\Formatting\Proxy\Column;
 
 
+use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Exception\UnimplementedError;
 use Sm\Core\Formatting\Formatter\FormattingProxyFactory;
-use Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableIdentifierFormattingProxy;
+use Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableFormattingProxy;
+use Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableNameFormattingProxy;
 
 class String_ColumnIdentifierFormattingProxy extends ColumnIdentifierFormattingProxy {
     protected $subject;
@@ -19,7 +21,6 @@ class String_ColumnIdentifierFormattingProxy extends ColumnIdentifierFormattingP
     protected $table;
     protected $type;
     protected $length;
-    protected $can_be_null;
     protected $default;
     #
     public function __construct($column, FormattingProxyFactory $formattingProxyFactory) {
@@ -27,10 +28,10 @@ class String_ColumnIdentifierFormattingProxy extends ColumnIdentifierFormattingP
         parent::__construct($column, $formattingProxyFactory);
     }
     /**
-     * @return null|\Sm\Query\Modules\Sql\Formatting\Proxy\SqlFormattingProxy|\Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableIdentifierFormattingProxy
+     * @return null|\Sm\Query\Modules\Sql\Formatting\Proxy\SqlFormattingProxy|TableFormattingProxy
      * @throws \Sm\Core\Exception\InvalidArgumentException
      */
-    public function getTable(): ?TableIdentifierFormattingProxy {
+    public function getTable(): ?TableFormattingProxy {
         if (isset($this->table)) return $this->table;
         
         
@@ -47,7 +48,7 @@ class String_ColumnIdentifierFormattingProxy extends ColumnIdentifierFormattingP
             throw new InvalidArgumentException("Improper subject for table");
         }
         
-        return $this->table = $this->getFormattingProxyFactory()->build(TableIdentifierFormattingProxy::class, $table_name);
+        return $this->table = $this->getFormattingProxyFactory()->build(TableNameFormattingProxy::class, $table_name);
     }
     /**
      * Returns the assumed name of the column based on everything we know

@@ -8,6 +8,8 @@
 namespace Sm\Query\Modules\Sql\Formatting;
 
 
+use Sm\Query\Modules\Sql\Formatting\Aliasing\SqlFormattingAliasContainer;
+
 class SqlFormattingAliasContainerTest extends \PHPUnit_Framework_TestCase {
     public function testCanGetFinalAlias() {
         $aliasContainer = new SqlFormattingAliasContainer;

@@ -34,6 +34,7 @@ class TableSource extends DataSource {
     public function __construct(DatabaseDataSource $DatabaseSource, $table_name) {
         $this->databaseSource = $DatabaseSource;
         $this->table_name     = $table_name;
+        parent::__construct();
     }
     public function __get($name) {
         if ($name === 'columns') return $this->columnContainer;

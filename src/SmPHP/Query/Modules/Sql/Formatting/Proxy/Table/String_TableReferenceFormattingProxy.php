@@ -21,7 +21,7 @@ use Sm\Query\Modules\Sql\Formatting\Proxy\Database\String_DatabaseFormattingProx
  *
  * @package Sm\Query\Modules\Sql\Formatting\Proxy
  */
-class String_TableIdentifierFormattingProxy extends TableIdentifierFormattingProxy {
+class String_TableReferenceFormattingProxy extends TableReferenceFormattingProxy {
     /**
      * TableFormattingProxy constructor.
      *

@@ -17,10 +17,9 @@ use Sm\Query\Modules\Sql\Formatting\Proxy\SqlFormattingProxy;
  *
  * @package Sm\Query\Modules\Sql\Formatting\Proxy
  */
-abstract class TableIdentifierFormattingProxy extends SqlFormattingProxy {
+abstract class TableReferenceFormattingProxy extends SqlFormattingProxy implements TableFormattingProxy {
     protected $table_name;
     /** @var  DatabaseFormattingProxy */
     protected $database;
-    abstract public function getTableName(): string;
     abstract public function getDatabase():? DatabaseFormattingProxy;
 }

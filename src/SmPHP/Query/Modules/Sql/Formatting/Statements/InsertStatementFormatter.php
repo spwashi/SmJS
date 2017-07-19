@@ -9,23 +9,35 @@ namespace Sm\Query\Modules\Sql\Formatting\Statements;
 
 
 use Sm\Core\Exception\InvalidArgumentException;
+use Sm\Core\Exception\UnimplementedError;
+use Sm\Core\Formatting\Formatter\Exception\IncompleteFormatterException;
 use Sm\Query\Modules\Sql\Formatting\Proxy\Column\ColumnIdentifierFormattingProxy;
+use Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableNameFormattingProxy;
 use Sm\Query\Modules\Sql\Formatting\SqlQueryFormatter;
 use Sm\Query\Statements\InsertStatement;
 
 class InsertStatementFormatter extends SqlQueryFormatter {
-    use MightFormatSourceListTrait;
-    
     public function format($statement): string {
         if (!($statement instanceof InsertStatement)) throw new InvalidArgumentException("Can only format InsertStatements");
         
         list($column_string, $insertExpressionList) = $this->formatInsertExpressionList($statement->getInsertedItems());
-        $source_string = $this->formatSourceList($statement->getIntoSources());
     
-    
+        $sources       = $statement->getIntoSources();
+        $source_string = $this->formatSourceList($sources);
+        
         $update_stmt = "INSERT INTO {$source_string}\n\t\t({$column_string})\nVALUES\t{$insertExpressionList}";
         
         return $update_stmt;
+    }
+    protected function formatSourceList($source_array): string {
+        $sources = [];
+        if (!isset($this->formatterFactory)) throw new IncompleteFormatterException("No formatter Factory");
+        foreach ($source_array as $index => $source) {
+            if (count($sources)) throw new UnimplementedError("Inserting into multiple sources");
+            $sourceProxy = $this->proxy($source, TableNameFormattingProxy::class);
+            $sources[]   = $this->formatterFactory->format($sourceProxy);
+        }
+        return join(', ', $sources);
     }
     protected function formatInsertExpressionList(array $inserted_items): array {
         $columns           = [];
@@ -36,9 +48,8 @@ class InsertStatementFormatter extends SqlQueryFormatter {
                 if (is_numeric($column_name)) throw new InvalidArgumentException("Trying to insert a non-associative array (index {$column_name} in {$number})");
                 $columns[ $column_name ] = null;
                 # Assume it's a column - otherwise, we'd use a different object
-                $formatter           = $this->formatterFactory;
-                $formatted_columns[] = $formatter->format($formatter->proxy($column_name,
-                                                                            ColumnIdentifierFormattingProxy::class));
+                $formatted_columns[] = $this->formatterFactory->format($this->proxy($column_name,
+                                                                                    ColumnIdentifierFormattingProxy::class));
             }
         }
         # todo Sets in PHP?

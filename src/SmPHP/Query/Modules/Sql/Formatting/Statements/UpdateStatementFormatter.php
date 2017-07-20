@@ -28,7 +28,7 @@ class UpdateStatementFormatter extends SqlQueryFormatter {
         if (!($statement instanceof UpdateStatement)) throw new InvalidArgumentException("Can only format UpdateStatements");
         
         $update_expression_list = $this->formatUpdateExpressionList($statement->getUpdatedItems());
-        $where_string           = $this->formatterFactory->format($statement->getWhereClause());
+        $where_string           = $this->queryFormatter->format($statement->getWhereClause());
         $source_string          = $this->formatSourceList($statement->getIntoSources());
     
         $update_stmt = "UPDATE {$source_string} \nSET\t{$update_expression_list}\n{$where_string}";
@@ -47,9 +47,9 @@ class UpdateStatementFormatter extends SqlQueryFormatter {
      */
     protected function formatSourceList($source_array): string {
         $sources = [];
-        if (!isset($this->formatterFactory)) throw new IncompleteFormatterException("No formatter Factory");
+        if (!isset($this->queryFormatter)) throw new IncompleteFormatterException("No formatter Factory");
         foreach ($source_array as $index => $source) {
-            $sources[] = $this->formatterFactory->format($this->proxy($source, TableReferenceFormattingProxy::class));
+            $sources[] = $this->queryFormatter->format($this->proxy($source, TableReferenceFormattingProxy::class));
         }
         return join(', ', $sources);
     }
@@ -58,8 +58,8 @@ class UpdateStatementFormatter extends SqlQueryFormatter {
         foreach ($updates as $item) {
             if (is_array($item)) {
                 foreach ($item as $key => $value) {
-                    $key   = $this->formatterFactory->format($this->proxy($key, ColumnIdentifierFormattingProxy::class));
-                    $value = $this->formatterFactory->format($value);
+                    $key   = $this->queryFormatter->format($this->proxy($key, ColumnIdentifierFormattingProxy::class));
+                    $value = $this->queryFormatter->format($value);
                     
                     $expression_list[] = "{$key} = {$value}";
                 }

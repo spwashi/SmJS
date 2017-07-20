@@ -25,14 +25,23 @@ class SqlQueryFormatterFactory extends FormatterFactory {
      */
     private $aliasContainer;
     /**
+     * @var \Sm\Query\Modules\Sql\Formatting\SqlFormattingContext
+     */
+    private $context;
+    
+    /**
      * SqlQueryFormatterFactory constructor.
      *
      * @param \Sm\Query\Modules\Sql\Formatting\SqlFormattingProxyFactory            $formattingProxyFactory
      * @param \Sm\Query\Modules\Sql\Formatting\Aliasing\SqlFormattingAliasContainer $aliasContainer
+     * @param \Sm\Query\Modules\Sql\Formatting\SqlFormattingContext                 $context
      */
-    public function __construct(SqlFormattingProxyFactory $formattingProxyFactory, SqlFormattingAliasContainer $aliasContainer) {
+    public function __construct(SqlFormattingProxyFactory $formattingProxyFactory,
+                                SqlFormattingAliasContainer $aliasContainer,
+                                SqlFormattingContext $context) {
         $this->formattingProxyFactory = $formattingProxyFactory;
         $this->aliasContainer         = $aliasContainer;
+        $this->context                = $context;
         parent::__construct();
     }
     /**
@@ -48,7 +57,6 @@ class SqlQueryFormatterFactory extends FormatterFactory {
             ? $this->formattingProxyFactory->build($as, $item, $this->formattingProxyFactory)
             : $this->formattingProxyFactory->build($item, $this->formattingProxyFactory);
     }
-    
     /**
      * Get the object that will hold all of the Aliases for the FormatterFactory.
      *

@@ -30,14 +30,14 @@ class SelectStatementFormatter extends SqlQueryFormatter implements Formatter {
         if (!($statement instanceof SelectStatement)) throw new InvalidArgumentException("Can only format SelectStatements");
     
         $select_expression_list = $this->formatSelectExpressionList($statement->getSelectedItems());
-        $where_string           = $this->formatterFactory->format($statement->getWhereClause());
+        $where_string           = $this->queryFormatter->format($statement->getWhereClause());
         $sources                = $statement->getFromSources();
     
         foreach ($sources as $source) {
             /** @var \Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableFormattingProxy $tableProxy */
             $tableProxy = $this->proxy($source, TableReferenceFormattingProxy::class);
             $aliasName  = str_shuffle($tableProxy->getTableName());
-            $this->formatterFactory->getAliasContainer()->register($source, new TableAliasProxy($tableProxy, $aliasName));
+            $this->queryFormatter->getAliasContainer()->register($source, new TableAliasProxy($tableProxy, $aliasName));
         }
         $from_string = 'FROM ' . $this->formatSourceList($sources);
         
@@ -47,14 +47,14 @@ class SelectStatementFormatter extends SqlQueryFormatter implements Formatter {
     }
     protected function formatSourceList($source_array): string {
         $sources = [];
-        if (!isset($this->formatterFactory)) throw new IncompleteFormatterException("No formatter Factory");
+        if (!isset($this->queryFormatter)) throw new IncompleteFormatterException("No formatter Factory");
         foreach ($source_array as $index => $source) {
-            $formatter = $this->formatterFactory;
-            $alias     = $this->formatterFactory->getAliasContainer()->getFinalAlias($source);
+            $formatter = $this->queryFormatter;
+            $alias     = $this->queryFormatter->getAliasContainer()->getFinalAlias($source);
             if ($alias !== $source) {
                 $alias_proxy = $this->proxy($alias, TableReferenceFormattingProxy::class);
                 $proxy       = $this->proxy($source, TableReferenceFormattingProxy::class);
-                $source      = $this->formatterFactory->format($proxy) . ' AS ' . $this->formatterFactory->format($alias_proxy);
+                $source      = $this->queryFormatter->format($proxy) . ' AS ' . $this->queryFormatter->format($alias_proxy);
             }
             $sources[] = $source;
         }
@@ -72,7 +72,7 @@ class SelectStatementFormatter extends SqlQueryFormatter implements Formatter {
         $expression_list = [];
         foreach ($selects as $item) {
             # Assume it's a column - otherwise, we'd use a different object
-            $formatter         = $this->formatterFactory;
+            $formatter         = $this->queryFormatter;
             $expression_list[] = $formatter->format($formatter->proxy($item, ColumnIdentifierFormattingProxy::class));
         }
         return join(", ", $expression_list);

@@ -5,7 +5,7 @@
  * Time: 12:24 PM
  */
 
-namespace Sm\Data\Modules\Sql\Type\Column;
+namespace Sm\Query\Modules\Sql\Type\Column;
 
 
 class VarcharColumnSchema extends ColumnSchema {

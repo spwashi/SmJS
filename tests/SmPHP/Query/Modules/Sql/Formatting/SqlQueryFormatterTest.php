@@ -11,8 +11,7 @@ namespace Sm\Query\Modules\Sql\Formatting;
 use Sm\Core\Exception\UnimplementedError;
 use Sm\Data\Evaluation\Comparison\EqualToCondition;
 use Sm\Data\Evaluation\TwoOperandStatement;
-use Sm\Data\Modules\Sql\Type\Column\ColumnSchema;
-use Sm\Data\Modules\Sql\Type\Column\VarcharColumnSchema;
+use Sm\Query\Modules\Sql\Constraints\PrimaryKeyConstraintSchema;
 use Sm\Query\Modules\Sql\Formatting\Aliasing\SqlFormattingAliasContainer;
 use Sm\Query\Modules\Sql\Formatting\Clauses\WhereClauseFormatter;
 use Sm\Query\Modules\Sql\Formatting\Proxy\Column\ColumnIdentifierFormattingProxy;
@@ -27,7 +26,11 @@ use Sm\Query\Modules\Sql\Formatting\Statements\SelectStatementFormatter;
 use Sm\Query\Modules\Sql\Formatting\Statements\Table\CreateTableStatementFormatter;
 use Sm\Query\Modules\Sql\Formatting\Statements\UpdateStatementFormatter;
 use Sm\Query\Modules\Sql\MySql\Authentication\MySqlAuthentication;
+use Sm\Query\Modules\Sql\SqlExecutionContext;
 use Sm\Query\Modules\Sql\Statements\CreateTableStatement;
+use Sm\Query\Modules\Sql\Type\Column\ColumnSchema;
+use Sm\Query\Modules\Sql\Type\Column\IntegerColumnSchema;
+use Sm\Query\Modules\Sql\Type\Column\VarcharColumnSchema;
 use Sm\Query\Statements\Clauses\WhereClause;
 use Sm\Query\Statements\InsertStatement;
 use Sm\Query\Statements\SelectStatement;
@@ -65,7 +68,9 @@ class SqlQueryFormatterTest extends \PHPUnit_Framework_TestCase {
             if (is_string($item)) return $formattingProxyFactory->build(String_TableReferenceFormattingProxy::class, $item);
             throw new UnimplementedError('+ Anything but strings');
         });
-        $this->formatterFactory = $formatterFactory = new SqlQueryFormatterFactory($formattingProxyFactory, SqlFormattingAliasContainer::init());
+        $this->formatterFactory = $formatterFactory = new SqlQueryFormatterFactory($formattingProxyFactory,
+                                                                                   SqlFormattingAliasContainer::init(),
+                                                                                   SqlExecutionContext::init());
         $this->queryFormatter   = new SqlQueryFormatter($this->formatterFactory);
         
         # Default
@@ -80,10 +85,22 @@ class SqlQueryFormatterTest extends \PHPUnit_Framework_TestCase {
                                           $formatterFactory->createFormatter(function (ColumnSchema $columnSchema) use ($formatterFactory) {
                                               $column_name = $columnSchema->getName();
                                               $type        = $columnSchema->getType();
+                                              $unique      = $columnSchema->isUnique() ? 'UNIQUE' : '';
                                               $can_be_null = $columnSchema->canBeNull() ? 'NULL' : 'NOT NULL';
                                               $length      = $columnSchema->getLength();
                                               $length      = $length ? "($length)" : '';
-                                              return "{$column_name} {$can_be_null} {$type} {$length}";
+                                              return "{$column_name} {$can_be_null} {$type} {$length} {$unique}";
+                                          }));
+        $this->formatterFactory->register(IntegerColumnSchema::class,
+                                          $formatterFactory->createFormatter(function (IntegerColumnSchema $columnSchema) use ($formatterFactory) {
+                                              $column_name    = $columnSchema->getName();
+                                              $type           = $columnSchema->getType();
+                                              $can_be_null    = $columnSchema->canBeNull() ? 'NULL' : 'NOT NULL';
+                                              $unique         = $columnSchema->isUnique() ? 'UNIQUE' : '';
+                                              $length         = $columnSchema->getLength();
+                                              $auto_increment = $columnSchema->isAutoIncrement() ? 'AUTO INCREMENT' : '';
+                                              $length         = $length ? "($length)" : '';
+                                              return "{$column_name} {$can_be_null} {$type} {$length} {$auto_increment} {$unique}";
                                           }));
         $this->formatterFactory->register(String_ColumnIdentifierFormattingProxy::class,
                                           $formatterFactory->createFormatter(function (String_ColumnIdentifierFormattingProxy $columnFormattingProxy) use ($formatterFactory) {
@@ -101,6 +118,16 @@ class SqlQueryFormatterTest extends \PHPUnit_Framework_TestCase {
                                           $formatterFactory->createFormatter(function (String_DatabaseFormattingProxy $columnFormattingProxy) use ($formatterFactory) {
                                               $formatted_database = '`' . $columnFormattingProxy->getDatabaseName() . '`';
                                               return $formatted_database;
+                                          }));
+        $this->formatterFactory->register(PrimaryKeyConstraintSchema::class,
+                                          $formatterFactory->createFormatter(function (PrimaryKeyConstraintSchema $primaryKeyConstraintSchema) use ($formatterFactory) {
+                                              $columns      = $primaryKeyConstraintSchema->getColumns();
+                                              $column_names = [];
+                                              foreach ($columns as $column) {
+                                                  $column_names[] = $column->getName();
+                                              }
+                                              $column_name_string = join(', ', $column_names);
+                                              return "PRIMARY KEY({$column_name_string})";
                                           }));
         $this->formatterFactory->register(TableNameFormattingProxy::class,
                                           $formatterFactory->createFormatter(function (TableNameFormattingProxy $tableNameFormattingProxy) {
@@ -147,8 +174,28 @@ class SqlQueryFormatterTest extends \PHPUnit_Framework_TestCase {
         echo __FILE__ . "\n--\n$result\n\n";
     }
     public function testCreateTable() {
-        $stmt   = CreateTableStatement::init('TableName')
-                                      ->withColumns(VarcharColumnSchema::init('column_name')->setLength(255));
+        $vcColumn1 = VarcharColumnSchema::init('column_name')
+                                        ->setNullability(0)
+                                        ->setLength(255);
+        $iColumn1  = IntegerColumnSchema::init('one_thing')
+                                        ->setAutoIncrement()
+                                        ->setLength(10);
+        $vcColumn2 = VarcharColumnSchema::init()
+                                        ->setLength(255)
+                                        ->setName('this_thing');
+        $vcColumn3 = VarcharColumnSchema::init('boon_man')
+                                        ->setLength(255);
+    
+        $primaryKey = PrimaryKeyConstraintSchema::init()
+                                                ->addColumn($vcColumn1)
+                                                ->addColumn($iColumn1);
+        $stmt       = CreateTableStatement::init('TableName')
+                                          ->withColumns($vcColumn1,
+                                                        $iColumn1,
+                                                        $vcColumn2,
+                                                        $vcColumn3)
+                                          ->withConstraints($primaryKey);
+        
         $result = $this->queryFormatter->format($stmt);
         echo __FILE__ . "\n--\n$result\n\n";
     }

@@ -20,8 +20,8 @@ use Sm\Query\Modules\Sql\Formatting\Aliasing\SqlFormattingAliasContainer;
  * @package Sm\Query\Modules\Sql
  */
 class SqlQueryFormatter implements Formatter {
-    /** @var  \Sm\Query\Modules\Sql\Formatting\SqlQueryFormatterFactory $formatterFactory */
-    protected $formatterFactory;
+    /** @var  \Sm\Query\Modules\Sql\Formatting\SqlQueryFormatterFactory $queryFormatter */
+    protected $queryFormatter;
     /**
      * SqlQueryFormatter constructor.
      *
@@ -29,7 +29,7 @@ class SqlQueryFormatter implements Formatter {
      * @param  Aliasing\SqlFormattingAliasContainer                     $aliasContainer   A Container that will tell us how we should change something
      */
     public function __construct(SqlQueryFormatterFactory $formatterFactory) {
-        $this->formatterFactory = $formatterFactory;
+        $this->queryFormatter = $formatterFactory;
     }
     /**
      * Return the item Formatted in the specific way
@@ -41,15 +41,15 @@ class SqlQueryFormatter implements Formatter {
      * @throws \Sm\Core\Exception\UnimplementedError
      */
     public function format($statement): string {
-        return $this->formatterFactory->format($statement);
+        return $this->queryFormatter->format($statement);
     }
     public function proxy($item, $as) {
-        return $this->formatterFactory->proxy($item, $as);
+        return $this->queryFormatter->proxy($item, $as);
     }
     /**
      * @return Aliasing\SqlFormattingAliasContainer
      */
     protected function getAliasContainer(): SqlFormattingAliasContainer {
-        return $this->formatterFactory->getAliasContainer();
+        return $this->queryFormatter->getAliasContainer();
     }
 }

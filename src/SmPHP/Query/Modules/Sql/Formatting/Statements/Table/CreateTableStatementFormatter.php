@@ -10,9 +10,10 @@ namespace Sm\Query\Modules\Sql\Formatting\Statements\Table;
 
 use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Exception\UnimplementedError;
-use Sm\Data\Modules\Sql\Type\Column\ColumnSchema;
+use Sm\Query\Modules\Sql\Constraints\KeyConstraintSchema;
 use Sm\Query\Modules\Sql\Formatting\SqlQueryFormatter;
 use Sm\Query\Modules\Sql\Statements\CreateTableStatement;
+use Sm\Query\Modules\Sql\Type\Column\ColumnSchema;
 
 /**
  * Class CreateTableStatementFormatter
@@ -31,14 +32,21 @@ class CreateTableStatementFormatter extends SqlQueryFormatter {
      */
     public function format($statement): string {
         if (!($statement instanceof CreateTableStatement)) throw new UnimplementedError("+ Anything but CreateTableStatements");
-        $table_name       = $statement->getName();
-        $columns          = $statement->getColumns();
-        $formattedColumns = [];
+        $table_name                     = $statement->getName();
+        $columns                        = $statement->getColumns();
+        $constraints                    = $statement->getConstraints();
+        $formattedColumnsAndConstraints = [];
         foreach ($columns as $column) {
             if (!($column instanceof ColumnSchema)) throw new InvalidArgumentException("Can only create tables with column schemas");
-            $formattedColumns[] = $this->formatterFactory->format($column);
+            $formattedColumnsAndConstraints[] = $this->queryFormatter->format($column);
         }
-        $f_c_string = join(",\n\t", $formattedColumns);
+        foreach ($constraints as $constraint) {
+            if (!($constraint instanceof KeyConstraintSchema)) throw new InvalidArgumentException("Can only create tables with KeyConstraints");
+            $formattedColumnsAndConstraints[] = $this->queryFormatter->format($constraint);
+        }
+    
+    
+        $f_c_string = join(",\n\t", $formattedColumnsAndConstraints);
         return "CREATE TABLE {$table_name}(\n\t{$f_c_string}\n)";
     }
     

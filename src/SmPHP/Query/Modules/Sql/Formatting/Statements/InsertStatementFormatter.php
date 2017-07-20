@@ -31,11 +31,11 @@ class InsertStatementFormatter extends SqlQueryFormatter {
     }
     protected function formatSourceList($source_array): string {
         $sources = [];
-        if (!isset($this->formatterFactory)) throw new IncompleteFormatterException("No formatter Factory");
+        if (!isset($this->queryFormatter)) throw new IncompleteFormatterException("No formatter Factory");
         foreach ($source_array as $index => $source) {
             if (count($sources)) throw new UnimplementedError("Inserting into multiple sources");
             $sourceProxy = $this->proxy($source, TableNameFormattingProxy::class);
-            $sources[]   = $this->formatterFactory->format($sourceProxy);
+            $sources[]   = $this->queryFormatter->format($sourceProxy);
         }
         return join(', ', $sources);
     }
@@ -48,8 +48,8 @@ class InsertStatementFormatter extends SqlQueryFormatter {
                 if (is_numeric($column_name)) throw new InvalidArgumentException("Trying to insert a non-associative array (index {$column_name} in {$number})");
                 $columns[ $column_name ] = null;
                 # Assume it's a column - otherwise, we'd use a different object
-                $formatted_columns[] = $this->formatterFactory->format($this->proxy($column_name,
-                                                                                    ColumnIdentifierFormattingProxy::class));
+                $formatted_columns[] = $this->queryFormatter->format($this->proxy($column_name,
+                                                                                  ColumnIdentifierFormattingProxy::class));
             }
         }
         # todo Sets in PHP?
@@ -59,7 +59,7 @@ class InsertStatementFormatter extends SqlQueryFormatter {
             $_insert_arr = [];
             foreach ($columns as $column) {
                 if (array_key_exists($column, $inserted_item)) {
-                    $_insert_arr[ $column ] = $this->formatterFactory->format($inserted_item[ $column ]);
+                    $_insert_arr[ $column ] = $this->queryFormatter->format($inserted_item[ $column ]);
                 } else {
                     $_insert_arr[ $column ] = 'DEFAULT';
                 }

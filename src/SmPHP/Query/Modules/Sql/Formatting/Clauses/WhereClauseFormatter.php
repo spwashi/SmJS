@@ -35,8 +35,8 @@ class WhereClauseFormatter extends SqlQueryFormatter {
         
         foreach ($conditions as $index => $condition) {
             if ($index !== 0) $where_clause_str .= ' AND ';
-            
-            $where_clause_str .= $this->formatterFactory->format($condition);
+    
+            $where_clause_str .= $this->queryFormatter->format($condition);
         }
         return $where_clause_str;
     }

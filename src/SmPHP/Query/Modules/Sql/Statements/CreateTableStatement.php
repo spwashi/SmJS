@@ -19,7 +19,8 @@ use Sm\Query\Statements\QueryComponent;
  */
 class CreateTableStatement extends QueryComponent {
     protected $name;
-    protected $columns = [];
+    protected $columns     = [];
+    protected $constraints = [];
     public function __construct($name, ...$columns) {
         $this->name = $name;
         $this->withColumns(...$columns);
@@ -32,8 +33,13 @@ class CreateTableStatement extends QueryComponent {
         $this->columns = array_merge($this->columns, $columns);
         return $this;
     }
+    public function withConstraints(...$constraints) {
+        $this->constraints = array_merge($this->constraints, $constraints);
+        return $this;
+    }
     public function getColumns(): array {
         return $this->columns;
     }
     public function getName() { return $this->name; }
+    public function getConstraints() { return $this->constraints; }
 }

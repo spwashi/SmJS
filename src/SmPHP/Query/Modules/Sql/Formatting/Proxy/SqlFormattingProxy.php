@@ -10,6 +10,8 @@ namespace Sm\Query\Modules\Sql\Formatting\Proxy;
 
 use Sm\Core\Formatting\Formatter\FormattingProxyFactory;
 use Sm\Core\Formatting\FormattingProxy;
+use Sm\Core\Internal\Identification\HasObjectIdentityTrait;
+use Sm\Core\Internal\Identification\Identifiable;
 use Sm\Query\Modules\Sql\Formatting\Proxy\Exception\MissingFormattingFactoryException;
 use Sm\Query\Modules\Sql\Formatting\SqlFormattingProxyFactory;
 
@@ -20,13 +22,15 @@ use Sm\Query\Modules\Sql\Formatting\SqlFormattingProxyFactory;
  *
  * @package Sm\Query\Modules\Sql\Formatting\Proxy
  */
-abstract class SqlFormattingProxy implements FormattingProxy {
+abstract class SqlFormattingProxy implements FormattingProxy, Identifiable {
+    use HasObjectIdentityTrait;
     protected $subject;
     /** @var SqlFormattingProxyFactory */
     private $formattingProxyFactory;
     public function __construct($subject, SqlFormattingProxyFactory $formattingProxyFactory = null) {
         $this->subject                = $subject;
         $this->formattingProxyFactory = $formattingProxyFactory;
+        $this->createSelfID();
     }
     /**
      * Static constructior

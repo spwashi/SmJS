@@ -53,7 +53,7 @@ class SelectStatement extends QueryComponent {
     /**
      * Return the sources used
      */
-    public function getFromSources() { return $this->from_sources; }
+    public function getFromSources() { return array_unique($this->from_sources, SORT_REGULAR); }
     
     /**
      * Get the items that are going to be selected

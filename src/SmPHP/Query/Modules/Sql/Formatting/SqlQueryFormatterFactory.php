@@ -10,7 +10,9 @@ namespace Sm\Query\Modules\Sql\Formatting;
 
 use Sm\Core\Formatting\Formatter\Formatter;
 use Sm\Core\Formatting\Formatter\FormatterFactory;
+use Sm\Core\Util;
 use Sm\Query\Modules\Sql\Formatting\Aliasing\SqlFormattingAliasContainer;
+use Sm\Query\Modules\Sql\Formatting\Proxy\PlaceholderFormattingProxy;
 
 /**
  * Class SqlQueryFormatterFactory
@@ -53,9 +55,11 @@ class SqlQueryFormatterFactory extends FormatterFactory {
      * @return mixed|null
      */
     public function proxy($item, string $as = null) {
-        return isset($as)
-            ? $this->formattingProxyFactory->build($as, $item, $this->formattingProxyFactory)
-            : $this->formattingProxyFactory->build($item, $this->formattingProxyFactory);
+        if (isset($as)) {
+            return $this->formattingProxyFactory->build($as, $item, $this->formattingProxyFactory);
+        } else {
+            return $this->formattingProxyFactory->build($item, $this->formattingProxyFactory);
+        }
     }
     /**
      * Get the object that will hold all of the Aliases for the FormatterFactory.
@@ -66,5 +70,11 @@ class SqlQueryFormatterFactory extends FormatterFactory {
      */
     public function getAliasContainer(): SqlFormattingAliasContainer {
         return $this->aliasContainer;
+    }
+    public function getContext(): SqlFormattingContext { return $this->context; }
+    public function placeholder($value, $name = null) {
+        $name = $name??Util::generateRandomString(4, Util::getAlphaCharacters(0));
+        $this->context->addVariables([ $name => $value ]);
+        return $this->proxy([ $name, $value, ], PlaceholderFormattingProxy::class);
     }
 }

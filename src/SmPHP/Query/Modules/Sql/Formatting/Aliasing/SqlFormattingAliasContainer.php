@@ -9,9 +9,11 @@ namespace Sm\Query\Modules\Sql\Formatting\Aliasing;
 
 
 use Sm\Core\Container\Container;
+use Sm\Core\Container\Mini\MiniContainer;
 use Sm\Core\Exception\Error;
 use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Internal\Identification\Identifiable;
+use Sm\Core\Proxy\Proxy;
 use Sm\Core\Util;
 
 /**
@@ -22,6 +24,31 @@ use Sm\Core\Util;
  * @package Sm\Query\Modules\Sql\Formatting
  */
 class SqlFormattingAliasContainer extends Container {
+    protected $proxyContainer;
+    /**
+     * SqlFormattingAliasContainer constructor.
+     */
+    public function __construct() {
+        parent::__construct();
+        $this->proxyContainer = new MiniContainer;
+    }
+    /**
+     * Register a Proxy for something that we might alias.
+     * This allows us
+     *
+     * @param $item
+     * @param $proxy
+     *
+     * @return $this
+     */
+    public function registerProxy($item, Proxy $proxy) {
+        $this->proxyContainer->register($this->standardizeName($item), $proxy);
+        return $this;
+    }
+    public function resolveProxy($item) {
+        return $this->proxyContainer->resolve($this->standardizeName($item));
+    }
+    
     /**
      * @param array|null|string                                  $name
      * @param callable|mixed|null|\Sm\Core\Resolvable\Resolvable $registrand
@@ -48,12 +75,11 @@ class SqlFormattingAliasContainer extends Container {
      * Keep trying to find the alias of something if we can
      *
      * @param string $item
-     * @param null   $fallback Something to fall back on if the Alias doesn't actually exist.
      *
      * @return mixed|null|string
      * @throws \Sm\Core\Exception\Error
      */
-    public function getFinalAlias($item, $fallback = null) {
+    public function getFinalAlias($item) {
         $aliased = $item;
         $count   = 0;
         # Loop through, replacing "next_alias" with the result of "resolve". Stop once there are no more aliases
@@ -66,16 +92,11 @@ class SqlFormattingAliasContainer extends Container {
         } catch (InvalidArgumentException $e) {
         }
         
-        # If we've provided a fallback, use it
-        if ($item === $aliased && isset($fallback)) {
-            $this->register($fallback, $item);
-        }
-        
         return $aliased;
     }
     protected function standardizeName($name): string {
         if ($name instanceof Identifiable) return $name->getObjectId();
         if (is_string($name) || is_scalar($name)) return "$name";
-        throw new InvalidArgumentException("There is no way to alias this item - " . Util::getShapeOfItem($name) . ' - ' . json_encode($name));
+        throw new InvalidArgumentException("There is no way to alias this '" . Util::getShapeOfItem($name) . "' - " . json_encode($name));
     }
 }

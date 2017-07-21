@@ -46,9 +46,9 @@ class FormatterFactory extends StandardFactory {
             /** @var callable */
             private $callback;
             public function __construct(callable $callback) { $this->callback = $callback; }
-            public function format($statement) {
+            public function format($columnSchema) {
                 $callback = $this->callback;
-                return $callback($statement);
+                return $callback($columnSchema);
             }
         };
     }

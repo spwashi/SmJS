@@ -13,7 +13,7 @@ use Sm\Core\Exception\UnimplementedError;
 use Sm\Query\Modules\Sql\Constraints\KeyConstraintSchema;
 use Sm\Query\Modules\Sql\Formatting\SqlQueryFormatter;
 use Sm\Query\Modules\Sql\Statements\CreateTableStatement;
-use Sm\Query\Modules\Sql\Type\Column\ColumnSchema;
+use Sm\Query\Modules\Sql\Data\Column\ColumnSchema;
 
 /**
  * Class CreateTableStatementFormatter
@@ -24,25 +24,25 @@ use Sm\Query\Modules\Sql\Type\Column\ColumnSchema;
  */
 class CreateTableStatementFormatter extends SqlQueryFormatter {
     /**
-     * @param $statement
+     * @param $columnSchema
      *
      * @return string
      * @throws \Sm\Core\Exception\InvalidArgumentException
      * @throws \Sm\Core\Exception\UnimplementedError
      */
-    public function format($statement): string {
-        if (!($statement instanceof CreateTableStatement)) throw new UnimplementedError("+ Anything but CreateTableStatements");
-        $table_name                     = $statement->getName();
-        $columns                        = $statement->getColumns();
-        $constraints                    = $statement->getConstraints();
+    public function format($columnSchema): string {
+        if (!($columnSchema instanceof CreateTableStatement)) throw new UnimplementedError("+ Anything but CreateTableStatements");
+        $table_name                     = $columnSchema->getName();
+        $columns                        = $columnSchema->getColumns();
+        $constraints                    = $columnSchema->getConstraints();
         $formattedColumnsAndConstraints = [];
         foreach ($columns as $column) {
             if (!($column instanceof ColumnSchema)) throw new InvalidArgumentException("Can only create tables with column schemas");
-            $formattedColumnsAndConstraints[] = $this->queryFormatter->format($column);
+            $formattedColumnsAndConstraints[] = $this->formatComponent($column);
         }
         foreach ($constraints as $constraint) {
             if (!($constraint instanceof KeyConstraintSchema)) throw new InvalidArgumentException("Can only create tables with KeyConstraints");
-            $formattedColumnsAndConstraints[] = $this->queryFormatter->format($constraint);
+            $formattedColumnsAndConstraints[] = $this->formatComponent($constraint);
         }
     
     

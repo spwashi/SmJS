@@ -12,15 +12,15 @@ use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Resolvable\Error\UnresolvableException;
 
 /**
- * Class DataSourceGarage
+ * Class DataSourceSchemaGarage
  *
- * Class that holds or creates DataSources. Meant to resolve the Source(s) of items that belong to the Data layer
+ * Class that holds or creates DataSourceSchemas. Meant to resolve the Source(s) of items that belong to the Data layer
  *
  * @package Sm\Data\Source
  */
-class DataSourceGarage implements Registry {
-    /** @var \Sm\Data\Source\DataSourceFactory $dataSourceFactory */
-    private $dataSourceFactory;
+class DataSourceSchemaGarage implements Registry {
+    /** @var \Sm\Data\Source\DataSourceFactory $dataSourceSchemaFactory */
+    private $dataSourceSchemaFactory;
     /** @var \Sm\Data\Source\DataSourceContainer $dataSourceContainer */
     private $dataSourceContainer;
     
@@ -30,12 +30,12 @@ class DataSourceGarage implements Registry {
      * @param \Sm\Data\Source\DataSourceFactory   $dataSourceFactory   The Factory that will create Sources
      * @param \Sm\Data\Source\DataSourceContainer $dataSourceContainer The Container that will hold Sources
      */
-    public function __construct(DataSourceContainer $dataSourceContainer = null, DataSourceFactory $dataSourceFactory = null) {
-        $this->dataSourceFactory   = $dataSourceFactory ?? new DataSourceFactory;
-        $this->dataSourceContainer = $dataSourceContainer ?? new DataSourceContainer;
+    public function __construct(DataSourceContainer $dataSourceContainer = null, DataSourceSchemaFactory $dataSourceFactory = null) {
+        $this->dataSourceSchemaFactory = $dataSourceFactory ?? new DataSourceSchemaFactory;
+        $this->dataSourceContainer     = $dataSourceContainer ?? new DataSourceContainer;
     }
     public function register($name, $registrand = null) {
-        if (!$registrand) $this->dataSourceFactory->register($name);
+        if (!$registrand) $this->dataSourceSchemaFactory->register($name);
         else $this->dataSourceContainer->register($name, $registrand);
         return $this;
     }
@@ -43,7 +43,7 @@ class DataSourceGarage implements Registry {
         if (!$item) throw new InvalidArgumentException("Cannot resolve Null");
         $result = $this->dataSourceContainer->resolve($item);
         if ($result) return $result;
-        $result = $this->dataSourceFactory->resolve($item);
+        $result = $this->dataSourceSchemaFactory->resolve($item);
         if ($result) return $result;
         throw new UnresolvableException("Cannot find matching source.");
     }

@@ -25,7 +25,7 @@ class SqlExecutionContext implements SqlFormattingContext {
      *
      * @return $this
      */
-    public function setVariables(array $variables) {
+    public function addVariables(array $variables) {
         $this->variables = array_merge($this->variables ?? [], $variables);
         return $this;
     }

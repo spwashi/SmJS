@@ -8,6 +8,7 @@
 namespace Sm\Query\Modules\Sql\Formatting\Proxy\Table;
 
 use Sm\Core\Formatting\FormattingProxy;
+use Sm\Storage\Database\Table\TableSourceSchema;
 
 
 /**
@@ -17,6 +18,6 @@ use Sm\Core\Formatting\FormattingProxy;
  *
  * @package Sm\Query\Modules\Sql\Formatting\Proxy
  */
-interface TableFormattingProxy extends FormattingProxy {
-    public function getTableName(): string;
+interface TableFormattingProxy extends FormattingProxy, TableSourceSchema {
+    public function getName(): string;
 }

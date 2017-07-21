@@ -24,5 +24,5 @@ interface SqlFormattingContext extends Context {
      *
      * @return $this
      */
-    public function setVariables(array $variables);
+    public function addVariables(array $variables);
 }

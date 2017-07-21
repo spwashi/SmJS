@@ -127,11 +127,12 @@ class StandardFactory extends AbstractContainer implements Factory {
             try {
                 array_shift($args);
                 # If the original class exists or we found a match, create the class
-                $result                 = $this->buildClassInstance($class_name, $args);
-                $this->searched_parents = [];
+                $result = $this->buildClassInstance($class_name, $args);
                 return $result;
             } catch (ClassNotFoundException $e) {
                 $previous_exception = $e;
+            } finally {
+                $this->searched_parents = [];
             }
         }
         
@@ -216,8 +217,9 @@ class StandardFactory extends AbstractContainer implements Factory {
     }
     private function _checkCanInit($class_name) {
         if (!$this->canCreateClass($class_name) || !$this->do_create_missing) {
-            $type = is_string($class_name) ? $class_name : Util::getShapeOfItem($class_name);
-            throw new WrongFactoryException("Not allowed to create class of type {$type}");
+            $type       = is_string($class_name) ? $class_name : Util::getShapeOfItem($class_name);
+            $self_class = static::class;
+            throw new WrongFactoryException("{$self_class} not allowed to create class of type {$type}");
         }
     }
     /**

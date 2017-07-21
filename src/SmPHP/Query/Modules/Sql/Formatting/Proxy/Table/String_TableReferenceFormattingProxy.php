@@ -62,7 +62,7 @@ class String_TableReferenceFormattingProxy extends TableReferenceFormattingProxy
      * @return string
      * @throws \Sm\Core\Exception\InvalidArgumentException
      */
-    public function getTableName(): string {
+    public function getName(): string {
         if (isset($this->table_name)) return $this->table_name;
         
         # If if is a string like (db.table_name) or somethin

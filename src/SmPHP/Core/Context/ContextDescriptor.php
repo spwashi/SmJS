@@ -9,6 +9,7 @@ namespace Sm\Core\Context;
 
 use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Exception\TypeMismatchException;
+use Sm\Core\Schema\ComparableSchema;
 use Sm\Core\Schema\Schema;
 use Sm\Core\Util;
 
@@ -20,7 +21,7 @@ use Sm\Core\Util;
  *
  * @package Sm\Core\Context
  */
-class ContextDescriptor implements Schema {
+class ContextDescriptor implements ComparableSchema {
     /** @var array $matching_context_classes An array of the classes that will match this Context */
     protected $matching_context_classes = null;
     

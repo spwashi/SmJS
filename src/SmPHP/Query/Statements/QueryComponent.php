@@ -7,7 +7,7 @@
 
 namespace Sm\Query\Statements;
 
-use Sm\Data\Source\DataSourceGarage;
+use Sm\Data\Source\DataSourceSchemaGarage;
 
 /**
  * Class QueryComponent
@@ -17,7 +17,7 @@ use Sm\Data\Source\DataSourceGarage;
  * @package Sm\Query\Statements
  */
 class QueryComponent {
-    /** @var  DataSourceGarage */
+    /** @var  DataSourceSchemaGarage */
     private $sourceGarage;
     /**
      * @return static
@@ -28,19 +28,19 @@ class QueryComponent {
     /**
      * This is what helps us figure out what the DataSource of whatever we're working with is
      *
-     * @return DataSourceGarage
+     * @return DataSourceSchemaGarage
      */
-    public function getSourceGarage(): DataSourceGarage {
-        return $this->sourceGarage = $this->sourceGarage ?? new DataSourceGarage;
+    public function getSourceGarage(): DataSourceSchemaGarage {
+        return $this->sourceGarage = $this->sourceGarage ?? new DataSourceSchemaGarage;
     }
     /**
      * Set the thing that is going to resolve where the Source of the item is located
      *
-     * @param DataSourceGarage $sourceGarage
+     * @param DataSourceSchemaGarage $sourceGarage
      *
      * @return QueryComponent
      */
-    public function setSourceGarage(DataSourceGarage $sourceGarage): QueryComponent {
+    public function setSourceGarage(DataSourceSchemaGarage $sourceGarage): QueryComponent {
         $this->sourceGarage = $sourceGarage;
         return $this;
     }

@@ -9,8 +9,7 @@ namespace Sm\Query\Modules\Sql\Formatting\Proxy\Column;
 
 
 use Sm\Query\Modules\Sql\Formatting\Proxy\SqlFormattingProxy;
-use Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableFormattingProxy;
-use Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableReferenceFormattingProxy;
+use Sm\Storage\Database\Table\TableSourceSchema;
 
 /**
  * Class ColumnFormattingProxy
@@ -20,6 +19,6 @@ use Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableReferenceFormattingProxy;
  * @package Sm\Query\Modules\Sql\Formatting\Proxy
  */
 abstract class ColumnIdentifierFormattingProxy extends SqlFormattingProxy {
-    abstract public function getTable(): ?TableFormattingProxy;
+    abstract public function getTable(): ? TableSourceSchema;
     abstract public function getColumnName(): ?string;
 }

@@ -5,26 +5,30 @@
  * Time: 11:58 AM
  */
 
-namespace Sm\Query\Modules\Sql\Type\Column;
+namespace Sm\Query\Modules\Sql\Data\Column;
 
 
-use Sm\Core\Exception\UnimplementedError;
 use Sm\Core\Schema\Schema;
+use Sm\Data\Source\DataSourceSchema;
+use Sm\Data\Source\DiscretelySourced;
+use Sm\Storage\Database\Table\TableSourceSchema;
 
 /**
  * Class ColumnSchema
  *
  * Meant to represent a Column
  *
- * @package Sm\Query\Modules\Sql\Type\Column
+ * @package Sm\Query\Modules\Sql\Data\Column
  */
-abstract class ColumnSchema implements Schema {
+abstract class ColumnSchema implements Schema, DiscretelySourced {
     protected $name;
     /** @var  bool */
     protected $can_be_null = true;
     protected $type;
     protected $unique      = false;
     protected $length;
+    /** @var  TableSourceSchema $table_schema */
+    protected $table_schema = null;
     
     public function __construct(string $name = null) {
         if ($name) $this->setName($name);
@@ -32,16 +36,13 @@ abstract class ColumnSchema implements Schema {
     public static function init() {
         return new static(...func_get_args());
     }
-    public function compare($item) {
-        throw new UnimplementedError("+ Cannot compare to Column Schemas");
-    }
     public function getName(): ?string {
         return $this->name;
     }
     /**
      * @param $name
      *
-     * @return \Sm\Query\Modules\Sql\Type\Column\ColumnSchema
+     * @return \Sm\Query\Modules\Sql\Data\Column\ColumnSchema
      */
     public function setName($name) {
         $this->name = $name;
@@ -60,7 +61,7 @@ abstract class ColumnSchema implements Schema {
     /**
      * @param int $length
      *
-     * @return \Sm\Query\Modules\Sql\Type\Column\ColumnSchema
+     * @return \Sm\Query\Modules\Sql\Data\Column\ColumnSchema
      */
     public function setLength(int $length) {
         $this->length = $length;
@@ -69,7 +70,7 @@ abstract class ColumnSchema implements Schema {
     /**
      * @param bool $nullability
      *
-     * @return \Sm\Query\Modules\Sql\Type\Column\ColumnSchema
+     * @return \Sm\Query\Modules\Sql\Data\Column\ColumnSchema
      */
     public function setNullability($nullability = false) {
         $this->can_be_null = (bool)$nullability;
@@ -88,4 +89,18 @@ abstract class ColumnSchema implements Schema {
         $this->unique = $unique;
         return $this;
     }
+    public function getTableSchema(): ?TableSourceSchema {
+        return $this->table_schema;
+    }
+    public function setTableSchema(TableSourceSchema $table_schema) {
+        $this->table_schema = $table_schema;
+        return $this;
+    }
+    /**
+     * @return null|\Sm\Data\Source\DataSourceSchema
+     */
+    public function getDataSourceSchema():?DataSourceSchema {
+        return $this->getTableSchema();
+    }
+    
 }

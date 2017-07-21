@@ -9,6 +9,9 @@ namespace Sm\Core;
 
 
 class Util {
+    const ALPHA     = 'abcdefghijjlmnopqrstuvwkyz';
+    const ALPHA_ALL = 'abcdefghijjlmnopqrstuvwkyzABCDEFGHIJJLMNOPQRSTUVWKYZ';
+    
     /**
      * Return a string representing the general structure of the item as a pipe-delimited string
      *

@@ -29,14 +29,14 @@ class WhereClauseFormatter extends SqlQueryFormatter {
      */
     public function format($whereClause): string {
         if (!($whereClause instanceof WhereClause)) throw new InvalidArgumentException('Can only format WhereClauses');
-        $where_clause_str = 'WHERE ';
+        $where_clause_str = "WHERE\t";
         $conditions       = $whereClause->getConditions();
         if (!count($conditions)) throw new IncompleteClauseException("There are no conditions to the Where clause.");
         
         foreach ($conditions as $index => $condition) {
             if ($index !== 0) $where_clause_str .= ' AND ';
     
-            $where_clause_str .= $this->queryFormatter->format($condition);
+            $where_clause_str .= $this->formatComponent($condition);
         }
         return $where_clause_str;
     }

@@ -20,9 +20,9 @@ interface Formatter {
     /**
      * Return the item Formatted in the specific way
      *
-     * @param $statement
+     * @param $columnSchema
      *
      * @return mixed
      */
-    public function format($statement);
+    public function format($columnSchema);
 }

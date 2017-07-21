@@ -18,7 +18,7 @@ use Sm\Core\Internal\Identification\Identifiable;
  * Represents something that can be queried
  *
  */
-abstract class DataSource implements Identifiable {
+abstract class DataSource implements Identifiable, DataSourceSchema {
     use HasObjectIdentityTrait;
     /** @var  Authentication $authentication Represents the Authenticated connection to whatever source */
     protected $authentication;

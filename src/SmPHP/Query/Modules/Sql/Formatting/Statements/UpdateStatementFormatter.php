@@ -10,7 +10,6 @@ namespace Sm\Query\Modules\Sql\Formatting\Statements;
 
 use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Exception\UnimplementedError;
-use Sm\Core\Formatting\Formatter\Exception\IncompleteFormatterException;
 use Sm\Query\Modules\Sql\Formatting\Proxy\Column\ColumnIdentifierFormattingProxy;
 use Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableReferenceFormattingProxy;
 use Sm\Query\Modules\Sql\Formatting\SqlQueryFormatter;
@@ -24,13 +23,14 @@ use Sm\Query\Statements\UpdateStatement;
  * @package Sm\Query\Modules\Sql\Formatting\Statements
  */
 class UpdateStatementFormatter extends SqlQueryFormatter {
-    public function format($statement): string {
-        if (!($statement instanceof UpdateStatement)) throw new InvalidArgumentException("Can only format UpdateStatements");
+    public function format($columnSchema): string {
+        if (!($columnSchema instanceof UpdateStatement)) throw new InvalidArgumentException("Can only format UpdateStatements");
         
-        $update_expression_list = $this->formatUpdateExpressionList($statement->getUpdatedItems());
-        $where_string           = $this->queryFormatter->format($statement->getWhereClause());
-        $source_string          = $this->formatSourceList($statement->getIntoSources());
-    
+        $update_expression_list = $this->formatUpdateExpressionList($columnSchema->getUpdatedItems());
+        $whereClause            = $columnSchema->getWhereClause();
+        $where_string           = $whereClause ? $this->formatComponent($whereClause) : '';
+        $source_string          = $this->formatSourceList($columnSchema->getIntoSources());
+        
         $update_stmt = "UPDATE {$source_string} \nSET\t{$update_expression_list}\n{$where_string}";
         
         $update_stmt = trim($update_stmt);
@@ -47,9 +47,8 @@ class UpdateStatementFormatter extends SqlQueryFormatter {
      */
     protected function formatSourceList($source_array): string {
         $sources = [];
-        if (!isset($this->queryFormatter)) throw new IncompleteFormatterException("No formatter Factory");
         foreach ($source_array as $index => $source) {
-            $sources[] = $this->queryFormatter->format($this->proxy($source, TableReferenceFormattingProxy::class));
+            $sources[] = $this->formatComponent($this->proxy($source, TableReferenceFormattingProxy::class));
         }
         return join(', ', $sources);
     }
@@ -58,10 +57,10 @@ class UpdateStatementFormatter extends SqlQueryFormatter {
         foreach ($updates as $item) {
             if (is_array($item)) {
                 foreach ($item as $key => $value) {
-                    $key   = $this->queryFormatter->format($this->proxy($key, ColumnIdentifierFormattingProxy::class));
-                    $value = $this->queryFormatter->format($value);
-                    
-                    $expression_list[] = "{$key} = {$value}";
+                    $columnIdentifierProxy = $this->proxy($key, ColumnIdentifierFormattingProxy::class);
+                    $key                   = $this->formatComponent($columnIdentifierProxy);
+                    $value                 = $this->formatComponent($value);
+                    $expression_list[]     = "{$key} = {$value}";
                 }
             } else throw new UnimplementedError("+ Anything but associative in the expression list");
         }

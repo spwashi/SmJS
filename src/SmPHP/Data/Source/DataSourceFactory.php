@@ -8,8 +8,6 @@
 namespace Sm\Data\Source;
 
 
-use Sm\Core\Factory\StandardFactory;
-
 /**
  * Class DataSourceFactory
  *
@@ -17,7 +15,7 @@ use Sm\Core\Factory\StandardFactory;
  *
  * @package Sm\Data\Source
  */
-class DataSourceFactory extends StandardFactory {
+class DataSourceFactory extends DataSourceSchemaFactory {
     /**
      * @param object|string $object_type
      *

@@ -9,10 +9,10 @@ namespace Sm\Query\Modules\Sql\Constraints;
 
 
 use Sm\Core\Exception\UnimplementedError;
-use Sm\Query\Modules\Sql\Type\Column\ColumnSchema;
+use Sm\Query\Modules\Sql\Data\Column\ColumnSchema;
 
 class PrimaryKeyConstraintSchema implements KeyConstraintSchema {
-    /** @var \Sm\Query\Modules\Sql\Type\Column\ColumnSchema[] */
+    /** @var \Sm\Query\Modules\Sql\Data\Column\ColumnSchema[] */
     private $columns;
     public function __construct(ColumnSchema ...$columns) {
         $this->columns = $columns;
@@ -24,7 +24,7 @@ class PrimaryKeyConstraintSchema implements KeyConstraintSchema {
         throw new UnimplementedError("+ Cannot compare to PrimaryKeyConstraint Schemas");
     }
     /**
-     * @return \Sm\Query\Modules\Sql\Type\Column\ColumnSchema[]
+     * @return \Sm\Query\Modules\Sql\Data\Column\ColumnSchema[]
      */
     public function getColumns(): array {
         return $this->columns;

@@ -13,6 +13,7 @@ use Sm\Core\Exception\UnimplementedError;
 use Sm\Core\Formatting\Formatter\FormattingProxyFactory;
 use Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableFormattingProxy;
 use Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableNameFormattingProxy;
+use Sm\Storage\Database\Table\TableSourceSchema;
 
 class String_ColumnIdentifierFormattingProxy extends ColumnIdentifierFormattingProxy {
     protected $subject;
@@ -31,7 +32,7 @@ class String_ColumnIdentifierFormattingProxy extends ColumnIdentifierFormattingP
      * @return null|\Sm\Query\Modules\Sql\Formatting\Proxy\SqlFormattingProxy|TableFormattingProxy
      * @throws \Sm\Core\Exception\InvalidArgumentException
      */
-    public function getTable(): ?TableFormattingProxy {
+    public function getTable(): ?TableSourceSchema {
         if (isset($this->table)) return $this->table;
         
         

@@ -17,12 +17,12 @@ use Sm\Query\Modules\Sql\Formatting\SqlQueryFormatter;
 use Sm\Query\Statements\InsertStatement;
 
 class InsertStatementFormatter extends SqlQueryFormatter {
-    public function format($statement): string {
-        if (!($statement instanceof InsertStatement)) throw new InvalidArgumentException("Can only format InsertStatements");
+    public function format($columnSchema): string {
+        if (!($columnSchema instanceof InsertStatement)) throw new InvalidArgumentException("Can only format InsertStatements");
         
-        list($column_string, $insertExpressionList) = $this->formatInsertExpressionList($statement->getInsertedItems());
-    
-        $sources       = $statement->getIntoSources();
+        list($column_string, $insertExpressionList) = $this->formatInsertExpressionList($columnSchema->getInsertedItems());
+        
+        $sources       = $columnSchema->getIntoSources();
         $source_string = $this->formatSourceList($sources);
         
         $update_stmt = "INSERT INTO {$source_string}\n\t\t({$column_string})\nVALUES\t{$insertExpressionList}";
@@ -35,7 +35,7 @@ class InsertStatementFormatter extends SqlQueryFormatter {
         foreach ($source_array as $index => $source) {
             if (count($sources)) throw new UnimplementedError("Inserting into multiple sources");
             $sourceProxy = $this->proxy($source, TableNameFormattingProxy::class);
-            $sources[]   = $this->queryFormatter->format($sourceProxy);
+            $sources[]   = $this->formatComponent($sourceProxy);
         }
         return join(', ', $sources);
     }
@@ -48,8 +48,8 @@ class InsertStatementFormatter extends SqlQueryFormatter {
                 if (is_numeric($column_name)) throw new InvalidArgumentException("Trying to insert a non-associative array (index {$column_name} in {$number})");
                 $columns[ $column_name ] = null;
                 # Assume it's a column - otherwise, we'd use a different object
-                $formatted_columns[] = $this->queryFormatter->format($this->proxy($column_name,
-                                                                                  ColumnIdentifierFormattingProxy::class));
+                $formatted_columns[] = $this->formatComponent($this->proxy($column_name,
+                                                                           ColumnIdentifierFormattingProxy::class));
             }
         }
         # todo Sets in PHP?
@@ -59,7 +59,7 @@ class InsertStatementFormatter extends SqlQueryFormatter {
             $_insert_arr = [];
             foreach ($columns as $column) {
                 if (array_key_exists($column, $inserted_item)) {
-                    $_insert_arr[ $column ] = $this->queryFormatter->format($inserted_item[ $column ]);
+                    $_insert_arr[ $column ] = $this->formatComponent($inserted_item[ $column ]);
                 } else {
                     $_insert_arr[ $column ] = 'DEFAULT';
                 }

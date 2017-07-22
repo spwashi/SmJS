@@ -9,8 +9,9 @@ namespace Sm\Storage\Database\Table;
 
 
 use Sm\Core\Internal\Identification\Identifiable;
-use Sm\Data\Source\DataSourceSchema;
+use Sm\Data\Source\Schema\DataSourceSchema;
+use Sm\Data\Source\Schema\NamedDataSourceSchema;
 
-interface TableSourceSchema extends DataSourceSchema, Identifiable {
-    public function getName();
+interface TableSourceSchema extends NamedDataSourceSchema, Identifiable {
+    public function getName():?string;
 }

@@ -7,6 +7,8 @@
 
 namespace Sm\Data\Source;
 
+use Sm\Data\Source\Schema\DataSourceSchemaFactory;
+
 
 /**
  * Class DataSourceFactory

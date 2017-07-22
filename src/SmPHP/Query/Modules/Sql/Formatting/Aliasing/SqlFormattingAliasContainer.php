@@ -15,6 +15,7 @@ use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Internal\Identification\Identifiable;
 use Sm\Core\Proxy\Proxy;
 use Sm\Core\Util;
+use Sm\Query\Modules\Sql\Formatting\Aliasing\Exception\InvalidAliasedItem;
 
 /**
  * Class SqlFormattingAliasContainer
@@ -36,17 +37,22 @@ class SqlFormattingAliasContainer extends Container {
      * Register a Proxy for something that we might alias.
      * This allows us
      *
-     * @param $item
-     * @param $proxy
+     * @param                      $item
+     * @param  string              $as Classname of how it is supposed to be proxied
+     * @param \Sm\Core\Proxy\Proxy $proxy
      *
      * @return $this
      */
-    public function registerProxy($item, Proxy $proxy) {
-        $this->proxyContainer->register($this->standardizeName($item), $proxy);
+    public function registerProxy($item, $as, Proxy $proxy) {
+        $this->proxyContainer->register($this->standardizeName($item) . $as, $proxy);
         return $this;
     }
-    public function resolveProxy($item) {
-        return $this->proxyContainer->resolve($this->standardizeName($item));
+    public function resolveProxy($item, $as) {
+        try {
+            return $this->proxyContainer->resolve($this->standardizeName($item) . $as);
+        } catch (InvalidAliasedItem $exception) {
+            return null;
+        }
     }
     
     /**
@@ -87,7 +93,7 @@ class SqlFormattingAliasContainer extends Container {
             while ($next_alias = $this->resolve($this->standardizeName($aliased))) {
                 $count++;
                 $aliased = $next_alias;
-                if ($count === 15) throw new Error("Looks like there might be some recursion. 15 calls to 'resolve'");
+                if ($count === 15) throw new Error("Looks like there might be some recursion. 15 calls to 'resolve' after [" . Util::getShapeOfItem($aliased) . ']');
             }
         } catch (InvalidArgumentException $e) {
         }
@@ -97,6 +103,6 @@ class SqlFormattingAliasContainer extends Container {
     protected function standardizeName($name): string {
         if ($name instanceof Identifiable) return $name->getObjectId();
         if (is_string($name) || is_scalar($name)) return "$name";
-        throw new InvalidArgumentException("There is no way to alias this '" . Util::getShapeOfItem($name) . "' - " . json_encode($name));
+        throw new Exception\InvalidAliasedItem("There is no way to alias this '" . Util::getShapeOfItem($name) . "' - " . json_encode($name));
     }
 }

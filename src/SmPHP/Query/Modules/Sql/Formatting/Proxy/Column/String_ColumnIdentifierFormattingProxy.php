@@ -11,8 +11,9 @@ namespace Sm\Query\Modules\Sql\Formatting\Proxy\Column;
 use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Exception\UnimplementedError;
 use Sm\Core\Formatting\Formatter\FormattingProxyFactory;
-use Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableFormattingProxy;
-use Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableNameFormattingProxy;
+use Sm\Data\Source\Schema\DataSourceSchema;
+use Sm\Query\Modules\Sql\Formatting\Proxy\Source\Table\TableFormattingProxy;
+use Sm\Query\Modules\Sql\Formatting\Proxy\Source\NamedDataSourceFormattingProxy;
 use Sm\Storage\Database\Table\TableSourceSchema;
 
 class String_ColumnIdentifierFormattingProxy extends ColumnIdentifierFormattingProxy {
@@ -32,7 +33,7 @@ class String_ColumnIdentifierFormattingProxy extends ColumnIdentifierFormattingP
      * @return null|\Sm\Query\Modules\Sql\Formatting\Proxy\SqlFormattingProxy|TableFormattingProxy
      * @throws \Sm\Core\Exception\InvalidArgumentException
      */
-    public function getTable(): ?TableSourceSchema {
+    public function getSource(): ?DataSourceSchema {
         if (isset($this->table)) return $this->table;
         
         
@@ -49,7 +50,7 @@ class String_ColumnIdentifierFormattingProxy extends ColumnIdentifierFormattingP
             throw new InvalidArgumentException("Improper subject for table");
         }
         
-        return $this->table = $this->getFormattingProxyFactory()->build(TableNameFormattingProxy::class, $table_name);
+        return $this->table = $this->getFormattingProxyFactory()->build(NamedDataSourceFormattingProxy::class, $table_name);
     }
     /**
      * Returns the assumed name of the column based on everything we know

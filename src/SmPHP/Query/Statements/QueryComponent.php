@@ -7,7 +7,7 @@
 
 namespace Sm\Query\Statements;
 
-use Sm\Data\Source\DataSourceSchemaGarage;
+use Sm\Data\Source\Schema\DataSourceSchemaGarage;
 
 /**
  * Class QueryComponent
@@ -17,7 +17,7 @@ use Sm\Data\Source\DataSourceSchemaGarage;
  * @package Sm\Query\Statements
  */
 class QueryComponent {
-    /** @var  DataSourceSchemaGarage */
+    /** @var  \Sm\Data\Source\Schema\DataSourceSchemaGarage */
     private $sourceGarage;
     /**
      * @return static
@@ -36,7 +36,7 @@ class QueryComponent {
     /**
      * Set the thing that is going to resolve where the Source of the item is located
      *
-     * @param DataSourceSchemaGarage $sourceGarage
+     * @param \Sm\Data\Source\Schema\DataSourceSchemaGarage $sourceGarage
      *
      * @return QueryComponent
      */

@@ -5,7 +5,7 @@
  * Time: 9:32 PM
  */
 
-namespace Sm\Data\Source;
+namespace Sm\Data\Source\Schema;
 
 
 use Sm\Core\Schema\Schema;

@@ -5,11 +5,12 @@
  * Time: 6:57 PM
  */
 
-namespace Sm\Data\Source;
+namespace Sm\Data\Source\Schema;
 
 use Sm\Core\Abstraction\Registry;
 use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Resolvable\Error\UnresolvableException;
+use Sm\Data\Source\DataSourceContainer;
 
 /**
  * Class DataSourceSchemaGarage

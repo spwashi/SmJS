@@ -9,8 +9,8 @@ namespace Sm\Query\Modules\Sql\Data\Column;
 
 
 use Sm\Core\Schema\Schema;
-use Sm\Data\Source\DataSourceSchema;
 use Sm\Data\Source\DiscretelySourced;
+use Sm\Data\Source\Schema\DataSourceSchema;
 use Sm\Storage\Database\Table\TableSourceSchema;
 
 /**
@@ -97,7 +97,7 @@ abstract class ColumnSchema implements Schema, DiscretelySourced {
         return $this;
     }
     /**
-     * @return null|\Sm\Data\Source\DataSourceSchema
+     * @return null|\Sm\Data\Source\Schema\DataSourceSchema
      */
     public function getDataSourceSchema():?DataSourceSchema {
         return $this->getTableSchema();

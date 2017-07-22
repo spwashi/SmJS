@@ -10,20 +10,16 @@ namespace Sm\Query\Modules\Sql\Formatting\Proxy\Column;
 
 use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Util;
+use Sm\Data\Source\Schema\DataSourceSchema;
 use Sm\Query\Modules\Sql\Data\Column\ColumnSchema;
-use Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableFormattingProxy;
 use Sm\Query\Modules\Sql\Formatting\SqlFormattingProxyFactory;
-use Sm\Storage\Database\Table\TableSourceSchema;
 
 /**
- * Class ColumnFormattingProxy
- *
- * Class that is going to help tell us stuff about an item in the context of being a column
- *
- * @package Sm\Query\Modules\Sql\Formatting\Proxy
+ * @inheritdoc
+ * @package Sm\Query\Modules\Sql\Formatting\Proxy\Column
  */
 class ColumnSchema_ColumnIdentifierFormattingProxy extends ColumnIdentifierFormattingProxy {
-    /** @var  TableFormattingProxy $table */
+    /** @var  \Sm\Query\Modules\Sql\Formatting\Proxy\Source\NamedDataSourceFormattingProxy $table */
     protected $table;
     protected $column_name;
     /** @var  \Sm\Query\Modules\Sql\Data\Column\ColumnSchema $subject */
@@ -42,10 +38,7 @@ class ColumnSchema_ColumnIdentifierFormattingProxy extends ColumnIdentifierForma
         }
         parent::__construct($subject, $formattingProxyFactory);
     }
-    /**
-     * @return null|\Sm\Storage\Database\Table\TableSourceSchema
-     */
-    public function getTable(): ?TableSourceSchema {
+    public function getSource(): ?DataSourceSchema {
         if (isset($this->table)) return $this->table;
         $tableSchema = $this->subject->getTableSchema();
         if (!$tableSchema) return null;

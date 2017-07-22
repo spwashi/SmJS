@@ -7,8 +7,14 @@
 
 namespace Sm\Query\Statements\Clauses;
 
-
-class WhereClause {
+/**
+ * Class ConditionalClause
+ *
+ * Represents a string of Conditions
+ *
+ * @package Sm\Query\Statements\Clauses
+ */
+class ConditionalClause {
     protected $conditions = [];
     public function __construct(...$conditions) {
         $this->conditions = $conditions;

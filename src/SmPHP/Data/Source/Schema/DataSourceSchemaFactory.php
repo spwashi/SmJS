@@ -5,11 +5,12 @@
  * Time: 9:49 PM
  */
 
-namespace Sm\Data\Source;
+namespace Sm\Data\Source\Schema;
 
 
 use Sm\Core\Factory\Exception\WrongFactoryException;
 use Sm\Core\Factory\StandardFactory;
+use Sm\Data\Source\DiscretelySourced;
 
 class DataSourceSchemaFactory extends StandardFactory {
     public function resolve($name = null): DataSourceSchema {

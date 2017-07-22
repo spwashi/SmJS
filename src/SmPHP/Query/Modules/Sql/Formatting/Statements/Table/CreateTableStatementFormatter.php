@@ -24,17 +24,17 @@ use Sm\Query\Modules\Sql\Data\Column\ColumnSchema;
  */
 class CreateTableStatementFormatter extends SqlQueryFormatter {
     /**
-     * @param $columnSchema
+     * @param $item
      *
      * @return string
      * @throws \Sm\Core\Exception\InvalidArgumentException
      * @throws \Sm\Core\Exception\UnimplementedError
      */
-    public function format($columnSchema): string {
-        if (!($columnSchema instanceof CreateTableStatement)) throw new UnimplementedError("+ Anything but CreateTableStatements");
-        $table_name                     = $columnSchema->getName();
-        $columns                        = $columnSchema->getColumns();
-        $constraints                    = $columnSchema->getConstraints();
+    public function format($item): string {
+        if (!($item instanceof CreateTableStatement)) throw new UnimplementedError("+ Anything but CreateTableStatements");
+        $table_name                     = $item->getName();
+        $columns                        = $item->getColumns();
+        $constraints                    = $item->getConstraints();
         $formattedColumnsAndConstraints = [];
         foreach ($columns as $column) {
             if (!($column instanceof ColumnSchema)) throw new InvalidArgumentException("Can only create tables with column schemas");

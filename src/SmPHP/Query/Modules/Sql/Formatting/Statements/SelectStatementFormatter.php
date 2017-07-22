@@ -10,50 +10,98 @@ namespace Sm\Query\Modules\Sql\Formatting\Statements;
 
 use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Formatting\Formatter\Formatter;
-use Sm\Query\Modules\Sql\Formatting\Proxy\Aliasing\AliasedTableFormattingProxy;
+use Sm\Data\Source\Constructs\JoinedSourceSchema;
+use Sm\Query\Modules\Sql\Formatting\Proxy\Aliasing\AliasedSourceFormattingProxy;
 use Sm\Query\Modules\Sql\Formatting\Proxy\Column\ColumnIdentifierFormattingProxy;
-use Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableReferenceFormattingProxy;
+use Sm\Query\Modules\Sql\Formatting\Proxy\Component\SelectExpressionFormattingProxy;
+use Sm\Query\Modules\Sql\Formatting\Proxy\Source\Table\TableIdentifierFormattingProxy;
 use Sm\Query\Modules\Sql\Formatting\SqlQueryFormatter;
 use Sm\Query\Statements\SelectStatement;
+use Sm\Storage\Database\Table\TableSourceSchema;
 
 class SelectStatementFormatter extends SqlQueryFormatter implements Formatter {
+    public function prime($item) {
+        if (!($item instanceof SelectStatement)) throw new InvalidArgumentException("Can only format SelectStatements");
+        $sources = $item->getFromSources();
+        $this->getPrimedSources($sources);
+    }
     /**
      * Return the item Formatted in the specific way
      *
-     * @param SelectStatement $columnSchema
+     * @param SelectStatement $item
      *
      * @return string
      * @throws \Sm\Core\Exception\InvalidArgumentException
      */
-    public function format($columnSchema): string {
-        if (!($columnSchema instanceof SelectStatement)) {
+    public function format($item): string {
+        if (!($item instanceof SelectStatement)) {
             throw new InvalidArgumentException("Can only format SelectStatements");
         }
+        $this->prime($item);
+        $sources     = $this->getPrimedSources($item->getFromSources());
+        $whereClause = $item->getWhereClause();
         
-        $selects = $columnSchema->getSelectedItems();
-        $sources = $columnSchema->getFromSources();
-        $where   = $columnSchema->getWhereClause();
-        $this->aliasSources($sources);
-        
-        $select_expression_list = $this->formatSelectExpressionList($selects);
-        $where_string           = $this->formatComponent($where);
+        $select_expression_list = $this->formatSelectExpressionList($item->getSelectedItems());
         $from_string            = $this->formatSelectList($sources);
+        $where_string           = $whereClause ? "WHERE\t" . $this->formatComponent($whereClause) : '';
         $select_stmt_string     = "SELECT\t{$select_expression_list}\nFROM\t{$from_string}\n{$where_string}";
         
         return $select_stmt_string;
     }
-    public function aliasSources(array $sources) {
+    /**
+     * Make sure the "source" is sturctured as something we'd use.
+     *
+     * @param $source
+     *
+     * @return mixed|null|\Sm\Data\Source\Constructs\JoinedSourceSchematic|\Sm\Storage\Database\Table\TableSourceSchema
+     */
+    protected function getProxiedSource($source) {
+        # The important thing is to get it in the structure of
+        if ($source instanceof TableSourceSchema) {
+            $tableProxy = $source;
+        } else if ($source instanceof JoinedSourceSchema) {
+            $tableProxy = $source;
+        } else {
+            $tableProxy = $this->proxy($source, TableIdentifierFormattingProxy::class);
+        }
+        return $tableProxy;
+    }
+    /**
+     * Prepare the Sources to be used in the Query (getting all Aliases set up mostly)
+     *
+     * @param array $sources
+     *
+     * @return array
+     */
+    protected function getPrimedSources(array $sources) {
+        $top_level_joins = [];
         foreach ($sources as $source) {
             # Don't alias strings
             if (is_string($source)) continue;
-            # ALIAS THE TABLE
-            $tableProxy = $this->proxy($source, TableReferenceFormattingProxy::class);
-            $this->alias($tableProxy, AliasedTableFormattingProxy::class);
+    
+            # structure the table as such
+            $source = $this->getProxiedSource($source);
+    
+            if ($source instanceof JoinedSourceSchema) {
+                $this->primeComponent($source);
+                $top_level_joins = array_merge($source->getOriginSources());
+            }
+    
+            # alias the source
+            $this->alias($source, AliasedSourceFormattingProxy::class);
         }
+        
+        # Remove all of the tables that are exactly covered by the JOINs
+        foreach ($top_level_joins as $table) {
+            $index = array_search($table, $sources);
+            # If something from the original sources
+            if ($index !== false) unset($sources[ $index ]);
+        }
+        
         return $sources;
     }
     /**
-     * Formate the things that will be in the "select list"
+     * Format the things that will be in the "select list"
      *
      * @param $source_array
      *
@@ -62,18 +110,19 @@ class SelectStatementFormatter extends SqlQueryFormatter implements Formatter {
     protected function formatSelectList($source_array): string {
         $sources = [];
         foreach ($source_array as $index => $source) {
-            $sourceProxy      = $this->proxy($source, TableReferenceFormattingProxy::class);
-            $formatted_source = $this->formatComponent($sourceProxy);
-    
-    
+            $sourceProxy = $this->getProxiedSource($source);
             # If the alias is the same as the proxy, we haven't aliased it (so no need to do the AS)
             $alias = $this->getFinalAlias($sourceProxy);
             if ($alias !== $sourceProxy) {
-                $aliasProxy       = $this->proxy($alias, TableReferenceFormattingProxy::class);
-                $formatted_source .= ' AS ' . $this->formatComponent($aliasProxy);
+                $aliasProxy       = $this->proxy($alias, TableIdentifierFormattingProxy::class);
+                $selectExpression = $this->proxy([ $sourceProxy, $aliasProxy ], SelectExpressionFormattingProxy::class);
+            } else {
+                $selectExpression = $this->proxy($sourceProxy, SelectExpressionFormattingProxy::class);
             }
     
     
+            $formatted_source = $this->formatComponent($selectExpression);
+            
             $sources[] = $formatted_source;
         }
         return join(",\n\t\t", $sources);

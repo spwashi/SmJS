@@ -10,8 +10,14 @@ namespace Sm\Storage\Database;
 
 use Sm\Authentication\Authentication;
 use Sm\Data\Source\DataSource;
+use Sm\Data\Source\Schema\NamedDataSourceSchema;
 
-class DatabaseDataSource extends DataSource {
+/**
+ * Class DatabaseDataSource
+ *
+ * @package Sm\Storage\Database
+ */
+class DatabaseDataSource extends DataSource implements NamedDataSourceSchema {
     protected $name;
     /**
      * DatabaseDataSource constructor.
@@ -34,8 +40,5 @@ class DatabaseDataSource extends DataSource {
     }
     public function getConnection() {
         return isset($this->authentication) ? $this->authentication->getConnection() : null;
-    }
-    public function isAuthenticated() {
-        return $this->authentication->isValid();
     }
 }

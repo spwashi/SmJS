@@ -5,7 +5,7 @@
  * Time: 11:03 PM
  */
 
-namespace Sm\Query\Modules\Sql\Formatting\Component;
+namespace Sm\Query\Modules\Sql\Formatting\Column;
 
 
 use Sm\Core\Exception\InvalidArgumentException;
@@ -15,7 +15,7 @@ use Sm\Query\Modules\Sql\Formatting\SqlQueryFormatter;
 class ColumnSchemaFormatter extends SqlQueryFormatter {
     public function format($columnSchema): string {
         if (!($columnSchema instanceof ColumnSchema)) {
-            throw new InvalidArgumentException("Can only format String_ColumnIdentifierFormattingProxies");
+            throw new InvalidArgumentException("Can only format ColumnSchemas");
         }
         $column_name = $columnSchema->getName();
         $type        = $columnSchema->getType();

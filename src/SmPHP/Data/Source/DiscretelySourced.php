@@ -6,6 +6,7 @@
  */
 
 namespace Sm\Data\Source;
+use Sm\Data\Source\Schema\DataSourceSchema;
 
 /**
  * Interface DiscretelySourced

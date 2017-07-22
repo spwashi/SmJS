@@ -17,4 +17,6 @@ namespace Sm\Query\Modules\Sql\Formatting\Proxy\Aliasing;
  */
 interface AliasedFormattingProxy {
     public function setAlias(string $alias);
+    public function getAlias();
+    public function getOriginal();
 }

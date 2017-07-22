@@ -7,7 +7,6 @@
 
 namespace Sm\Query\Statements\Clauses;
 
-use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Data\Evaluation\EvaluableStatement;
 
 /**
@@ -19,7 +18,7 @@ use Sm\Data\Evaluation\EvaluableStatement;
  */
 trait HasWhereClauseTrait {
     /** @var array The Conditions that are going to be ANDed together as part of the "WHERE" clause */
-    protected $where_conditions = [];
+    protected $conditions = [];
     /**
      * Set the Conditions that are going to be a part of the "WHERE" clause
      *
@@ -28,22 +27,18 @@ trait HasWhereClauseTrait {
      * @return $this
      * @throws \Sm\Core\Exception\InvalidArgumentException
      */
-    public function where(...$conditions) {
-        foreach ($conditions as $condition) {
-            if (!($condition instanceof EvaluableStatement)) throw new InvalidArgumentException("Can only use Conditions in WHERE clauses.");
-            $this->where_conditions[] = $condition;
-        }
-        
+    public function where(EvaluableStatement ...$conditions) {
+        $this->conditions = array_merge($this->conditions, $conditions);
         return $this;
     }
     /**
      * Get the WhereClause used in this Statement
      *
-     * @return null|\Sm\Query\Statements\Clauses\WhereClause
+     * @return null|\Sm\Query\Statements\Clauses\ConditionalClause
      */
-    public function getWhereClause():?WhereClause {
-        return count($this->where_conditions)
-            ? new WhereClause(...$this->where_conditions)
+    public function getWhereClause():?ConditionalClause {
+        return count($this->conditions)
+            ? new ConditionalClause(...$this->conditions)
             : null;
     }
 }

@@ -8,17 +8,17 @@
 namespace Sm\Query\Modules\Sql\Formatting\Proxy\Column;
 
 
+use Sm\Data\Source\Schema\DataSourceSchema;
 use Sm\Query\Modules\Sql\Formatting\Proxy\SqlFormattingProxy;
-use Sm\Storage\Database\Table\TableSourceSchema;
 
 /**
  * Class ColumnFormattingProxy
  *
- * Class that is going to help tell us stuff about an item in the context of being a column
+ * For columns as they are used in typical queries
  *
  * @package Sm\Query\Modules\Sql\Formatting\Proxy
  */
 abstract class ColumnIdentifierFormattingProxy extends SqlFormattingProxy {
-    abstract public function getTable(): ? TableSourceSchema;
+    abstract public function getSource(): ? DataSourceSchema;
     abstract public function getColumnName(): ?string;
 }

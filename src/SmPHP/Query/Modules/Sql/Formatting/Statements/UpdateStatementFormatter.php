@@ -11,7 +11,7 @@ namespace Sm\Query\Modules\Sql\Formatting\Statements;
 use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Exception\UnimplementedError;
 use Sm\Query\Modules\Sql\Formatting\Proxy\Column\ColumnIdentifierFormattingProxy;
-use Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableReferenceFormattingProxy;
+use Sm\Query\Modules\Sql\Formatting\Proxy\Source\Table\TableIdentifierFormattingProxy;
 use Sm\Query\Modules\Sql\Formatting\SqlQueryFormatter;
 use Sm\Query\Statements\UpdateStatement;
 
@@ -23,13 +23,13 @@ use Sm\Query\Statements\UpdateStatement;
  * @package Sm\Query\Modules\Sql\Formatting\Statements
  */
 class UpdateStatementFormatter extends SqlQueryFormatter {
-    public function format($columnSchema): string {
-        if (!($columnSchema instanceof UpdateStatement)) throw new InvalidArgumentException("Can only format UpdateStatements");
+    public function format($item): string {
+        if (!($item instanceof UpdateStatement)) throw new InvalidArgumentException("Can only format UpdateStatements");
         
-        $update_expression_list = $this->formatUpdateExpressionList($columnSchema->getUpdatedItems());
-        $whereClause            = $columnSchema->getWhereClause();
-        $where_string           = $whereClause ? $this->formatComponent($whereClause) : '';
-        $source_string          = $this->formatSourceList($columnSchema->getIntoSources());
+        $update_expression_list = $this->formatUpdateExpressionList($item->getUpdatedItems());
+        $whereClause            = $item->getWhereClause();
+        $where_string           = $whereClause ? "WHERE\t" . $this->formatComponent($whereClause) : '';
+        $source_string          = $this->formatSourceList($item->getIntoSources());
         
         $update_stmt = "UPDATE {$source_string} \nSET\t{$update_expression_list}\n{$where_string}";
         
@@ -48,7 +48,7 @@ class UpdateStatementFormatter extends SqlQueryFormatter {
     protected function formatSourceList($source_array): string {
         $sources = [];
         foreach ($source_array as $index => $source) {
-            $sources[] = $this->formatComponent($this->proxy($source, TableReferenceFormattingProxy::class));
+            $sources[] = $this->formatComponent($this->proxy($source, TableIdentifierFormattingProxy::class));
         }
         return join(', ', $sources);
     }

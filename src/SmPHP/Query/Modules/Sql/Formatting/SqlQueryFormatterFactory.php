@@ -46,6 +46,11 @@ class SqlQueryFormatterFactory extends FormatterFactory {
         $this->context                = $context;
         parent::__construct();
     }
+    public static function init(SqlFormattingProxyFactory $formattingProxyFactory = null,
+                                SqlFormattingAliasContainer $aliasContainer = null,
+                                SqlFormattingContext $context = null) {
+        return new static(...func_get_args());
+    }
     /**
      * Return an item Proxied in a certain way
      *

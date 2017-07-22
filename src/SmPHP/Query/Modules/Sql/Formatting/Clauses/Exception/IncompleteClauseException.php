@@ -5,7 +5,7 @@
  * Time: 6:21 PM
  */
 
-namespace Sm\Query\Modules\Sql\Formatting\Clauses;
+namespace Sm\Query\Modules\Sql\Formatting\Clauses\Exception;
 
 
 use Sm\Core\Exception\Exception;

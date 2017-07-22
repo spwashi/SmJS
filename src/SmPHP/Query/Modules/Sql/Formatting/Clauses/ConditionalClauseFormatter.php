@@ -9,8 +9,9 @@ namespace Sm\Query\Modules\Sql\Formatting\Clauses;
 
 
 use Sm\Core\Exception\InvalidArgumentException;
+use Sm\Query\Modules\Sql\Formatting\Clauses\Exception\IncompleteClauseException;
 use Sm\Query\Modules\Sql\Formatting\SqlQueryFormatter;
-use Sm\Query\Statements\Clauses\WhereClause;
+use Sm\Query\Statements\Clauses\ConditionalClause;
 
 /**
  * Class WhereClauseFormatter
@@ -19,18 +20,18 @@ use Sm\Query\Statements\Clauses\WhereClause;
  *
  * @package Sm\Query\Modules\Sql\Formatting\Clause
  */
-class WhereClauseFormatter extends SqlQueryFormatter {
+class ConditionalClauseFormatter extends SqlQueryFormatter {
     /**
-     * @param WhereClause $whereClause
+     * @param ConditionalClause $conditionalClause
      *
      * @return string
      * @throws \Sm\Core\Exception\InvalidArgumentException
-     * @throws \Sm\Query\Modules\Sql\Formatting\Clauses\IncompleteClauseException
+     * @throws \Sm\Query\Modules\Sql\Formatting\Clauses\Exception\IncompleteClauseException
      */
-    public function format($whereClause): string {
-        if (!($whereClause instanceof WhereClause)) throw new InvalidArgumentException('Can only format WhereClauses');
-        $where_clause_str = "WHERE\t";
-        $conditions       = $whereClause->getConditions();
+    public function format($conditionalClause): string {
+        if (!($conditionalClause instanceof ConditionalClause)) throw new InvalidArgumentException('Can only format WhereClauses');
+        $where_clause_str = "";
+        $conditions       = $conditionalClause->getConditions();
         if (!count($conditions)) throw new IncompleteClauseException("There are no conditions to the Where clause.");
         
         foreach ($conditions as $index => $condition) {

@@ -10,6 +10,7 @@ namespace Sm\Query\Statements;
 
 use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Data\Source\DataSource;
+use Sm\Data\Source\Schema\DataSourceSchema;
 use Sm\Query\Statements\Clauses\HasWhereClauseTrait;
 
 /**
@@ -43,7 +44,7 @@ class SelectStatement extends QueryComponent {
         foreach ($from_sources as $source) {
             if (is_string($source)) {
                 if (strpos($source, '\\')) throw new InvalidArgumentException("Cannot set Source to be a classname");
-            } else if (!($source instanceof DataSource)) {
+            } else if (!($source instanceof DataSourceSchema)) {
                 throw new InvalidArgumentException("Cannot set source to be something that is not a DataSource");
             }
         }

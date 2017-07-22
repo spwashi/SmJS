@@ -47,4 +47,7 @@ abstract class SqlFormattingProxy implements FormattingProxy, Identifiable {
         if (!isset($this->formattingProxyFactory)) throw new MissingFormattingFactoryException;
         return $this->formattingProxyFactory;
     }
+    public function getSubject() {
+        return $this->subject;
+    }
 }

@@ -10,7 +10,9 @@ namespace Sm\Query\Modules\Sql\Formatting;
 
 use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Formatting\Formatter\Formatter;
+use Sm\Core\Internal\Identification\Identifiable;
 use Sm\Core\Util;
+use Sm\Query\Modules\Sql\Formatting\Aliasing\Exception\InvalidAliasedItem;
 use Sm\Query\Modules\Sql\Formatting\Aliasing\SqlFormattingAliasContainer;
 use Sm\Query\Modules\Sql\Formatting\Proxy\Aliasing\AliasedFormattingProxy;
 
@@ -35,20 +37,28 @@ class SqlQueryFormatter implements Formatter {
      */
     public function __construct(SqlQueryFormatterFactory $formatterFactory, SqlFormattingAliasContainer $aliasContainer = null) {
         $this->queryFormatter = $formatterFactory;
-        $this->aliasContainer = $aliasContainer ?? $this->queryFormatter->getAliasContainer();
+        $this->aliasContainer = $aliasContainer ?? new SqlFormattingAliasContainer;
     }
     /**
      * Return the item Formatted in the specific way
      *
-     * @param $columnSchema
+     * @param $item
      *
      * @return mixed
      * @throws \Sm\Core\Exception\InvalidArgumentException
      * @throws \Sm\Core\Exception\UnimplementedError
      */
-    public function format($columnSchema): string {
-        return $this->formatComponent($columnSchema);
+    public function format($item): string {
+        return $this->formatComponent($item);
     }
+    
+    
+    /**
+     * Do any necessary aliasing before formatting this item
+     *
+     * @param $item
+     */
+    public function prime($item) { }
     /**
      * Create a Proxy so we can interact with a component of this Formatter's process as it would exist within a certain context
      *
@@ -58,11 +68,16 @@ class SqlQueryFormatter implements Formatter {
      * @return mixed|null
      */
     public function proxy($item, $as) {
-        if ($proxy = $this->aliasContainer->resolveProxy($item)) return $proxy;
+        if ($proxy = $this->aliasContainer->resolveProxy($item, $as)) return $proxy;
         
         $proxy = $this->queryFormatter->proxy($item, $as);
-        $this->aliasContainer->registerProxy($item, $proxy);
-        return $proxy;
+    
+        try {
+            $this->aliasContainer->registerProxy($item, $as, $proxy);
+        } catch (InvalidAliasedItem $e) {
+        } finally {
+            return $proxy;
+        }
     }
     /**
      * @return Aliasing\SqlFormattingAliasContainer
@@ -89,7 +104,7 @@ class SqlQueryFormatter implements Formatter {
      * @param string $alias_classname MUST BE AN AliasedFormattingProxy classname. This is what we will use to hold the Alias
      * @param null   $alias_name
      *
-     * @return $this
+     * @return AliasedFormattingProxy
      * @throws \Sm\Core\Exception\InvalidArgumentException
      */
     protected function alias($item, string $alias_classname, $alias_name = null) {
@@ -99,15 +114,18 @@ class SqlQueryFormatter implements Formatter {
         
         /** @var \Sm\Query\Modules\Sql\Formatting\Proxy\Aliasing\AliasedFormattingProxy $aliasProxy */
         $aliasProxy = $this->proxy($item, $alias_classname);
-        
+        if (!is_null($aliasProxy->getAlias())) {
+            return $aliasProxy;
+        }
         # Creat an alias randomly if one was not specified
         if (!$alias_name) $alias_name = Util::generateRandomString(5, Util::ALPHA);
-        
         $aliasProxy->setAlias($alias_name);
+    
+        $name = ($item instanceof Identifiable ? $item->getObjectId() : '') . '|' . $alias_classname;
+        
         
         $this->aliasContainer->register($item, $aliasProxy);
-        
-        return $this;
+        return $aliasProxy;
     }
     protected function getFinalAlias($item) {
         return $this->aliasContainer->getFinalAlias($item);
@@ -121,8 +139,21 @@ class SqlQueryFormatter implements Formatter {
      */
     protected function formatComponent($component) {
         if (!isset($component)) return null;
+        $formatter = $this->buildComponentFormatter($component);
+        return $formatter->format($component);
+    }
+    protected function primeComponent($component) {
+        $formatter = $this->buildComponentFormatter($component);
+        if ($formatter instanceof SqlQueryFormatter) $formatter->prime($component);
+    }
+    /**
+     * @param $component
+     *
+     * @return \Sm\Core\Formatting\Formatter\Formatter
+     */
+    protected function buildComponentFormatter($component): \Sm\Core\Formatting\Formatter\Formatter {
         $formatter = $this->queryFormatter->build($component);
         if ($formatter instanceof SqlQueryFormatter) $formatter->setAliasContainer($this->getAliasContainer());
-        return $formatter->format($component);
+        return $formatter;
     }
 }

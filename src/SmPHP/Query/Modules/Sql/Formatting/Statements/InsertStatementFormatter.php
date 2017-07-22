@@ -12,17 +12,17 @@ use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Exception\UnimplementedError;
 use Sm\Core\Formatting\Formatter\Exception\IncompleteFormatterException;
 use Sm\Query\Modules\Sql\Formatting\Proxy\Column\ColumnIdentifierFormattingProxy;
-use Sm\Query\Modules\Sql\Formatting\Proxy\Table\TableNameFormattingProxy;
+use Sm\Query\Modules\Sql\Formatting\Proxy\Source\NamedDataSourceFormattingProxy;
 use Sm\Query\Modules\Sql\Formatting\SqlQueryFormatter;
 use Sm\Query\Statements\InsertStatement;
 
 class InsertStatementFormatter extends SqlQueryFormatter {
-    public function format($columnSchema): string {
-        if (!($columnSchema instanceof InsertStatement)) throw new InvalidArgumentException("Can only format InsertStatements");
+    public function format($item): string {
+        if (!($item instanceof InsertStatement)) throw new InvalidArgumentException("Can only format InsertStatements");
         
-        list($column_string, $insertExpressionList) = $this->formatInsertExpressionList($columnSchema->getInsertedItems());
+        list($column_string, $insertExpressionList) = $this->formatInsertExpressionList($item->getInsertedItems());
         
-        $sources       = $columnSchema->getIntoSources();
+        $sources       = $item->getIntoSources();
         $source_string = $this->formatSourceList($sources);
         
         $update_stmt = "INSERT INTO {$source_string}\n\t\t({$column_string})\nVALUES\t{$insertExpressionList}";
@@ -34,7 +34,7 @@ class InsertStatementFormatter extends SqlQueryFormatter {
         if (!isset($this->queryFormatter)) throw new IncompleteFormatterException("No formatter Factory");
         foreach ($source_array as $index => $source) {
             if (count($sources)) throw new UnimplementedError("Inserting into multiple sources");
-            $sourceProxy = $this->proxy($source, TableNameFormattingProxy::class);
+            $sourceProxy = $this->proxy($source, NamedDataSourceFormattingProxy::class);
             $sources[]   = $this->formatComponent($sourceProxy);
         }
         return join(', ', $sources);

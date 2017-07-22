@@ -41,7 +41,7 @@ class TableSource extends DataSource implements TableSourceSchema {
         if ($name === 'columns') return $this->columnContainer;
         return null;
     }
-    public function isAuthenticated() { return $this->databaseSource->isAuthenticated(); }
+    public function isAuthenticated(): bool { return $this->databaseSource->isAuthenticated(); }
     public function getParentSource(): ?DatabaseDataSource {
         return $this->databaseSource;
     }
@@ -62,7 +62,7 @@ class TableSource extends DataSource implements TableSourceSchema {
         $this->table_name = $table_name;
         return $this;
     }
-    protected function authenticate(Authentication $authentication = null) {
+    public function authenticate(Authentication $authentication = null) {
         $this->databaseSource->authenticate($authentication);
         return $this;
     }

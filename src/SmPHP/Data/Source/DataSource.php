@@ -8,9 +8,11 @@
 namespace Sm\Data\Source;
 
 
+use Sm\Authentication\Authenticated;
 use Sm\Authentication\Authentication;
 use Sm\Core\Internal\Identification\HasObjectIdentityTrait;
 use Sm\Core\Internal\Identification\Identifiable;
+use Sm\Data\Source\Schema\DataSourceSchema;
 
 /**
  * Class DataSource
@@ -18,18 +20,11 @@ use Sm\Core\Internal\Identification\Identifiable;
  * Represents something that can be queried
  *
  */
-abstract class DataSource implements Identifiable, DataSourceSchema {
+abstract class DataSource implements Identifiable, Authenticated, DataSourceSchema {
     use HasObjectIdentityTrait;
     /** @var  Authentication $authentication Represents the Authenticated connection to whatever source */
     protected $authentication;
-    /**
-     * DataSource constructor.
-     *
-     * @param Authentication $Authentication
-     */
-    public function __construct() {
-        $this->createSelfID();
-    }
+    public function __construct() { $this->createSelfID(); }
     /**
      * Static constructor
      *
@@ -48,12 +43,10 @@ abstract class DataSource implements Identifiable, DataSourceSchema {
     public function getParentSource() {
         return null;
     }
-    abstract public function isAuthenticated();
-    
-    ####################################################
-    #   Action methods
-    ####################################################
-    protected function authenticate(Authentication $Authentication = null) {
+    public function isAuthenticated(): bool {
+        return isset($this->authentication) ? $this->authentication->isValid() : false;
+    }
+    public function authenticate(Authentication $Authentication = null) {
         $this->authentication = $Authentication;
         return $this;
     }

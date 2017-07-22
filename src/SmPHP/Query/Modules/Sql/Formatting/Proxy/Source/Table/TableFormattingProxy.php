@@ -5,7 +5,7 @@
  * Time: 8:48 PM
  */
 
-namespace Sm\Query\Modules\Sql\Formatting\Proxy\Table;
+namespace Sm\Query\Modules\Sql\Formatting\Proxy\Source\Table;
 
 use Sm\Core\Formatting\FormattingProxy;
 use Sm\Storage\Database\Table\TableSourceSchema;
@@ -18,6 +18,5 @@ use Sm\Storage\Database\Table\TableSourceSchema;
  *
  * @package Sm\Query\Modules\Sql\Formatting\Proxy
  */
-interface TableFormattingProxy extends FormattingProxy, TableSourceSchema {
-    public function getName(): string;
+interface TableFormattingProxy extends TableSourceSchema, FormattingProxy {
 }

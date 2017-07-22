@@ -19,11 +19,11 @@ use Sm\Core\Resolvable\StringResolvable;
  */
 class PlainStringFormatter implements Formatter {
     /**
-     * @param $columnSchema
+     * @param $item
      *
      * @return string
      */
-    public function format($columnSchema) {
-        return StringResolvable::init()->setSubject($columnSchema)->resolve();
+    public function format($item) {
+        return StringResolvable::init()->setSubject($item)->resolve();
     }
 }

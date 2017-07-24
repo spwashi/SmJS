@@ -5,7 +5,7 @@
  * Time: 10:54 PM
  */
 
-namespace Sm\Storage\Database;
+namespace Sm\Data\Source\Database;
 
 
 use Sm\Authentication\Authentication;
@@ -15,7 +15,7 @@ use Sm\Data\Source\Schema\NamedDataSourceSchema;
 /**
  * Class DatabaseDataSource
  *
- * @package Sm\Storage\Database
+ * @package Sm\Data\Source\Database
  */
 class DatabaseDataSource extends DataSource implements NamedDataSourceSchema {
     protected $name;

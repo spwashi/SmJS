@@ -5,13 +5,13 @@
  * Time: 10:49 PM
  */
 
-namespace Sm\Storage\Database\Table;
+namespace Sm\Data\Source\Database\Table;
 
 
 use Sm\Authentication\Authentication;
 use Sm\Data\Property\PropertyContainer;
 use Sm\Data\Source\DataSource;
-use Sm\Storage\Database\DatabaseDataSource;
+use Sm\Data\Source\Database\DatabaseDataSource;
 
 /** @noinspection PhpSignatureMismatchDuringInheritanceInspection */
 
@@ -20,10 +20,10 @@ use Sm\Storage\Database\DatabaseDataSource;
  *
  * Represents a Source from a Table
  *
- * @property-read \Sm\Storage\Database\ColumnContainer $columns
+ * @property-read \Sm\Data\Source\Database\ColumnContainer $columns
  *
  * @method static TableSource init(DatabaseDataSource $DatabaseSource, string $table_name = null)
- * @package Sm\Storage\Database
+ * @package Sm\Data\Source\Database
  */
 class TableSource extends DataSource implements TableSourceSchema {
     protected $table_name;

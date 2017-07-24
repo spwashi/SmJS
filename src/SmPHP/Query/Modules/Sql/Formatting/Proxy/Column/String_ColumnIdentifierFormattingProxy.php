@@ -14,7 +14,7 @@ use Sm\Core\Formatting\Formatter\FormattingProxyFactory;
 use Sm\Data\Source\Schema\DataSourceSchema;
 use Sm\Query\Modules\Sql\Formatting\Proxy\Source\Table\TableFormattingProxy;
 use Sm\Query\Modules\Sql\Formatting\Proxy\Source\NamedDataSourceFormattingProxy;
-use Sm\Storage\Database\Table\TableSourceSchema;
+use Sm\Data\Source\Database\Table\TableSourceSchema;
 
 class String_ColumnIdentifierFormattingProxy extends ColumnIdentifierFormattingProxy {
     protected $subject;

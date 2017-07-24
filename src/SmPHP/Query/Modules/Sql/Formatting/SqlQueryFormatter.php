@@ -153,7 +153,9 @@ class SqlQueryFormatter implements Formatter {
      */
     protected function buildComponentFormatter($component): \Sm\Core\Formatting\Formatter\Formatter {
         $formatter = $this->queryFormatter->build($component);
-        if ($formatter instanceof SqlQueryFormatter) $formatter->setAliasContainer($this->getAliasContainer());
+        if ($formatter instanceof SqlQueryFormatter) {
+            $formatter->setAliasContainer($this->getAliasContainer());
+        }
         return $formatter;
     }
 }

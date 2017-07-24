@@ -34,9 +34,8 @@ class JoinedSourceSchemaFormatter extends SqlQueryFormatter {
         # Format the Original Source so we can Alias it in the SelectExpression
         $originalSource           = $this->createSelectExpression($originalSources[0]);
         $formattedOriginalSources = $this->formatComponent($originalSource);
-        
-        # Format the Joined Sourecs
-        $formattedJoinedSources = '(' . join(' CROSS JOIN ', $this->formatSources($joinedSources)) . ')';
+        $joinedSource             = $this->createSelectExpression($joinedSources[0]);
+        $formattedJoinedSources   = $this->formatComponent($joinedSource);
         
         # Format the "ON" condition
         $joinConditions           = $joinedSourceSchema->getJoinConditions();

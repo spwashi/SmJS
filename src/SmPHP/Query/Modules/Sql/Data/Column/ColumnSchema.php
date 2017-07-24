@@ -11,7 +11,7 @@ namespace Sm\Query\Modules\Sql\Data\Column;
 use Sm\Core\Schema\Schema;
 use Sm\Data\Source\DiscretelySourced;
 use Sm\Data\Source\Schema\DataSourceSchema;
-use Sm\Storage\Database\Table\TableSourceSchema;
+use Sm\Data\Source\Database\Table\TableSourceSchema;
 
 /**
  * Class ColumnSchema

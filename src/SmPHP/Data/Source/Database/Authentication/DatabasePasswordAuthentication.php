@@ -5,7 +5,7 @@
  * Time: 11:40 PM
  */
 
-namespace Sm\Storage\Database\Authentication;
+namespace Sm\Data\Source\Database\Authentication;
 
 
 abstract class DatabasePasswordAuthentication {

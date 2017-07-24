@@ -33,10 +33,9 @@ class ConditionalClauseFormatter extends SqlQueryFormatter {
         $where_clause_str = "";
         $conditions       = $conditionalClause->getConditions();
         if (!count($conditions)) throw new IncompleteClauseException("There are no conditions to the Where clause.");
-        
+    
         foreach ($conditions as $index => $condition) {
             if ($index !== 0) $where_clause_str .= ' AND ';
-    
             $where_clause_str .= $this->formatComponent($condition);
         }
         return $where_clause_str;

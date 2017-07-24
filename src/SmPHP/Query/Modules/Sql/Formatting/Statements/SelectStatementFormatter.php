@@ -17,7 +17,7 @@ use Sm\Query\Modules\Sql\Formatting\Proxy\Component\SelectExpressionFormattingPr
 use Sm\Query\Modules\Sql\Formatting\Proxy\Source\Table\TableIdentifierFormattingProxy;
 use Sm\Query\Modules\Sql\Formatting\SqlQueryFormatter;
 use Sm\Query\Statements\SelectStatement;
-use Sm\Storage\Database\Table\TableSourceSchema;
+use Sm\Data\Source\Database\Table\TableSourceSchema;
 
 class SelectStatementFormatter extends SqlQueryFormatter implements Formatter {
     public function prime($item) {
@@ -42,7 +42,7 @@ class SelectStatementFormatter extends SqlQueryFormatter implements Formatter {
         $whereClause = $item->getWhereClause();
         
         $select_expression_list = $this->formatSelectExpressionList($item->getSelectedItems());
-        $from_string            = $this->formatSelectList($sources);
+        $from_string            = $this->formatSelectFromList($sources);
         $where_string           = $whereClause ? "WHERE\t" . $this->formatComponent($whereClause) : '';
         $select_stmt_string     = "SELECT\t{$select_expression_list}\nFROM\t{$from_string}\n{$where_string}";
         
@@ -53,9 +53,9 @@ class SelectStatementFormatter extends SqlQueryFormatter implements Formatter {
      *
      * @param $source
      *
-     * @return mixed|null|\Sm\Data\Source\Constructs\JoinedSourceSchematic|\Sm\Storage\Database\Table\TableSourceSchema
+     * @return mixed|null|\Sm\Data\Source\Constructs\JoinedSourceSchematic|\Sm\Data\Source\Database\Table\TableSourceSchema
      */
-    protected function getProxiedSource($source) {
+    protected function convertToUsableSource($source) {
         # The important thing is to get it in the structure of
         if ($source instanceof TableSourceSchema) {
             $tableProxy = $source;
@@ -80,15 +80,15 @@ class SelectStatementFormatter extends SqlQueryFormatter implements Formatter {
             if (is_string($source)) continue;
     
             # structure the table as such
-            $source = $this->getProxiedSource($source);
-    
+            $source = $this->convertToUsableSource($source);
+            
             if ($source instanceof JoinedSourceSchema) {
                 $this->primeComponent($source);
                 $top_level_joins = array_merge($source->getOriginSources());
+            } else {
+                # alias the source
+                $this->alias($source, AliasedSourceFormattingProxy::class);
             }
-    
-            # alias the source
-            $this->alias($source, AliasedSourceFormattingProxy::class);
         }
         
         # Remove all of the tables that are exactly covered by the JOINs
@@ -107,23 +107,13 @@ class SelectStatementFormatter extends SqlQueryFormatter implements Formatter {
      *
      * @return string
      */
-    protected function formatSelectList($source_array): string {
+    protected function formatSelectFromList($source_array): string {
         $sources = [];
         foreach ($source_array as $index => $source) {
-            $sourceProxy = $this->getProxiedSource($source);
-            # If the alias is the same as the proxy, we haven't aliased it (so no need to do the AS)
-            $alias = $this->getFinalAlias($sourceProxy);
-            if ($alias !== $sourceProxy) {
-                $aliasProxy       = $this->proxy($alias, TableIdentifierFormattingProxy::class);
-                $selectExpression = $this->proxy([ $sourceProxy, $aliasProxy ], SelectExpressionFormattingProxy::class);
-            } else {
-                $selectExpression = $this->proxy($sourceProxy, SelectExpressionFormattingProxy::class);
-            }
-    
-    
+            $sourceProxy      = $this->convertToUsableSource($source);
+            $selectExpression = $this->proxy($sourceProxy, SelectExpressionFormattingProxy::class);
             $formatted_source = $this->formatComponent($selectExpression);
-            
-            $sources[] = $formatted_source;
+            $sources[]        = $formatted_source;
         }
         return join(",\n\t\t", $sources);
     }
@@ -139,7 +129,7 @@ class SelectStatementFormatter extends SqlQueryFormatter implements Formatter {
         $expression_list = [];
         foreach ($selects as $item) {
             # Assume it's a column - otherwise, we'd use a different object
-            $proxy             = $this->queryFormatter->proxy($item, ColumnIdentifierFormattingProxy::class);
+            $proxy             = $this->proxy($item, ColumnIdentifierFormattingProxy::class);
             $expression_list[] = $this->formatComponent($proxy);
         }
         return join(",\n\t\t", $expression_list);

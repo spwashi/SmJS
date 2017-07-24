@@ -5,7 +5,7 @@
  * Time: 10:12 PM
  */
 
-namespace Sm\Storage\Database\Table;
+namespace Sm\Data\Source\Database\Table;
 
 
 use Sm\Core\Internal\Identification\Identifiable;

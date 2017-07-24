@@ -8,7 +8,7 @@
 namespace Sm\Query\Modules\Sql\Formatting\Proxy\Source\Table;
 
 use Sm\Core\Formatting\FormattingProxy;
-use Sm\Storage\Database\Table\TableSourceSchema;
+use Sm\Data\Source\Database\Table\TableSourceSchema;
 
 
 /**

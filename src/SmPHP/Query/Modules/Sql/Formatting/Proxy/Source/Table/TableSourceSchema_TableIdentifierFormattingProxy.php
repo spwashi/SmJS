@@ -10,10 +10,10 @@ namespace Sm\Query\Modules\Sql\Formatting\Proxy\Source\Table;
 
 use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Query\Modules\Sql\Formatting\SqlFormattingProxyFactory;
-use Sm\Storage\Database\Table\TableSourceSchema;
+use Sm\Data\Source\Database\Table\TableSourceSchema;
 
 class TableSourceSchema_TableIdentifierFormattingProxy extends TableIdentifierFormattingProxy {
-    /** @var  \Sm\Storage\Database\Table\TableSourceSchema */
+    /** @var  \Sm\Data\Source\Database\Table\TableSourceSchema */
     protected $subject;
     /**
      * TableSourceSchema_TableIdentifierFormattingProxy constructor.

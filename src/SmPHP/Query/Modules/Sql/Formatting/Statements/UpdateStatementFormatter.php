@@ -59,6 +59,7 @@ class UpdateStatementFormatter extends SqlQueryFormatter {
                 foreach ($item as $key => $value) {
                     $columnIdentifierProxy = $this->proxy($key, ColumnIdentifierFormattingProxy::class);
                     $key                   = $this->formatComponent($columnIdentifierProxy);
+                    $value                 = $this->queryFormatter->placeholder($value);
                     $value                 = $this->formatComponent($value);
                     $expression_list[]     = "{$key} = {$value}";
                 }

@@ -77,6 +77,15 @@ class SqlQueryFormatterFactory extends FormatterFactory {
         return $this->aliasContainer;
     }
     public function getContext(): SqlFormattingContext { return $this->context; }
+    
+    /**
+     * Creates a placeholder for a Variable's value
+     *
+     * @param      $value
+     * @param null $name
+     *
+     * @return mixed|null
+     */
     public function placeholder($value, $name = null) {
         $name = $name??Util::generateRandomString(4, Util::getAlphaCharacters(0));
         $this->context->addVariables([ $name => $value ]);

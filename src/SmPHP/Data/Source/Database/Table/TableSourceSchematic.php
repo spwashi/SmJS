@@ -5,7 +5,7 @@
  * Time: 10:11 PM
  */
 
-namespace Sm\Storage\Database\Table;
+namespace Sm\Data\Source\Database\Table;
 
 
 use Sm\Core\Internal\Identification\HasObjectIdentityTrait;
@@ -15,7 +15,7 @@ use Sm\Core\Internal\Identification\HasObjectIdentityTrait;
  *
  * Class used to describe a TableSource
  *
- * @package Sm\Storage\Database\Table
+ * @package Sm\Data\Source\Database\Table
  */
 class TableSourceSchematic implements TableSourceSchema {
     use HasObjectIdentityTrait;

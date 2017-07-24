@@ -13,6 +13,8 @@ use Sm\Core\Util;
 use Sm\Data\Evaluation\Comparison\EqualToCondition;
 use Sm\Data\Evaluation\TwoOperandStatement;
 use Sm\Data\Source\Constructs\JoinedSourceSchematic;
+use Sm\Data\Source\Database\DatabaseDataSource;
+use Sm\Data\Source\Database\Table\TableSource;
 use Sm\Data\Source\Schema\NamedDataSourceSchema;
 use Sm\Query\Modules\Sql\Constraints\PrimaryKeyConstraintSchema;
 use Sm\Query\Modules\Sql\Data\Column\ColumnSchema;
@@ -46,13 +48,10 @@ use Sm\Query\Statements\Clauses\ConditionalClause;
 use Sm\Query\Statements\InsertStatement;
 use Sm\Query\Statements\SelectStatement;
 use Sm\Query\Statements\UpdateStatement;
-use Sm\Storage\Database\DatabaseDataSource;
-use Sm\Storage\Database\Table\TableSource;
 
 class SqlQueryFormatterTest extends \PHPUnit_Framework_TestCase {
     /** @var  \Sm\Query\Modules\Sql\Formatting\SqlQueryFormatter $queryFormatter */
     public $queryFormatter;
-    public $formatterFactory;
     public $formattingProxyFactory;
     public function setUp() {
         $formattingContext = SqlExecutionContext::init();
@@ -62,7 +61,6 @@ class SqlQueryFormatterTest extends \PHPUnit_Framework_TestCase {
             if ($item instanceof ColumnSchema) {
                 return $formattingProxyFactory->build(ColumnSchema_ColumnIdentifierFormattingProxy::class, $item);
             }
-    
             if (is_string($item)) {
                 return $formattingProxyFactory->build(String_ColumnIdentifierFormattingProxy::class, $item);
             }
@@ -76,16 +74,15 @@ class SqlQueryFormatterTest extends \PHPUnit_Framework_TestCase {
             if ($item instanceof TableSource) {
                 return $formattingProxyFactory->build(TableSourceSchema_TableIdentifierFormattingProxy::class, $item);
             }
-        
-        
+    
+    
             if ($item instanceof NamedDataSourceSchema) $item = $item->getName();
-            
             
             # Default to formatting tables as strings
             if (is_string($item)) {
                 return $formattingProxyFactory->build(String_TableIdentifierFormattingProxy::class, $item);
             }
-        
+    
             throw new UnimplementedError('+ Anything but strings[' . Util::getShapeOfItem($item) . ']');
         });
         #--- FormatterFactory
@@ -106,7 +103,7 @@ class SqlQueryFormatterTest extends \PHPUnit_Framework_TestCase {
                     $formatterFactory->createFormatter(function (PlaceholderFormattingProxy $columnSchema) use ($formatterFactory) {
                         return ":{$columnSchema->getPlaceholderName()}";
                     }),
-            
+
                 JoinedSourceSchematic::class           => new JoinedSourceSchemaFormatter($formatterFactory),
                 SelectExpressionFormattingProxy::class => new SelectExpressionFormattingProxyFormatter($formatterFactory),
                 PrimaryKeyConstraintSchema::class      =>
@@ -128,12 +125,10 @@ class SqlQueryFormatterTest extends \PHPUnit_Framework_TestCase {
                         $formatted_table = '`' . $columnFormattingProxy->getName() . '`';
                         return $formatted_table;
                     }),
-        
+
             ]);
         #--- setup
-        $this->formatterFactory       = $formatterFactory;
-        $this->formattingProxyFactory = $formattingProxyFactory;
-        $this->queryFormatter         = new SqlQueryFormatter($this->formatterFactory);
+        $this->queryFormatter = new SqlQueryFormatter($formatterFactory);
     }
     
     
@@ -156,9 +151,13 @@ class SqlQueryFormatterTest extends \PHPUnit_Framework_TestCase {
         echo __FILE__ . "\n--\n$result\n\n";
     }
     public function testUpdate() {
-        $stmt   = UpdateStatement::init([ 'test1' => 'test2', 'test4' => 'test5', 'test7' => 13.5 ])
-                                 ->inSources('testHELP');
-        $result = $this->queryFormatter->format($stmt);
+        $tableSource = new TableSource(new DatabaseDataSource(new MySqlAuthentication, 'Database'), 'tablename_is_here');
+        $boonman     = VarcharColumnSchema::init('boonman')
+                                          ->setLength(25)
+                                          ->setTableSchema($tableSource);
+        $stmt        = UpdateStatement::init([ 'test1' => 'test2', 'test4' => 'test5', 'test7' => 13.5 ])
+                                      ->inSources('testHELP');
+        $result      = $this->queryFormatter->format($stmt);
         echo __FILE__ . "\n--\n$result\n\n";
     }
     public function testInsert() {

@@ -5,7 +5,7 @@
  * Time: 8:37 PM
  */
 
-namespace Sm\Storage\Database;
+namespace Sm\Data\Source\Database;
 
 
 use Sm\Core\Exception\InvalidArgumentException;
@@ -18,7 +18,7 @@ use Sm\Data\Property\PropertyContainer;
 /**
  * Class ColumnContainer
  *
- * @package      Sm\Storage\Database
+ * @package      Sm\Data\Source\Database
  *
  * @property-write array $primary_keys
  *

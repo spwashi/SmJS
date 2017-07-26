@@ -11,13 +11,13 @@ namespace Sm\Query\Modules\Sql\Formatting\Statements;
 use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Formatting\Formatter\Formatter;
 use Sm\Data\Source\Constructs\JoinedSourceSchema;
+use Sm\Data\Source\Database\Table\TableSourceSchema;
 use Sm\Query\Modules\Sql\Formatting\Proxy\Aliasing\AliasedSourceFormattingProxy;
 use Sm\Query\Modules\Sql\Formatting\Proxy\Column\ColumnIdentifierFormattingProxy;
 use Sm\Query\Modules\Sql\Formatting\Proxy\Component\SelectExpressionFormattingProxy;
 use Sm\Query\Modules\Sql\Formatting\Proxy\Source\Table\TableIdentifierFormattingProxy;
 use Sm\Query\Modules\Sql\Formatting\SqlQueryFormatter;
 use Sm\Query\Statements\SelectStatement;
-use Sm\Data\Source\Database\Table\TableSourceSchema;
 
 class SelectStatementFormatter extends SqlQueryFormatter implements Formatter {
     public function prime($item) {
@@ -42,11 +42,11 @@ class SelectStatementFormatter extends SqlQueryFormatter implements Formatter {
         $whereClause = $item->getWhereClause();
         
         $select_expression_list = $this->formatSelectExpressionList($item->getSelectedItems());
-        $from_string            = $this->formatSelectFromList($sources);
+        $from_string            = count($sources) ? "FROM\t" . $this->formatSelectFromList($sources) : '';
         $where_string           = $whereClause ? "WHERE\t" . $this->formatComponent($whereClause) : '';
-        $select_stmt_string     = "SELECT\t{$select_expression_list}\nFROM\t{$from_string}\n{$where_string}";
-        
-        return $select_stmt_string;
+        $select_stmt_string     = "SELECT\t{$select_expression_list}\n{$from_string}\n{$where_string}";
+    
+        return trim($select_stmt_string);
     }
     /**
      * Make sure the "source" is sturctured as something we'd use.

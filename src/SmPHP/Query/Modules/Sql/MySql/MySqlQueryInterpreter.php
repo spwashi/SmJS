@@ -27,6 +27,8 @@ use Sm\Query\Modules\Sql\SqlQueryInterpreter;
 class MySqlQueryInterpreter extends SqlQueryInterpreter {
     /** @var  MySqlAuthentication $authentication */
     protected $authentication;
+    /** @var  \PDO */
+    protected $connection;
     /**
      * Check to see if an Authentication can be used to interpret these Queries.
      * Throw an error on failure
@@ -39,15 +41,15 @@ class MySqlQueryInterpreter extends SqlQueryInterpreter {
      */
     public function checkAuthenticationValidity(Authentication $authentication) {
         if (!($authentication instanceof MySqlAuthentication)) throw new TypeMismatchException("Can only connect with a MySqlAuthentication");
-        
-        # todo This should be a development error?
         $authentication->connect();
         if (!$authentication->isValid()) throw new InvalidAuthenticationException("The Authentication for this");
     }
     protected function execute(string $formatted_query) {
+        var_dump($formatted_query);
         $connection = $this->authentication->getConnection();
         $sth        = $connection->prepare("$formatted_query");
-        return [ $sth, $sth->execute() ];
+        $result     = $sth->execute();
+        return [ $sth, $result ];
     }
     /**
      * @param mixed         $query_or_statement The thing that we just executed

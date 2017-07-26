@@ -30,7 +30,8 @@ class FormatterFactory extends StandardFactory {
      *
      * @return mixed
      */
-    public function format(...$arguments) {
+    public function format() {
+        $arguments = func_get_args();
         if (is_null($arguments[0] ??null)) return null;
         return $this->build(...$arguments)->format(...$arguments);
     }

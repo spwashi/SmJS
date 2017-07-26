@@ -103,8 +103,9 @@ abstract class StandardModule extends StandardContext implements HookHaver, Modu
         return $this->verified_contexts->canResolve($context->getObjectId());
     }
     /**
-     * Add it to a list of Contexts we've verified so we know that it's okay.
-     * subclasses might want to add some sort of exipiry functionality.
+     * Add it to a list of Contexts we've verified so we know that it's okay (for this Module to act within).
+     *
+     * Subclasses might want to add some sort of exipiry functionality or something else to modify how Contexts are validated
      *
      * Also, add items that the Context will have registered to it
      *
@@ -113,7 +114,8 @@ abstract class StandardModule extends StandardContext implements HookHaver, Modu
      * @return mixed
      */
     protected function createContextRegistry(Context $context): Registry {
-        return $this->verified_contexts->register($context->getObjectId(), new MiniContainer)
+        return $this->verified_contexts->register($context->getObjectId(),
+                                                  new MiniContainer)
                                        ->resolve($context->getObjectId());
     }
     /**

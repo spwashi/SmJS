@@ -17,13 +17,7 @@ use Sm\Core\Factory\StandardFactory;
  * @package Sm\Query\Interpretation
  */
 class QueryInterpreterFactory extends StandardFactory {
-    /**
-     * @param object|string $object_type
-     *
-     * @return bool
-     */
     protected function canCreateClass($object_type) {
-        return is_a($object_type, QueryInterpreter::class);
+        return is_a($object_type, QueryInterpreter::class, true);
     }
-    
 }

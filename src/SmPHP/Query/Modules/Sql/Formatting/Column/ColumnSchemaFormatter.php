@@ -23,7 +23,7 @@ class ColumnSchemaFormatter extends SqlQueryFormatter {
         $can_be_null = $columnSchema->canBeNull() ? 'NULL' : 'NOT NULL';
         $length      = $columnSchema->getLength();
         $length      = $length ? "($length)" : '';
-        return "{$column_name} {$can_be_null} {$type} {$length} {$unique}";
+        return "{$column_name} {$type}{$length} {$can_be_null} {$unique}";
     }
     
 }

@@ -1,11 +1,12 @@
 <?php
 /**
  * User: Sam Washington
- * Date: 3/12/17
- * Time: 11:20 PM
+ * Date: 7/25/17
+ * Time: 10:01 AM
  */
 
 namespace Sm\Authentication;
+
 
 /**
  * Class Authentication
@@ -14,38 +15,17 @@ namespace Sm\Authentication;
  *
  * @package Sm\Authentication
  */
-abstract class Authentication {
-    protected $connection;
+interface Authentication {
     /**
      * Is the authentication still valid?
      *
      * @return bool
      */
-    abstract public function isValid(): bool;
+    public function isValid(): bool;
     /**
      * Connect to the Authentication using the available credentials
      *
      * @return  bool
      */
-    abstract public function connect();
-    /**
-     * Set the credentials
-     *
-     * @return static
-     */
-    abstract public function setCredentials();
-    /**
-     * @return mixed
-     */
-    public function getConnection() {
-        return $this->connection;
-    }
-    /**
-     * Static constructor
-     *
-     * @return static
-     */
-    public static function init() {
-        return new static(...func_get_args());
-    }
+    public function connect();
 }

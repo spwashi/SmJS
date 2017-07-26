@@ -39,11 +39,9 @@ class SqlQueryFormatterFactory extends FormatterFactory {
      * @param \Sm\Query\Modules\Sql\Formatting\SqlFormattingContext                 $context
      */
     public function __construct(SqlFormattingProxyFactory $formattingProxyFactory,
-                                SqlFormattingAliasContainer $aliasContainer,
-                                SqlFormattingContext $context) {
+                                SqlFormattingAliasContainer $aliasContainer) {
         $this->formattingProxyFactory = $formattingProxyFactory;
         $this->aliasContainer         = $aliasContainer;
-        $this->context                = $context;
         parent::__construct();
     }
     public static function init(SqlFormattingProxyFactory $formattingProxyFactory = null,
@@ -76,7 +74,7 @@ class SqlQueryFormatterFactory extends FormatterFactory {
     public function getAliasContainer(): SqlFormattingAliasContainer {
         return $this->aliasContainer;
     }
-    public function getContext(): SqlFormattingContext { return $this->context; }
+    public function getContext(): ? SqlFormattingContext { return $this->context; }
     
     /**
      * Creates a placeholder for a Variable's value
@@ -91,4 +89,11 @@ class SqlQueryFormatterFactory extends FormatterFactory {
         $this->context->addVariables([ $name => $value ]);
         return $this->proxy([ $name, $value, ], PlaceholderFormattingProxy::class);
     }
+    public function format($item = null, SqlFormattingContext $sqlFormattingContext = null) {
+        $this->context = $sqlFormattingContext;
+        $result        = parent::format($item, $sqlFormattingContext);
+        $this->context = null;
+        return $result;
+    }
+    
 }

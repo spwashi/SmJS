@@ -22,12 +22,14 @@ class TwoOperandStatementFormatter extends SqlQueryFormatter {
         $operator = $stmt->getOperator();
         $right    = $stmt->getRightSide();
         $context  = $this->queryFormatter->getContext();
-        
+    
+        # If we are executing something
         if ($context instanceof SqlExecutionContext) {
-            # THIS IS WHAT CREATE THE PLACEHOLDERS
+            # This is what turns the right side of the conditional into a placeholder (only if we are executing something)
             if (!($right instanceof ColumnSchema)) $right = $this->queryFormatter->placeholder($right);
         }
     
+        # Format each side like we're talking about columns
         if ($right instanceof ColumnSchema) $right = $this->proxy($right, ColumnIdentifierFormattingProxy::class);
         if ($left instanceof ColumnSchema) $left = $this->proxy($left, ColumnIdentifierFormattingProxy::class);
     

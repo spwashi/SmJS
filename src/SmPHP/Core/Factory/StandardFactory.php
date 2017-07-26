@@ -99,7 +99,7 @@ class StandardFactory extends AbstractContainer implements Factory {
             
             # register functions that don't have a name
             #  or FunctionResolvables that don't have an
-            if (!$name) {
+            else if (!$name) {
                 array_unshift($this->registry, $registrand);
             }
         }
@@ -117,8 +117,7 @@ class StandardFactory extends AbstractContainer implements Factory {
     protected function attempt_build($item = null) {
         $args = func_get_args();
         /** @var string $class_name */
-        $class_name = $item ?? null;
-        $class_name = is_object($class_name) ? get_class($class_name) : $class_name;
+        $class_name = is_object($item) ? get_class($item) : $item;
         
         $previous_exception = null;
         if (self::isProbablyClassname($class_name) || ($class_name = gettype($class_name)) && isset($this->class_registry[ $class_name ])
@@ -149,7 +148,8 @@ class StandardFactory extends AbstractContainer implements Factory {
                 return $result;
             }
         }
-        throw new FactoryCannotBuildException("Cannot find a matching build method for " . Util::getShapeOfItem($args), null, $previous_exception);
+        $arg_shape = count($args) === 1 ? $args[0] : Util::getShapeOfItem($args);
+        throw new FactoryCannotBuildException("Cannot find a matching build method for " . $arg_shape, null, $previous_exception);
     }
     /**
      * Build a class relevant to this Factory

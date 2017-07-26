@@ -57,7 +57,7 @@ class SqlQueryFormatterTest extends \PHPUnit_Framework_TestCase {
         $formattingContext = SqlExecutionContext::init();
         #--- ProxyFactory
         $formattingProxyFactory = new SqlFormattingProxyFactory;
-        $formattingProxyFactory->register(ColumnIdentifierFormattingProxy::class, function ($item, SqlFormattingProxyFactory $formattingProxyFactory) {
+        $formattingProxyFactory->register([ ColumnIdentifierFormattingProxy::class                  => function ($item, SqlFormattingProxyFactory $formattingProxyFactory) {
             if ($item instanceof ColumnSchema) {
                 return $formattingProxyFactory->build(ColumnSchema_ColumnIdentifierFormattingProxy::class, $item);
             }
@@ -65,31 +65,31 @@ class SqlQueryFormatterTest extends \PHPUnit_Framework_TestCase {
                 return $formattingProxyFactory->build(String_ColumnIdentifierFormattingProxy::class, $item);
             }
             throw new UnimplementedError('+ Anything but strings [' . Util::getShapeOfItem($item) . ']');
-        });
-        $formattingProxyFactory->register(ColumnSchema_ColumnIdentifierFormattingProxy::class, ColumnSchema_ColumnIdentifierFormattingProxy::class);
-        $formattingProxyFactory->register(String_ColumnIdentifierFormattingProxy::class, String_ColumnIdentifierFormattingProxy::class);
-        $formattingProxyFactory->register(String_TableIdentifierFormattingProxy::class, String_TableIdentifierFormattingProxy::class);
-        $formattingProxyFactory->register(TableSourceSchema_TableIdentifierFormattingProxy::class, TableSourceSchema_TableIdentifierFormattingProxy::class);
-        $formattingProxyFactory->register(TableIdentifierFormattingProxy::class, function ($item, SqlFormattingProxyFactory $formattingProxyFactory) {
-            if ($item instanceof TableSource) {
-                return $formattingProxyFactory->build(TableSourceSchema_TableIdentifierFormattingProxy::class, $item);
-            }
-    
-    
-            if ($item instanceof NamedDataSourceSchema) $item = $item->getName();
-            
-            # Default to formatting tables as strings
-            if (is_string($item)) {
-                return $formattingProxyFactory->build(String_TableIdentifierFormattingProxy::class, $item);
-            }
-    
-            throw new UnimplementedError('+ Anything but strings[' . Util::getShapeOfItem($item) . ']');
-        });
+        },
+                                            ColumnSchema_ColumnIdentifierFormattingProxy::class     => ColumnSchema_ColumnIdentifierFormattingProxy::class,
+                                            String_ColumnIdentifierFormattingProxy::class           => String_ColumnIdentifierFormattingProxy::class,
+                                            String_TableIdentifierFormattingProxy::class            => String_TableIdentifierFormattingProxy::class,
+                                            TableSourceSchema_TableIdentifierFormattingProxy::class => TableSourceSchema_TableIdentifierFormattingProxy::class,
+                                            TableIdentifierFormattingProxy::class                   => function ($item, SqlFormattingProxyFactory $formattingProxyFactory) {
+                                                if ($item instanceof TableSource) {
+                                                    return $formattingProxyFactory->build(TableSourceSchema_TableIdentifierFormattingProxy::class, $item);
+                                                }
+        
+        
+                                                if ($item instanceof NamedDataSourceSchema) $item = $item->getName();
+        
+                                                # Default to formatting tables as strings
+                                                if (is_string($item)) {
+                                                    return $formattingProxyFactory->build(String_TableIdentifierFormattingProxy::class, $item);
+                                                }
+        
+                                                throw new UnimplementedError('+ Anything but strings[' . Util::getShapeOfItem($item) . ']');
+                                            }, ]);
         #--- FormatterFactory
         $formatterFactory = SqlQueryFormatterFactory::init($formattingProxyFactory, SqlFormattingAliasContainer::init(), $formattingContext);
         $formatterFactory->register(
             [
-                null                                   => new StdSqlFormatter,
+                new StdSqlFormatter,
                 SelectStatement::class                 => new SelectStatementFormatter($formatterFactory),
                 UpdateStatement::class                 => new UpdateStatementFormatter($formatterFactory),
                 CreateTableStatement::class            => new CreateTableStatementFormatter($formatterFactory),
@@ -103,7 +103,7 @@ class SqlQueryFormatterTest extends \PHPUnit_Framework_TestCase {
                     $formatterFactory->createFormatter(function (PlaceholderFormattingProxy $columnSchema) use ($formatterFactory) {
                         return ":{$columnSchema->getPlaceholderName()}";
                     }),
-
+    
                 JoinedSourceSchematic::class           => new JoinedSourceSchemaFormatter($formatterFactory),
                 SelectExpressionFormattingProxy::class => new SelectExpressionFormattingProxyFormatter($formatterFactory),
                 PrimaryKeyConstraintSchema::class      =>

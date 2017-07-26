@@ -8,6 +8,7 @@
 namespace Sm\Data\Source\Database;
 
 
+use Sm\Authentication\AbstractAuthentication;
 use Sm\Authentication\Authentication;
 use Sm\Data\Source\DataSource;
 use Sm\Data\Source\Schema\NamedDataSourceSchema;
@@ -22,8 +23,8 @@ class DatabaseDataSource extends DataSource implements NamedDataSourceSchema {
     /**
      * DatabaseDataSource constructor.
      *
-     * @param \Sm\Authentication\Authentication|null $Authentication The thing that will hold a reference to the connection
-     * @param string                                 $name
+     * @param Authentication|null $Authentication The thing that will hold a reference to the connection
+     * @param string              $name
      */
     public function __construct(Authentication $Authentication = null, string $name = null) {
         if (isset($Authentication)) $this->authentication = $Authentication;

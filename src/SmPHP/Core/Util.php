@@ -20,12 +20,19 @@ class Util {
      * @return string
      */
     public static function getShapeOfItem($result) {
-        if (is_array($result)) {
+        $arguments = func_get_args();
+        if (count($arguments) > 1) {
+            $string = [];
+            foreach ($arguments as $item) {
+                $string [] = static::getShapeOfItem($item);
+            }
+            return implode('|', $string);
+        } else if (is_array($result)) {
             $string = 'array[';
             foreach ($result as $item) {
                 $string .= static::getShapeOfItem($item) . '|';
             }
-    
+        
             $string = trim($string, '|');
             $string .= ']';
             return $string;

@@ -8,6 +8,7 @@
 namespace Sm\Data\Source\Database\Table;
 
 
+use Sm\Authentication\AbstractAuthentication;
 use Sm\Authentication\Authentication;
 use Sm\Data\Property\PropertyContainer;
 use Sm\Data\Source\DataSource;

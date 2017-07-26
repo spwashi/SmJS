@@ -20,7 +20,7 @@ use Sm\Core\Context\Layer\Module\LayerModule;
  *
  * @package Sm\Communication\Module
  */
-class CommunicationLayerModule extends LayerModule {
+abstract class CommunicationModule extends LayerModule {
     /**
      * @param null|\Sm\Communication\CommunicationLayer|\Sm\Core\Context\Layer\Layer $context
      *

@@ -47,7 +47,7 @@ class CreateTableStatementFormatter extends SqlQueryFormatter {
     
     
         $f_c_string = join(",\n\t", $formattedColumnsAndConstraints);
-        return "CREATE TABLE {$table_name}(\n\t{$f_c_string}\n)";
+        return "CREATE TABLE {$table_name} ({$f_c_string})";
     }
     
 }

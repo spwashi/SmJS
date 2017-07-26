@@ -23,6 +23,6 @@ class IntegerColumnSchemaFormatter extends ColumnSchemaFormatter {
         $length         = $item->getLength();
         $auto_increment = $item->isAutoIncrement() ? 'AUTO INCREMENT' : '';
         $length         = $length ? "($length)" : '';
-        return "{$column_name} {$can_be_null} {$type} {$length} {$auto_increment} {$unique}";
+        return "{$column_name} {$type}{$length} {$can_be_null} {$auto_increment} {$unique}";
     }
 }

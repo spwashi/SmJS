@@ -9,7 +9,7 @@ namespace Sm\Query\Statements;
 
 
 use Sm\Core\Exception\InvalidArgumentException;
-use Sm\Data\Source\DataSource;
+use Sm\Core\Factory\Exception\FactoryCannotBuildException;
 use Sm\Data\Source\Schema\DataSourceSchema;
 use Sm\Query\Statements\Clauses\HasWhereClauseTrait;
 
@@ -35,7 +35,11 @@ class SelectStatement extends QueryComponent {
     public function select(...$select_items) {
         foreach ($select_items as $item) {
             if (is_string($item)) continue;
-            $this->from_sources[] = $this->getSourceGarage()->resolve($item);
+            try {
+                $this->from_sources[] = $this->getSourceGarage()->resolve($item);
+            } catch (FactoryCannotBuildException $exception) {
+        
+            }
         }
         $this->selected_items = array_merge($this->selected_items, $select_items);
         return $this;

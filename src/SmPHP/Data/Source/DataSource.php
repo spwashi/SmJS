@@ -9,6 +9,7 @@ namespace Sm\Data\Source;
 
 
 use Sm\Authentication\Authenticated;
+use Sm\Authentication\AbstractAuthentication;
 use Sm\Authentication\Authentication;
 use Sm\Core\Internal\Identification\HasObjectIdentityTrait;
 use Sm\Core\Internal\Identification\Identifiable;

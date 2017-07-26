@@ -7,7 +7,7 @@
 
 namespace Sm\Query\Modules\Sql\MySql\Authentication;
 
-use Sm\Authentication\Authentication;
+use Sm\Authentication\AbstractAuthentication;
 use Sm\Query\Modules\Sql\Authentication\SqlAuthentication;
 
 
@@ -17,8 +17,9 @@ use Sm\Query\Modules\Sql\Authentication\SqlAuthentication;
  * Authentication for connecting to a MySql database
  *
  * @package Sm\Query\Modules\Sql\MySql\Authentication
+ * @method \PDO getConnection()
  */
-class MySqlAuthentication extends Authentication implements SqlAuthentication {
+class MySqlAuthentication extends AbstractAuthentication implements SqlAuthentication {
     protected $database_name;
     protected $host;
     protected $password;

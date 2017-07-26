@@ -21,7 +21,7 @@ use Sm\Http\Http;
  *
  * @package Sm\Communication\Module
  */
-class HttpCommunicationModule extends CommunicationLayerModule {
+class HttpCommunicationModule extends CommunicationModule {
     /**
      * @return array
      */

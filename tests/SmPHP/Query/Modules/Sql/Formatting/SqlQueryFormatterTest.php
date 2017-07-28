@@ -30,34 +30,32 @@ use Sm\Query\Statements\UpdateStatement;
 class SqlQueryFormatterTest extends \PHPUnit_Framework_TestCase {
     /** @var  \Sm\Query\Modules\Sql\Formatting\SqlQueryFormatterFactory $queryFormatter */
     public $queryFormatter;
-    public $formattingProxyFactory;
     public function setUp() {
-        $module = MySqlQueryModule::init()->initialize();
-        #--- setup
+        $module               = MySqlQueryModule::init()->initialize();
         $this->queryFormatter = $module->getQueryFormatter();
     }
     
     
     public function testSelect() {
-        $tableSource   = new TableSource(new DatabaseDataSource(new MySqlAuthentication, 'Database'), 'tablename_is_here');
-        $tableSource_2 = new TableSource(new DatabaseDataSource(new MySqlAuthentication, 'Database'), 'another_table');
+        $tableSource   = new TableSource('tablename_is_here', new DatabaseDataSource('Database'));
+        $tableSource_2 = new TableSource('another_table', new DatabaseDataSource('Database'));
         $boonman       = VarcharColumnSchema::init('boonman')
                                             ->setLength(25)
                                             ->setTableSchema($tableSource);
         $bran_slam     = VarcharColumnSchema::init('bran_slam')
-            ->setLength(25)
-            ->setTableSchema($tableSource);
+                                            ->setLength(25)
+                                            ->setTableSchema($tableSource);
         $stmt          = SelectStatement::init('here.column_1', $boonman, $bran_slam, 'column_2')
-            ->from('there', JoinedSourceSchematic::init()
-                                                 ->setOriginSources($tableSource)
-                                                 ->setJoinConditions(EqualToCondition::init(1, 2))
-                                                 ->setJoinedSources($tableSource_2))
-            ->where(EqualToCondition::init(1, $bran_slam));
+                                        ->from('there', JoinedSourceSchematic::init()
+                                                                             ->setOriginSources($tableSource)
+                                                                             ->setJoinConditions(EqualToCondition::init(1, 2))
+                                                                             ->setJoinedSources($tableSource_2))
+                                        ->where(EqualToCondition::init(1, $bran_slam));
         $result        = $this->queryFormatter->format($stmt, new SqlExecutionContext);
         if (DO_ECHO_RESULTS) echo __FILE__ . "\n--\n$result\n\n";
     }
     public function testUpdate() {
-        $tableSource = new TableSource(new DatabaseDataSource(new MySqlAuthentication, 'Database'), 'tablename_is_here');
+        $tableSource = new TableSource('tablename_is_here', new DatabaseDataSource('Database'));
         $boonman     = VarcharColumnSchema::init('boonman')
                                           ->setLength(25)
                                           ->setTableSchema($tableSource);
@@ -103,15 +101,12 @@ class SqlQueryFormatterTest extends \PHPUnit_Framework_TestCase {
         if (DO_ECHO_RESULTS) echo __FILE__ . "\n--\n$result\n\n";
     }
     public function testAlterTable() {
-        $vcColumn1 = VarcharColumnSchema::init('column_name')
-                                        ->setNullability(0)
-                                        ->setLength(255);
-        $iColumn1  = IntegerColumnSchema::init('one_thing')
-                                        ->setAutoIncrement()
-                                        ->setLength(10);
-        $otherr    = IntegerColumnSchema::init('another_one_thing')
-                                        ->setLength(10)
-                                        ->setTableSchema(TableSourceSchematic::init('other_tablename'));
+        $iColumn1 = IntegerColumnSchema::init('one_thing')
+                                       ->setAutoIncrement()
+                                       ->setLength(10);
+        $otherr   = IntegerColumnSchema::init('another_one_thing')
+                                       ->setLength(10)
+                                       ->setTableSchema(TableSourceSchematic::init('other_tablename'));
         
         $stmt   = AlterTableStatement::init('TableName')
                                      ->withConstraints(ForeignKeyConstraintSchema::init()

@@ -23,11 +23,11 @@ class DatabaseDataSource extends DataSource implements NamedDataSourceSchema {
     /**
      * DatabaseDataSource constructor.
      *
-     * @param Authentication|null $Authentication The thing that will hold a reference to the connection
-     * @param string              $name
+     * @param string $name
+     *
+     * @internal param null|\Sm\Authentication\Authentication $Authentication The thing that will hold a reference to the connection
      */
-    public function __construct(Authentication $Authentication = null, string $name = null) {
-        if (isset($Authentication)) $this->authentication = $Authentication;
+    public function __construct(string $name = null) {
         $this->name = $name;
         parent::__construct();
     }
@@ -38,8 +38,5 @@ class DatabaseDataSource extends DataSource implements NamedDataSourceSchema {
      */
     public function getName(): ?string {
         return $this->name;
-    }
-    public function getConnection() {
-        return isset($this->authentication) ? $this->authentication->getConnection() : null;
     }
 }

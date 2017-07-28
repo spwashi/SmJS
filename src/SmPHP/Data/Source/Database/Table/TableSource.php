@@ -8,11 +8,10 @@
 namespace Sm\Data\Source\Database\Table;
 
 
-use Sm\Authentication\AbstractAuthentication;
 use Sm\Authentication\Authentication;
 use Sm\Data\Property\PropertyContainer;
-use Sm\Data\Source\DataSource;
 use Sm\Data\Source\Database\DatabaseDataSource;
+use Sm\Data\Source\DataSource;
 
 /** @noinspection PhpSignatureMismatchDuringInheritanceInspection */
 
@@ -33,16 +32,15 @@ class TableSource extends DataSource implements TableSourceSchema {
     /** @var PropertyContainer $columnContainer */
     protected $columnContainer;
     
-    public function __construct(DatabaseDataSource $DatabaseSource, $table_name) {
-        $this->databaseSource = $DatabaseSource;
-        $this->table_name     = $table_name;
+    public function __construct($table_name, DatabaseDataSource $DatabaseSource = null) {
         parent::__construct();
+        $this->table_name     = $table_name;
+        $this->databaseSource = $DatabaseSource;
     }
     public function __get($name) {
         if ($name === 'columns') return $this->columnContainer;
         return null;
     }
-    public function isAuthenticated(): bool { return $this->databaseSource->isAuthenticated(); }
     public function getParentSource(): ?DatabaseDataSource {
         return $this->databaseSource;
     }

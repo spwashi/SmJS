@@ -21,6 +21,13 @@ use Sm\Query\Modules\Sql\MySql\MySqlQueryInterpreter;
 use Sm\Query\Proxy\QueryProxy;
 use Sm\Query\Statements\QueryComponent;
 
+/** @noinspection PhpHierarchyChecksInspection */
+
+/**
+ * Class MySqlQueryModule
+ *
+ * @method MySqlQueryModuleProxy initialize(Context $context = null): ?MySqlQueryModuleProxy
+ */
 class MySqlQueryModule extends QueryModule {
     const MYSQL = 'mysql';
     protected $queryType = 'mysql';
@@ -29,6 +36,9 @@ class MySqlQueryModule extends QueryModule {
     /** @var  SqlQueryFormatterFactory $queryFormatter */
     protected $queryFormatter;
     private   $authentication;
+    /**
+     * @return \Sm\Query\Modules\Sql\MySql\Module\MySqlQueryModule
+     */
     public static function init() { return new static(...func_get_args()); }
     
     public function registerAuthentication($mySqlAuthentication) {
@@ -56,7 +66,7 @@ class MySqlQueryModule extends QueryModule {
      * Set the SqlQueryFormatterFactory that will be responsible for formatting Queries on this Module
      *
      * @param SqlQueryFormatterFactory     $queryFormatter The SqlQueryFormatterFactory that is going to be responsible for formatting the queries on this layer.
-     * @param \Sm\Core\Context\Layer\Layer $context The Layer on which we are registering it. If not specified, just registered on the class.
+     * @param \Sm\Core\Context\Layer\Layer $context        The Layer on which we are registering it. If not specified, just registered on the class.
      *
      * @return \Sm\Query\Modules\Sql\MySql\MySqlQueryModule
      */

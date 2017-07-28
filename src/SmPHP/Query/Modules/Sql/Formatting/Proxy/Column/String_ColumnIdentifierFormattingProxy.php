@@ -12,9 +12,8 @@ use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Exception\UnimplementedError;
 use Sm\Core\Formatting\Formatter\FormattingProxyFactory;
 use Sm\Data\Source\Schema\DataSourceSchema;
-use Sm\Query\Modules\Sql\Formatting\Proxy\Source\Table\TableFormattingProxy;
 use Sm\Query\Modules\Sql\Formatting\Proxy\Source\NamedDataSourceFormattingProxy;
-use Sm\Data\Source\Database\Table\TableSourceSchema;
+use Sm\Query\Modules\Sql\Formatting\Proxy\Source\Table\TableFormattingProxy;
 
 class String_ColumnIdentifierFormattingProxy extends ColumnIdentifierFormattingProxy {
     protected $subject;
@@ -24,6 +23,8 @@ class String_ColumnIdentifierFormattingProxy extends ColumnIdentifierFormattingP
     protected $type;
     protected $length;
     protected $default;
+    #
+    protected $format_as_string = false;
     #
     public function __construct($column, FormattingProxyFactory $formattingProxyFactory) {
         if (!is_string($column)) throw new UnimplementedError("+ format anything but a string as a column");
@@ -68,5 +69,12 @@ class String_ColumnIdentifierFormattingProxy extends ColumnIdentifierFormattingP
         #todo check to see if the column name is malformed?
         
         return $this->column_name = $this->subject;
+    }
+    public function formatAsString() {
+        $this->format_as_string = true;
+        return $this;
+    }
+    public function doFormatAsString() {
+        return $this->format_as_string;
     }
 }

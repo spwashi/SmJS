@@ -30,10 +30,10 @@ abstract class StandardContextualizedProxy extends StandardContext implements Pr
      * @param         $subject
      * @param Context $context
      */
-    public function __construct($subject, $context) {
+    public function __construct($subject, $context = null) {
         parent::__construct();
         $this->subject = $subject;
-        $this->setContext($context);
+        if ($context) $this->setContext($context);
     }
     public function getContext(): Context {
         return $this->context;

@@ -34,7 +34,7 @@ class StandardRoutingModule extends LayerModule implements RoutingModule {
      *
      * @return \Sm\Core\Module\ModuleProxy
      */
-    protected function createModuleProxy(Context $context): ModuleProxy {
+    protected function createModuleProxy(Context $context = null): ModuleProxy {
         return new RoutingModuleProxy($this, $context);
     }
     /**

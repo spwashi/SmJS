@@ -19,7 +19,7 @@ class MySqlAuthenticationTest extends \PHPUnit_Framework_TestCase {
     
     public function testConnection() {
         #todo lol remove this from this file, y'goof!
-        $this->MySqlAuthentication->setCredentials("codozsqq", "^bzXfxDc!Dl6", "localhost", "factshift");
+        $this->MySqlAuthentication->setCredentials("codozsqq", "^bzXfxDc!Dl6", "localhost", "sm_test");
         $this->assertTrue($this->MySqlAuthentication->connect());
     }
 }

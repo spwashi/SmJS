@@ -13,6 +13,7 @@ use Sm\Core\Resolvable\StringResolvable;
 use Sm\Query\Modules\Sql\Constraints\PrimaryKeyConstraintSchema;
 use Sm\Query\Modules\Sql\Data\Column\IntegerColumnSchema;
 use Sm\Query\Modules\Sql\MySql\Authentication\MySqlAuthentication;
+use Sm\Query\Modules\Sql\MySql\Module\MySqlQueryModule;
 use Sm\Query\Modules\Sql\Statements\CreateTableStatement;
 use Sm\Query\Proxy\String_QueryProxy;
 use Sm\Query\QueryLayer;
@@ -35,9 +36,11 @@ class MySqlQueryModuleTest extends \PHPUnit_Framework_TestCase {
     }
     public function testCanInterpretSelect() {
         $result = $this->layer->interpret(String_QueryProxy::init('SELECT "hello"'));
-        var_dump($result);
+        $this->assertInternalType('array', $result);
+        $this->assertEquals($result['hello']??0, 'hello');
         $result = $this->layer->interpret(SelectStatement::init()->select(StringResolvable::init('hello')));
-        var_dump($result);
+        $this->assertInternalType('array', $result);
+        $this->assertEquals($result['hello']??0, 'hello');
     }
     public function testCan() {
         $id           = IntegerColumnSchema::init('id')->setLength(11)->setNullability(0);
@@ -48,6 +51,6 @@ class MySqlQueryModuleTest extends \PHPUnit_Framework_TestCase {
         
         $query  = String_QueryProxy::init("SHOW TABLES");
         $result = $this->layer->interpret($create_table);
-        echo json_encode($result, JSON_PRETTY_PRINT);
+//        echo json_encode($result, JSON_PRETTY_PRINT);
     }
 }

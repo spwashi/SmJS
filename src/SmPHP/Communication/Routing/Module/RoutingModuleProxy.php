@@ -27,6 +27,6 @@ class RoutingModuleProxy extends ModuleProxy implements RoutingModule {
         return $this->subject->registerRoutes([ $routes ], $this->getContext());
     }
     public function route(Request $request) {
-        return $this->__call('route', [ $request ]);
+        return $this->subject->route($request, $this->context);
     }
 }

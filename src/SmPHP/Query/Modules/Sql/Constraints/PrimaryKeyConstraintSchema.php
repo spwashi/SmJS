@@ -15,5 +15,4 @@ class PrimaryKeyConstraintSchema extends StandardKeyConstraintSchema {
     public function __construct(ColumnSchema ...$columns) {
         $this->columns = $columns;
     }
-    
 }

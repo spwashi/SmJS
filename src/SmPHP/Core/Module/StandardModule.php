@@ -51,7 +51,7 @@ abstract class StandardModule extends StandardContext implements HookHaver, Modu
      *
      * @return null|\Sm\Core\Module\ModuleProxy
      */
-    public final function initialize(Context $context): ?ModuleProxy {
+    public final function initialize(Context $context = null): ?ModuleProxy {
         # Check to see if we can initialize the Module within this context
         $this->check($context);
         $this->resolveHook(Hook::INIT, $context);
@@ -67,14 +67,14 @@ abstract class StandardModule extends StandardContext implements HookHaver, Modu
      * @throws \Sm\Core\Exception\Exception
      * @return bool|null
      */
-    public final function check(Context $context):?bool {
+    public final function check(Context $context = null):?bool {
         if ($this->hasValidatedContext($context)) return null;
         
         # This should throw an error if the Module is not applicable on this context
         $this->resolveHook(Hook::CHECK, $context);
         $this->_check($context);
         
-        $this->createContextRegistry($context);
+        if ($context) $this->createContextRegistry($context);
         return true;
     }
     /**
@@ -99,8 +99,8 @@ abstract class StandardModule extends StandardContext implements HookHaver, Modu
      *
      * @return bool
      */
-    protected function hasValidatedContext(Context $context): bool {
-        return $this->verified_contexts->canResolve($context->getObjectId());
+    protected function hasValidatedContext(Context $context = null): bool {
+        return $this->verified_contexts->canResolve($context ? $context->getObjectId() : null);
     }
     /**
      * Add it to a list of Contexts we've verified so we know that it's okay (for this Module to act within).

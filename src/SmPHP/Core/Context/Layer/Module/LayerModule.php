@@ -30,7 +30,7 @@ abstract class LayerModule extends StandardModule {
     protected function getHookContainer(): ?HookContainer {
         return $this->hookContainer = $this->hookContainer ?? new HookContainer;
     }
-    protected function createModuleProxy(Context $context): ModuleProxy {
+    protected function createModuleProxy(Context $context = null): ModuleProxy {
         return new LayerModuleProxy($this, $context);
     }
     

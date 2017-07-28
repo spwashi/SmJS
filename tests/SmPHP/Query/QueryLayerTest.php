@@ -10,8 +10,7 @@ namespace Sm\Query;
 use PHPUnit\Framework\TestCase;
 use Sm\Core\Module\ModuleContainer;
 use Sm\Query\Module\QueryModuleFactory;
-use Sm\Query\Modules\Sql\MySql\MySqlQueryModule;
-use Sm\Query\Proxy\String_QueryProxy;
+use Sm\Query\Modules\Sql\MySql\Module\MySqlQueryModule;
 
 /**
  * Class QueryLayerTest
@@ -23,5 +22,8 @@ class QueryLayerTest extends TestCase {
     public $layer;
     public function setUp() {
         $this->layer = new QueryLayer(new ModuleContainer, new QueryModuleFactory);
+    }
+    public function testCanRegisterMySqlModule() {
+        $this->layer->registerQueryModule(new MySqlQueryModule);
     }
 }

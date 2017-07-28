@@ -8,6 +8,7 @@
 namespace Sm\Query\Modules\Sql\Formatting;
 
 
+use Sm\Core\Exception\UnimplementedError;
 use Sm\Core\Formatting\Formatter\Formatter;
 use Sm\Core\Formatting\Formatter\FormatterFactory;
 use Sm\Core\Util;
@@ -86,7 +87,7 @@ class SqlQueryFormatterFactory extends FormatterFactory {
      */
     public function placeholder($value, $name = null) {
         $name = $name??Util::generateRandomString(4, Util::getAlphaCharacters(0));
-        $this->context->addVariables([ $name => $value ]);
+        if (isset($this->context)) $this->context->addVariables([ $name => $value ]);
         return $this->proxy([ $name, $value, ], PlaceholderFormattingProxy::class);
     }
     public function format($item = null, SqlFormattingContext $sqlFormattingContext = null) {

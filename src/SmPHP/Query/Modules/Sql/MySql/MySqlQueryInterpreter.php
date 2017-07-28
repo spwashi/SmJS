@@ -45,7 +45,6 @@ class MySqlQueryInterpreter extends SqlQueryInterpreter {
         if (!$authentication->isValid()) throw new InvalidAuthenticationException("The Authentication for this");
     }
     protected function execute(string $formatted_query) {
-        var_dump($formatted_query);
         $connection = $this->authentication->getConnection();
         $sth        = $connection->prepare("$formatted_query");
         $result     = $sth->execute();

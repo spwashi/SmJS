@@ -10,7 +10,6 @@ namespace Sm\Core\Module;
 
 use Sm\Core\Context\Context;
 use Sm\Core\Context\Proxy\StandardContextualizedProxy;
-use Sm\Core\Exception\InvalidArgumentException;
 use Sm\Core\Resolvable\FunctionResolvable;
 
 /**
@@ -30,12 +29,7 @@ class ModuleProxy extends StandardContextualizedProxy {
      * @param \Sm\Core\Module\Module   $module
      * @param \Sm\Core\Context\Context $context
      */
-    public function __construct(Module $module, Context $context) {
+    public function __construct(Module $module, Context $context = null) {
         parent::__construct($module, $context);
-    }
-    public function __call($name, $arguments) {
-        if (count($arguments) !== 1) throw new InvalidArgumentException("Cannot call with more or less than one argument");
-        $arguments[] = $this->getContext();
-        return FunctionResolvable::init([ $this->subject, $name ])->resolve(...$arguments);
     }
 }

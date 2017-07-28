@@ -5,16 +5,19 @@
  * Time: 12:28 PM
  */
 
-namespace Sm\Query\Modules\Sql\MySql;
+namespace Sm\Query\Modules\Sql\MySql\Module;
 
 
+use Sm\Core\Context\Context;
 use Sm\Core\Context\Layer\Layer;
 use Sm\Core\Exception\InvalidArgumentException;
+use Sm\Core\Module\ModuleProxy;
 use Sm\Query\Module\QueryModule;
 use Sm\Query\Modules\Sql\Formatting\Aliasing\SqlFormattingAliasContainer;
 use Sm\Query\Modules\Sql\Formatting\SqlFormattingProxyFactory;
 use Sm\Query\Modules\Sql\Formatting\SqlQueryFormatterFactory;
 use Sm\Query\Modules\Sql\MySql\Authentication\MySqlAuthentication;
+use Sm\Query\Modules\Sql\MySql\MySqlQueryInterpreter;
 use Sm\Query\Proxy\QueryProxy;
 use Sm\Query\Statements\QueryComponent;
 
@@ -25,8 +28,8 @@ class MySqlQueryModule extends QueryModule {
     protected $config_path = '_config/mysql.query.module.sm.php';
     /** @var  SqlQueryFormatterFactory $queryFormatter */
     protected $queryFormatter;
-    /** @var \Sm\Authentication\AuthenticationFactory $authenticationFactory */
-    private $authentication;
+    private   $authentication;
+    public static function init() { return new static(...func_get_args()); }
     
     public function registerAuthentication($mySqlAuthentication) {
         $this->authentication = $mySqlAuthentication;
@@ -53,7 +56,7 @@ class MySqlQueryModule extends QueryModule {
      * Set the SqlQueryFormatterFactory that will be responsible for formatting Queries on this Module
      *
      * @param SqlQueryFormatterFactory     $queryFormatter The SqlQueryFormatterFactory that is going to be responsible for formatting the queries on this layer.
-     * @param \Sm\Core\Context\Layer\Layer $context        The Layer on which we are registering it. If not specified, just registered on the class.
+     * @param \Sm\Core\Context\Layer\Layer $context The Layer on which we are registering it. If not specified, just registered on the class.
      *
      * @return \Sm\Query\Modules\Sql\MySql\MySqlQueryModule
      */
@@ -65,12 +68,15 @@ class MySqlQueryModule extends QueryModule {
         }
         return $this;
     }
+    protected function createModuleProxy(Context $context = null): ModuleProxy {
+        return new MySqlQueryModuleProxy($this, $context);
+    }
     protected function _initialize(Layer $context = null) {
-        parent::_initialize($context);
+        if ($context) parent::_initialize($context);
         $this->initializeFormatter($context);
     }
     
-    protected function initializeFormatter(Layer $context) {
+    protected function initializeFormatter(Layer $context = null) {
         $queryFormatter = $this->getQueryFormatter($context);
         if (isset($queryFormatter)) return;
         
@@ -84,10 +90,13 @@ class MySqlQueryModule extends QueryModule {
         }
         
         # So we know how to format queries
+        # todo dependency injection?
         $queryFormatter = SqlQueryFormatterFactory::init($formattingProxyFactory, SqlFormattingAliasContainer::init());
         if (function_exists('register_formatting_handlers')) {
             register_formatting_handlers($queryFormatter);
         }
+        
+        #
         $this->setQueryFormatter($queryFormatter, $context);
     }
 }

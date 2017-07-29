@@ -1,5 +1,6 @@
 import {describe, it} from "mocha";
 import {SMJS_PATH} from "../paths";
+
 const Sm     = require(SMJS_PATH);
 const expect = require('chai').expect;
 require('chai-as-promised');
@@ -18,31 +19,15 @@ describe('DataSource', () => {
     it('Has a type', done => {
         const ds_name = 'hat_ds';
         const ds_type = 'database';
-        DataSource.init(ds_name, {type: ds_type});
-        DataSource.resolve(ds_name).then(i => {
-            /** @type {DataSource|Event}  */
-            let e, dataSource;
-            [e, dataSource] = i;
-            expect(dataSource.type).to.equal(ds_type);
-            done();
-        });
-    });
-    it('Has a type that is one of a few pre-configured values', done => {
-        let ds_name = 'hatpcv_ds', ds_type = 'Json';
-        DataSource.init(ds_name, {type: 'Moot'})
-                  .catch(error => {
-                      const message = error instanceof TypeError ? null : 'Successfully set bad value';
-                      done(message);
-                  })
-        
+        DataSource.init(ds_name);
+        DataSource.resolve(ds_name).then(i => {done();});
     });
     it('Can be JSON', () => {
-        return DataSource.init('DS_cbj_cen', {type: 'database'})
+        return DataSource.init('DS_cbj_cen')
                          .then(model => {
                              const stringify = JSON.stringify(model);
                              const parse     = JSON.parse(stringify);
                              expect(parse).to.haveOwnProperty('smID');
-                             expect(parse).to.haveOwnProperty('type');
                          });
     })
 });

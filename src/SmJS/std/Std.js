@@ -124,6 +124,7 @@ class Std {
         const promise              = self
             .initialize(config)
             .then(self => self._sendInitComplete(this.smID));
+        // allow us to get the object being initialized beforehand by attaching it as a property to the Promise
         promise.initializingObject = self;
         return promise;
     }
@@ -172,7 +173,7 @@ class Std {
         return this.receive(this.EVENTS.item(Std.EVENTS.item('available'))).then(i => i[1] || null);
     }
     
-    get(name) {
+    get (name) {
         return this._attributes.get(name);
     }
     
@@ -268,5 +269,6 @@ class Std {
     
     //endregion
 }
+
 export default Std;
 export {Std};

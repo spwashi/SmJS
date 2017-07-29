@@ -13,11 +13,18 @@ use Sm\Communication\Module\HttpCommunicationModule;
 use Sm\Communication\Routing\Module\StandardRoutingModule;
 use Sm\Core\Context\Layer\LayerContainer;
 use Sm\Core\Context\Layer\LayerRoot;
+use Sm\Core\Context\Layer\StandardLayer;
 use Sm\Core\Context\ResolutionContext;
 use Sm\Core\Context\StandardContext;
 use Sm\Core\Paths\PathContainer;
 use Sm\Core\Resolvable\StringResolvable;
 
+/**
+ * Class Sm
+ *
+ * @property CommunicationLayer communication
+ *
+ */
 class Sm extends StandardContext implements LayerRoot {
     /** @var  Sm $instance */
     public static $instance;
@@ -47,6 +54,9 @@ class Sm extends StandardContext implements LayerRoot {
     }
     public function getResolutionContext(): ResolutionContext {
         return $this->resolutionContext;
+    }
+    public function __get($name) {
+        if ($name === 'communication') return $this->getLayers()->resolve(StandardLayer::COMMUNICATION);
     }
 }
 

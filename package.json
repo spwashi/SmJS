@@ -1,9 +1,9 @@
 {
-  "name":            "sm.php",
+  "name":            "sm-js",
   "private":         true,
-  "version":         "0.1.0",
-  "description":     "A framework to assist with PHP web development",
-  "main":            "index.js",
+  "version":         "0.0.1",
+  "description":     "",
+  "main":            "src/SmJS/index.js",
   "scripts":         {
     "test":  "gulp mocha",
     "build": "gulp browserify"
@@ -21,29 +21,34 @@
     "babel-preset-stage-0":               "^6.0.15",
     "babel-regenerator-runtime":          "^6.5.0",
     "babel-register":                     "latest",
-    "babelify":            "^7.3.0",
-    "browserify":          "latest",
-    "chai":                "^3.5.0",
-    "chai-as-promised":    "^6.0.0",
-    "chalk":               "latest",
-    "concat-stream":       "^1.0.3",
-    "gulp":                "^3.9.1",
-    "gulp-babel":          "^6.1.2",
-    "gulp-concat":         "^2.6.1",
-    "gulp-mocha":          "^4.3.1",
-    "gulp-rename":         "^1.2.2",
-    "gulp-sourcemaps":     "^2.6.0",
-    "gulp-uglify":         "^2.1.2",
-    "gulp-util":           "latest",
-    "mocha":               "latest",
-    "reactify":            "^1.1.1",
-    "utils-merge":         "^1.0.0",
-    "vinyl-buffer":        "^1.0.0",
-    "vinyl-source-stream": "^1.1.0",
-    "watchify":            "^3.9.0", "word-syllable-map": "latest"
+    "babelify":                           "^7.3.0",
+    "browserify":                         "latest",
+    "chai":                               "^3.5.0",
+    "chai-as-promised":                   "^6.0.0",
+    "chalk":                              "latest",
+    "concat-stream":                      "^1.0.3",
+    "gulp":                               "^3.9.1",
+    "gulp-babel":                         "^6.1.2",
+    "gulp-concat":                        "^2.6.1",
+    "gulp-mocha":                         "^4.3.1",
+    "gulp-rename":                        "^1.2.2",
+    "gulp-sourcemaps":                    "^2.6.0",
+    "gulp-uglify":                        "^2.1.2",
+    "gulp-util":                          "latest",
+    "mocha":                              "latest",
+    "reactify":                           "^1.1.1",
+    "utils-merge":                        "^1.0.0",
+    "vinyl-buffer":                       "^1.0.0",
+    "vinyl-source-stream":                "^1.1.0",
+    "watchify":                           "^3.9.0",
+    "word-syllable-map":                  "latest"
   },
   "dependencies":    {
-    "debug": "^2.6.6",
-    "react": "latest", "lodash": "latest"
+    "debug":  "^2.6.6",
+    "react":  "latest",
+    "lodash": "latest"
+  },
+  "browserify":      {
+    "transform": [ [ "babelify", { "presets": [ "es2015" ] } ] ]
   }
 }

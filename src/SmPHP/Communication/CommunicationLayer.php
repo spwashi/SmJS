@@ -8,6 +8,7 @@
 namespace Sm\Communication;
 
 
+use Sm\Communication\Network\Http\Request\HttpRequestFromEnvironment;
 use Sm\Communication\Request\RequestFactory;
 use Sm\Communication\Response\ResponseDispatcher;
 use Sm\Communication\Response\ResponseFactory;
@@ -55,8 +56,8 @@ class CommunicationLayer extends StandardLayer {
     ####################################################
     #   Resolvers
     ####################################################
-    public function resolveRequest($name):? Request\Request {
-        return $this->requestFactory->resolve(...func_get_args());
+    public function resolveRequest($name = null):? Request\Request {
+        return $this->requestFactory->resolve($name ?? HttpRequestFromEnvironment::class);
     }
     
     ####################################################

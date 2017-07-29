@@ -46,11 +46,11 @@ export default class DataSource extends ConfiguredEntity {
     }
     
     configure_type(type) {
-        this._type = type;
         if (typeof type !== "string") throw  new TypeError("Can only use strings as types");
         if (typeof this.constructor.acceptedTypes.get(type) === "undefined") {
             throw new TypeError("Could not set type to " + type + ' - it has not been configured yet.');
         }
+        this._type = type;
         return Promise.resolve(type);
     }
     

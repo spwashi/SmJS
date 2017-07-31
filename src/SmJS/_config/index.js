@@ -3,12 +3,11 @@
  */
 import * as _defaults from "./_defaults";
 import DataSource from "../entities/DataSource";
-
 export let types         = [..._defaults.types];
 DataSource.acceptedTypes = {
-    database:        {},
-    database__table: {},
-    JSON:            {}
+    database: {},
+    db_table: {},
+    JSON:     {}
 };
 export let dataSources   = {
     _factshift_config: {
@@ -58,4 +57,4 @@ export let models        = Object.assign({},
                                                  }
                                              }
                                          });
-export default {models};
+export default {models, dataSources};

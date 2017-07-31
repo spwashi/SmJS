@@ -1,9 +1,9 @@
 {
-  "name":            "sm-js",
+  "name":            "sm.php",
   "private":         true,
-  "version":         "0.0.1",
-  "description":     "",
-  "main":            "src/SmJS/index.js",
+  "version":         "0.1.0",
+  "description":     "A framework to assist with PHP web development",
+  "main":            "index.js",
   "scripts":         {
     "test":  "gulp mocha",
     "build": "gulp browserify"
@@ -40,15 +40,10 @@
     "utils-merge":                        "^1.0.0",
     "vinyl-buffer":                       "^1.0.0",
     "vinyl-source-stream":                "^1.1.0",
-    "watchify":                           "^3.9.0",
-    "word-syllable-map":                  "latest"
+    "watchify":                           "^3.9.0"
   },
   "dependencies":    {
-    "debug":  "^2.6.6",
-    "react":  "latest",
-    "lodash": "latest"
-  },
-  "browserify":      {
-    "transform": [ [ "babelify", { "presets": [ "es2015" ] } ] ]
+    "debug": "^2.6.6",
+    "react": "latest", "lodash": "latest"
   }
 }

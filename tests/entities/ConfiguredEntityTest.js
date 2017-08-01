@@ -1,8 +1,6 @@
 import {describe, it} from "mocha";
-import {SMJS_PATH} from "../paths";
-
-const expect = require('chai').expect;
-const Sm     = require(SMJS_PATH);
+import {Sm} from "../Sm"
+import {expect} from "chai";
 
 describe('ConfiguredEntity', () => {
     const ConfiguredEntity = Sm.entities.ConfiguredEntity;

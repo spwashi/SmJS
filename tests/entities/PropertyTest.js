@@ -1,13 +1,12 @@
 import {describe, it} from "mocha";
-import {SMJS_PATH} from "../paths";
+import {Sm} from "../Sm"
 
-const expect = require('chai').expect;
-const _src   = require(SMJS_PATH);
+import {expect} from "chai";
 
 describe('Property', () => {
-    const Property     = _src.entities.Property;
-    const DataSource   = _src.entities.DataSource;
-    const Datatype     = _src.entities.Datatype;
+    const Property     = Sm.entities.Property;
+    const DataSource   = Sm.entities.DataSource;
+    const Datatype     = Sm.entities.Datatype;
     const testProperty = Property.init('testProperty').initializingObject;
     it('exists', () => {
         expect(testProperty.Symbol).to.be.a('symbol');

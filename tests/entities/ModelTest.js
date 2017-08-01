@@ -1,9 +1,9 @@
 import {describe, it} from "mocha";
-import {SMJS_PATH} from "../paths";
-
-const expect = require('chai').expect;
 /** @alias {Sm}  */
-const Sm     = require(SMJS_PATH);
+import {Sm} from "../Sm"
+
+import {expect} from "chai";
+
 const models = Sm._config.models;
 describe('Model', () => {
     const Std         = Sm.std.Std;

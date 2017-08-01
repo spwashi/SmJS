@@ -1,12 +1,10 @@
-const expect = require('chai').expect;
+import {expect} from "chai";
 import {describe, it} from "mocha";
-import {SMJS_PATH} from "../paths";
-
-const _src = require(SMJS_PATH);
+import {Sm} from "../Sm"
 
 describe('Std', () => {
-    const Std         = _src.std.Std;
-    const SymbolStore = _src.std.SymbolStore;
+    const Std         = Sm.std.Std;
+    const SymbolStore = Sm.std.SymbolStore;
     it('Can send and receive events', done => {
         expect(1).to.equal(1);
         const tstStd = Std.init('std_tst_name').initializingObject;

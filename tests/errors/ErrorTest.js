@@ -1,8 +1,6 @@
 import {describe, it} from "mocha";
-import {SMJS_PATH} from "../paths";
-
-const Sm     = require(SMJS_PATH);
-const expect = require('chai').expect;
+import {Sm} from "../Sm"
+import {expect} from "chai";
 
 describe('Errors', () => {
     const GenericError = Sm.errors.GenericError;

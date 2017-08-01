@@ -1,8 +1,7 @@
 import {describe, it} from "mocha";
-import {SMJS_PATH} from "../paths";
+import {Sm} from "../Sm"
 
-const expect = require('chai').expect;
-const Sm     = require(SMJS_PATH);
+import {expect} from "chai";
 
 describe('Datatype', () => {
     const Datatype     = Sm.entities.Datatype;

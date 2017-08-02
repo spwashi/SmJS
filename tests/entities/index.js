@@ -4,4 +4,4 @@
 import "./ConfiguredEntityTest";
 import "./PropertyTest";
 import "./ModelTest";
-import "./DataSourceTest";
+import "./DataSource";

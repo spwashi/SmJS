@@ -4,7 +4,7 @@
  */
 import Property from "./Property";
 import PropertyMetaContainer from "./PropertyMetaContainer";
-import {DataSourceHaver, SOURCE} from "./DataSource";
+import {DataSourceHaver, SOURCE} from "./DataSource/DataSource";
 import {SymbolStore} from "../std/symbols/SymbolStore";
 import TimeoutError from "../errors/TimeoutError";
 
@@ -36,7 +36,7 @@ export default class Model extends DataSourceHaver {
         return new Set([...super.jsonFields, 'propertyMeta', 'properties'])
     }
     
-    toJSON_properties() {
+    toJSON__properties() {
         const properties = {};
         this.properties
             .forEach((property, name) => {

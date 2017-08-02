@@ -51,8 +51,8 @@ describe('Model', () => {
                           if (!(childModel instanceof Model)) {
                               throw new TypeError(`Return is of wrong type (${typeof childModel})`);
                           }
-            
-                          if (childModel.parents.has(parentModel.Symbol)) {
+    
+                          if (childModel.parentSymbols.has(parentModel.Symbol)) {
                               return allResolved;
                           }
             
@@ -76,8 +76,8 @@ describe('Model', () => {
                           return childModel.receive(childInherited).then(i => childModel);
                       })
                       .then(childModel => {
-                          if (childModel.parents.has(parentModel1.Symbol) && childModel.parents.has(parentModel2.Symbol)) return;
-                          throw new Error('Expected ' + (childModel.parents.toString()) + ' to contain parents. Does not');
+                          if (childModel.parentSymbols.has(parentModel1.Symbol) && childModel.parentSymbols.has(parentModel2.Symbol)) return;
+                          throw new Error('Expected ' + (childModel.parentSymbols.toString()) + ' to contain parentSymbols. Does not');
                       });
     });
     

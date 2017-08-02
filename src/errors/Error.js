@@ -5,7 +5,7 @@
  */
 import SymbolStore from "../std/symbols/SymbolStore";
 
-export class GenericError extends Error {
+export class StdError extends Error {
     constructor(message, symbol) {
         
         let symbolString;
@@ -39,4 +39,4 @@ export class GenericError extends Error {
     }
 }
 
-export default GenericError;
+export default StdError;

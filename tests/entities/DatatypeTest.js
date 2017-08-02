@@ -16,9 +16,9 @@ describe('Datatype', () => {
         const child_dt_n = 'cifd_child_dt_n';
         const parent     = Datatype.init(p_dt_n).initializingObject;
         return Datatype.init(child_dt_n, {inherits: p_dt_n})
-                       .then(/** @param {Datatype}  */datatype => {
+                       .then((datatype: Datatype) => {
                            expect(datatype).to.be.instanceof(Datatype);
-                           expect([...datatype.parents]).to.contain(parent.Symbol);
+                           expect([...datatype.parentSymbols]).to.contain(parent.Symbol);
                        });
     });
     it('Can only inherit from one Datatype', () => {

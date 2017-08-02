@@ -62,7 +62,7 @@ describe('ConfiguredEntity', () => {
                                                         let error_message;
                 
                                                         if (!(testChild instanceof ConfiguredEntity)) error_message = ['Improper child', testChild];
-                                                        else if (!testChild.parents.has(testParent.Symbol)) error_message = 'COuld not inherit';
+                                                        else if (!testChild.parentSymbols.has(testParent.Symbol)) error_message = 'COuld not inherit';
                 
                                                         d(error_message)
                                                     });

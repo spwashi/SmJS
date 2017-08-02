@@ -29,7 +29,7 @@ class SymbolStore {
      * @param parent
      * @param symbol
      */
-    constructor(name, parent = null, symbol = null) {
+    constructor(name, parent: SymbolStore = null, symbol = null) {
         let parent_name;
         if (parent instanceof SymbolStore) parent_name = parent.smID;
         
@@ -54,6 +54,8 @@ class SymbolStore {
             this._family = new Set([...parent.family, parent.Symbol, ...this.family])
         }
     }
+    
+    get smID() {return this._name}
     
     /**
      * @return {SymbolStore|boolean}
@@ -131,6 +133,7 @@ class SymbolStore {
      * @return {SymbolStore}
      */
     item(name) {
+        const original_name = name;
         if (name instanceof SymbolStore) name = name.Symbol;
         if (this._items[name]) return this._items[name];
         const symbolStore = new SymbolStore(name, this);

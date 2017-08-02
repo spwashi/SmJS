@@ -9,7 +9,7 @@ import TimeoutError from "../errors/TimeoutError";
 const ATTRIBUTE = SymbolStore.$_$.item('_attribute_').Symbol;
 
 /**
- *
+ * Standard class
  */
 class Std {
     //region Initialization
@@ -49,6 +49,19 @@ class Std {
         const BEGIN = Std.EVENTS.item('init').BEGIN;
         this.send(this.EVENTS.item(BEGIN).STATIC, this);
     }
+    
+    /**
+     * Create an instance of this class. Allows us to manage subclasses as well.
+     * @method Sm.Std.factory()
+     * @return {Std}
+     */
+    static factory() {
+        const ctor = this;
+        return this.init(...arguments);
+    }
+    
+    //endregion
+    //region Getters and Setters
     
     static get smID() {return 'Std';}
     
@@ -159,10 +172,14 @@ class Std {
     /**
      *
      * @param {string|symbol}   identifier
-     * @param {{}}              config
-     * @return {Promise<this>}
+     * @param {{configName?:string}}              config
+     * @return {Promise<Std>}
      */
     static init(identifier, config = {}) {
+        if (typeof identifier === "object" && identifier) {
+            config     = identifier;
+            identifier = null;
+        }
         const self                 = new this(...arguments);
         config.configName          = config.configName || identifier;
         const promise              = self
@@ -253,7 +270,7 @@ class Std {
         return Promise.resolve(null);
     }
     
-    get (name) {
+    get(name) {
         return this._attributes.get(name);
     }
     

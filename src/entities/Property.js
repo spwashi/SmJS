@@ -1,7 +1,7 @@
 /**
  * @class Property
  */
-import {DataSourceHaver} from "./DataSource";
+import {DataSourceHaver} from "./DataSource/DataSource";
 import Datatype from "../entities/Datatype";
 
 /**
@@ -28,7 +28,7 @@ export default class Property extends DataSourceHaver {
      * Returns the SmIDs of the Datatypes that this Property can be
      * @return {Array}
      */
-    toJSON_datatypes() {
+    toJSON__datatypes() {
         return [...this.datatypes].map(dt => dt.smID);
     }
     

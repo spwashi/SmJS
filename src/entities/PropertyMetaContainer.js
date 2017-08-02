@@ -11,6 +11,10 @@ import Std from "../std/Std";
  * @extends Std
  */
 class PropertyMetaContainer extends Std {
+    static get smID() {
+        return 'PropertyMetaContainer';
+    }
+    
     constructor() {
         super();
         /** @type {Set} Represents the properties that make up the Primary Key */
@@ -85,11 +89,11 @@ class PropertyMetaContainer extends Std {
         return this._findPropertyKeySet(property, this._uniqueKeys);
     }
     
-    toJSON_primary() {
+    toJSON__primary() {
         return [...this.primary].map(property => property.smID);
     }
     
-    toJSON_unique() {
+    toJSON__unique() {
         const unique         = {};
         const selfUniqueKeys = this.unique;
         
@@ -102,7 +106,7 @@ class PropertyMetaContainer extends Std {
     }
     
     toJSON() {
-        let [primary, unique] = [this.toJSON_primary(), this.toJSON_unique()];
+        let [primary, unique] = [this.toJSON__primary(), this.toJSON__unique()];
         return {primary, unique}
     }
     

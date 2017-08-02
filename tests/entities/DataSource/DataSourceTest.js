@@ -1,12 +1,11 @@
 import {describe, it} from "mocha";
 import {expect} from "chai";
-import {Sm} from "../Sm"
+import {Sm} from "../../Sm"
 
 require('chai-as-promised');
 
 describe('DataSource', () => {
     const DataSource = Sm.entities.DataSource;
-    const TypeError  = Sm.errors.TypeError;
     it('exists', () => {
         return DataSource.init('testSource')
                          .then(testSource => {

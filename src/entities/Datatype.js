@@ -3,7 +3,7 @@
  * @extends ConfiguredEntity
  */
 import ConfiguredEntity from "./ConfiguredEntity";
-import {GenericError} from "../errors/Error";
+import {StdError} from "../errors/Error";
 
 export default class Datatype extends ConfiguredEntity {
     static get smID() {return 'Datatype'; }
@@ -21,7 +21,7 @@ export default class Datatype extends ConfiguredEntity {
     }
     
     inherit(item) {
-        if (this._hasInheritedOnce) return Promise.reject(new GenericError('Can only inherit from one Datatype', this.symbolStore));
+        if (this._hasInheritedOnce) return Promise.reject(new StdError('Can only inherit from one Datatype', this.symbolStore));
         this._hasInheritedOnce = true;
         return super.inherit(item);
     }

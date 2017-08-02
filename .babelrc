@@ -1,7 +1,13 @@
 {
-  "presets": [ "es2015", "react" ],
+  "presets": [ "flow", "es2015", "react" ],
   "plugins": [
+    "transform-object-rest-spread",
     "transform-regenerator",
-    [ "babel-plugin-transform-builtin-extend", { "globals": [ "Map", "Error", "Array" ] } ]
+    [
+      "babel-plugin-transform-builtin-extend",
+      {
+        "globals": [ "Map", "Error", "Array" ]
+      }
+    ]
   ]
 }

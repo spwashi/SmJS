@@ -1,18 +1,26 @@
 /**
  * Created by Sam Washington on 5/20/17.
  */
-const Std = require('../std/').Std;
-const _   = require('lodash');
+import merge from "deepmerge";
 import {mapToObj} from "../util/index";
+import {Std} from "../std/";
+import _ from "lodash";
 
 /**
  * @class ConfiguredEntity
  */
 export default class ConfiguredEntity extends Std {
     constructor(name, config = {}) {
+    
+        if (typeof name === "object" && name) {
+            config = name;
+            name   = null;
+        }
+        
         name = name || config.name;
         super(name);
         this._parentSymbols = new Set;
+        this._parents       = new Set;
         config.configName   = config.configName || name;
         this._storeOriginalConfiguration(config);
     }
@@ -20,7 +28,15 @@ export default class ConfiguredEntity extends Std {
     static get smID() {return 'ConfiguredEntity'; }
     
     /** @return {Set} */
-    get parents() { return this._parentSymbols; }
+    get parentSymbols() { return this._parentSymbols; }
+    
+    /**
+     * Get an array of the Fields we're going to encode in JSON
+     * @return {Set<string>}
+     */
+    get jsonFields() {
+        return new Set(['smID', '?inherits']);
+    }
     
     /**
      * This is the name as it was used when we were initially configuring whatever this was.
@@ -33,12 +49,8 @@ export default class ConfiguredEntity extends Std {
         return this.getInheritables();
     }
     
-    /**
-     * Get an array of the Fields we're going to encode in JSON
-     * @return {Set<string>}
-     */
-    get jsonFields() {
-        return new Set(['smID']);
+    static _mergeConfigurations(...configurations: {}[]) {
+        return merge.all(configurations)
     }
     
     initialize(config) {
@@ -50,16 +62,10 @@ export default class ConfiguredEntity extends Std {
                     .then(i => this)
     }
     
-    toJSON() {
-        const jsonFields = this.jsonFields;
-        const json_obj   = {};
-        jsonFields.forEach(fieldName => {
-            const fn_name = `toJSON_${fieldName}`;
-            let item      = this[fn_name] ? this[fn_name]() : this[fieldName];
-            if (item instanceof Map) item = mapToObj(item);
-            json_obj[fieldName] = item;
-        });
-        return json_obj;
+    toJSON__inherits() {
+        const inherits = new Set;
+        this._parents.forEach((item: ConfiguredEntity) => inherits.add(item.smID));
+        return [...inherits];
     }
     
     /**
@@ -100,6 +106,24 @@ export default class ConfiguredEntity extends Std {
         return this.getOriginalConfiguration();
     }
     
+    toJSON() {
+        const jsonFields = this.jsonFields;
+        const json_obj   = {};
+        jsonFields.forEach(fieldName => {
+            let is_optional = fieldName[0] === '?';
+            if (fieldName[0] === '?') fieldName = fieldName.substr(1);
+            
+            const fn_name = `toJSON__${fieldName}`;
+            let item      = this[fn_name] ? (this[fn_name]()) : this[fieldName];
+            if (item instanceof Map) item = mapToObj(item);
+            
+            if (is_optional && item instanceof Array && !item.length) return;
+            
+            json_obj[fieldName] = item;
+        });
+        return json_obj;
+    }
+    
     /**
      *
      * @param item
@@ -124,9 +148,10 @@ export default class ConfiguredEntity extends Std {
                 
                            // Say that we've inherited from this item
                            this._parentSymbols.add(parent.Symbol);
-                
+                           this._parents.add(parent);
                            // Only inherit what the parent is willing to give
-                           const newConfiguration = Object.assign({}, parent.inheritables, this.getOriginalConfiguration());
+                           const newConfiguration = this.constructor._mergeConfigurations(parent.inheritables,
+                                                                                          this.getOriginalConfiguration);
                            const configure        = this.configure(newConfiguration);
                 
                            return configure.then(i => {

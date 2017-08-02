@@ -2,7 +2,7 @@
  * Created by Sam Washington on 4/23/17.
  */
 import * as _defaults from "./_defaults";
-import DataSource from "../entities/DataSource";
+import DataSource from "../entities/DataSource/DataSource";
 
 export let types         = [..._defaults.types];
 DataSource.acceptedTypes = {
@@ -17,7 +17,7 @@ export let dataSources   = {
         details: {}
     },
     _:                 {
-        name:    (item) => {item._name},
+        name:    (item) => {item._types},
         type:    'table',
         details: {database: '[source|_factshift_config]'}
     }

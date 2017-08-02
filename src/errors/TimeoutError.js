@@ -1,6 +1,6 @@
-import {GenericError} from "./Error";
+import {StdError} from "./Error";
 
-export default class TimeoutError extends GenericError {
+export default class TimeoutError extends StdError {
     constructor(message, symbol, granted_time, unit) {
         message = message || 'Timeout ';
         unit    = unit || 'ms';

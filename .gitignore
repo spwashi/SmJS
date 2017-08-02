@@ -1,10 +1,5 @@
 .idea/
-vendor/
 dist/
-logs/
 node_modules/
-.htaccess
-composer.lock
-index.php
 /gulpfile.babel.js
-/tests/results/
+coverage/

@@ -26,8 +26,9 @@ describe('Property', () => {
         const parent_pn = 'cifp_parent_pn', child_pn = 'cifp_child_pn';
         let parent      = Property.init(parent_pn, {}).initializingObject;
         return Property.init(child_pn, {inherits: [parent_pn]})
-                       .then(property => {
-                           expect([...property.parents]).to.contain((parent.Symbol));
+                       .then((property: Property) => {
+                           console.log(property.parentSymbols);
+                           expect([...property.parentSymbols]).to.contain((parent.Symbol));
                        });
     });
     it('Can inherit Datatypes from other Properties', () => {
@@ -39,7 +40,7 @@ describe('Property', () => {
                       .then(i => datatypePromise)
                       .then(i => childPromise)
                       .then(/** @param {Property}  */property => {
-                          expect([...property.parents]).to.contain((parentPromise.initializingObject.Symbol));
+                          expect([...property.parentSymbols]).to.contain((parentPromise.initializingObject.Symbol));
                           expect([...property.datatypes]).to.contain(datatypePromise.initializingObject)
                       });
     });

@@ -3,7 +3,7 @@ import {Sm} from "../Sm"
 import {expect} from "chai";
 
 describe('ConfiguredEntity', () => {
-    const ConfiguredEntity = Sm.entities.ConfiguredEntity;
+    const ConfiguredEntity = Sm.config.ConfiguredEntity;
     const Std              = Sm.std.Std;
     const EVENTS           = Sm.std.EventEmitter.EVENTS;
     it('exists', () => {

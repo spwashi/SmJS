@@ -8,9 +8,7 @@ import TimeoutError from "../errors/TimeoutError";
 
 const ATTRIBUTE = SymbolStore.$_$.item('_attribute_').Symbol;
 
-/**
- * Standard class
- */
+/** Standard class */
 class Std {
     //region Initialization
     /**
@@ -50,6 +48,13 @@ class Std {
         this.send(this.EVENTS.item(BEGIN).STATIC, this);
     }
     
+    get smID() { return this._name }
+    
+    static createName(name) {
+        name = name || Math.random().toString(36).substr(4, 6);
+        return `[${this.smID}]${name}`
+    }
+    
     /**
      * Create an instance of this class. Allows us to manage subclasses as well.
      * @method Sm.Std.factory()
@@ -62,8 +67,27 @@ class Std {
     
     //endregion
     //region Getters and Setters
-    
     static get smID() {return 'Std';}
+    
+    /**
+     *
+     * @param {string|symbol}   identifier
+     * @param {{configName?:string}}              config
+     * @return {Promise<Std>}
+     */
+    static init(identifier, config = {}) {
+        if (typeof identifier === "object" && identifier) {
+            config     = identifier;
+            identifier = null;
+        }
+        const self                 = new this(...arguments);
+        config.configName          = config.configName || identifier;
+        const promise              = self
+            .initialize(config)
+            .then(self => self._sendInitComplete(this.smID));
+        promise.initializingObject = self;
+        return promise;
+    }
     
     /**
      * @return {EventEmitter|*|events.EventEmitter}
@@ -88,10 +112,6 @@ class Std {
         return this.receive(this.EVENTS.item(Std.EVENTS.item('available'))).then(i => i[1] || null);
     }
     
-    get initialized() {
-        return this.receive(this.EVENTS.item(Std.EVENTS.item('init').COMPLETE)).then(i => i[1] || null);
-    }
-    
     get isAvailable() {return this._isAvailable}
     
     get isComplete() {return this._isComplete}
@@ -105,15 +125,11 @@ class Std {
     
     get symbolName() {return this._Symbol.toString();}
     
-    get smID() {return this._name}
-    
     //endregion
-    
     //region Getters
     
     get originalName() {return this._originalName}
     
-    //region Events/EVENTS
     /**
      * @return {events.EventEmitter}
      * @constructor
@@ -164,31 +180,6 @@ class Std {
         return Std.receive(COMPLETE)
     }
     
-    static createName(name) {
-        name = name || Math.random().toString(36).substr(4, 6);
-        return `[${this.smID}]${name}`
-    }
-    
-    /**
-     *
-     * @param {string|symbol}   identifier
-     * @param {{configName?:string}}              config
-     * @return {Promise<Std>}
-     */
-    static init(identifier, config = {}) {
-        if (typeof identifier === "object" && identifier) {
-            config     = identifier;
-            identifier = null;
-        }
-        const self                 = new this(...arguments);
-        config.configName          = config.configName || identifier;
-        const promise              = self
-            .initialize(config)
-            .then(self => self._sendInitComplete(this.smID));
-        promise.initializingObject = self;
-        return promise;
-    }
-    
     //region Send/Receive
     static send(eventName, ...args) { this.Events.emit(eventName, ...args); }
     
@@ -236,8 +227,6 @@ class Std {
     initialize(config) {
         return Promise.resolve(this);
     }
-    
-    //endregion
     
     /**
      * Emit an event saying that we are done initializing this object

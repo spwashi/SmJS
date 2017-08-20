@@ -2,11 +2,11 @@
  * @class Model
  * @extends ConfiguredEntity
  */
-import Property from "./Property";
-import PropertyMetaContainer from "./PropertyMetaContainer";
-import {DataSourceHaver, SOURCE} from "./DataSource/DataSource";
-import {SymbolStore} from "../std/symbols/SymbolStore";
-import TimeoutError from "../errors/TimeoutError";
+import Property from "../Property";
+import PropertyMetaContainer from "../PropertyMetaContainer";
+import {DataSourceHaver, SOURCE} from "../DataSource/DataSource";
+import {SymbolStore} from "../../std/symbols/SymbolStore";
+import TimeoutError from "../../errors/TimeoutError";
 
 const ATTRIBUTE = SymbolStore.$_$.item('_attribute_').Symbol;
 

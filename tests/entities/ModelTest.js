@@ -8,9 +8,9 @@ const models = Sm._config.models;
 describe('Model', () => {
     const Std         = Sm.std.Std;
     const SymbolStore = Sm.std.symbols.SymbolStore;
-    const Model       = Sm.entities.Model;
-    const DataSource  = Sm.entities.DataSource;
-    const Property    = Sm.entities.Property;
+    const Model       = Sm.config.Model;
+    const DataSource  = Sm.config.DataSource;
+    const Property    = Sm.config.Property;
     
     it('exists', () => {
         return Model.init('test')

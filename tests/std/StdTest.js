@@ -4,7 +4,7 @@ import {Sm} from "../Sm"
 
 describe('Std', () => {
     const Std         = Sm.std.Std;
-    const SymbolStore = Sm.std.SymbolStore;
+    const SymbolStore = Sm.std.symbols.SymbolStore;
     it('Can send and receive events', done => {
         expect(1).to.equal(1);
         const tstStd = Std.init('std_tst_name').initializingObject;
@@ -21,7 +21,11 @@ describe('Std', () => {
     it('Can wait for availability', done => {
         Std.init().initializingObject.available.then(i => done());
     });
-    
+    it('Can resolve SymbolStore', () => {
+        const std = new Std('id');
+        const ss  = std.symbolStore;
+        expect(ss).to.be.instanceof(SymbolStore);
+    });
     it('Can resolve instances', () => {
         const name = 'boonman';
         let ev     = Std.resolve(name);

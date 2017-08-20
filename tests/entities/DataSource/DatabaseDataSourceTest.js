@@ -5,8 +5,8 @@ import {Sm} from "../../Sm"
 require('chai-as-promised');
 
 describe('DatabaseDataSource', () => {
-    const DatabaseDataSource = Sm.entities.DatabaseDataSource;
-    const DataSource         = Sm.entities.DataSource;
+    const DatabaseDataSource = Sm.config.DatabaseDataSource;
+    const DataSource         = Sm.config.DataSource;
     it('exists', () => {
         return DatabaseDataSource.init('testSource')
                                  .then(testSource => {

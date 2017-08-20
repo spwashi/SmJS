@@ -1,19 +1,27 @@
 /**
- * @class Property
+ * @class Entity
  */
-import {DataSourceHaver} from "./DataSource/DataSource";
-import Datatype from "../entities/Datatype";
+import ConfiguredEntity from "../ConfiguredEntity";
+import EntityProperty from "./EntityProperty";
 
 /**
- * @name Property
- * @class Property
- * @extends DataSourceHaver
+ * @name Entity
+ * @class Entity
+ * @extends ConfiguredEntity
  */
-export default class Property extends DataSourceHaver {
-    static get smID() {return 'Property'; }
+export default class Entity extends ConfiguredEntity {
+    static get smID() {return 'Entity'; }
     
     get jsonFields() {
         return new Set([...super.jsonFields, 'datatypes', '?length'])
+    }
+    
+    /**
+     * The Datatypes that this is allowed to be.
+     * @return {Set}
+     */
+    get datatypes() {
+        return this._datatypes = this._datatypes || new Set;
     }
     
     toJSON__length() {
@@ -25,15 +33,7 @@ export default class Property extends DataSourceHaver {
     }
     
     /**
-     * The Datatypes that this is allowed to be.
-     * @return {Set}
-     */
-    get datatypes() {
-        return this._datatypes = this._datatypes || new Set;
-    }
-    
-    /**
-     * Returns the SmIDs of the Datatypes that this Property can be
+     * Returns the SmIDs of the Datatypes that this Entity can be
      * @return {Array}
      */
     toJSON__datatypes() {
@@ -53,3 +53,5 @@ export default class Property extends DataSourceHaver {
     }
     
 }
+
+Entity.EntityProperty = EntityProperty;

@@ -1,36 +1,42 @@
-/**
- * @class Model
- * @extends ConfiguredEntity
- */
-import Property from "../Property";
-import PropertyMetaContainer from "../PropertyMetaContainer";
-import {DataSourceHaver, SOURCE} from "../DataSource/DataSource";
+import Property from "../Property/Property";
+import PropertyMetaContainer from "./PropertyMetaContainer";
+import {SOURCE} from "../DataSource/DataSource";
+import {DataSourceHaver} from "../DataSource/DataSourceHaver"
 import {SymbolStore} from "../../std/symbols/SymbolStore";
+import ConfiguredEntity from "../ConfiguredEntity";
 import TimeoutError from "../../errors/TimeoutError";
+import Configuration from "../Configuration";
+import {PropertyHaverConfigurationExtender, PropertyHaverExtender} from "../Property/PropertyHaver";
 
 const ATTRIBUTE = SymbolStore.$_$.item('_attribute_').Symbol;
 
-export default class Model extends DataSourceHaver {
+/**
+ * @class ModelConfiguration
+ * @mixes PropertyHaverConfiguration
+ * @extends ConfiguredEntity.Configuration
+ *
+ */
+class ModelConfiguration extends PropertyHaverConfigurationExtender(DataSourceHaver.getConfiguration()) {
+
+}
+
+/**
+ * @extends DataSourceHaver
+ * @extends PropertyHaver
+ */
+export default class Model extends PropertyHaverExtender(DataSourceHaver) {
+    static Configuration = ModelConfiguration;
+    static smID          = 'Model';
+    
     constructor(name, config) {
         super(name, config);
-        this._properties            = new Map;
         this._PropertyMetaContainer = new PropertyMetaContainer;
     }
-    
-    // region Inherited
-    static get smID() {return 'Model'; }
     
     /**
      * @return {PropertyMetaContainer}
      */
     get propertyMeta() {return this._PropertyMetaContainer;}
-    
-    /**
-     * Get the properties of this Model.
-     * @return {Map<string|Symbol, Property>}
-     * @constructor
-     */
-    get properties() { return this._properties; }
     
     get jsonFields() {
         return new Set([...super.jsonFields, 'propertyMeta', 'properties'])
@@ -40,30 +46,30 @@ export default class Model extends DataSourceHaver {
         const properties = {};
         this.properties
             .forEach((property, name) => {
-                properties[property.configName] = property;
+                properties[property.configuration.identifier] = property;
             });
         return properties;
     }
     
-    //region Configure
     /**
      *
      * @param {Property} property
-     * @return {Promise<Property>|*}
      * @private
      */
-    _attachDataSourceToProperty(property) {
+    _attachDataSourceToProperty(property): Promise<Property> {
         return this.resolve(SOURCE)
                    .then(i => {
                        /** @type {DataSource}  */
                        const [, dataSource] = i;
-                       const dsn            = dataSource.configName || dataSource.smID || null;
-                       return property.configure({source: dsn}).then(i => property);
+                       const dsn            = dataSource._id || dataSource.smID || null;
+                       return property.configure({source: dsn})
+                                      .then(i => property);
                    })
                    .catch(i => {
                        const TIMEOUT = SymbolStore.$_$.item('TIMEOUT').Symbol;
+                       // Ignore timeouts - if this doesn't have a data source, it doesn't have one
                        if (i instanceof TimeoutError && i.activeSymbol instanceof SymbolStore) {
-                           if (i.activeSymbol === this._symbolStore.item(ATTRIBUTE).item(SOURCE)) {
+                           if (i.activeSymbol === this.symbolStore.item(ATTRIBUTE).item(SOURCE)) {
                                return property;
                            }
                        }
@@ -71,37 +77,6 @@ export default class Model extends DataSourceHaver {
                    });
     }
     
-    //endregion
-    
-    /**
-     * configure the properties for this Model
-     * @param properties_config
-     * @return {Promise.<*>}
-     * @private
-     */
-    configure_properties(properties_config) {
-        const promises = Object.entries(properties_config).map((i) => {
-            let [property_name, property_config] = i;
-            
-            // Set the "configName" of the property. This is the name that we use to configure the property initially.
-            property_config.configName = property_name;
-            return this._addProperty(property_name, property_config)
-                       .then(property => {
-                           this._attachDataSourceToProperty(property).then(i => property).catch(i => {console.error(i);});
-                       });
-        });
-        return Promise.all(promises);
-    }
-    
-    getInheritables() {
-        return {
-            properties: this._getEffectivePropertiesConfiguration()
-        };
-    }
-    
-    //endregion
-    
-    //region Private Methods
     /**
      * Add and register a Property, assuring that it is initialized and attached to this class.
      * @param original_property_name
@@ -109,45 +84,14 @@ export default class Model extends DataSourceHaver {
      * @private
      * @return {Promise<Property>}
      */
-    _addProperty(original_property_name, property_config) {
-        const property_name        = this._nameProperty(original_property_name);
-        property_config.configName = property_config.configName || original_property_name;
-        // The Property is going to get passed on by the Property.resolve, so there is no reason to store it here
-        
+    addProperty(original_property_name, property_config): Promise<Property> {
         // The Property
-        return Property.init(property_name, property_config)
-                       .then(property => {
-                           /** @type {Property} property */
-                           if (!(property instanceof Property)) throw new Error('Improperly created property');
-                           return property;
-                       })
-                       .then(property => this._registerProperty(original_property_name, property))
-                       .then(property => property);
+        return super.addProperty(original_property_name, property_config)
+                    .then(property => {
+                        this._attachDataSourceToProperty(property);
+                        return property;
+                    });
     }
-    
-    /**
-     * Get an object representation of what essentially is the original configuration that was used
-     * to configure the properties of this object
-     *
-     * @return {{}}
-     * @private
-     */
-    _getEffectivePropertiesConfiguration() {
-        const properties = {};
-        this.properties
-            .forEach((property, name) => {
-                properties[property.configName] = property.getOriginalConfiguration();
-            });
-        return properties;
-    }
-    
-    /**
-     * Name properties that we are going to register under this Model.
-     * @param original_property_name
-     * @return {string}
-     * @private
-     */
-    _nameProperty(original_property_name) { return `{${this.smID}}${original_property_name}`; }
     
     /**
      * Add the Property to the PropertyMeta to keep track of it.
@@ -156,7 +100,7 @@ export default class Model extends DataSourceHaver {
      * @private
      */
     _incorporatePropertyIntoMeta(property) {
-        const config = property.getOriginalConfiguration();
+        const config = property.configuration.current;
         if (config.primary) this._PropertyMetaContainer.addPropertiesToPrimaryKey(property);
         
         let unique = config.unique;
@@ -167,19 +111,8 @@ export default class Model extends DataSourceHaver {
         return property;
     }
     
-    /**
-     * Actually register a Property under this Model. Emits the relevant registration events.
-     * @param original_property_name
-     * @param property
-     * @return {Property}
-     * @private
-     */
-    _registerProperty(original_property_name, property) {
-        this._properties.set(property.smID, property);
+    _registerProperty(property: Property) {
         this._incorporatePropertyIntoMeta(property);
-        this.registerAttribute(original_property_name, property);
-        return property;
+        return super._registerProperty(property);
     }
-    
-    //endregion
 }

@@ -1,19 +1,20 @@
-/** @name {Sm.config}  */
+/** @name {Sm.entities}  */
 import Model from "./Model/Model";
-import Property from "./Property";
-import Entity from "./Entity/Entity";
+import Property from "./Property/Property";
+import EntityType from "./EntityType/EntityType";
 import Datatype from "./Datatype";
 import ConfiguredEntity from "./ConfiguredEntity";
 import {DatabaseDataSource, DataSource, TableDataSource} from "./DataSource";
 // configuration for the frameworkentities
 
-export default {
+export const entities = {
     ConfiguredEntity,
     Property,
-    Entity,
+    EntityType,
     Model,
     Datatype,
     TableDataSource,
     DatabaseDataSource,
     DataSource
 };
+export default entities;

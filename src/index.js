@@ -1,21 +1,19 @@
+/// <reference path="/docs/global.d.ts" />
 import std from "./std";
 import _config from "./_config";
-import config from "./entities";
+import entities from "./entities";
 import errors from "./errors";
 import util from "./util";
 
-export {errors}
-export {util}
 export {_config}
 export {std} ;
-export {config} ;
+export {entities} ;
+export {errors}
+export {util}
+
 export {Sm};
-
 /**
- * @module Sm
  * @name Sm
- * @alias Sm
  */
-const Sm = {_config, std, config, errors, util};
-
+const Sm = {_config, std, entities, errors, util};
 export default Sm;

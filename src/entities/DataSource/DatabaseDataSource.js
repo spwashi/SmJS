@@ -1,9 +1,7 @@
 import DataSource from "./DataSource";
 
 class DatabaseDataSource extends DataSource {
-    static get type() {
-        return 'database';
-    }
+    static type = 'database';
     
     boonman() {
         return 'grandslam';

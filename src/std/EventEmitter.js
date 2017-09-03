@@ -74,7 +74,8 @@ export default class EventEmitter extends events.EventEmitter {
         args.splice(0, 0, event);
         
         if (_originalEventName instanceof SymbolStore && _originalEventName.origin === SymbolStore.$_$.STATIC) {
-            this._emittedEvents.set(_originalEventName.parent.Symbol, [...args]);
+            const eventSymbolStore = _originalEventName.parent;
+            this._emittedEvents.set(eventSymbolStore.Symbol, [...args]);
         }
         
         family.forEach(symbol => this.emit(symbol, ...args));

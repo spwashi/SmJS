@@ -4,9 +4,9 @@ import {Sm} from "../Sm"
 import {expect} from "chai";
 
 describe('Property', () => {
-    const Property     = Sm.config.Property;
-    const DataSource   = Sm.config.DataSource;
-    const Datatype     = Sm.config.Datatype;
+    const Property     = Sm.entities.Property;
+    const DataSource   = Sm.entities.DataSource;
+    const Datatype     = Sm.entities.Datatype;
     const testProperty = Property.init('testProperty').initializingObject;
     it('exists', () => {
         expect(testProperty.Symbol).to.be.a('symbol');

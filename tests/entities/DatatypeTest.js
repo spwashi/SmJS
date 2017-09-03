@@ -4,7 +4,7 @@ import {Sm} from "../Sm"
 import {expect} from "chai";
 
 describe('Datatype', () => {
-    const Datatype     = Sm.config.Datatype;
+    const Datatype     = Sm.entities.Datatype;
     const GenericError = Sm.errors.GenericError;
     const testDatatype = new Datatype('testDatatype');
     it('exists', () => {

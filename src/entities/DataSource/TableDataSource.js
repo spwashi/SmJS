@@ -1,10 +1,7 @@
 import DataSource from "./DataSource";
 
-/**
- * @extends DataSource
- */
 class TableDataSource extends DataSource {
-    static get type() { return 'table';}
+    static type = 'table';
 }
 
 export default TableDataSource;

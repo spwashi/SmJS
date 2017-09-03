@@ -3,14 +3,17 @@ import {describe, it} from "mocha";
 import {Sm} from "../Sm"
 
 import {expect} from "chai";
+import {SOURCE} from "../../src/entities/DataSource/DataSource";
 
 const models = Sm._config.models;
 describe('Model', () => {
     const Std         = Sm.std.Std;
     const SymbolStore = Sm.std.symbols.SymbolStore;
-    const Model       = Sm.config.Model;
-    const DataSource  = Sm.config.DataSource;
-    const Property    = Sm.config.Property;
+    const Model       = Sm.entities.Model;
+    const DataSource  = Sm.entities.DataSource;
+    const SOURCE      = Sm.entities.DataSource.SOURCE;
+    /** @type {typeof Sm.entities.Property}  */
+    const Property    = (Sm.entities.Property);
     
     it('exists', () => {
         return Model.init('test')
@@ -174,8 +177,7 @@ describe('Model', () => {
                       .then(i => new Map(i.map(model => [model.originalName, model])))
                       // Check to see if the Models have inherited properties correctly
                       .then(
-                          /** @param ModelMap {Map<string,Model>}  */
-                          (ModelMap) => {
+                          (ModelMap: Map<string, Model>) => {
                               const m1         = ModelMap.get(m1n),
                                     m2         = ModelMap.get(m2n),
                                     m3         = ModelMap.get(m3n);
@@ -190,9 +192,13 @@ describe('Model', () => {
                                                    });
                               const m3_promise = m3.resolve('first_name')
                                                    .then(i => {
+                                                       // Should not retain value
                                                        const property     = _getPropertyFromEventArr(i);
                                                        const uniqueKeySet = m3.propertyMeta.getUniqueKeySet(property);
                                                        expect(uniqueKeySet).to.equal(false);
+    
+                                                       // Should also have 'id'
+                                                       return m3.resolve('id');
                                                    });
                               return Promise.all([m1_promise, m2_promise, m3_promise]);
                           });
@@ -202,7 +208,7 @@ describe('Model', () => {
         const mn  = 'ccd_mn';
         const dsn = 'ccd_dsn';
         DataSource.init(dsn, {type: 'database'});
-        Model.init(mn, {source: dsn});
+        const m_ = Model.init(mn, {source: dsn}).initializingObject;
         Model.resolve(mn)
              .then(i => {
                  /** @type {Event|Model}  */
@@ -210,7 +216,7 @@ describe('Model', () => {
                  const dataSource = model.dataSource;
                  const msg        = dataSource instanceof DataSource ? null : "Could not resolve dataSource properly";
                  done(msg);
-             });
+             }).catch(i => console.log(i, m_));
     });
     
     it('Configures DataSource in the correct order', done => {
@@ -246,6 +252,9 @@ describe('Model', () => {
              .then(i => {
                  const [e, property] = i;
                  expect(property).to.be.instanceof(Property);
+    
+                 property.resolve(SOURCE);
+            
                  expect(property.dataSource).to.be.instanceof(DataSource);
                  done();
              });
@@ -265,6 +274,7 @@ describe('Model', () => {
                         expect(parse).to.haveOwnProperty('smID');
                         expect(parse).to.haveOwnProperty('properties');
                         expect(parse).to.haveOwnProperty('propertyMeta');
+                        console.log(model);
                     })
     })
 });

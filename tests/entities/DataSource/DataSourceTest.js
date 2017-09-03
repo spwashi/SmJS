@@ -5,7 +5,7 @@ import {Sm} from "../../Sm"
 require('chai-as-promised');
 
 describe('DataSource', () => {
-    const DataSource = Sm.config.DataSource;
+    const DataSource = Sm.entities.DataSource;
     it('exists', () => {
         return DataSource.init('testSource')
                          .then(testSource => {

@@ -10,6 +10,9 @@ const ATTRIBUTE = SymbolStore.$_$.item('_attribute_').Symbol;
 
 /** Standard class */
 class Std {
+    //region Getters and Setters
+    static smID = 'Std';
+    
     //region Initialization
     /**
      * @param identifier This is some sort of identifier for this object
@@ -23,9 +26,9 @@ class Std {
         this._isAvailable = false;
         this._isComplete  = false;
         //endregion
-        
-        this._name = this.constructor.createName(identifier);
-        if (typeof identifier !== 'symbol') identifier = Symbol.for(this._name);
+    
+        this.smID = this.constructor.createName(identifier);
+        if (typeof identifier !== 'symbol') identifier = Symbol.for(this.smID);
         this._Symbol      = identifier;
         const symbolStore = this.constructor.getSymbolStore(identifier);
         /**
@@ -48,47 +51,6 @@ class Std {
         this.send(this.EVENTS.item(BEGIN).STATIC, this);
     }
     
-    get smID() { return this._name }
-    
-    static createName(name) {
-        name = name || Math.random().toString(36).substr(4, 6);
-        return `[${this.smID}]${name}`
-    }
-    
-    /**
-     * Create an instance of this class. Allows us to manage subclasses as well.
-     * @method Sm.Std.factory()
-     * @return {Std}
-     */
-    static factory() {
-        const ctor = this;
-        return this.init(...arguments);
-    }
-    
-    //endregion
-    //region Getters and Setters
-    static get smID() {return 'Std';}
-    
-    /**
-     *
-     * @param {string|symbol}   identifier
-     * @param {{configName?:string}}              config
-     * @return {Promise<Std>}
-     */
-    static init(identifier, config = {}) {
-        if (typeof identifier === "object" && identifier) {
-            config     = identifier;
-            identifier = null;
-        }
-        const self                 = new this(...arguments);
-        config.configName          = config.configName || identifier;
-        const promise              = self
-            .initialize(config)
-            .then(self => self._sendInitComplete(this.smID));
-        promise.initializingObject = self;
-        return promise;
-    }
-    
     /**
      * @return {EventEmitter|*|events.EventEmitter}
      */
@@ -98,6 +60,8 @@ class Std {
      * @return {SymbolStore}
      */
     static get EVENTS() { return this[EVENTS] || (this[EVENTS] = new SymbolStore(Symbol.for(this.smID))); }
+    
+    //endregion
     
     get symbolStore() {
         return this._symbolStore;
@@ -125,9 +89,6 @@ class Std {
     
     get symbolName() {return this._Symbol.toString();}
     
-    //endregion
-    //region Getters
-    
     get originalName() {return this._originalName}
     
     /**
@@ -140,6 +101,44 @@ class Std {
      * @return {SymbolStore}
      */
     get EVENTS() { return this[EVENTS]; }
+    
+    //endregion
+    //region Getters
+    
+    static createName(name): string {
+        name = name || Math.random().toString(36).substr(4, 6);
+        return `[${this.smID}]${name}`
+    }
+    
+    /**
+     * Create an instance of this class. Allows us to manage subclasses as well.
+     * @method Sm.Std.factory()
+     * @return {Std}
+     */
+    static factory() {
+        const ctor = this;
+        return this.init(...arguments);
+    }
+    
+    /**
+     *
+     * @param {string|symbol}   identifier
+     * @param {{_id?:string}}              config
+     * @return {Promise<Std>}
+     */
+    static init(identifier, config = {}) {
+        if (typeof identifier === "object" && identifier) {
+            config     = identifier;
+            identifier = null;
+        }
+        const self                 = new this(...arguments);
+        config._id                 = config._id || identifier;
+        const promise              = self
+            .initialize(config)
+            .then(self => self._sendInitComplete(this.smID));
+        promise.initializingObject = self;
+        return promise;
+    }
     
     /**
      * @param symbol
@@ -268,7 +267,9 @@ class Std {
     send(eventName, ...args) {
         this._Events.emit(eventName, ...args);
         this.constructor.send(eventName, ...args);
-        if (this.constructor !== Std) Std.send(eventName, ...args);
+        if (this.constructor !== Std) {
+            Std.send(eventName, ...args);
+        }
         return Promise.resolve(this);
     }
     

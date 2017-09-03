@@ -6,14 +6,14 @@ import ConfiguredEntity from "./ConfiguredEntity";
 import {StdError} from "../errors/Error";
 
 export default class Datatype extends ConfiguredEntity {
-    static get smID() {return 'Datatype'; }
+    static smID = 'Datatype';
     
     /**
      * This identifies the Datatype
      * @return {string}
      */
     get name() {
-        return this.getOriginalConfiguration().configName || this.smID;
+        return this.configuration.current._id || this.smID;
     }
     
     get jsonFields() {

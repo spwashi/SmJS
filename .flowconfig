@@ -10,5 +10,6 @@
 ./lib
 
 [options]
+unsage.enable_getters_and_setters = true
 
 [lints]

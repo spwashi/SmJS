@@ -2,8 +2,8 @@
  * Created by Sam Washington on 6/8/17.
  */
 
-import Property from "./Property";
-import Std from "../std/Std";
+import Property from "../Property/Property";
+import Std from "../../std/Std";
 
 /**
  * An object that is meant to contain information about properties as they exist in this context
@@ -11,16 +11,16 @@ import Std from "../std/Std";
  * @extends Std
  */
 class PropertyMetaContainer extends Std {
-    static get smID() {
-        return 'PropertyMetaContainer';
-    }
-    
     constructor() {
         super();
         /** @type {Set} Represents the properties that make up the Primary Key */
         this._primaryKey = new Set;
         /** @type {Map} Represents Sets that represent the Unique Keys */
         this._uniqueKeys = new Map;
+    }
+    
+    static get smID() {
+        return 'PropertyMetaContainer';
     }
     
     get primary() {

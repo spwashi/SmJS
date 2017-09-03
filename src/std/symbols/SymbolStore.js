@@ -55,14 +55,14 @@ class SymbolStore {
         }
     }
     
-    get smID() {return this._name}
-    
     /**
      * @return {SymbolStore|boolean}
      */
     static get $_$() {
         return this.find($_$);
     }
+    
+    get smID() {return this._name}
     
     get origin() {
         return this._origin || this;
@@ -80,7 +80,7 @@ class SymbolStore {
         return this._family;
     }
     
-    get parent() {
+    get parent(): ? SymbolStore {
         return this._parent;
     }
     

@@ -1,16 +1,24 @@
 /**
- * @class Entity
+ * @class EntityType
  */
 import ConfiguredEntity from "../ConfiguredEntity";
-import EntityProperty from "./EntityProperty";
+import EntityTypeProperty from "./EntityTypeProperty";
+import {PropertyHaverConfigurationExtender, PropertyHaverExtender} from "../Property/PropertyHaver";
+import Configuration from "../Configuration";
+
+class EntityTypeConfiguration extends PropertyHaverConfigurationExtender(Configuration) {
+
+}
 
 /**
- * @name Entity
- * @class Entity
+ * @name EntityType
+ * @class EntityType
  * @extends ConfiguredEntity
+ * @extends PropertyHaver
  */
-export default class Entity extends ConfiguredEntity {
-    static get smID() {return 'Entity'; }
+export default class EntityType extends PropertyHaverExtender(ConfiguredEntity) {
+    static smID          = 'EntityType';
+    static Configuration = EntityTypeConfiguration;
     
     get jsonFields() {
         return new Set([...super.jsonFields, 'datatypes', '?length'])
@@ -24,6 +32,15 @@ export default class Entity extends ConfiguredEntity {
         return this._datatypes = this._datatypes || new Set;
     }
     
+    /**
+     * Get the Property type that we are going to use
+     * @param property_config
+     * @return {typeof Property}
+     */
+    getPropertyType(property_config): typeof EntityTypeProperty {
+        return EntityTypeProperty;
+    }
+    
     toJSON__length() {
         return this._length = this._length || null;
     }
@@ -33,7 +50,7 @@ export default class Entity extends ConfiguredEntity {
     }
     
     /**
-     * Returns the SmIDs of the Datatypes that this Entity can be
+     * Returns the SmIDs of the Datatypes that this EntityType can be
      * @return {Array}
      */
     toJSON__datatypes() {
@@ -54,4 +71,4 @@ export default class Entity extends ConfiguredEntity {
     
 }
 
-Entity.EntityProperty = EntityProperty;
+EntityType.EntityTypeProperty = EntityTypeProperty;

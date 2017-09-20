@@ -1,6 +1,6 @@
 {
-  "name":            "sm.php",
-  "private":         true,
+  "name":            "SmJS",
+  "private":         false,
   "version":         "0.1.0",
   "description":     "A framework to assist with PHP web development",
   "main":            "index.js",
@@ -9,7 +9,7 @@
     "flow":  "flow",
     "build": "gulp browserify"
   },
-  "author":          "Samuel Washington",
+  "author":          "Sam Washington",
   "license":         "ISC",
   "devDependencies": {
     "babel-cli":                                 "^6.24.1",
@@ -50,8 +50,6 @@
     "watchify":                                  "^3.9.0"
   },
   "dependencies":    {
-    "debug":  "^2.6.6",
-    "react":  "latest",
-    "lodash": "latest"
+    "react":  "latest"
   }
 }

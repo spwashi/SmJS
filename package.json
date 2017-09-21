@@ -10,7 +10,7 @@
     "build": "gulp browserify"
   },
   "author":          "Sam Washington",
-  "license":         "ISC",
+  "license":         "MIT",
   "devDependencies": {
     "babel-cli":                                 "^6.24.1",
     "babel-core":                                "^6.0.20",

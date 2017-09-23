@@ -5,15 +5,17 @@
 import {default as EventEmitter, EVENTS} from "./EventEmitter";
 import SymbolStore from "./symbols/SymbolStore";
 import TimeoutError from "../errors/TimeoutError";
+import Sm from "../index";
 
 const ATTRIBUTE = SymbolStore.$_$.item('_attribute_').Symbol;
 
-/** Standard class */
+/**
+ * @class Sm.std.Std
+ */
 class Std {
     //region Getters and Setters
     static smID = 'Std';
     
-    //region Initialization
     /**
      * @param identifier This is some sort of identifier for this object
      */
@@ -61,8 +63,6 @@ class Std {
      */
     static get EVENTS() { return this[EVENTS] || (this[EVENTS] = new SymbolStore(Symbol.for(this.smID))); }
     
-    //endregion
-    
     get symbolStore() {
         return this._symbolStore;
     }
@@ -103,21 +103,9 @@ class Std {
     get EVENTS() { return this[EVENTS]; }
     
     //endregion
-    //region Getters
-    
     static createName(name): string {
         name = name || Math.random().toString(36).substr(4, 6);
         return `[${this.smID}]${name}`
-    }
-    
-    /**
-     * Create an instance of this class. Allows us to manage subclasses as well.
-     * @method Sm.Std.factory()
-     * @return {Std}
-     */
-    static factory() {
-        const ctor = this;
-        return this.init(...arguments);
     }
     
     /**
@@ -179,39 +167,83 @@ class Std {
         return Std.receive(COMPLETE)
     }
     
-    //region Send/Receive
     static send(eventName, ...args) { this.Events.emit(eventName, ...args); }
     
     /**
      *
      * @param self
      * @param eventName
-     * @param fn
+     * @param callback
      * @param once
      * @return {Promise}
      * @private
      */
-    static _receive(self, eventName, fn, once = true) {
-        let resolve, reject;
-        let func = (...args) => {
-            if (typeof fn === 'function') fn(...args);
-            return resolve(args);
+    static _receive(self: Sm.std.Std | typeof Sm.std.Std, eventName, callback, once = true) {
+        let _promiseEssence: promiseEssence = {
+            resolve: null,
+            reject:  null
         };
-        
-        const granted_time = 500;
-        const timeoutError = new TimeoutError('Timeout in ' + (self.symbolName || self.smID), eventName, granted_time);
-        setTimeout(i => {
-            return reject(timeoutError)
-        }, granted_time);
-        
-        const promise = new Promise((yes, no) => [resolve, reject] = [yes, no]);
-        (once ? self.Events.once(eventName, func) : self.Events.on(eventName, func));
+    
+        // Initialize the resolve and reject promises to return from this method
+        const promise = new Promise((yes, no) => {
+            [_promiseEssence.resolve, _promiseEssence.reject] = [yes, no];
+        });
+    
+        self._waitForEvent(callback, _promiseEssence, self, eventName, once);
+    
         return promise;
     };
     
-    //endregion
+    /**
+     * @name Sm.std.Std._waitForEvent
+     * @param callback
+     * @param _promiseEssence
+     * @param self
+     * @param eventName
+     * @param once
+     * @private
+     */
+    static _waitForEvent(callback, _promiseEssence, self, eventName, once) {
+        
+        // resolve
+        let resolve = (...args) => {
+            // Run the callback if it exists
+            if (typeof callback === 'function') callback(...args);
+            
+            // Resolve with whatever we would
+            return _promiseEssence.resolve(args);
+        };
+        
+        // reject
+        const granted_time = 500;
+        const timeoutError = new TimeoutError('Timeout in ' + (self.symbolName || self.smID), eventName, granted_time);
+        setTimeout(i => {
+            return _promiseEssence.resolve(timeoutError)
+        }, granted_time);
+        
+        if (once) {
+            self.Events.once(eventName, resolve);
+        } else {
+            self.Events.on(eventName, resolve);
+        }
+    }
     
-    static receive(eventName, fn, once = true) { return this._receive(this, ...arguments); }
+    static receive(eventName, fn, once = true) {
+        return this._receive(this, ...arguments);
+    }
+    
+    /**
+     * @alias Sm.std.Std._waitForEvent
+     * @param args
+     * @private
+     */
+    _waitForEvent(...args) {
+        return this.constructor._waitForEvent(...args);
+    }
+    
+    receive(eventName, fn, once = true) {
+        return this.constructor._receive(this, ...arguments);
+    }
     
     registerAttribute(name, attribute) {
         const propertySymbolStore = this._symbolStore.item(ATTRIBUTE).item(name);
@@ -219,11 +251,25 @@ class Std {
         return this.send(propertySymbolStore.STATIC, attribute);
     }
     
+    send(eventName, ...args) {
+        this._Events.emit(eventName, ...args);
+        this.constructor.send(eventName, ...args);
+        if (this.constructor !== Std) {
+            Std.send(eventName, ...args);
+        }
+        return Promise.resolve(this);
+    }
+    
+    /**
+     * Resolve an attribute
+     * @param symbol
+     * @return {*}
+     */
     resolve(symbol) {
         return Std.receive(this._symbolStore.item(ATTRIBUTE).item(symbol));
     }
     
-    initialize(config) {
+    initialize(config): Promise<Sm.std.Std> {
         return Promise.resolve(this);
     }
     
@@ -257,23 +303,6 @@ class Std {
         }
         return Promise.resolve(null);
     }
-    
-    get(name) {
-        return this._attributes.get(name);
-    }
-    
-    receive(eventName, fn, once = true) {return this.constructor._receive(this, ...arguments);}
-    
-    send(eventName, ...args) {
-        this._Events.emit(eventName, ...args);
-        this.constructor.send(eventName, ...args);
-        if (this.constructor !== Std) {
-            Std.send(eventName, ...args);
-        }
-        return Promise.resolve(this);
-    }
-    
-    //endregion
 }
 
 export default Std;

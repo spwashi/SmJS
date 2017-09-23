@@ -13,6 +13,10 @@ namespace Sm {
             interface _config {
                 type?: string;
             }
+
+            interface DataSourceHaver {
+                Configuration: Sm.entities.ConfiguredEntity.Configuration;
+            }
         }
     }
 }

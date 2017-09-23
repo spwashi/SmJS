@@ -41,10 +41,8 @@ class PropertyConfiguration extends DataSourceHaver.getConfiguration() {
  */
 export default class Property extends DataSourceHaver {
     static Configuration = PropertyConfiguration;
-    
-    static smID = 'Property';
-    
-    _datatypes;
+    static smID          = 'Property';
+           _datatypes;
     
     /**
      * The Datatypes that this is allowed to be.

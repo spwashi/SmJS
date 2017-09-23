@@ -4,10 +4,10 @@ import {Sm} from "../../Sm"
 import {expect} from "chai";
 
 describe('EntityType', () => {
-    const Std            = Sm.std.Std;
-    const EntityType     = Sm.entities.EntityType;
-    const EntityProperty = Sm.entities.EntityType.EntityTypeProperty;
-    const testEntity     = EntityType.init('testEntity').initializingObject;
+    const Std                = Sm.std.Std;
+    const EntityType         = Sm.entities.EntityType;
+    const EntityTypeProperty = Sm.entities.EntityType.EntityTypeProperty;
+    const testEntity         = EntityType.init('testEntity').initializingObject;
     
     it('exists', () => {
         expect(testEntity.Symbol).to.be.a('symbol');
@@ -27,11 +27,38 @@ describe('EntityType', () => {
     
                // [EntityTypeProperty]{[EntityType]testResolveProperties}test_property
                expect(entity.properties.get(`[EntityTypeProperty]\{${entityName}}${_property_name}`)).to.equal(property);
-               expect(property).to.be.instanceof(EntityProperty);
+               expect(property).to.be.instanceof(EntityTypeProperty);
             
                return entity.resolve(_property_name).then(prop => done());
            })
            .catch(e => console.log(e));
     });
+    
+    it('Can configure Models', () => {
+        const schema_config = {};
+        
+        let entity_config: Sm.entities.EntityType.entity_type_config;
+        
+        entity_config = {
+            _id:     'student',
+            context: {
+                'instructional_facility': '[Entity]instructional_facility'
+            },
+            models:  {
+                person:  {
+                    model:    '[Model]person_ccm',
+                    identity: 'id'
+                },
+                student: {
+                    model:    '[Model]student_ccm',
+                    identity: {
+                        person_id:                 '[Model]person_ccm',
+                        instructional_facility_id: '[Context]instructional_facility|[Property]id'
+                    },
+                }
+            }
+        };
+        EntityType.init(entity_config);
+    })
     
 });

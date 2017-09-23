@@ -1,3 +1,8 @@
+interface promiseEssence {
+    reject: null | Function,
+    resolve: null | Function
+}
+
 declare namespace Sm {
     type smID = string;
 
@@ -9,9 +14,6 @@ declare namespace Sm {
     }
     namespace entities {
         class Property {
-        }
-
-        class EntityType {
         }
 
         class Model {

@@ -1,7 +1,7 @@
 {
-  "name":            "SmJS",
+  "name":            "spwashi-sm",
   "private":         false,
-  "version":         "0.1.0",
+  "version":         "0.0.1-b",
   "description":     "A framework to assist with PHP web development",
   "main":            "index.js",
   "scripts":         {

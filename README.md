@@ -1,3 +1,2 @@
-# SmPHP
-
-Part of a suite of frameworks designed to work together and make quick projects more flexible via extremely optional data, view, and process abstraction layers.
+#SmJS
+The JavaScript component of a set of web development frameworks across the stack

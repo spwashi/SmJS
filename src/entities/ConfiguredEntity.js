@@ -4,7 +4,6 @@
 import merge from "deepmerge";
 import {mapToObj} from "../util/index";
 import {Std} from "../std/";
-import _ from "lodash";
 import Configuration from "./Configuration";
 
 /**

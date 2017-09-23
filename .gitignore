@@ -1,6 +1,6 @@
 .idea/
 dist/
 node_modules/
-/gulpfile.babel.js
 coverage/
 lib/
+gulpfile.babel.js

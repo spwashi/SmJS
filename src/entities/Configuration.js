@@ -10,13 +10,15 @@ interface config {
  * @name Configuration
  */
 class Configuration {
+    /** Array of config objects that we should "pop" items off of to configure the newly set object. */
+    configurationQueue: [];
     /** Set the contains the objects used to configure this one */
     configurationHistory: [];
     /** @private */
     _id: string;
     
     constructor(configuredEntity: ConfiguredEntity) {
-        this.configuredEntity     = (configuredEntity: ConfiguredEntity);
+        this.establishOwner(configuredEntity);
         this.configurationHistory = [];
     }
     
@@ -42,6 +44,33 @@ class Configuration {
      */
     get identifier() {
         return this._id;
+    }
+    
+    /**
+     * Returns an instance of this Configuration type but with the provided condifuration object Queued.
+     */
+    static create(config: Object): Configuration {
+        const c_tor    = this;
+        const instance = new c_tor(null);
+        instance.configurationQueue.push(config);
+        return instance;
+    }
+    
+    /**
+     * This sets the owner and gives them all of the configuration has been previously set on this object
+     * @param configuredEntity
+     * @return {Promise.<*[]>}
+     */
+    establishOwner(configuredEntity: ConfiguredEntity) {
+        this.owner = configuredEntity;
+        
+        const _configPromises = [];
+        for (let i = this.configurationQueue.length; i--;) {
+            let config = this.configurationQueue[i];
+            _configPromises.push(this.configure(config).catch());
+        }
+        
+        return Promise.all(_configPromises);
     }
     
     configure(config: Object): Promise<Configuration> {

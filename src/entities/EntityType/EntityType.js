@@ -6,6 +6,13 @@ import EntityTypeProperty from "./EntityTypeProperty";
 import {PropertyHaverConfigurationExtender, PropertyHaverExtender} from "../Property/PropertyHaver";
 import Configuration from "../Configuration";
 
+/**
+ * Used for configuring the Models that are attached to this entity
+ */
+export class EntityType_ModelConfiguration extends Configuration {
+
+}
+
 class EntityTypeConfiguration extends PropertyHaverConfigurationExtender(Configuration) {
 
 }

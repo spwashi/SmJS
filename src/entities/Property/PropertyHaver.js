@@ -22,7 +22,7 @@ export const PropertyHaverConfigurationExtender = (parent: Configuration) => {
          * @private
          */
         configure_properties(properties_config) {
-            const haver    = this.configuredEntity;
+            const haver    = this.owner;
             const promises = Object.entries(properties_config)
                                    .map((i) => {
                                        let [property_name, property_config] = i;
@@ -42,7 +42,7 @@ export const PropertyHaverConfigurationExtender = (parent: Configuration) => {
          */
         _getEffectivePropertyConfiguration() {
             const properties = {};
-            this.configuredEntity
+            this.owner
                 .properties
                 .forEach((property: Property, name) => {
                     const config                  = property.configuration;

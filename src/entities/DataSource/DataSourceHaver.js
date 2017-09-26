@@ -19,7 +19,7 @@ const DataSourceHaverConfiguration = (extended: Configuration = Configuration): 
          */
         configure_dataSource(source_name) {
             /** @this Configuration */
-            const dataSourceHaver = this.configuredEntity;
+            const dataSourceHaver = this.owner;
             
             if (typeof source_name !== "string") {
                 throw new TypeError("Not sure how to handle dataSource configurations that aren't strings");

@@ -34,7 +34,25 @@ describe('EntityType', () => {
            .catch(e => console.log(e));
     });
     
-    it('Can configure Models', () => {
+    /**
+     * Certain EntityTypes might only exist within certain contexts.
+     * For example, a Student EntityType might exist only within an InstructionalFacility EntityType
+     */
+    it('Can configure existence contexts', (done) => {
+        let entity_config: Sm.entities.EntityType.entity_type_config;
+        entity_config = {
+            _id:     'student_ccec',
+            context: {
+                'instructional_facility': '[EntityType]instructional_facility'
+            }
+        };
+        EntityType.init(entity_config)
+                  .then(entityType => {
+            
+                  });
+    });
+    
+    it('Can configure Models', (done) => {
         const schema_config = {};
         
         let entity_config: Sm.entities.EntityType.entity_type_config;
@@ -42,7 +60,7 @@ describe('EntityType', () => {
         entity_config = {
             _id:     'student',
             context: {
-                'instructional_facility': '[Entity]instructional_facility'
+                'instructional_facility': '[EntityType]instructional_facility'
             },
             models:  {
                 person:  {

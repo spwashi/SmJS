@@ -23,6 +23,7 @@ namespace Sm {
             }
 
             class Configuration {
+                static create(config: object);
             }
         }
     }

@@ -17,7 +17,7 @@
         "babel-plugin-transform-class-properties":   "^6.24.1",
         "babel-plugin-transform-object-rest-spread": "^6.23.0",
         "babel-plugin-transform-regenerator":        "^6.24.1",
-        "babel-plugin-transform-builtin-extend":     "^6.24.1",
+        "babel-plugin-transform-builtin-extend":     "^1.1.2",
         "babel-polyfill":                            "^6.0.16",
         "babel-preset-env":                          "^1.4.0",
         "babel-preset-flow":                         "^6.23.0",

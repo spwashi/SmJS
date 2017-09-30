@@ -18,9 +18,12 @@ namespace Sm {
         }
 
         namespace ConfiguredEntity {
-            type _config = {};
+            interface _config {
+                _id?: string
+            }
 
             class Configuration {
+                static create(config: object);
             }
         }
     }

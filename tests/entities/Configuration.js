@@ -37,6 +37,15 @@ describe('Configuration', () => {
                    });
     });
     
+    it('Can create configurations before setting the ConfiguredEntity', done => {
+        const conf_d = new ConfiguredEntity;
+        const conf   = Configuration.create({age: 407});
+        conf.establishOwner(conf_d)
+            .then(i => {
+            
+            });
+    });
+    
     it('Can inherit', () => {
         const conf_d = new ConfiguredEntity;
         const conf   = new EG_Configuration(conf_d);

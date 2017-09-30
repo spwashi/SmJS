@@ -19,7 +19,7 @@ class PropertyConfiguration extends DataSourceHaver.getConfiguration() {
      * @return {Promise.<Set>}
      */
     configure_datatypes(datatype) {
-        const self     = this.configuredEntity;
+        const self     = this.owner;
         datatype       = Array.isArray(datatype) ? datatype : [datatype];
         const promises = datatype.filter(i => !!i)
                                  .map(dt => Datatype.resolve(dt)
@@ -29,7 +29,7 @@ class PropertyConfiguration extends DataSourceHaver.getConfiguration() {
     }
     
     configure_length(length) {
-        this.configuredEntity._length = parseInt(length);
+        this.owner._length = parseInt(length);
     }
 }
 
@@ -41,10 +41,8 @@ class PropertyConfiguration extends DataSourceHaver.getConfiguration() {
  */
 export default class Property extends DataSourceHaver {
     static Configuration = PropertyConfiguration;
-    
-    static smID = 'Property';
-    
-    _datatypes;
+    static smID          = 'Property';
+           _datatypes;
     
     /**
      * The Datatypes that this is allowed to be.

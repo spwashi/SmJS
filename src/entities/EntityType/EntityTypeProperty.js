@@ -10,5 +10,4 @@ import Property from "../Property/Property";
  */
 export default class EntityTypeProperty extends Property {
     static smID = 'EntityTypeProperty';
-    
 }

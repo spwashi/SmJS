@@ -54,6 +54,24 @@ export default class ConfiguredEntity extends Std {
         return [...inherits];
     }
     
+    toJSON() {
+        const jsonFields = this.jsonFields;
+        const json_obj   = {};
+        jsonFields.forEach(fieldName => {
+            let is_optional = fieldName[0] === '?';
+            if (fieldName[0] === '?') fieldName = fieldName.substr(1);
+            
+            const fn_name = `toJSON__${fieldName}`;
+            let item      = this[fn_name] ? (this[fn_name]()) : this[fieldName];
+            if (item instanceof Map) item = mapToObj(item);
+            
+            if (is_optional && item instanceof Array && !item.length) return;
+            
+            json_obj[fieldName] = item;
+        });
+        return json_obj;
+    }
+    
     /**
      * Set the properties of this object using another object.
      *
@@ -72,24 +90,6 @@ export default class ConfiguredEntity extends Std {
         
         this._configuration = this._configuration || new c_Helper(this);
         return this._configuration;
-    }
-    
-    toJSON() {
-        const jsonFields = this.jsonFields;
-        const json_obj   = {};
-        jsonFields.forEach(fieldName => {
-            let is_optional = fieldName[0] === '?';
-            if (fieldName[0] === '?') fieldName = fieldName.substr(1);
-            
-            const fn_name = `toJSON__${fieldName}`;
-            let item      = this[fn_name] ? (this[fn_name]()) : this[fieldName];
-            if (item instanceof Map) item = mapToObj(item);
-            
-            if (is_optional && item instanceof Array && !item.length) return;
-            
-            json_obj[fieldName] = item;
-        });
-        return json_obj;
     }
     
     /**

@@ -1,6 +1,6 @@
 /// <reference path="/docs/global.d.ts" />
 import std from "./std";
-import _config from "./_config";
+import * as _config from "./_config";
 import entities from "./entities";
 import errors from "./errors";
 import util from "./util";

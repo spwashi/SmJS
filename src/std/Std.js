@@ -13,7 +13,6 @@ const ATTRIBUTE = SymbolStore.$_$.item('_attribute_').Symbol;
  * @class Sm.std.Std
  */
 class Std {
-    //region Getters and Setters
     static smID = 'Std';
     
     /**
@@ -29,6 +28,9 @@ class Std {
         this._isComplete  = false;
         //endregion
     
+        // Make sure Sm is aware of this SmEntity
+        Std.registerSmEntity(this.constructor.smID, this.constructor);
+        
         this.smID = this.constructor.createName(identifier);
         if (typeof identifier !== 'symbol') identifier = Symbol.for(this.smID);
         this._Symbol      = identifier;
@@ -102,7 +104,7 @@ class Std {
      */
     get EVENTS() { return this[EVENTS]; }
     
-    //endregion
+    //
     static createName(name): string {
         name = name || Math.random().toString(36).substr(4, 6);
         return `[${this.smID}]${name}`
@@ -134,17 +136,34 @@ class Std {
      */
     static getSymbolStore(symbol) {
         /** @type {string} item If we are retrieving a property of this item */
-        let item;
+
+
+        let prop; // This is set if we are trying to retrieve a property of the thing we're talking about. e.g. )       [Entity]sam|name
+        
         if (typeof symbol === 'string') {
             let identifer = this === Std ? '[' : `[${this.smID}]`;
-            if (symbol.indexOf('|') > 0) [symbol, item] = symbol.split('|') || null;
-            if (symbol.indexOf(identifer) !== 0) symbol = this.createName(symbol);
+    
+            // Pipes identify properties
+            if (symbol.indexOf('|') > 0) {
+                [symbol, prop] = symbol.split('|') || null;
+            }
+            if (symbol.indexOf(identifer) !== 0) {
+                symbol = this.createName(symbol);
+            }
             symbol = Symbol.for(symbol);
             
         }
+    
+        // Create a symbol store based on the symbol
         const symbolStore = SymbolStore.init(symbol, null, symbol);
-        if (!item) return symbolStore;
-        else return symbolStore.item(ATTRIBUTE).item(item);
+    
+        // If we aren't returning a property, return that symbol store
+        if (!prop) {
+            return symbolStore;
+        }
+    
+        // return from the
+        return symbolStore.item(ATTRIBUTE).item(prop);
     }
     
     static resolve(symbol) {
@@ -167,7 +186,10 @@ class Std {
         return Std.receive(COMPLETE)
     }
     
-    static send(eventName, ...args) { this.Events.emit(eventName, ...args); }
+    static send(eventName, ...args) {
+        this.Events.emit(eventName, ...args);
+        return Promise.resolve(this)
+    }
     
     /**
      *
@@ -230,6 +252,20 @@ class Std {
     
     static receive(eventName, fn, once = true) {
         return this._receive(this, ...arguments);
+    }
+    
+    static registerSmEntity(smID, smEntity) {
+        this._smEntities = this._smEntities || {};
+        if (this._smEntities[smID]) return this;
+        
+        this.send(Std.EVENTS.item(`[${smID}]`).STATIC, smEntity);
+        this._smEntities[smID] = smEntity;
+        
+        return this;
+    }
+    
+    static getSmEntity(smID): Std {
+        return (this._smEntities || {})[smID];
     }
     
     /**

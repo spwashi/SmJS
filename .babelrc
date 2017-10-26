@@ -1,5 +1,5 @@
 {
-  "presets": [ "flow", "es2015", "react" ],
+  "presets": [ "flow", "env", "react" ],
   "plugins": [
     "transform-object-rest-spread",
     "transform-regenerator",

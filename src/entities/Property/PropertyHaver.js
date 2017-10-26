@@ -1,8 +1,9 @@
 import Configuration from "../Configuration";
 import Property from './Property';
 import ConfiguredEntity from '../ConfiguredEntity';
+import {Sm} from "../../../tests/Sm";
 
-export const PropertyHaverConfigurationExtender = (parent: Configuration) => {
+export const PropertyHaverConfigurationExtender = (parent: Configuration): typeof Sm.entities.ConfiguredEntity.Configuration => {
     return class PropertyHaverConfiguration extends parent {
         get inheritables() {
             return [...super.inheritables, 'properties'];
@@ -53,8 +54,8 @@ export const PropertyHaverConfigurationExtender = (parent: Configuration) => {
     }
 };
 
-export const PropertyHaverExtender = (parent: typeof ConfiguredEntity): typeof PropertyHaver => {
-    return class PropertyHaver extends parent {
+export const PropertyHaverExtender = (parent: typeof ConfiguredEntity): typeof Sm.entities.Property.PropertyHaver => {
+    return class extends parent {
         constructor(name, config) {
             super(name, config);
             this._properties = new Map;

@@ -39,6 +39,11 @@ export default class ConfiguredEntity extends Std {
         return this.getConfiguration();
     }
     
+    static factory() {
+        const c_tor = this;
+        return (new c_tor())
+    }
+    
     initialize(config): Promise<ConfiguredEntity> {
         let inherits                     = config.inherits;
         const completeInitialInheritance = this._completeInitialInheritance(inherits);

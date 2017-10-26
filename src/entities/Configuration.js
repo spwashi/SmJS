@@ -7,7 +7,7 @@ interface config {
 
 /**
  * @class Configuration
- * @name Configuration
+ * @name ConfiguredEntity.Configuration
  */
 class Configuration {
     /** Array of config objects that we should "pop" items off of to configure the newly set object. */
@@ -17,9 +17,10 @@ class Configuration {
     /** @private */
     _id: string;
     
-    constructor(configuredEntity: ConfiguredEntity) {
-        this.establishOwner(configuredEntity);
+    constructor(configuredEntity: ?ConfiguredEntity) {
         this.configurationHistory = [];
+        this.configurationQueue   = [];
+        if (configuredEntity) this.establishOwner(configuredEntity);
     }
     
     /**
@@ -61,7 +62,7 @@ class Configuration {
      * @param configuredEntity
      * @return {Promise.<*[]>}
      */
-    establishOwner(configuredEntity: ConfiguredEntity) {
+    establishOwner(configuredEntity: ConfiguredEntity): Promise<Configuration> {
         this.owner = configuredEntity;
         
         const _configPromises = [];
@@ -69,8 +70,8 @@ class Configuration {
             let config = this.configurationQueue[i];
             _configPromises.push(this.configure(config).catch());
         }
-        
-        return Promise.all(_configPromises);
+    
+        return Promise.all(_configPromises).then(i => this);
     }
     
     configure(config: Object): Promise<Configuration> {

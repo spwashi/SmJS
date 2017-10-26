@@ -1,61 +1,34 @@
 /**
- * Created by Sam Washington on 4/23/17.
+ * Created by Sam Washington on 7/29/17.
  */
-import * as _defaults from "./_defaults";
-import DataSource from "../entities/DataSource/DataSource";
 
-export let types         = [..._defaults.types];
-DataSource.acceptedTypes = {
-    database: {},
-    db_table: {},
-    JSON:     {}
-};
-export let dataSources   = {
-    _factshift_config: {
-        name:    'FactshiftConfig',
-        type:    'database',
-        details: {}
-    },
-    _:                 {
-        name:    (item) => {item._types},
-        type:    'table',
-        details: {database: '[source|_factshift_config]'}
-    }
-};
-export let models        = Object.assign({},
-                                         _defaults.models,
-                                         {
-                                             _sm_entity:       {
-                                                 inherits: ['[Model]_entity'],
-                                                 source:   '_'
-                                             },
-                                             _sm_relationship: {
-                                                 inherits: ['[Model]_sm_entity', '[Model]_relationship']
-                                             },
+import Sm from "../index";
+
+let _convertConfigToMap     = (configured_entity_obj): Map => {
+    /** @type {Array} structure the configuration to e a map */
+    const map_prepared_obj_array = Object.keys(configured_entity_obj)
+                                         .map(key => [key, configured_entity_obj[key]]);
     
-                                             entities:                  {inherits: ['[Model]_sm_entity'], properties: {name: {inherits: ['[Model]_{item_name}']}}},
-                                             entity_classes:            {inherits: ['[Model]_sm_entity']},
-                                             properties:                {
-                                                 inherits:   ['[Model]_sm_entity'],
-                                                 properties: {value: {type: 'INT'}}
-                                             },
-                                             types:                     {
-                                                 inherits:   ['[Model]_sm_entity'],
-                                                 properties: {parent_type: {inherits: ['[Model]types|id',]}}
-                                             },
-                                             entity_class_property_map: {
-                                                 inherits:   ['[Model]_sm_relationship'],
-                                                 properties: {
-                                                     entity_class_id: {inherits: ['[Model]entity_classes|id',]},
-                                                     property_id:     {inherits: ['[Model]properties|id',]}
-                                                 }
-                                             },
-                                             property_type_map:         {
-                                                 inherits:   ['[Model]_sm_relationship'],
-                                                 properties: {
-                                                     property_id: {inherits: ['[Model]properties|id',]},
-                                                     type_id:     {inherits: ['[Model]types|id',]}
-                                                 }
-                                             }
-                                         });
-export default {models, dataSources};
+    return new Map(map_prepared_obj_array);
+};
+/**
+ * initialize an object (indexed by typical identifier) representing the SmEntity that we are initializing
+ * @param configured_entity_obj
+ * @param prototype
+ * @return {Array}
+ */
+    export const initialize = (configured_entity_obj: Object, prototype: typeof Sm.std.Std): Array<Promise> => {
+    const all = [];
+    
+    _convertConfigToMap(configured_entity_obj)
+        .forEach((ce_config, ce_name: string) => {
+            ce_config.name = ce_config.name || ce_name;
+            
+            // Use the prototype to create an instance of this desired type with its configuration.
+            const itemPromise = prototype.init(ce_config)
+                                         .catch(i => console.error(i));
+            
+            all.push(itemPromise);
+        });
+    return all;
+};

@@ -13,7 +13,7 @@ const ATTRIBUTE = SymbolStore.$_$.item('_attribute_').Symbol;
 /**
  * @class ModelConfiguration
  * @mixes PropertyHaverConfiguration
- * @extends ConfiguredEntity.Configuration
+ * @extends Configuration
  *
  */
 class ModelConfiguration extends PropertyHaverConfigurationExtender(DataSourceHaver.getConfiguration()) {

@@ -1,7 +1,9 @@
 /// <reference path="/docs/global.d.ts" />
 
 namespace Sm.entities {
-    class EntityType {
+    import PropertyHaver = Sm.entities.Property.PropertyHaver;
+
+    class EntityType extends ConfiguredEntity, PropertyHaver {
         static init(config: EntityType.entity_type_config);
     }
 

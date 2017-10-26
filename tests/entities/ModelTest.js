@@ -5,7 +5,6 @@ import {Sm} from "../Sm"
 import {expect} from "chai";
 import {SOURCE} from "../../src/entities/DataSource/DataSource";
 
-const models = Sm._config.models;
 describe('Model', () => {
     const Std         = Sm.std.Std;
     const SymbolStore = Sm.std.symbols.SymbolStore;
@@ -215,6 +214,7 @@ describe('Model', () => {
                  const [e, model] = i;
                  const dataSource = model.dataSource;
                  const msg        = dataSource instanceof DataSource ? null : "Could not resolve dataSource properly";
+                 console.log(dataSource);
                  done(msg);
              }).catch(i => console.log(i, m_));
     });

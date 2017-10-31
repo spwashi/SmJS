@@ -240,7 +240,7 @@ class Std {
         const granted_time = 500;
         const timeoutError = new TimeoutError('Timeout in ' + (self.symbolName || self.smID), eventName, granted_time);
         setTimeout(i => {
-            return _promiseEssence.resolve(timeoutError)
+            return _promiseEssence.reject(timeoutError)
         }, granted_time);
         
         if (once) {

@@ -16,7 +16,7 @@ export default class ConfiguredEntity extends Std {
     constructor(name, config: { _id: string } = {}) {
         if (typeof name === "object" && name) {
             config = name;
-            name   = null;
+            name   = config._id || null;
         }
         
         super(name);

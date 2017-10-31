@@ -14,7 +14,7 @@ namespace Sm {
 
             initialize(config): Promise<ConfiguredEntity>;
 
-            configure(config: ConfiguredEntity._config);
+            configure(config: ConfiguredEntity._config): Promise<ConfiguredEntity.Configuration>;
         }
 
         namespace ConfiguredEntity {

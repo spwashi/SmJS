@@ -134,6 +134,15 @@ class Configuration {
         
         return Promise.resolve(promise)
     }
+    
+    ////////  Examples
+    
+    configure_something(something_config): Promise {
+        return Promise.resolve();
+    }
+    
+    
+    
 }
 
 export default Configuration;

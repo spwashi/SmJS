@@ -22,7 +22,7 @@ let _convertConfigToMap     = (configured_entity_obj): Map => {
     
     _convertConfigToMap(configured_entity_obj)
         .forEach((ce_config, ce_name: string) => {
-            ce_config.name = ce_config.name || ce_name;
+            ce_config._id = ce_config._id || ce_name;
             
             // Use the prototype to create an instance of this desired type with its configuration.
             const itemPromise = prototype.init(ce_config)

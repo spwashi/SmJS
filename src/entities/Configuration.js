@@ -1,4 +1,3 @@
-// @flow
 import ConfiguredEntity from "./ConfiguredEntity";
 
 interface config {

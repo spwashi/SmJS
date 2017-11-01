@@ -1,5 +1,3 @@
-// @flow
-
 /**
  * @class DataSource
  * @extends ConfiguredEntity

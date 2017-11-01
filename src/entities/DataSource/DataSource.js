@@ -62,6 +62,7 @@ class DataSource extends ConfiguredEntity {
             configType = _config;
             _config    = ({}: Sm.entities.DataSource._config);
         } else if (typeof _config !== "object") {
+            // todo remove this comment
             throw new TypeError("Cannot build object with anything other than a string");
         }
         

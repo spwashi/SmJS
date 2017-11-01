@@ -22,6 +22,13 @@ describe('Property', () => {
                            if (!(dataSource instanceof DataSource)) throw new Error("Could not resolve dataSource properly");
                        });
     });
+    it('Can configure defaultValue', () => {
+        const pn = 'P_ccdV_pn';
+        return Property.init(pn, {_default: 14})
+                       .then(/**@param Property*/property => {
+                           expect(property.value).to.equal(14);
+                       });
+    });
     it('Can inherit from other Properties', () => {
         const parent_pn = 'cifp_parent_pn', child_pn = 'cifp_child_pn';
         let parent      = Property.init(parent_pn, {}).initializingObject;

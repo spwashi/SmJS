@@ -7,10 +7,16 @@ import Configuration from "../Configuration";
 
 /**
  * @extends Sm.entities.DataSource.DataSourceHaver.Configuration
+ * @property {Property} owner
  */
 class PropertyConfiguration extends DataSourceHaver.getConfiguration() {
     get inheritables() {
         return [...super.inheritables, 'datatypes'];
+    }
+    
+    configure__default(defaultValue) {
+        this.owner._value = defaultValue;
+        return true;
     }
     
     /**
@@ -43,6 +49,12 @@ export default class Property extends DataSourceHaver {
     static Configuration = PropertyConfiguration;
     static smID          = 'Property';
            _datatypes;
+    
+    _value;
+    
+    get value() {
+        return this._value;
+    }
     
     /**
      * The Datatypes that this is allowed to be.

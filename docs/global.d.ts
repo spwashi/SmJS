@@ -10,6 +10,8 @@ declare namespace Sm {
         class Std {
             static smID: smID;
                    smID: Sm.smID;
+
+            static init(): Promise<Std>;
         }
     }
     namespace entities {

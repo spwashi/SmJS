@@ -7,9 +7,11 @@ import {Std} from "../std/";
 import Configuration from "./Configuration";
 
 /**
+ * @namespace Sm.entities.ConfiguredEntity
  * @name Sm.entities.ConfiguredEntity
+ * @extends Std
  */
-export default class ConfiguredEntity extends Std {
+class ConfiguredEntity extends Std {
     static Configuration: typeof Configuration = Configuration;
     static smID                                = 'ConfiguredEntity';
     
@@ -83,7 +85,7 @@ export default class ConfiguredEntity extends Std {
      * @param properties
      * @return {Promise.<*>}
      */
-    configure(properties): Promise<ConfiguredEntity> {
+    configure(properties: ConfiguredEntity._config): Promise<ConfiguredEntity> {
         const CONFIGURE = this.EVENTS.item('configure');
         return this.send(CONFIGURE.BEGIN)
                    .then(i => this.getConfiguration().configure(properties))
@@ -160,3 +162,5 @@ export default class ConfiguredEntity extends Std {
                    .then(i => this.send(this.EVENTS.item(INHERIT.COMPLETE).STATIC, this))
     }
 }
+
+export default ConfiguredEntity;

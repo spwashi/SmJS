@@ -1,8 +1,13 @@
 /// <reference path="/docs/global.d.ts" />
 namespace Sm {
     namespace entities {
+        /**
+         * @extends Sm.std.Std
+         */
         class ConfiguredEntity extends Sm.std.Std {
             constructor(name, config: {});
+
+            static init(): Promise<ConfiguredEntity>;
 
             _parentSymbols: Set<any>;
 

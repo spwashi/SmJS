@@ -4,7 +4,6 @@ import ConfiguredEntity from "../../../entities/ConfiguredEntity";
 import Model from "../../../entities/Model/Model";
 import DataSource from "../../../entities/DataSource/DataSource";
 
-const url                        = require('url');
 let LEADING_TRAILING_SLASH_REGEX = /\/$/g;
 
 export class ApplicationConfiguration extends Configuration {
@@ -86,11 +85,8 @@ export class ApplicationConfiguration extends Configuration {
                 configURLorPath[pathName] = this._configure__url(configURLorPath[pathName]);
             }
         }
-        
-        let configURL   = configURLorPath;
-        const parsedURL = url.parse(configURLorPath);
-        console.log(parsedURL);
-        return configURL;
+    
+        return configURLorPath;
     }
     
     configure_appPath(appPath) {

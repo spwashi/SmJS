@@ -3,7 +3,6 @@ import {Sm} from "../Sm"
 import {expect} from "chai";
 
 const Configuration = Sm.entities.ConfiguredEntity.Configuration;
-
 class EG_Configuration extends Configuration {
     get inheritables() {
         return ['hello'];

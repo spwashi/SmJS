@@ -1,5 +1,3 @@
-import ConfiguredEntity from "./ConfiguredEntity";
-
 interface config {
 
 }
@@ -16,7 +14,7 @@ class Configuration {
     /** @private */
     _id: string;
     
-    constructor(configuredEntity: ?ConfiguredEntity) {
+    constructor(configuredEntity) {
         this.configurationHistory = [];
         this.configurationQueue   = [];
         if (configuredEntity) this.establishOwner(configuredEntity);
@@ -61,7 +59,7 @@ class Configuration {
      * @param configuredEntity
      * @return {Promise.<*[]>}
      */
-    establishOwner(configuredEntity: ConfiguredEntity): Promise<Configuration> {
+    establishOwner(configuredEntity): Promise<Configuration> {
         this.owner = configuredEntity;
         
         const _configPromises = [];
@@ -92,8 +90,8 @@ class Configuration {
         return Promise.all(promises).then(i => this)
     }
     
-    getConfig(config: ConfiguredEntity | Configuration | Object) {
-        if (config instanceof ConfiguredEntity) config = config.configuration;
+    getConfig(config: { configuration: string } | Configuration | Object) {
+        if (config.configuration) config = config.configuration;
         if (config instanceof Configuration) return this._inheritConfig(config);
         
         return Object.assign({}, config);
@@ -120,7 +118,7 @@ class Configuration {
      * @private
      */
     _promiseToConfig(config_property_name: string, config_properties: {}): Promise<*> {
-        let config_fn: (config_value: any, configuredEntity: ConfiguredEntity) => {};
+        let config_fn: (config_value: any, configuredEntity: Object) => {};
         
         const fn_name = 'configure_' + config_property_name;
         config_fn     = (this: any)[fn_name];
@@ -139,8 +137,6 @@ class Configuration {
     configure_something(something_config): Promise {
         return Promise.resolve();
     }
-    
-    
     
 }
 

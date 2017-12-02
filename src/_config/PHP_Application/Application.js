@@ -4,6 +4,8 @@ import ConfiguredEntity from "../../entities/ConfiguredEntity";
 class PHP_Application extends ConfiguredEntity {
     static Configuration = AppConfiguration;
            _name;
+           _models;
+           _sources;
            _controller: { namespace: string };
            _urls: {
                _: string,
@@ -25,8 +27,12 @@ class PHP_Application extends ConfiguredEntity {
     
     get name() {return this._name;}
     
+    get sources() {return this._sources;}
+    
+    get models() {return this._models;}
+    
     get jsonFields() {
-        return new Set(['name', 'namespace', 'controller', 'paths'])
+        return new Set(['name', 'namespace', 'controller', 'paths', 'models', 'sources'])
     }
     
     configure(config: ConfiguredEntity._config | string) {

@@ -5,7 +5,7 @@ import {expect} from "chai";
 describe('ConfiguredEntity', () => {
     const ConfiguredEntity = Sm.entities.ConfiguredEntity;
     const Std              = Sm.std.Std;
-    const EVENTS           = Sm.std.EventEmitter.EVENTS;
+    const EVENTS           = Sm.std.Emitter.EVENTS;
     it('exists', () => {
         return ConfiguredEntity.init('test')
                                .then(configuredEntity => {

@@ -2,7 +2,7 @@ import {describe, it} from "mocha";
 import {Sm} from "../Sm";
 
 describe('EventEmitter', () => {
-    const EventEmitter     = Sm.std.EventEmitter;
+    const EventEmitter     = Sm.std.Emitter;
     const testEventEmitter = new EventEmitter;
     
     it('Can emit strings', done => {

@@ -19,7 +19,7 @@ class Std {
      * @param identifier This is some sort of identifier for this object
      */
     constructor(identifier) {
-        /** @type {events.EventEmitter}  */
+        /** @type {events.Emitter}  */
         this._Events = new EventEmitter(this);
         this._originalName = identifier;
         
@@ -56,7 +56,7 @@ class Std {
     }
     
     /**
-     * @return {EventEmitter|*|events.EventEmitter}
+     * @return {EventEmitter|*|events.Emitter}
      */
     static get Events() { return this._Events || (this._Events = new EventEmitter(this)) }
     
@@ -94,7 +94,7 @@ class Std {
     get originalName() {return this._originalName}
     
     /**
-     * @return {events.EventEmitter}
+     * @return {events.Emitter}
      * @constructor
      */
     get Events() { return this._Events; }

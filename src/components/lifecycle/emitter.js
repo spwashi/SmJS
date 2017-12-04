@@ -1,36 +1,12 @@
-import events from "events";
-import {SymbolStore} from "./symbols/SymbolStore";
-
-const EVENTS = Symbol('EVENTS');
-export {EVENTS};
-
-export class Event {
-    constructor(emitter, eventName, activeSymbol, eventFamily, args) {
-        this._emitter      = emitter;
-        this._eventName    = eventName;
-        this._activeSymbol = activeSymbol;
-        this._eventFamily  = eventFamily;
-        this._args         = args;
-    }
-    
-    get args() { return this._args; }
-    
-    /** @return SymbolStore*/
-    get eventName() {return this._eventName;}
-    
-    /** @return {Symbol} */
-    get activeSymbol() {return this._activeSymbol;}
-    
-    get eventFamily() {return this._eventFamily;}
-    
-    get emitter() {return this._emitter;}
-}
+import {EventEmitter} from "events";
 
 /**
  * @class EventEmitter
  * @extends events.Emitter
  */
-export default class EventEmitter extends events.EventEmitter {
+import {EVENTS} from "./constants";
+
+export default class Emitter extends EventEmitter {
     constructor(emitter) {
         super();
         this._emitter = emitter || null;
@@ -82,4 +58,4 @@ export default class EventEmitter extends events.EventEmitter {
         super.emit(event_name, ...args);
     }
 }
-EventEmitter.EVENTS = EVENTS;
+Emitter.EVENTS = EVENTS;

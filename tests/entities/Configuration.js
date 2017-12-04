@@ -20,7 +20,7 @@ class EG_Configuration extends Configuration {
 describe('Configuration', () => {
     const ConfiguredEntity = Sm.entities.ConfiguredEntity;
     const Std              = Sm.std.Std;
-    const EVENTS           = Sm.std.EventEmitter.EVENTS;
+    const EVENTS           = Sm.std.Emitter.EVENTS;
     
     it('Can access first and last added configuration', () => {
         const conf_d = new ConfiguredEntity;

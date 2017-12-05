@@ -1,0 +1,1 @@
+export const CONFIGURATION__EXPECTED_OBJECT = "Expected an object";

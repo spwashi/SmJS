@@ -1,0 +1,1 @@
+export const IDENTITY = Symbol('IDENTITY.NAME');

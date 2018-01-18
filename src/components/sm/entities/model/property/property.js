@@ -3,6 +3,7 @@
 import {SmEntity} from "../../types";
 import {Configurable} from "../../../../configuration/types";
 import {SM_ID} from "../../../identification";
+import {createIdentityManager} from "../../../../identity/components/identity";
 
 export class Property implements SmEntity, Configurable {
     _datatypes: Set;

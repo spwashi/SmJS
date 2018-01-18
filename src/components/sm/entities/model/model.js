@@ -11,7 +11,6 @@ import {createIdentityManager} from "../../../identity/components/identity";
 export class Model implements SmEntity, Configurable {
     /** @private */
     static _eventManager = new EventManager;
-    static _identity     = createIdentityManager('Model');
     [SM_ID];
     _properties;
     _propertyMeta: PropertyMeta;
@@ -38,12 +37,13 @@ export class Model implements SmEntity, Configurable {
     }
     
     createPropertyName(propertyName) {
-        return createName.asChild(this[SM_ID], propertyName)
+        return this[SM_ID].item(propertyName);
     }
 }
 
 Model.eventManager
      .createListener(CONFIGURED_MODEL, null, configuredModel => {
-         console.log('LOGGING CONFIGURED: ', configuredModel[SM_ID]);
-    
+         const smID = configuredModel[SM_ID];
+         Model.eventManager.logEvent(CONFIGURED_MODEL.item(smID), configuredModel);
+         // console.log('LOGGING CONFIGURED: ', smID);
      });

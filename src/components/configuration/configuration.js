@@ -91,37 +91,74 @@ export class Configuration {
         }
     }
     
-    getConfigurationHandlers(handlingFunctions: {}, owner): Array<Promise | any> {
-        const handlers             = [];
+    getConfigurationHandlers(owner, configurationObject: {}): Array<Promise | any> {
+        const handlingFunctions = this.handlers;
+        
+        // Proxies the Configuration object to make it easier to define events
         const configurationSession = createConfigurationSession(this);
+        
+        // An array of the functions we will run to configure this item
+        const handlers = [];
+        
         for (let handlerIndex in handlingFunctions) {
             if (!handlingFunctions.hasOwnProperty(handlerIndex)) continue;
     
             const configureValue = handlingFunctions[handlerIndex];
-            if (typeof configureValue !== "function") continue;
     
-            const configValue = this._config[handlerIndex];
-            const result      = configureValue(configValue, owner, configurationSession);
-            const promise     = Promise.resolve(result)
-                                       .then(result => {
-                                           configurationSession.emitConfig(handlerIndex, configValue, owner, result, configurationSession);
-                                           return result;
-                                       });
-            
-            handlers.push(promise);
+            if (typeof configureValue !== "function") {
+                continue;
+            }
+    
+            const configValue = configurationObject[handlerIndex];
+    
+            const result = configureValue(configValue, owner, configurationSession);
+    
+            const emitConfigurationEvent = result => {
+                configurationSession.emitConfig(handlerIndex, configValue, owner, result, configurationSession);
+                return result;
+            };
+    
+            handlers.push(Promise.resolve(result)
+                                 .then(emitConfigurationEvent));
         }
         
         return handlers;
     }
     
-    configure(owner: Configurable): Promise {
-        if (owner === null) owner = {};
-        if (typeof owner !== "object") throw new Error(errors.CONFIGURATION__EXPECTED_OBJECT);
+    /**
+     * Given an object (or whatever, maybe) that refers to the Configuration we intend to use,
+     * return an object representative of what that configuration should be to the object it's being applied to
+     *
+     * @param config
+     * @param owner
+     * @return {Promise.<T>}
+     */
+    resolveConfiguration(config, owner: {}): Promise<Object> {
+        return Promise.resolve(config);
+    }
     
-        const configurationSteps = this.getConfigurationHandlers(this.handlers, owner);
-        const emitEnd            = this._eventManager.createEmitter(Configuration.$EVENTS$.item(EVENT__CONFIG).END);
-        owner[CONFIGURATION]     = this._config;
-        return Promise.all(configurationSteps).then(i => (emitEnd(owner), owner));
+    configure(owner: Configurable): Promise {
+        owner = owner || {};
+        if (typeof owner !== "object") {
+            throw new Error(errors.CONFIGURATION__EXPECTED_OBJECT);
+        }
+    
+        const config = this._config;
+    
+        return this.resolveConfiguration(config, owner)
+                   .then(config => {
+                       const configHandlers = this.getConfigurationHandlers(owner, config);
+        
+                       return Promise.all(configHandlers)
+                                     .then(config);
+                   })
+                   .then(config => {
+                       // set the owner's configuration to an object that includes what we just used
+                       owner[CONFIGURATION] = {...(owner[CONFIGURATION] || {}), ...config};
+                       const emitEnd        = this._eventManager.createEmitter(Configuration.$EVENTS$.item(EVENT__CONFIG).END);
+                       emitEnd(owner);
+                       return owner;
+                   });
     }
 }
 

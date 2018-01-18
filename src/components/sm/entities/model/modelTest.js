@@ -2,7 +2,6 @@ import {describe, it} from "mocha";
 import {expect} from "chai";
 import {Model} from "./model"
 import ModelConfiguration from './configuration'
-import {CONFIGURATION} from "../../../configuration/configuration";
 
 describe('Model', () => {
     it('exists', () => {

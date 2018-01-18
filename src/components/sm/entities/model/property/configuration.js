@@ -1,5 +1,6 @@
 import {Configuration} from "../../../../configuration/configuration";
-import {configureName} from "../../../identification";
+import {SM_ID} from "../../../identification";
+import propertyIdentity from "./identity";
 
 export default class PropertyConfig extends Configuration {
     handlers = {
@@ -7,7 +8,7 @@ export default class PropertyConfig extends Configuration {
             owner._default = defaultValue;
             return true;
         },
-        name:      configureName.ofType('Property'),
+        name:      (name, property) => property[SM_ID] = propertyIdentity.create(name),
         /**
          *
          * @param datatype
@@ -19,8 +20,7 @@ export default class PropertyConfig extends Configuration {
             datatype        = Array.isArray(datatype) ? datatype : [datatype];
             self._datatypes = new Set([...datatype.filter(i => !!i), ...(self._datatypes || [])])
         },
-        
-        length: (length, owner) => {
+        length:    (length, owner) => {
             owner._length = parseInt(length) || null;
         }
     }

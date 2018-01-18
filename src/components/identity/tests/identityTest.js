@@ -23,7 +23,7 @@ describe('Identity', () => {
     
         // this is more interesting to me and feels more sustainable,
         //  because then we could import the ACTIONS and have consistent reference to specific actions in a way that implies their relationships
-        const bread_EX = item_1.item(ACTIONS.RELATIONSHIP.ADD.BEGIN);
+        //const bread_EX = item_1.item(ACTIONS.RELATIONSHIP.ADD.BEGIN);
         
         console.log(bread);
         

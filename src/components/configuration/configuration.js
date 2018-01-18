@@ -1,92 +1,112 @@
 import {errors} from './constants';
 import {Configurable} from "./types";
+import EventManager from "../event/eventManager";
+import Identity, {createIdentityManager} from "../identity/components/identity";
 
-export type configFunc = (config_value: any, owner: {}, configuration: Configuration) => {};
 export const CONFIGURATION = Symbol('configuration for the object');
 
+export interface ConfigurationSession {
+    emitConfig: (configIndex: string, configValue: any, owner: Object, configResult: any, configuration: Configuration,) => {},
+    
+    waitFor: (configIndex: string) => {}
+    
+}
+
+export type configurationHandler = (config_value: any, owner: {}, configuration: ConfigurationSession) => {};
+
 export interface configurationHandlerObject {
-    [name: string]: configFunc
+    [name: string]: configurationHandler
 }
 
-const ALL_CONFIGURED = Symbol('All items from this configuration have been configured');
+export const EVENT__CONFIG = ('CONFIGURE');
 
-interface promiseResolutionObject {
-    resolve: () => {},
-    reject: () => {},
-}
+const createConfigurationSession = (original: Configuration) => {
+    const SESSION_EVENT__CONFIG = original.$EVENTS$.item(EVENT__CONFIG);
+    const emitConfiguration     = original._eventManager.createEmitter(SESSION_EVENT__CONFIG);
+    
+    return new Proxy(original, {
+        get: (target, name) => {
+            const proxy = {
+                emitConfig: function (configIndex: string) {
+                    target.emitConfig(...arguments);
+                    emitConfiguration(...arguments);
+                },
+                
+                waitFor: configIndex => {
+                    return target._eventManager.waitForEvent(SESSION_EVENT__CONFIG[configIndex]);
+                }
+            };
+            return proxy[name] || target[name];
+        }
+    });
+};
 
 /**
  *
  */
 export class Configuration {
-    handlers: configurationHandlerObject                                 = {};
-    // An object of arrays of promises (arranged by configuration name)
-    _waitingPromises: { [name: string]: Array<promiseResolutionObject> } = {};
+    _eventManager: EventManager;
     _config: {};
+    _identity: Identity;
+    handlers: configurationHandlerObject = {};
     
     constructor(config = {}) {
         if (config && typeof config !== "object") {
             throw new Error("Cannot configure non-objects");
         }
-        this._waitingPromises = {};
-        this._config          = config || {};
+        this._eventManager = new EventManager;
+        this._config       = config || {};
+        this._identity     = Configuration.identityManager.create();
+        this.$EVENTS$      = Configuration.$EVENTS$.item(this._identity);
     }
     
-    get config() {
-        return this._config;
+    get config() {return this._config;}
+    
+    get identity(): Identity {return this._identity;}
+    
+    emitConfig(configIndex, configValue, owner, configResult, configurationSession: ConfigurationSession) {
+        const emitConfig = this.emitConfig = (...args) => {
+            const [configIndex, configValue, owner, configResult, configurationSession] = args;
+            this._eventManager.logEvent(Configuration.$EVENTS$.item(EVENT__CONFIG), [...args]);
+            this._eventManager.logEvent(Configuration.$EVENTS$.item(EVENT__CONFIG)[configIndex], [...args]);
+            this._eventManager.logEvent(this.$EVENTS$.item(EVENT__CONFIG), [...args]);
+            this._eventManager.logEvent(this.$EVENTS$.item(EVENT__CONFIG)[configIndex], [...args]);
+        };
+        emitConfig(...arguments);
     }
     
-    _dispatchConfigurationEnd(item: Symbol | string | null) {
-        const promises: Array = this._waitingPromises[item];
-        if (!Array.isArray(promises)) return;
-        
-        promises.forEach((resolutionObject: promiseResolutionObject) => {
-            resolutionObject.resolve()
-        });
+    listenFor(eventName, comparison: (expected: Array, actual: Array) => {} | Array, callback) {
+        if (typeof comparison === "function") {
+            this._eventManager
+                .createListener(eventName,
+                                null,
+                                (...args) => {
+                                    if (comparison(args)) callback(...args);
+                                })
+        } else if (!comparison || Array.isArray(comparison)) {
+            this._eventManager
+                .createListener(eventName,
+                                comparison,
+                                callback)
+        }
     }
     
-    /**
-     * Wait for an item to finish configuring before resolving a Promise.
-     * If there are no argments passed, assume we want everything configured
-     *
-     * @param item
-     * @return {Promise}
-     */
-    whenDoneConfiguring(item: Symbol | string | null = ALL_CONFIGURED) {
-        let resolve, reject;
-        
-        return new Promise((resolvePromise, rejectPromise) => {
-            let called = false;
-            
-            // only run these functions once
-            [resolve, reject] = [
-                () => (!called) && (called = true) && resolvePromise(),
-                () => (!called) && (called = true) && rejectPromise()
-            ];
-            
-            this._waitingPromises[item] = this._waitingPromises[item] || [];
-            this._waitingPromises[item].push({resolve, reject})
-        })
-    }
-    
-    getConfigurationHandlers(owner): Array<Promise | any> {
-        const handlers = [];
-    
-        const handlingFunctions = this.handlers;
+    getConfigurationHandlers(handlingFunctions: {}, owner): Array<Promise | any> {
+        const handlers             = [];
+        const configurationSession = createConfigurationSession(this);
         for (let handlerIndex in handlingFunctions) {
             if (!handlingFunctions.hasOwnProperty(handlerIndex)) continue;
-        
-            const configure_item = handlingFunctions[handlerIndex];
-            if (typeof configure_item !== "function") continue;
-        
-            const config_value = this._config[handlerIndex];
-        
-            const result  = configure_item(config_value, owner, this);
-            const promise = Promise.resolve(result)
-                                   .then(result => {
-                                       this._dispatchConfigurationEnd(handlerIndex);
-                                       return result;
-                                   });
+    
+            const configureValue = handlingFunctions[handlerIndex];
+            if (typeof configureValue !== "function") continue;
+    
+            const configValue = this._config[handlerIndex];
+            const result      = configureValue(configValue, owner, configurationSession);
+            const promise     = Promise.resolve(result)
+                                       .then(result => {
+                                           configurationSession.emitConfig(handlerIndex, configValue, owner, result, configurationSession);
+                                           return result;
+                                       });
             
             handlers.push(promise);
         }
@@ -97,9 +117,13 @@ export class Configuration {
     configure(owner: Configurable): Promise {
         if (owner === null) owner = {};
         if (typeof owner !== "object") throw new Error(errors.CONFIGURATION__EXPECTED_OBJECT);
-        
-        const configurationSteps = this.getConfigurationHandlers(owner);
+    
+        const configurationSteps = this.getConfigurationHandlers(this.handlers, owner);
+        const emitEnd            = this._eventManager.createEmitter(Configuration.$EVENTS$.item(EVENT__CONFIG).END);
         owner[CONFIGURATION]     = this._config;
-        return Promise.all(configurationSteps).then(i => owner);
+        return Promise.all(configurationSteps).then(i => (emitEnd(owner), owner));
     }
 }
+
+Configuration.identityManager = createIdentityManager('CONFIGURATION');
+Configuration.$EVENTS$        = Configuration.identityManager.component('$EVENTS$');

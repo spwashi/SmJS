@@ -3,16 +3,26 @@
 import {SmEntity} from "../types";
 import {Configurable} from "../../../configuration/types";
 import {Meta as PropertyMeta} from "./property/meta";
-import {SM_ID} from "../../identification";
+import {createName, SM_ID} from "../../identification";
+import {EventManager} from "../../../event";
+import {CONFIGURED_MODEL} from "./events";
+import {createIdentityManager} from "../../../identity/components/identity";
 
 export class Model implements SmEntity, Configurable {
+    /** @private */
+    static _eventManager = new EventManager;
+    static _identity     = createIdentityManager('Model');
     [SM_ID];
-    _propertyMeta: PropertyMeta;
     _properties;
+    _propertyMeta: PropertyMeta;
     
     constructor() {
         this._propertyMeta = new PropertyMeta;
         this._properties   = {};
+    }
+    
+    static get eventManager(): EventManager {
+        return this._eventManager;
     }
     
     get propertyMeta() {
@@ -22,12 +32,18 @@ export class Model implements SmEntity, Configurable {
     toJSON() {
         return {
             smID:         this[SM_ID],
-            propertyMeta: this.propertyMeta,
+            propertyMeta: this._propertyMeta,
             properties:   this._properties
         }
     }
     
     createPropertyName(propertyName) {
-        return `{${this[SM_ID]}}${propertyName}`
+        return createName.asChild(this[SM_ID], propertyName)
     }
 }
+
+Model.eventManager
+     .createListener(CONFIGURED_MODEL, null, configuredModel => {
+         console.log('LOGGING CONFIGURED: ', configuredModel[SM_ID]);
+    
+     });

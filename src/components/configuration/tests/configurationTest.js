@@ -14,7 +14,7 @@ class C extends Configuration {
 
 describe('Configuration', () => {
     it('Can only be used to configure objects', () => {
-        const configuration  = new Configuration();
+        const configuration  = new Configuration;
         const configuredItem = 'string';
         expect(() => configuration.configure(configuredItem)).to.throw(errors.CONFIGURATION__EXPECTED_OBJECT);
     });
@@ -29,6 +29,5 @@ describe('Configuration', () => {
                          expect(owner.title).to.equal(TITLE);
                          done();
                      })
-        
-    })
+    });
 });

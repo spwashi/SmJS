@@ -1,12 +1,27 @@
 // @flow
 import type {identifier} from "../types";
 import {errors} from "../constants/index";
+import {createName} from "../../sm/identification";
 
 const _PRIVATE_ = Symbol('private');
 
 interface IdentityNode {
-    item(identifier: identifier): IdentityNode;
+    item(identifier: identifier | Identity): IdentityNode;
+    
+    component(identifier: identifier | Identity): IdentityNode;
 }
+
+let createIdentityProxy = function (instance) {
+    const canUseDynamicItem = property => typeof property === 'string';
+    return new Proxy(instance, {
+        get: (target: Object | IdentityNode, property) => {
+            if ((target: Object)[property]) return (target: Object)[property];
+            if (!canUseDynamicItem(property)) return;
+            
+            return target.component(property);
+        }
+    })
+};
 
 class IdentityManager implements IdentityNode {
     _identifier: identifier;
@@ -15,31 +30,32 @@ class IdentityManager implements IdentityNode {
         this._identifier = identifier;
     }
     
-    _createIdentifier(identifier: identifier | string) {
-        if (identifier[0] === '[') identifier = '(' + identifier + ')';
-        return identifier;
-    }
-    
-    item(initialIdentifier: identifier | string): Identity {
-        const instance = new Identity(_PRIVATE_, this._createIdentifier(initialIdentifier), this);
+    item(initialIdentifier: identifier | string | Identity): Identity {
+        if (initialIdentifier instanceof Identity) initialIdentifier = initialIdentifier.identifier;
+        const identifier = createName.asChild(this._identifier, createName(initialIdentifier));
+        const instance   = new Identity(_PRIVATE_, identifier, this);
         
-        return new Proxy(instance, {
-            get: (target: Object | IdentityNode, property) => {
-                if ((target: Object)[property]) return (target: Object)[property];
-                if (!this.canUseDynamicItem(property)) return;
-                
-                return target.item(property);
-            }
-        })
+        return createIdentityProxy(instance);
     }
     
-    canUseDynamicItem(property: any) {
-        return typeof property === 'string';
+    component(initialIdentifier: identifier | string | Identity): Identity {
+        if (initialIdentifier instanceof Identity) initialIdentifier = initialIdentifier.identifier;
+        const identifier = createName.asComponent(this._identifier, createName(initialIdentifier));
+        const instance   = new Identity(_PRIVATE_, identifier, this);
+        return createIdentityProxy(instance);
     }
+    
+    create(initialIdentifier: identifier | string | Identity) {
+        if (initialIdentifier instanceof Identity) initialIdentifier = initialIdentifier.identifier;
+        const identifier = createName.ofType(this._identifier, createName(initialIdentifier));
+        const instance   = new Identity(_PRIVATE_, identifier, this);
+        
+        return createIdentityProxy(instance);
+    }
+    
 }
 
-export const createIdentityManager = (identifier: identifier) => new IdentityManager(identifier);
-export const create_identifier     = (name: identifier | string | Symbol): identifier => name;
+export const createIdentityManager = (identifier: identifier): IdentityManager => new IdentityManager(identifier);
 export default class Identity implements IdentityNode {
     _identifier: identifier;
     _identityManager: IdentityManager;
@@ -54,12 +70,26 @@ export default class Identity implements IdentityNode {
         this._setIdentityManager(identityManager);
     }
     
-    item(name: identifier): Identity {
+    get identifier(): identifier {
+        return this._identifier;
+    }
+    
+    component(name: identifier | Identity): Identity {
+        if (name instanceof Identity) name = name.identifier;
+        const parent_id  = this._identifier;
+        const identifier = createName.asComponent(parent_id, name);
         
-        //todo types of identifiers?
-        const identifier = this._identifier + ' ' + name;
+        const identity = (new Identity(_PRIVATE_, identifier))._setParent(this);
+        return createIdentityProxy(identity);
+    }
+    
+    item(name: identifier | Identity): Identity {
+        if (name instanceof Identity) name = name.identifier;
+        const parent_id  = this._identifier;
+        const identifier = createName.asChild(parent_id, name);
         
-        return this._identityManager.item(identifier)._setParent(this);
+        const identity = (new Identity(_PRIVATE_, identifier))._setParent(this);
+        return createIdentityProxy(identity);
     }
     
     _setParent(parent: Identity) {

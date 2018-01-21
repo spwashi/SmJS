@@ -31,6 +31,10 @@ export class Application implements Configurable {
         this._models = {};
     }
     
+    get models() {
+        return this._models;
+    }
+    
     toJSON() {
         return {
             models: this._models

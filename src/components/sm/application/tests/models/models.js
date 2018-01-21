@@ -19,7 +19,8 @@ export const models = {
                 _default:  'now'
             },
             last_update_dt: {
-                datatypes: DATETIME_
+                datatypes:   DATETIME_,
+                updateValue: 'now'
             },
         }
     },

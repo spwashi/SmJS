@@ -9,6 +9,7 @@ export class Property implements SmEntity, Configurable {
     _datatypes: Set;
     _length: number;
     _default: any;
+    _updateValue: any;
     
     toJSON() {
         const jsonObj = {
@@ -17,6 +18,7 @@ export class Property implements SmEntity, Configurable {
         };
         this._length && (jsonObj.length = this._length);
         this._default && (jsonObj.defaultValue = this._default);
+        this._updateValue && (jsonObj.updateValue = this._updateValue);
         return jsonObj
     }
 }

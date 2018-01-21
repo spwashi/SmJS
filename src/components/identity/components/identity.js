@@ -103,8 +103,6 @@ export default class Identity implements IdentityNode {
     }
     
     toJSON() {
-        return {
-            name: this._identifier
-        }
+        return this._identifier
     }
 }

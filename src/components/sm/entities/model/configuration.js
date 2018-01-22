@@ -10,6 +10,9 @@ import * as deepmerge from "deepmerge";
 
 const _incorporatePropertyIntoMeta = (property: Property, propertyMeta: PropertyMeta) => {
     const config = property[CONFIGURATION];
+    
+    // console.log(config);
+    
     if (config.primary) propertyMeta.addPropertiesToPrimaryKey(property);
     
     let unique = config.unique;

@@ -10,6 +10,8 @@ export class Property implements SmEntity, Configurable {
     _length: number;
     _default: any;
     _updateValue: any;
+    _unique: boolean | string;
+    _primary: boolean | string;
     
     toJSON() {
         const jsonObj = {
@@ -17,6 +19,8 @@ export class Property implements SmEntity, Configurable {
             smID:      this[SM_ID]
         };
         this._length && (jsonObj.length = this._length);
+        this._primary && (jsonObj.primary = this._primary);
+        this._unique && (jsonObj.unique = this._unique);
         this._default && (jsonObj.defaultValue = this._default);
         this._updateValue && (jsonObj.updateValue = this._updateValue);
         return jsonObj

@@ -6,6 +6,8 @@ import {Property} from "./property";
 export default class PropertyConfig extends Configuration {
     handlers = {
         _default:    (defaultValue, property: Property) => property._default = defaultValue,
+        primary:     (isPrimary, property: Property) => property._primary = isPrimary,
+        unique:      (isUnique, property: Property) => property._unique = isUnique,
         updateValue: (updateValue, property: Property) => property._updateValue = updateValue,
         name:        (name: string, property: Property) => property[SM_ID] = propertyIdentity.create(name),
         length:      (length: number | null, property: Property) => property._length = parseInt(length) || null,

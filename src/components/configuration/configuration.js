@@ -150,7 +150,7 @@ export class Configuration {
                        const configHandlers = this.getConfigurationHandlers(owner, config);
         
                        return Promise.all(configHandlers)
-                                     .then(config);
+                                     .then(i => config);
                    })
                    .then(config => {
                        // set the owner's configuration to an object that includes what we just used

@@ -12,6 +12,7 @@ export class Property implements SmEntity, Configurable {
     _updateValue: any;
     _unique: boolean | string;
     _primary: boolean | string;
+    _isGenerated: boolean;
     
     toJSON() {
         const jsonObj = {
@@ -21,6 +22,7 @@ export class Property implements SmEntity, Configurable {
         this._length && (jsonObj.length = this._length);
         this._primary && (jsonObj.primary = this._primary);
         this._unique && (jsonObj.unique = this._unique);
+        this._isGenerated && (jsonObj.isGenerated = this._isGenerated);
         this._default && (jsonObj.defaultValue = this._default);
         this._updateValue && (jsonObj.updateValue = this._updateValue);
         return jsonObj

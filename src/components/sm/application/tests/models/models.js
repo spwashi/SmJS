@@ -4,19 +4,20 @@ const INTEGER_  = 'int';
 const NULL_     = 'null';
 
 export const models = {
-    _:            {
+    _:       {
         properties: {
             id:             {
-                primary:   !0,
-                datatypes: INTEGER_,
-                length:    11,
+                primary:     !0,
+                datatypes:   INTEGER_,
+                length:      11,
+                isGenerated: true
             },
             delete_dt:      {
                 datatypes: DATETIME_,
             },
             creation_dt:    {
-                datatypes: DATETIME_,
-                _default:  'now'
+                datatypes:    DATETIME_,
+                defaultValue: 'now'
             },
             last_update_dt: {
                 datatypes:   DATETIME_,
@@ -24,12 +25,16 @@ export const models = {
             },
         }
     },
-    universities: {
+    users:   {
         inherits: '_',
         
-        properties: {}
+        properties: {
+            email:      {datatypes: [STRING_]},
+            first_name: {datatypes: [STRING_, NULL_]},
+            last_name:  {datatypes: [STRING_, NULL_]}
+        }
     },
-    courses:      {
+    courses: {
         inherits:   '_',
         properties: {
             department:    {},

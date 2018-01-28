@@ -24,21 +24,16 @@ const createConfigurationSession = (original: Configuration) => {
     const SESSION_EVENT__CONFIG = original.$EVENTS$.item(EVENT__CONFIG);
     const emitConfiguration     = original._eventManager.createEmitter(SESSION_EVENT__CONFIG);
     
-    return new Proxy(original, {
-        get: (target, name) => {
-            const proxy = {
-                emitConfig: function (configIndex: string) {
-                    target.emitConfig(...arguments);
-                    emitConfiguration(...arguments);
-                },
-                
-                waitFor: configIndex => {
-                    return target._eventManager.waitForEvent(SESSION_EVENT__CONFIG[configIndex]);
-                }
-            };
-            return proxy[name] || target[name];
+    return {
+        ...original,
+        ...{
+            emitConfig: configIndex => {
+                original.emitConfig(...arguments);
+                emitConfiguration(...arguments);
+            },
+            waitFor:    configIndex => original._eventManager.waitForEvent(SESSION_EVENT__CONFIG[configIndex])
         }
-    });
+    };
 };
 
 /**
@@ -148,7 +143,7 @@ export class Configuration {
         return this.resolveConfiguration(config, owner)
                    .then(config => {
                        const configHandlers = this.getConfigurationHandlers(owner, config);
-        
+    
                        return Promise.all(configHandlers)
                                      .then(i => config);
                    })

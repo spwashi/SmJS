@@ -11,17 +11,7 @@ interface IdentityNode {
     component(identifier: identifier | Identity): IdentityNode;
 }
 
-let createIdentityProxy = function (instance) {
-    const canUseDynamicItem = property => typeof property === 'string';
-    return new Proxy(instance, {
-        get: (target: Object | IdentityNode, property) => {
-            if ((target: Object)[property]) return (target: Object)[property];
-            if (!canUseDynamicItem(property)) return;
-            
-            return target.component(property);
-        }
-    })
-};
+let returnIdentity = instance => instance;
 
 class IdentityManager implements IdentityNode {
     _identifier: identifier;
@@ -34,23 +24,23 @@ class IdentityManager implements IdentityNode {
         if (initialIdentifier instanceof Identity) initialIdentifier = initialIdentifier.identifier;
         const identifier = createName.asChild(this._identifier, createName(initialIdentifier));
         const instance   = new Identity(_PRIVATE_, identifier, this);
-        
-        return createIdentityProxy(instance);
+    
+        return returnIdentity(instance);
     }
     
     component(initialIdentifier: identifier | string | Identity): Identity {
         if (initialIdentifier instanceof Identity) initialIdentifier = initialIdentifier.identifier;
         const identifier = createName.asComponent(this._identifier, createName(initialIdentifier));
         const instance   = new Identity(_PRIVATE_, identifier, this);
-        return createIdentityProxy(instance);
+        return returnIdentity(instance);
     }
     
     create(initialIdentifier: identifier | string | Identity) {
         if (initialIdentifier instanceof Identity) initialIdentifier = initialIdentifier.identifier;
         const identifier = createName.ofType(this._identifier, createName(initialIdentifier));
         const instance   = new Identity(_PRIVATE_, identifier, this);
-        
-        return createIdentityProxy(instance);
+    
+        return returnIdentity(instance);
     }
     
 }
@@ -80,7 +70,7 @@ export default class Identity implements IdentityNode {
         const identifier = createName.asComponent(parent_id, name);
         
         const identity = (new Identity(_PRIVATE_, identifier))._setParent(this);
-        return createIdentityProxy(identity);
+        return returnIdentity(identity);
     }
     
     item(name: identifier | Identity): Identity {
@@ -89,7 +79,7 @@ export default class Identity implements IdentityNode {
         const identifier = createName.asChild(parent_id, name);
         
         const identity = (new Identity(_PRIVATE_, identifier))._setParent(this);
-        return createIdentityProxy(identity);
+        return returnIdentity(identity);
     }
     
     _setParent(parent: Identity) {

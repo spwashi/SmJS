@@ -20,12 +20,16 @@ export class ApplicationConfiguration extends Configuration {
                                                                        });
                                           });
             return Promise.all(allInitializing)
+        },
+        routes: (routes, owner) => {
+            return owner._routes = routes || {};
         }
     }
 }
 
 export class Application implements Configurable {
     _models: {};
+    _routes: {};
     
     constructor() {
         this._models = {};
@@ -35,9 +39,14 @@ export class Application implements Configurable {
         return this._models;
     }
     
+    get routes() {
+        return this._routes;
+    }
+    
     toJSON() {
         return {
-            models: this._models
+            models: this._models,
+            routes: this._routes
         }
     }
 }

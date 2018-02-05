@@ -47,6 +47,7 @@ export class Application implements Configurable {
         return {
             models: this._models,
             routes: this._routes
+    
         }
     }
 }

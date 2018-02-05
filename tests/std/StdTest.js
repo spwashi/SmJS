@@ -16,7 +16,7 @@ describe('Std', () => {
         const tstStd               = Std.init('std_name').initializingObject;
         const testEventSymbolStore = tstStd.EVENTS;
         tstStd.receive(testEventSymbolStore).then(_ => done());
-        tstStd.send(testEventSymbolStore.item('child'));
+        tstStd.send(testEventSymbolStore.instance('child'));
     });
     it('Can wait for availability', done => {
         Std.init().initializingObject.available.then(i => done());

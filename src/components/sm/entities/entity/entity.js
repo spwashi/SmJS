@@ -3,16 +3,17 @@
 import {makeSmEntity, SmEntity} from "../types";
 import {Configurable} from "../../../configuration/types";
 import {SM_ID} from "../../identification";
+import {EventManager} from "../../../event";
 import {ITEM_CONFIGURED__EVENT} from "./events";
 import Identity from "../../../identity/components/identity";
 import {makePropertyOwner, PropertyOwner} from "../property/owner/index";
-import modelIdentity from "./identity";
+import entityIdentity from "./identity";
 
-export class Model implements SmEntity, Configurable, PropertyOwner {
-    constructor() { makePropertyOwner(this); }
-    
-    createPropertyName_Identity(propertyName: string): Identity {
-        return this[SM_ID].component(propertyName);
+export class Entity implements SmEntity,
+                               Configurable,
+                               PropertyOwner {
+    constructor() {
+        makePropertyOwner(this)
     }
     
     toJSON() {
@@ -22,10 +23,14 @@ export class Model implements SmEntity, Configurable, PropertyOwner {
             properties:   this.properties
         }
     }
+    
+    createPropertyName_Identity(propertyName: string): Identity {
+        return this[SM_ID].instance(propertyName);
+    }
 }
 
-makeSmEntity(Model,
-             modelIdentity,
+makeSmEntity(Entity,
+             entityIdentity,
              {
                  events: {
                      itemDoneConfiguring: ITEM_CONFIGURED__EVENT

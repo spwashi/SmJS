@@ -1,9 +1,10 @@
 // @flow
 
-import {SmEntity} from "../../types";
-import {Configurable} from "../../../../configuration/types";
-import {SM_ID} from "../../../identification";
-import {createIdentityManager} from "../../../../identity/components/identity";
+import {makeSmEntity, SmEntity} from "../types";
+import {Configurable} from "../../../configuration/types";
+import {SM_ID} from "../../identification";
+import {createIdentityManager} from "../../../identity/components/identity";
+import {propertyIdentity} from "./identity";
 
 export class Property implements SmEntity, Configurable {
     _datatypes: Set;
@@ -14,10 +15,13 @@ export class Property implements SmEntity, Configurable {
     _primary: boolean | string;
     _isGenerated: boolean;
     
+    constructor() {
+    }
+    
     toJSON() {
         const jsonObj = {
             datatypes: [...this._datatypes],
-            smID:      this[SM_ID]
+            smID:      this[SM_ID],
         };
         this._length && (jsonObj.length = this._length);
         this._primary && (jsonObj.primary = this._primary);
@@ -28,3 +32,5 @@ export class Property implements SmEntity, Configurable {
         return jsonObj
     }
 }
+
+makeSmEntity(Property, propertyIdentity);

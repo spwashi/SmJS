@@ -21,14 +21,14 @@ describe('ConfiguredEntity', () => {
     });
     
     it('init.BEGIN event', d => {
-        const BEGIN = Std.EVENTS.item('init').BEGIN;
+        const BEGIN = Std.EVENTS.instance('init').BEGIN;
         ConfiguredEntity.receive(BEGIN).then(_ => {d()});
         ConfiguredEntity.init('name');
     });
     
     it('init.COMPLETE event', d => {
-        const BEGIN    = Std.EVENTS.item('init').BEGIN;
-        const COMPLETE = Std.EVENTS.item('init').COMPLETE;
+        const BEGIN    = Std.EVENTS.instance('init').BEGIN;
+        const COMPLETE = Std.EVENTS.instance('init').COMPLETE;
         
         let begin_called = false,
             d_called     = false;
@@ -47,10 +47,10 @@ describe('ConfiguredEntity', () => {
     
     it('Can inherit', d => {
         const initTestParent = ConfiguredEntity.init('parent');
-        const child          = ConfiguredEntity.getSymbolStore('child').item(EVENTS);
-        
-        const INHERIT  = child.item(Std.EVENTS.item('inherit').COMPLETE);
-        const COMPLETE = child.item(Std.EVENTS.item('init').COMPLETE);
+        const child          = ConfiguredEntity.getSymbolStore('child').instance(EVENTS);
+    
+        const INHERIT  = child.instance(Std.EVENTS.instance('inherit').COMPLETE);
+        const COMPLETE = child.instance(Std.EVENTS.instance('init').COMPLETE);
         
         let begin_called = false;
         initTestParent.then(testParent => {

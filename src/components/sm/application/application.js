@@ -2,7 +2,7 @@ import {Configuration, EVENT__CONFIG} from "../../configuration/configuration";
 import ModelConfiguration from "../entities/model/configuration";
 import {Model} from "../entities/model/model";
 import {Configurable} from "../../configuration/types";
-import {CONFIGURED_MODEL} from "../entities/model/events";
+import {ITEM_CONFIGURED__EVENT} from "../entities/model/events";
 
 export class ApplicationConfiguration extends Configuration {
     handlers = {

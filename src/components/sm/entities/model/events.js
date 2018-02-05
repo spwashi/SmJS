@@ -1,5 +1,6 @@
-import identity from "./identity";
+import modelIdentity from "./identity";
 import Identity from "../../../identity/components/identity";
+import {getSmEntityEvent} from "../smEntity";
 
-const $EVENTS$                          = identity.component('$EVENTS$');
-export const CONFIGURED_MODEL: Identity = $EVENTS$.item('CONFIGURED.MODEL');
+export const ITEM_CONFIGURED__EVENT: Identity = getSmEntityEvent(modelIdentity,
+                                                                 'CONFIGURED.MODEL');

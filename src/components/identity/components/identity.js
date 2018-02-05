@@ -1,17 +1,15 @@
 // @flow
-import type {identifier} from "../types";
+import type {identifier, IdentityNode} from "../types";
 import {errors} from "../constants/index";
 import {createName} from "../../sm/identification";
 
-const _PRIVATE_ = Symbol('private');
-
-interface IdentityNode {
-    item(identifier: identifier | Identity): IdentityNode;
-    
-    component(identifier: identifier | Identity): IdentityNode;
-}
-
-let returnIdentity = instance => instance;
+/**
+ * We only really want to initialize Identities through their respective IdentityManager
+ * @type {Symbol}
+ * @private
+ */
+const _PRIVATE_    = Symbol('private');
+const initIdentity = (identifier, identityManager): Identity => new Identity(_PRIVATE_, identifier, identityManager);
 
 class IdentityManager implements IdentityNode {
     _identifier: identifier;
@@ -20,32 +18,25 @@ class IdentityManager implements IdentityNode {
         this._identifier = identifier;
     }
     
-    item(initialIdentifier: identifier | string | Identity): Identity {
+    instance(initialIdentifier: identifier | string | Identity): Identity {
         if (initialIdentifier instanceof Identity) initialIdentifier = initialIdentifier.identifier;
-        const identifier = createName.asChild(this._identifier, createName(initialIdentifier));
-        const instance   = new Identity(_PRIVATE_, identifier, this);
-    
-        return returnIdentity(instance);
+        const identifier = createName.asInstance(this._identifier, createName(initialIdentifier));
+        return initIdentity(identifier, this);
     }
     
     component(initialIdentifier: identifier | string | Identity): Identity {
         if (initialIdentifier instanceof Identity) initialIdentifier = initialIdentifier.identifier;
         const identifier = createName.asComponent(this._identifier, createName(initialIdentifier));
-        const instance   = new Identity(_PRIVATE_, identifier, this);
-        return returnIdentity(instance);
+        return initIdentity(identifier, this);
     }
     
-    create(initialIdentifier: identifier | string | Identity) {
+    identityFor(initialIdentifier: identifier | string | Identity) {
         if (initialIdentifier instanceof Identity) initialIdentifier = initialIdentifier.identifier;
         const identifier = createName.ofType(this._identifier, createName(initialIdentifier));
-        const instance   = new Identity(_PRIVATE_, identifier, this);
-    
-        return returnIdentity(instance);
+        return initIdentity(identifier, this);
     }
-    
 }
 
-export const createIdentityManager = (identifier: identifier): IdentityManager => new IdentityManager(identifier);
 export default class Identity implements IdentityNode {
     _identifier: identifier;
     _identityManager: IdentityManager;
@@ -57,7 +48,7 @@ export default class Identity implements IdentityNode {
         }
         
         this._identifier = identifier;
-        this._setIdentityManager(identityManager);
+        identityManager && this._setIdentityManager(identityManager);
     }
     
     get identifier(): identifier {
@@ -66,20 +57,14 @@ export default class Identity implements IdentityNode {
     
     component(name: identifier | Identity): Identity {
         if (name instanceof Identity) name = name.identifier;
-        const parent_id  = this._identifier;
-        const identifier = createName.asComponent(parent_id, name);
-        
-        const identity = (new Identity(_PRIVATE_, identifier))._setParent(this);
-        return returnIdentity(identity);
+        const identifier = createName.asComponent(this._identifier, name);
+        return initIdentity(identifier)._setParent(this);
     }
     
-    item(name: identifier | Identity): Identity {
+    instance(name: identifier | Identity): Identity {
         if (name instanceof Identity) name = name.identifier;
-        const parent_id  = this._identifier;
-        const identifier = createName.asChild(parent_id, name);
-        
-        const identity = (new Identity(_PRIVATE_, identifier))._setParent(this);
-        return returnIdentity(identity);
+        const identifier = createName.asInstance(this._identifier, name);
+        return initIdentity(identifier)._setParent(this);
     }
     
     _setParent(parent: Identity) {
@@ -96,3 +81,5 @@ export default class Identity implements IdentityNode {
         return this._identifier
     }
 }
+
+export const createIdentityManager = (identifier: identifier): IdentityManager => new IdentityManager(identifier);

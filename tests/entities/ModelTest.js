@@ -19,8 +19,8 @@ describe('Model', () => {
                     .then(testModel => {
                         expect(testModel.Symbol).to.be.a('symbol');
                         expect(testModel.Symbol.toString()).to.equal(Symbol(`[${Model.name}]test`).toString());
-                        const COMPLETE = Std.EVENTS.item('init').COMPLETE;
-                        return Model.receive(testModel.EVENTS.item(COMPLETE));
+                        const COMPLETE = Std.EVENTS.instance('init').COMPLETE;
+                        return Model.receive(testModel.EVENTS.instance(COMPLETE));
                     });
         
     });
@@ -33,7 +33,7 @@ describe('Model', () => {
                     });
     });
     
-    const INHERIT_COMPLETE = Std.EVENTS.item('inheritance').item('configuration').COMPLETE;
+    const INHERIT_COMPLETE = Std.EVENTS.instance('inheritance').instance('configuration').COMPLETE;
     it('Can inherit another model', () => {
         const parentName  = 'ciam_pn';
         const c1          = Model.init('childModel', {inherits: parentName});
@@ -46,7 +46,7 @@ describe('Model', () => {
                           parentModel = _parentModel;
                       })
                       .then(i => c1)
-                      .then(childModel => childModel.receive(childModel.EVENTS.item(INHERIT_COMPLETE)))
+                      .then(childModel => childModel.receive(childModel.EVENTS.instance(INHERIT_COMPLETE)))
                       .then(result => {
                           let [event, childModel] = result;
             
@@ -74,7 +74,7 @@ describe('Model', () => {
                       .then(result => [parentModel1, parentModel2] = result)
                       .then(i => c1)
                       .then(childModel => {
-                          const childInherited = childModel.EVENTS.item(INHERIT_COMPLETE);
+                          const childInherited = childModel.EVENTS.instance(INHERIT_COMPLETE);
                           return childModel.receive(childInherited).then(i => childModel);
                       })
                       .then(childModel => {

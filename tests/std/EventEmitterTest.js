@@ -30,17 +30,17 @@ describe('EventEmitter', () => {
     it('Can emit SymbolStore children', (done) => {
         const event = testSymbolStore;
         testEventEmitter.once(event, i => done());
-        testEventEmitter.emit(event.item('child'));
+        testEventEmitter.emit(event.instance('child'));
     });
     it(`Can emit SymbolStore children's children`, (done) => {
         const event = testSymbolStore;
-        testEventEmitter.once(event.item('child'), i => done());
-        testEventEmitter.emit(event.item('child').item('child of child'));
+        testEventEmitter.once(event.instance('child'), i => done());
+        testEventEmitter.emit(event.instance('child').instance('child of child'));
     });
     // Emit SymbolStores and know that we've done it already
     it(`Can emit 'static' symbol stores`, done => {
-        const staticEvent = testSymbolStore.item('test_static').STATIC;
+        const staticEvent = testSymbolStore.instance('test_static').STATIC;
         testEventEmitter.emit(staticEvent);
-        testEventEmitter.once(testSymbolStore.item('test_static'), i => done())
+        testEventEmitter.once(testSymbolStore.instance('test_static'), i => done())
     });
 });

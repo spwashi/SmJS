@@ -6,6 +6,12 @@ export interface Identifiable {
     +IDENTITY: Identity
 }
 
+export interface IdentityNode {
+    instance(identifier: identifier | Identity): IdentityNode;
+    
+    component(identifier: identifier | Identity): IdentityNode;
+}
+
 export interface IdentityManager {
     static resolve(identity: identifier): Identifiable;
 }

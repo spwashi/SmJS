@@ -1,5 +1,5 @@
 import {createIdentityManager} from "../../../identity/components/identity";
 import {IdentityManager} from "../../../identity/types";
 
-export const modelIdentity: IdentityManager = createIdentityManager('Model');
-export default modelIdentity;
+export const entityIdentity: IdentityManager = createIdentityManager('Entity');
+export default entityIdentity;

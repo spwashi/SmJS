@@ -4,9 +4,10 @@
  * @extends Std
  */
 import {Property} from "./property";
-import {SM_ID} from "../../../identification";
+import {SM_ID} from "../../identification";
+import {CONFIGURATION} from "../../../configuration/configuration";
 
-export class Meta {
+export class PropertyMeta {
     constructor() {
         /** @type {Set} Represents the properties that make up the Primary Key */
         this._primaryKey = new Set;
@@ -137,5 +138,21 @@ export class Meta {
         const keySet = this._mergePropertySetWithKeySet(this._uniqueKeys.get(keyName),
                                                         propertySet);
         this._uniqueKeys.set(keyName, keySet);
+    }
+    
+    incorporateProperty(property: Property) {
+        const config                = property[CONFIGURATION];
+        const [isUnique, isPrimary] = [config.unique, config.primary];
+        
+        if (isPrimary) {
+            this.addPropertiesToPrimaryKey(property);
+        }
+        
+        if (!!isUnique) {
+            let uniqueKeyName = typeof isUnique !== 'string' ? 'unique_key' : isUnique;
+            
+            this.addPropertiesToUniqueKey(uniqueKeyName, property);
+        }
+        return property;
     }
 }

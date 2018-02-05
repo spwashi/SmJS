@@ -16,32 +16,32 @@ describe('SymbolStores', () => {
     });
     it('Can use Symbols as Keys', () => {
         const _test_symbol_ = Symbol('another_test');
-        expect(testSymbolStore.item(_test_symbol_)).to.be.instanceof(SymbolStore);
+        expect(testSymbolStore.instance(_test_symbol_)).to.be.instanceof(SymbolStore);
     });
 
 //test family
     
-    const name = testSymbolStore.item('name');
+    const name = testSymbolStore.instance('name');
     expect(name).to.be.instanceOf(SymbolStore);
-    expect(name).to.equal(testSymbolStore.item('name'));
-    expect(name).to.not.equal(testSymbolStore.item('not a name'));
+    expect(name).to.equal(testSymbolStore.instance('name'));
+    expect(name).to.not.equal(testSymbolStore.instance('not a name'));
     it('Can recall parent', () => {
         expect(name.parent).to.equal(testSymbolStore);
     });
     it('Can recall family', () => {
-        const child  = name.item('child');
+        const child  = name.instance('child');
         const family = [...child.family];
         expect(family).to.include(testSymbolStore.Symbol);
         expect(family).to.include(name.Symbol);
     });
     it('Can Inherit Family', () => {
         const testSymbolStore_2  = SymbolStore.init('testSymbolStore_2');
-        const CONST_INDEX        = testSymbolStore_2.item('_parent').item('CONST');
+        const CONST_INDEX        = testSymbolStore_2.instance('_parent').instance('CONST');
         //
-        const child_CONST_family = [...testSymbolStore.item('name').item('child').item(CONST_INDEX.Symbol).family];
-        expect(child_CONST_family).to.include(testSymbolStore.item('name').Symbol);
-        expect(child_CONST_family).to.include(testSymbolStore.item('name').item('child').Symbol);
+        const child_CONST_family = [...testSymbolStore.instance('name').instance('child').instance(CONST_INDEX.Symbol).family];
+        expect(child_CONST_family).to.include(testSymbolStore.instance('name').Symbol);
+        expect(child_CONST_family).to.include(testSymbolStore.instance('name').instance('child').Symbol);
         expect(child_CONST_family).to.include(testSymbolStore_2.Symbol);
-        expect(child_CONST_family).to.include(testSymbolStore_2.item('_parent').Symbol);
+        expect(child_CONST_family).to.include(testSymbolStore_2.instance('_parent').Symbol);
     });
 });

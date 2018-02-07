@@ -3,7 +3,11 @@ import PropertyConfig from "../configuration";
 import {Property} from "../property";
 
 export const configurePropertyForPropertyOwner =
-                 (originalPropertyName: string, originalPropertyConfig: { name: string }, propertyOwner: PropertyOwner) => {
+                 (originalPropertyName: string,
+                  originalPropertyConfig: { name: string },
+                  propertyOwner: PropertyOwner,
+                  Property: typeof Property             = Property,
+                  PropertyConfig: typeof PropertyConfig = PropertyConfig) => {
                      originalPropertyConfig.name = propertyOwner.createPropertyName_Identity(originalPropertyName);
                      const propertyConfig        = new PropertyConfig(originalPropertyConfig);
                      const addPropertyToEntity   =

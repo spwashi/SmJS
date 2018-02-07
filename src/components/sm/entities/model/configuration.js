@@ -9,6 +9,8 @@ import {SM_ID} from "../../identification";
 import {ITEM_CONFIGURED__EVENT} from "./events";
 import {modelIdentity} from "./identity";
 import {configurePropertyForPropertyOwner} from "../property/owner/configuration";
+import {ModelProperty} from "./property/property";
+import {ModelPropertyConfig} from "./property/configuration";
 
 export default class ModelConfiguration extends Configuration {
     handlers: configurationHandlerObject = {
@@ -19,7 +21,9 @@ export default class ModelConfiguration extends Configuration {
                                        let [name, propertyConfig, configuringEntity] = [propertyConfigEntry[0], propertyConfigEntry[1], model];
                                        return configurePropertyForPropertyOwner(name,
                                                                                 propertyConfig,
-                                                                                configuringEntity);
+                                                                                configuringEntity,
+                                                                                ModelProperty,
+                                                                                ModelPropertyConfig);
                                    });
             return Promise.all(promises);
         }

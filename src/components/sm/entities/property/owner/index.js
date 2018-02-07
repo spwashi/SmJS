@@ -11,8 +11,9 @@ export interface PropertyOwner {
     createPropertyName_Identity(propertyName: string): Identity;
 }
 
-export const makePropertyOwner = (owner: PropertyOwner | { _propertyMeta: any, _properties: {} }) => {
-    const _propertyMeta = new PropertyMeta;
+export const makePropertyOwner = (owner: PropertyOwner | { _propertyMeta: any, _properties: {} },
+                                  propertyMeta: typeof PropertyMeta = PropertyMeta) => {
+    const _propertyMeta = new propertyMeta;
     const _properties   = {};
     Object.defineProperties(owner, {
         propertyMeta: {get: () => _propertyMeta},

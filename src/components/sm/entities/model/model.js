@@ -7,9 +7,10 @@ import {ITEM_CONFIGURED__EVENT} from "./events";
 import Identity from "../../../identity/components/identity";
 import {makePropertyOwner, PropertyOwner} from "../property/owner/index";
 import modelIdentity from "./identity";
+import {ModelPropertyMeta} from "./property/meta";
 
 export class Model implements SmEntity, Configurable, PropertyOwner {
-    constructor() { makePropertyOwner(this); }
+    constructor() { makePropertyOwner(this, ModelPropertyMeta); }
     
     createPropertyName_Identity(propertyName: string): Identity {
         return this[SM_ID].component(propertyName);

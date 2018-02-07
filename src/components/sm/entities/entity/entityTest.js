@@ -15,14 +15,18 @@ describe('Entity', () => {
         const config = new EntityConfiguration({
                                                    properties: {
                                                        title: {
-                                                           unique:    true,
-                                                           datatypes: ['int', 'string']
-                                                       }
+                                                           index:     true,
+                                                           datatypes: ['int', 'string'],
+    
+                                                           boonman: {
+                                                               title: 'SHOWNOQ'
+                                                           }
+                                                       },
                                                    }
                                                });
         config.configure(new Entity)
               .then(result => {
                   console.log(JSON.stringify(result, ' ', 5));
-              });
+              }).catch(e => console.log(e));
     })
 });

@@ -9,6 +9,8 @@ import {SM_ID} from "../../identification";
 import {ITEM_CONFIGURED__EVENT} from "./events";
 import {entityIdentity} from "./identity";
 import {configurePropertyForPropertyOwner} from "../property/owner/configuration";
+import {EntityProperty} from "./property/property";
+import {EntityPropertyConfig} from "./property/configuration";
 
 const handlers = {
     name:       (name, entity) => entity[SM_ID] = entityIdentity.identityFor(name),
@@ -18,7 +20,9 @@ const handlers = {
                                    let [name, propertyConfig, configuringEntity] = [propertyConfigEntry[0], propertyConfigEntry[1], entity];
                                    return configurePropertyForPropertyOwner(name,
                                                                             propertyConfig,
-                                                                            configuringEntity);
+                                                                            configuringEntity,
+                                                                            EntityProperty,
+                                                                            EntityPropertyConfig);
                                });
         return Promise.all(promises);
     }

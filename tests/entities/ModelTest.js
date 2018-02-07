@@ -110,7 +110,7 @@ describe('Model', () => {
         Std.resolve(`${model_name}|${_property_name}`).then(i => {
             /** @type {Property} property */
             let [event, property] = i;
-            const primaryKeySet   = model.propertyMeta.getPrimaryKeySet(property);
+            const primaryKeySet   = model.propertyMeta.findInIndex('primary', property);
             const message         = primaryKeySet ? null : 'Could not successfully incorporate primary key';
             done(message);
         });
@@ -136,7 +136,7 @@ describe('Model', () => {
            .then(i => Std.resolve(model_name))
            .then(i => {
                let [e, model]     = i;
-               const uniqueKeySet = model.propertyMeta.getUniqueKeySet(property2);
+               const uniqueKeySet = model.propertyMeta.findInIndex('unique', property2);
                const message      =
                        !uniqueKeySet
                            ? 'Could not successfully incorporate unique key'
@@ -186,14 +186,14 @@ describe('Model', () => {
                               const m2_promise = m2.resolve('first_name')
                                                    .then(i => {
                                                        const property     = _getPropertyFromEventArr(i);
-                                                       const uniqueKeySet = m2.propertyMeta.getUniqueKeySet(property);
+                                                       const uniqueKeySet = m2.propertyMeta.findInIndex('unique', property);
                                                        expect(uniqueKeySet).not.to.equal(false);
                                                    });
                               const m3_promise = m3.resolve('first_name')
                                                    .then(i => {
                                                        // Should not retain value
                                                        const property     = _getPropertyFromEventArr(i);
-                                                       const uniqueKeySet = m3.propertyMeta.getUniqueKeySet(property);
+                                                       const uniqueKeySet = m3.propertyMeta.findInIndex('unique', property);
                                                        expect(uniqueKeySet).to.equal(false);
     
                                                        // Should also have 'id'
@@ -232,7 +232,7 @@ describe('Model', () => {
                            _isAvailable && !_isComplete
                                ? null
                                : "\n\tComplete: " + (_isComplete ? '(does not necessarily need to be true)' : 'is ok' )
-                               + "\n\tAvailable: " + (!_isAvailable ? '(should be true)' : 'is ok');
+                                 + "\n\tAvailable: " + (!_isAvailable ? '(should be true)' : 'is ok');
             
                  // Not really sure how to test this bc it's a pretty internal aspect.
                  // failures in other places might be tied to this if it breaks, though

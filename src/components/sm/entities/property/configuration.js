@@ -9,8 +9,8 @@ export const handlers = {
     isGenerated:  (isGenerated, property: Property) => property._isGenerated = isGenerated,
     unique:       (isUnique, property: Property) => property._unique = isUnique,
     updateValue:  (updateValue, property: Property) => property._updateValue = updateValue,
-    name:         (name: string, property: Property) => property[SM_ID] = propertyIdentity.identityFor(name),
     length:       (length: number | null, property: Property) => property._length = parseInt(length) || null,
+    name:         (name: string, property: Property) => property[SM_ID] = propertyIdentity.identityFor(name),
     datatypes:    (datatype: Array<string> | string, property: Property) => {
         datatype = Array.isArray(datatype) ? datatype : [datatype];
         return property._datatypes = new Set([...datatype.filter(i => !!i), ...(property._datatypes || [])])

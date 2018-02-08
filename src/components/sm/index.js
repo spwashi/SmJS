@@ -1,3 +1,6 @@
-import * as entities from './entities';
+import {Entity} from "./entities/entity/entity";
+import {Property} from "./entities/property/property";
+import {Model} from "./entities/model/model";
+import * as identification from './identification'
 
-export {entities};
+export {Entity, Property, Model, identification}

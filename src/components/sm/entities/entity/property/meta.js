@@ -9,9 +9,8 @@ export class EntityPropertyMeta extends PropertyMeta {
     }
     
     toJSON() {
-        return {
-            index: this.toJSON__map(this.index),
-        }
+        const index = this.toJSON__map(this.index);
+        return {index}
     }
     
     incorporateProperty(property: Property): Property {

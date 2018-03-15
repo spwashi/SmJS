@@ -1,0 +1,1 @@
+// Meant to configure the source of entity properties

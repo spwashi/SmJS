@@ -8,7 +8,7 @@ export const configurePropertyForPropertyOwner =
                   propertyOwner: PropertyOwner,
                   Property: typeof Property             = Property,
                   PropertyConfig: typeof PropertyConfig = PropertyConfig) => {
-                     originalPropertyConfig.name = propertyOwner.createPropertyName_Identity(originalPropertyName);
+                     originalPropertyConfig.name = propertyOwner.createPropertyIdentity(originalPropertyName);
                      const propertyConfig        = new PropertyConfig(originalPropertyConfig);
                      const addPropertyToEntity   =
                                property => {

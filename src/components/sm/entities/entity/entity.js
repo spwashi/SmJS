@@ -10,9 +10,7 @@ import {makePropertyOwner, PropertyOwner} from "../property/owner/index";
 import entityIdentity from "./identity";
 import {EntityPropertyMeta} from "./property/meta";
 
-export class Entity implements SmEntity,
-                               Configurable,
-                               PropertyOwner {
+export class Entity implements SmEntity, Configurable, PropertyOwner {
     constructor() {
         makePropertyOwner(this, EntityPropertyMeta)
     }
@@ -25,15 +23,11 @@ export class Entity implements SmEntity,
         }
     }
     
-    createPropertyName_Identity(propertyName: string): Identity {
+    createPropertyIdentity(propertyName: string): Identity {
         return this[SM_ID].component(propertyName);
     }
 }
 
 makeSmEntity(Entity,
              entityIdentity,
-             {
-                 events: {
-                     itemDoneConfiguring: ITEM_CONFIGURED__EVENT
-                 }
-             });
+             {events: {itemDoneConfiguring: ITEM_CONFIGURED__EVENT}});

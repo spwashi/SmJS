@@ -13,7 +13,7 @@ import {EntityProperty} from "./property/property";
 import {EntityPropertyConfig} from "./property/configuration";
 
 const handlers = {
-    name:       (name, entity) => entity[SM_ID] = entityIdentity.identityFor(name),
+    name:       (name, entity) => entity[SM_ID] = Entity.identify(name),
     properties: (allPropertiesConfig: {} | any, entity: Entity) => {
         const promises = Object.entries(allPropertiesConfig)
                                .map(propertyConfigEntry => {
@@ -40,7 +40,7 @@ export default class EntityConfiguration extends Configuration {
     }
     
     static getConfiguredItem(item) {
-        const configuredItemIdentity = entityIdentity.identityFor(item);
+        const configuredItemIdentity = Entity.identify(item);
         const event                  = ITEM_CONFIGURED__EVENT.instance(configuredItemIdentity);
         return Entity.eventManager.waitForEvent(event);
     }

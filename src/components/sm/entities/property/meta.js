@@ -8,13 +8,25 @@ import {SM_ID} from "../../identification";
 import {CONFIGURATION} from "../../../configuration/configuration";
 
 export class PropertyMeta {
-    _indices: {};
+    _indices: { [name: string]: Set | Map };
     
     constructor() {
         this._indices = {};
-    
+        
         this.createIndexType('primary', Set);
         this.createIndexType('unique', Map);
+    }
+    
+    isEmpty() {
+        const _indices = this._indices;
+        for (let key in _indices) {
+            if (!_indices.hasOwnProperty(key)) continue;
+            /** @type Map|Set */
+            let index = _indices[key];
+            if (index.size) return false;
+        }
+        
+        return true;
     }
     
     createIndexType(name, ContainerType: typeof Map | typeof Set) {
@@ -94,7 +106,7 @@ export class PropertyMeta {
                 ret[index] = this._toJSON__set(indexIterable)
             }
         }
-    
+        
         return ret;
     }
     
@@ -119,11 +131,11 @@ export class PropertyMeta {
      */
     _addToSetIndex(index, propertySet) {
         !this._indices[index] && this.createIndexType(index, Set);
-    
+        
         if (!(this._indices[index] instanceof Set)) {
             throw new Error("Cannot add to Set index-- wrong type given", this._indices[index]);
         }
-    
+        
         return this._indices[index] = this._mergePropertySets(this._indices[index], propertySet);
     }
     
@@ -138,7 +150,7 @@ export class PropertyMeta {
      */
     _addToMapIndex(index, keyName, propertySet) {
         !this._indices[index] && this.createIndexType(index, Map);
-    
+        
         if (!(this._indices[index] instanceof Map)) {
             throw new Error("Cannot add to Map index-- wrong type given", this._indices[index]);
         }

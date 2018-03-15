@@ -8,7 +8,7 @@ export interface PropertyOwner {
     
     addProperty(propertyName: string, property: Property): PropertyOwner;
     
-    createPropertyName_Identity(propertyName: string): Identity;
+    createPropertyIdentity(propertyName: string): Identity;
 }
 
 export const makePropertyOwner = (owner: PropertyOwner | { _propertyMeta: any, _properties: {} },

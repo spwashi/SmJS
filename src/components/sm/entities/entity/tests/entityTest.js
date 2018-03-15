@@ -2,7 +2,7 @@ import {describe, it} from "mocha";
 import {expect} from "chai";
 import {Entity} from "../entity"
 import EntityConfiguration from '../configuration'
-import person from "./person";
+import * as person from "./person";
 
 describe('Entity', () => {
     it('exists', () => {

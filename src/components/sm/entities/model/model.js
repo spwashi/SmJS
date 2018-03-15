@@ -16,6 +16,12 @@ export class Model implements SmEntity, Configurable, PropertyOwner {
     
     constructor() { makePropertyOwner(this, ModelPropertyMeta); }
     
+    static init(item: string): Promise<Array> {
+        const configuredItemIdentity = Model.identify(item);
+        const event                  = ITEM_CONFIGURED__EVENT.instance(configuredItemIdentity);
+        return Model.eventManager.waitForEvent(event);
+    }
+    
     createPropertyIdentity(propertyName: string): Identity {
         return this[SM_ID].component(propertyName);
     }

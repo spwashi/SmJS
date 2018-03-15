@@ -32,7 +32,7 @@ class IdentityManager implements IdentityNode {
     
     identityFor(initialIdentifier: identifier | string | Identity) {
         if (initialIdentifier instanceof Identity) initialIdentifier = initialIdentifier.identifier;
-        const identifier = createName.ofType(this._identifier, createName(initialIdentifier));
+        const identifier = createName.ofType(this._identifier, initialIdentifier);
         return initIdentity(identifier, this);
     }
 }

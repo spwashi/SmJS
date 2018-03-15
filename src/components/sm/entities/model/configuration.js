@@ -7,7 +7,6 @@ import {
 import {Model} from "./model";
 import {SM_ID} from "../../identification";
 import {ITEM_CONFIGURED__EVENT} from "./events";
-import {modelIdentity} from "./identity";
 import {configurePropertyForPropertyOwner} from "../property/owner/configuration";
 import {ModelProperty} from "./property/property";
 import {ModelPropertyConfig} from "./property/configuration";
@@ -79,16 +78,10 @@ export class ModelConfiguration extends Configuration {
                        });
     }
     
-    static getConfiguredItem(item) {
-        const configuredItemIdentity = Model.identify(item);
-        const event                  = ITEM_CONFIGURED__EVENT.instance(configuredItemIdentity);
-        return Model.eventManager.waitForEvent(event);
-    }
-    
     resolveConfiguration(config, owner: {}): Promise<Object> {
         config = config || {};
         if (config.inherits) {
-            return resolveInheritedConfiguration(config, ModelConfiguration.getConfiguredItem);
+            return resolveInheritedConfiguration(config, Model.init);
         }
         return Promise.resolve(config);
     }

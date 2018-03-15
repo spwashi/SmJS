@@ -8,9 +8,11 @@ export const CONFIGURATION = Symbol('configuration for the object');
 
 export interface ConfigurationSession {
     emitConfig: (configIndex: string, configValue: any, owner: Object, configResult: any, configuration: Configuration,) => {},
-    
-    waitFor: (configIndex: string) => {}
-    
+    waitFor: (configIndex: string) => {},
+    /**
+     * An object representing the object that is being configured in this session
+     */
+    configurationObject: {}
 }
 
 export type configurationHandler = (config_value: any, owner: {}, configuration: ConfigurationSession) => {};
@@ -24,17 +26,28 @@ export const EVENT__CONFIG = ('CONFIGURE');
 const createConfigurationSession = (original: Configuration) => {
     const SESSION_EVENT__CONFIG = original.$EVENTS$.instance(EVENT__CONFIG);
     const emitConfiguration     = original._eventManager.createEmitter(SESSION_EVENT__CONFIG);
-    
-    return {
-        ...original,
-        ...{
-            emitConfig: configIndex => {
-                original.emitConfig(...arguments);
-                emitConfiguration(...arguments);
-            },
-            waitFor:    configIndex => original._eventManager.waitForEvent(SESSION_EVENT__CONFIG[configIndex])
+    const ConfigurationSesssion = class extends original.constructor {
+        constructor() {
+            super();
+            for (let prop in original) {
+                if (!original.hasOwnProperty(prop)) continue;
+                if (this.hasOwnProperty(prop)) continue;
+                
+                this[prop] = original[prop];
+            }
+        }
+        
+        emitConfig(configIndex) {
+            original.emitConfig(...arguments);
+            return emitConfiguration(...arguments);
+        }
+        
+        waitFor(configIndex) {
+            return original._eventManager.waitForEvent(SESSION_EVENT__CONFIG[configIndex])
         }
     };
+    
+    return new ConfigurationSesssion;
 };
 
 /**
@@ -93,27 +106,28 @@ export class Configuration {
         // Proxies the Configuration object to make it easier to define events
         const configurationSession               = createConfigurationSession(this);
         configurationSession.configurationObject = configurationObject;
+        
         // An array of the functions we will run to configure this item
-        const handlers                           = [];
+        const handlers = [];
         
         for (let handlerIndex in handlingFunctions) {
             if (!handlingFunctions.hasOwnProperty(handlerIndex)) continue;
-    
+            
             const configureValue = handlingFunctions[handlerIndex];
-    
+            
             if (typeof configureValue !== "function") {
                 continue;
             }
-    
+            
             const configValue = configurationObject[handlerIndex];
-    
+            
             const result = configureValue(configValue, owner, configurationSession);
-    
+            
             const emitConfigurationEvent = result => {
                 configurationSession.emitConfig(handlerIndex, configValue, owner, result, configurationSession);
                 return result;
             };
-    
+            
             handlers.push(Promise.resolve(result)
                                  .then(emitConfigurationEvent));
         }
@@ -138,13 +152,13 @@ export class Configuration {
         if (typeof owner !== "object") {
             throw new Error(errors.CONFIGURATION__EXPECTED_OBJECT);
         }
-    
+        
         const config = this._config;
-    
+        
         return this.resolveConfiguration(config, owner)
                    .then(config => {
                        const configHandlers = this.getConfigurationHandlers(owner, config);
-    
+            
                        return Promise.all(configHandlers)
                                      .then(i => config);
                    })

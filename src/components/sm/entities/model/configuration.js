@@ -11,6 +11,7 @@ import {configurePropertyForPropertyOwner} from "../property/owner/configuration
 import {ModelProperty} from "./property/property";
 import {ModelPropertyConfig} from "./property/configuration";
 import {mappedModelRoleObject, ModelRole} from "./role";
+import {Entity} from "../entity/entity";
 
 export class ModelConfiguration extends Configuration {
     handlers: configurationHandlerObject = {
@@ -74,16 +75,19 @@ export class ModelConfiguration extends Configuration {
         this.listenFor(CONFIGURATION_END,
                        null,
                        (configuredItem: Model) => {
-                           Model.eventManager.logEvent(ITEM_CONFIGURED__EVENT, [configuredItem]);
+                           const MODEL_CONFIGURED__EVENT = Model.events.CONFIG_END;
+                           const eventArguments          = [configuredItem];
+                           Model.eventManager.logEvent(MODEL_CONFIGURED__EVENT, eventArguments);
                        });
     }
     
     resolveConfiguration(config, owner: {}): Promise<Object> {
         config = config || {};
-        if (config.inherits) {
-            return resolveInheritedConfiguration(config, Model.init);
-        }
-        return Promise.resolve(config);
+        return (
+            config.inherits
+                ? resolveInheritedConfiguration(config, Model.init)
+                : Promise.resolve(config)
+        );
     }
 }
 

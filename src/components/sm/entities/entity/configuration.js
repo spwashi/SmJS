@@ -35,21 +35,18 @@ export default class EntityConfiguration extends Configuration {
         this.listenFor(CONFIGURATION_END,
                        null,
                        (configuredItem: Entity) => {
-                           Entity.eventManager.logEvent(ITEM_CONFIGURED__EVENT, [configuredItem]);
+                           const ENTITY_CONFIGURED__EVENT = Entity.events.CONFIG_END;
+                           const eventArguments           = [configuredItem];
+                           Entity.eventManager.logEvent(ENTITY_CONFIGURED__EVENT, eventArguments);
                        });
-    }
-    
-    static getConfiguredItem(item) {
-        const configuredItemIdentity = Entity.identify(item);
-        const event                  = ITEM_CONFIGURED__EVENT.instance(configuredItemIdentity);
-        return Entity.eventManager.waitForEvent(event);
     }
     
     resolveConfiguration(config, owner: {}): Promise<Object> {
         config = config || {};
-        if (config.inherits) {
-            return resolveInheritedConfiguration(config, EntityConfiguration.getConfiguredItem);
-        }
-        return Promise.resolve(config);
+        return (
+            config.inherits
+                ? resolveInheritedConfiguration(config, Entity.init)
+                : Promise.resolve(config)
+        );
     }
 }

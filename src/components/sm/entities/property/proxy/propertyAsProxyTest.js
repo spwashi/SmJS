@@ -32,20 +32,24 @@ describe('Property As Proxy Test', () => {
         footballConfig.configure(new Model)
                       .catch(err => console.log(err));
         
-        const config = new PropertyAsProxyConfiguration({
-                                                            roleName: "sport_item",
-                                                            identity: football__identity,
-            
-                                                        });
+        const config              = new PropertyAsProxyConfiguration({
+                                                                         roleName: "sport_item",
+                                                                         identity: football__identity
+                                                                     });
+        // This is how we know what kind of identity we are Proxying
+        config.propertyOwnerProto = Model;
         
-        config.configure(new PropertyAsProxyDescriptor)
-              .then(propertyAsProxyDescriptor => {
-                  const json__string = JSON.stringify(propertyAsProxyDescriptor, ' ', 3);
-                  console.log(json__string);
-                  const objFromJSON = JSON.parse(json__string);
-                  expect(objFromJSON.identity).to.equal(football__identity.toJSON());
-                  done();
-              });
+        const proxyDescriptorConfigured = config.configure(new PropertyAsProxyDescriptor);
+        
+        proxyDescriptorConfigured
+            .then(
+                propertyAsProxyDescriptor => {
+                    const json__string = JSON.stringify(propertyAsProxyDescriptor, ' ', 3);
+                    console.log(json__string);
+                    const objFromJSON = JSON.parse(json__string);
+                    expect(objFromJSON.identity).to.equal(football__identity.toJSON());
+                })
+            .then(() => done());
         
     });
 });

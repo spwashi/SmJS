@@ -14,10 +14,10 @@
   "devDependencies": {
     "babel-cli": "^6.24.1",
     "babel-core": "^6.0.20",
+    "babel-plugin-transform-builtin-extend": "^1.1.2",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-plugin-transform-regenerator": "^6.24.1",
-    "babel-plugin-transform-builtin-extend": "^1.1.2",
     "babel-polyfill": "^6.0.16",
     "babel-preset-env": "^1.4.0",
     "babel-preset-flow": "^6.23.0",
@@ -38,13 +38,14 @@
     "gulp-sourcemaps": "^2.6.0",
     "gulp-uglify": "^2.1.2",
     "gulp-util": "latest",
+    "mkdirp": "latest",
     "mocha": "latest",
+    "strip-json-comments": "latest",
+    "tracer": "^0.8.12",
     "utils-merge": "^1.0.0",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
-    "watchify": "^3.9.0",
-    "strip-json-comments": "latest",
-    "mkdirp": "latest"
+    "watchify": "^3.9.0"
   },
   "dependencies": {
     "react": "latest"

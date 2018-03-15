@@ -9,6 +9,8 @@ import Identity from "../../../identity/components/identity";
 import {makePropertyOwner, PropertyOwner} from "../property/owner/index";
 import entityIdentity from "./identity";
 import {EntityPropertyMeta} from "./property/meta";
+import modelIdentity from "../model/identity";
+import {Model} from "../model/model";
 
 export class Entity implements SmEntity, Configurable, PropertyOwner {
     constructor() {
@@ -28,6 +30,4 @@ export class Entity implements SmEntity, Configurable, PropertyOwner {
     }
 }
 
-makeSmEntity(Entity,
-             entityIdentity,
-             {events: {itemDoneConfiguring: ITEM_CONFIGURED__EVENT}});
+makeSmEntity(Entity, entityIdentity);

@@ -13,7 +13,7 @@ import {ModelProperty} from "./property/property";
 import {ModelPropertyConfig} from "./property/configuration";
 import {mappedModelRoleObject, ModelRole} from "./role";
 
-export default class ModelConfiguration extends Configuration {
+export class ModelConfiguration extends Configuration {
     handlers: configurationHandlerObject = {
         name:       (name, model) => model[SM_ID] = Model.identify(name),
         properties: (allPropertiesConfig: {} | any, model: Model) => {
@@ -93,3 +93,5 @@ export default class ModelConfiguration extends Configuration {
         return Promise.resolve(config);
     }
 }
+
+export default ModelConfiguration;

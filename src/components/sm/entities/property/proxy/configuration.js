@@ -7,7 +7,6 @@ export const handlers = {
     identity: (identity, property: PropertyAsProxyDescriptor) => {
         return Model.init(identity)
                     .then(result => {
-                        console.log(result);
                         return property._identity = identity;
                     })
                     .catch(err => console.error(err));

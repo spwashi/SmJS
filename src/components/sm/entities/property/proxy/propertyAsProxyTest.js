@@ -34,7 +34,8 @@ describe('Property As Proxy Test', () => {
         
         const config = new PropertyAsProxyConfiguration({
                                                             roleName: "sport_item",
-                                                            identity: football__identity
+                                                            identity: football__identity,
+            
                                                         });
         
         config.configure(new PropertyAsProxyDescriptor)

@@ -91,10 +91,10 @@ export class Configuration {
         const handlingFunctions = this.handlers;
         
         // Proxies the Configuration object to make it easier to define events
-        const configurationSession = createConfigurationSession(this);
-        
+        const configurationSession               = createConfigurationSession(this);
+        configurationSession.configurationObject = configurationObject;
         // An array of the functions we will run to configure this item
-        const handlers = [];
+        const handlers                           = [];
         
         for (let handlerIndex in handlingFunctions) {
             if (!handlingFunctions.hasOwnProperty(handlerIndex)) continue;

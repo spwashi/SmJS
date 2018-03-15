@@ -16,8 +16,6 @@ export class Model implements SmEntity, Configurable, PropertyOwner {
     
     constructor() { makePropertyOwner(this, ModelPropertyMeta); }
     
-    
-    
     createPropertyIdentity(propertyName: string): Identity {
         return this[SM_ID].component(propertyName);
     }
@@ -33,5 +31,4 @@ export class Model implements SmEntity, Configurable, PropertyOwner {
     }
 }
 
-export const events = {CONFIG_END: ITEM_CONFIGURED__EVENT};
-makeSmEntity(Model, modelIdentity, {events});
+makeSmEntity(Model, modelIdentity);

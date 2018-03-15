@@ -6,8 +6,6 @@ import {
 } from "../../../configuration/configuration";
 import {Entity} from "./entity";
 import {SM_ID} from "../../identification";
-import {ITEM_CONFIGURED__EVENT} from "./events";
-import {entityIdentity} from "./identity";
 import {configurePropertyForPropertyOwner} from "../property/owner/configuration";
 import {EntityProperty} from "./property/property";
 import {EntityPropertyConfig} from "./property/configuration";

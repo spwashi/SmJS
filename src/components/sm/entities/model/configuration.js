@@ -6,12 +6,10 @@ import {
 } from "../../../configuration/configuration";
 import {Model} from "./model";
 import {SM_ID} from "../../identification";
-import {ITEM_CONFIGURED__EVENT} from "./events";
 import {configurePropertyForPropertyOwner} from "../property/owner/configuration";
 import {ModelProperty} from "./property/property";
 import {ModelPropertyConfig} from "./property/configuration";
 import {mappedModelRoleObject, ModelRole} from "./role";
-import {Entity} from "../entity/entity";
 
 export class ModelConfiguration extends Configuration {
     handlers: configurationHandlerObject = {

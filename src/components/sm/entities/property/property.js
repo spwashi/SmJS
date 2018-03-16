@@ -1,9 +1,6 @@
-// @flow
-
-import {makeSmEntity, SmEntity} from "../types";
+import {makeSmEntity, SmEntity} from "../smEntity";
 import {Configurable} from "../../../configuration/types";
 import {SM_ID} from "../../identification";
-import {createIdentityManager} from "../../../identity/components/identity";
 import {propertyIdentity} from "./identity";
 
 export class Property implements SmEntity, Configurable {

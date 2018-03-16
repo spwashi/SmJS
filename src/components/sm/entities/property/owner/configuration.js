@@ -1,21 +1,25 @@
-import {PropertyOwner} from "./index";
+import {makePropertyOwner, PropertyOwner} from "./owner";
 import PropertyConfig from "../configuration";
 import {Property} from "../property";
+import {Configuration} from "../../../../configuration";
 
-export const configurePropertyForPropertyOwner = function (originalPropertyName: string,
-                                                           originalPropertyConfig: { name: string },
-                                                           propertyOwner: PropertyOwner,
-                                                           Property: typeof Property             = Property,
-                                                           PropertyConfig: typeof PropertyConfig = PropertyConfig) {
-    originalPropertyConfig.name = propertyOwner.createPropertyIdentity(originalPropertyName);
-    const propertyConfig        = new PropertyConfig(originalPropertyConfig);
-    const addPropertyToEntity   = property => {
-        propertyOwner.properties[originalPropertyName] = property;
-        const propertyMeta                             = propertyOwner.propertyMeta;
-        propertyMeta.incorporateProperty(property);
-        return property;
-    };
+export interface PropertyOwnerConfig {
+    static Property: typeof Property;
+    static PropertyConfig: typeof PropertyConfig;
     
-    return propertyConfig.configure(new Property)
-                         .then(addPropertyToEntity);
+    configureProperty(name: string, propertyConfig: {}, owner: PropertyOwner): Promise<Property>;
+}
+
+export const makePropertyOwnerConfig = (PropertyOwnerConfig: typeof PropertyOwnerConfig | Configuration | Function) => {
+    PropertyOwnerConfig.prototype.configureProperty =
+        (originalPropertyName: string, originalPropertyConfig: {}, propertyOwner: PropertyOwner): Promise<Property> => {
+            const Property              = PropertyOwnerConfig.Property;
+            const PropertyConfig        = PropertyOwnerConfig.PropertyConfig;
+            originalPropertyConfig.name = propertyOwner.createPropertyIdentity(originalPropertyName);
+            const property              = new Property;
+            return (new PropertyConfig(originalPropertyConfig))
+                .configure(property)
+                .then(property => propertyOwner.addProperty(originalPropertyName, property))
+                .then(owner => property);
+        }
 };

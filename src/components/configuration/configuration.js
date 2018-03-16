@@ -3,6 +3,7 @@ import {Configurable} from "./types";
 import EventManager from "../event/eventManager";
 import Identity, {createIdentityManager} from "../identity/components/identity";
 import * as deepmerge from "deepmerge";
+import type {SmEntity} from "../sm/entities/types";
 
 export const CONFIGURATION = Symbol('configuration for the object');
 
@@ -25,7 +26,6 @@ export const EVENT__CONFIG = ('CONFIGURE');
 
 const createConfigurationSession = (original: Configuration) => {
     const SESSION_EVENT__CONFIG = original.$EVENTS$.instance(EVENT__CONFIG);
-    const emitConfiguration     = original._eventManager.createEmitter(SESSION_EVENT__CONFIG);
     const ConfigurationSesssion = class extends original.constructor {
         constructor() {
             super();
@@ -38,12 +38,12 @@ const createConfigurationSession = (original: Configuration) => {
         }
         
         emitConfig(configIndex) {
-            original.emitConfig(...arguments);
-            return emitConfiguration(...arguments);
+            return original.emitConfig(...arguments);
         }
         
         waitFor(configIndex) {
-            return original._eventManager.waitForEvent(SESSION_EVENT__CONFIG[configIndex])
+            const configEvent = SESSION_EVENT__CONFIG.instance(configIndex);
+            return original._eventManager.waitForEvent(configEvent)
         }
     };
     
@@ -77,9 +77,10 @@ export class Configuration {
         const emitConfig = this.emitConfig = (...args) => {
             const [configIndex, configValue, owner, configResult, configurationSession] = args;
             this._eventManager.logEvent(Configuration.$EVENTS$.instance(EVENT__CONFIG), [...args]);
-            this._eventManager.logEvent(Configuration.$EVENTS$.instance(EVENT__CONFIG)[configIndex], [...args]);
             this._eventManager.logEvent(this.$EVENTS$.instance(EVENT__CONFIG), [...args]);
-            this._eventManager.logEvent(this.$EVENTS$.instance(EVENT__CONFIG)[configIndex], [...args]);
+            
+            this._eventManager.logEvent(Configuration.$EVENTS$.instance(EVENT__CONFIG).instance(configIndex), configResult);
+            this._eventManager.logEvent(this.$EVENTS$.instance(EVENT__CONFIG).instance(configIndex), configResult);
         };
         emitConfig(...arguments);
     }
@@ -177,17 +178,17 @@ export class Configuration {
  *
  *
  * @param config
- * @param resolveConfiguredEntity
- * @return {Promise.<TResult>}
+ * @param SmEntityProto
+ * @return {Promise<{>}
  */
-export const resolveInheritedConfiguration = (config, resolveConfiguredEntity) => {
+export const resolveInheritedConfiguration = (config, SmEntityProto: typeof SmEntity): Promise<{}> => {
     config.inherits = Array.isArray(config.inherits) ? config.inherits : [config.inherits];
     const promises  = [];
     
     config.inherits.forEach(inherited_item_id => {
-        const resolveEntity         = resolveConfiguredEntity(inherited_item_id);
-        const entityConvertedToJSON = resolveEntity.then((entity: Entity) => {
-            return JSON.parse(JSON.stringify(entity));
+        const resolveEntity         = SmEntityProto.init(inherited_item_id);
+        const entityConvertedToJSON = resolveEntity.then((item: SmEntity) => {
+            return JSON.parse(JSON.stringify(item));
         });
         
         promises.push(entityConvertedToJSON);
@@ -195,7 +196,8 @@ export const resolveInheritedConfiguration = (config, resolveConfiguredEntity) =
     
     return Promise.all(promises)
                   .then(configs => deepmerge.all([...configs, config]));
-};
+}
+;
 
 Configuration.identityManager  = createIdentityManager('CONFIGURATION');
 Configuration.$EVENTS$         = Configuration.identityManager.component('$EVENTS$');

@@ -4,4 +4,3 @@ node_modules/
 coverage/
 lib/package-lock.json
 lib/
-package-lock.json

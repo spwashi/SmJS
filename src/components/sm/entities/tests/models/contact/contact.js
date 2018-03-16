@@ -12,12 +12,11 @@ export const properties = {
         datatypes: [INTEGER_],
         unique:    true,
         
-        proxy: {
-            roleName: 'person',
-            identity: [
-                person__identity,
-                {'.': 'id'}
-            ]
+        reference: {
+            identity:        person__identity,
+            hydrationMethod: {
+                property: 'id'
+            }
         }
     },
 };

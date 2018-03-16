@@ -1,19 +1,14 @@
 import {Configuration} from "../../../../configuration/configuration";
-import {PropertyAsProxyDescriptor} from "./propertyAsProxy";
+import {PropertyAsReferenceDescriptor} from "./propertyAsReference";
 import type {ConfigurationSession} from "../../../../configuration/configuration";
 import type {SmEntity} from "../../types";
 import type {PropertyOwner} from "../owner/owner"
 import Identity from "../../../../identity/components/identity";
-import {Model} from "../../../";
-import {SM_ID} from "../../../identification";
 
 const logger = console;
 
 export const handlers = {
-    roleName:  (roleName: string, descriptor: PropertyAsProxyDescriptor, configurationSession: ConfigurationSession) => {
-        return descriptor._roleName = roleName;
-    },
-    identity:  (identity: Identity | string, descriptor: PropertyAsProxyDescriptor, configurationSession: ConfigurationSession | PropertyAsProxyConfig) => {
+    identity:        (identity: Identity | string, descriptor: PropertyAsReferenceDescriptor, configurationSession: ConfigurationSession | PropertyAsReferenceConfig) => {
         if (!identity) return null;
         return configurationSession.initSmEntity(identity)
                                    .then(smEntity => {
@@ -23,7 +18,7 @@ export const handlers = {
                                        logger.error(err)
                                    });
     },
-    hydration: (hydration: { property: string }, descriptor: PropertyAsProxyDescriptor, configurationSession: ConfigurationSession | PropertyAsProxyConfig) => {
+    hydrationMethod: (hydration: { property: string }, descriptor: PropertyAsReferenceDescriptor, configurationSession: ConfigurationSession | PropertyAsReferenceConfig) => {
         if (!hydration) return null;
         
         if (typeof  hydration !== "object" || typeof hydration.property !== "string") {
@@ -45,12 +40,12 @@ export const handlers = {
 /**
  * Useful when Properties represent some other Configurable Entity
  */
-class PropertyAsProxyConfig extends Configuration {
+class PropertyAsReferenceConfig extends Configuration {
     handlers = handlers;
     _proxiedSmEntityProto: typeof SmEntity;
     
     get smEntityProto(): typeof SmEntity {
-        if (!this._proxiedSmEntityProto) throw new Error("No Property Owner was configured for this PropertyAsProxy Configuration");
+        if (!this._proxiedSmEntityProto) throw new Error("No Property Owner was configured for this PropertyAsReference Configuration");
         return this._proxiedSmEntityProto;
     }
     
@@ -69,4 +64,4 @@ class PropertyAsProxyConfig extends Configuration {
     }
 }
 
-export default PropertyAsProxyConfig;
+export default PropertyAsReferenceConfig;

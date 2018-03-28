@@ -17,19 +17,23 @@ export default class EventManager {
     /** @private */
     _waitingPromises: { [name: string]: Array<promiseResolutionObject> } = {};
     /** @private */
-    _emittedEventNames: { [name: string]: Array<{ eventArguments: Array }> };
+    _emittedEvents: { [name: string]: Array<{ eventArguments: Array }> };
     /** @private */
     _listeners: { [name: string]: Array<() => {}> };
-    _parents: [EventManager]=[];
+    _parents: [EventManager]                                             = [];
     
     constructor() {
-        this._emittedEventNames = {};
-        this._listeners         = {};
-        this._waitingPromises   = {};
+        this._emittedEvents   = {};
+        this._listeners       = {};
+        this._waitingPromises = {};
     }
     
     get emittedEventNames() {
-        return this._emittedEventNames;
+        return Object.keys(this._emittedEvents);
+    }
+    
+    get waitingEventNames() {
+        return Object.keys(this._waitingPromises);
     }
     
     addParent(parent: EventManager) {
@@ -45,10 +49,10 @@ export default class EventManager {
      */
     emitEvent(name: eventName | Identity, eventArguments: Array = []) {
         if (name instanceof Identity) name = name.identifier;
-        this._emittedEventNames[name] = this._emittedEventNames[name] || [];
+        this._emittedEvents[name] = this._emittedEvents[name] || [];
         if (!Array.isArray(eventArguments)) eventArguments = [eventArguments];
         
-        this._emittedEventNames[name].push({eventArguments});
+        this._emittedEvents[name].push({eventArguments});
         this._resolveName(name, true);
         (this._listeners[name] || []).forEach(callback => {
             callback(...eventArguments)
@@ -79,7 +83,7 @@ export default class EventManager {
                       eventArguments,
                 
                       // If we want to include events that we have already emitted, this is the index that we want to start accepting emitted events after
-                      after: includePast ? 0 : (this._emittedEventNames[name] || []).length,
+                      after: includePast ? 0 : (this._emittedEvents[name] || []).length,
                   }
             ;
             
@@ -162,7 +166,7 @@ export default class EventManager {
      */
     _checkEvent(name, eventArguments, after: number = 0) {
         if (name instanceof Identity) name = name.identifier;
-        if (!this._emittedEventNames[name]) {
+        if (!this._emittedEvents[name]) {
             return false;
         }
         
@@ -172,7 +176,7 @@ export default class EventManager {
             
             // an array of the values we need to know about
             const expectedNeeds = eventArguments;
-            const eventLogs     = this._emittedEventNames[name];
+            const eventLogs     = this._emittedEvents[name];
             
             //iterate through emitted events with the requested event name and return true if an event matches
             for (let i = 0; i < eventLogs.length; i++) {

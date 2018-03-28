@@ -29,6 +29,7 @@ describe('Contact Model', () => {
                             .then(ContactModel => {
                                 const json__string = JSON.stringify(ContactModel, ' ', 3);
                                 console.log(json__string);
+                                console.log(contactConfiguration.eventManager.waitingEventNames);
                                 done();
                             });
     });

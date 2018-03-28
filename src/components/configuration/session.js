@@ -61,7 +61,6 @@ export function createConfigurationSession(original: Configuration): Configurati
                                     .instance(CONFIGURE__EVENT)
                                     .instance(configIndex)
                                     .instance(LIFECYCLE__END);
-            console.log('WAIT FOR -- ' + configEvent);
             return this._eventManager.waitForEvent(configEvent)
         }
     };

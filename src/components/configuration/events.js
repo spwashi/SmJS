@@ -1,0 +1,1 @@
+export const CONFIGURE__EVENT = 'config';

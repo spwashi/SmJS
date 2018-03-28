@@ -20,11 +20,21 @@ export default class EventManager {
     _emittedEventNames: { [name: string]: Array<{ eventArguments: Array }> };
     /** @private */
     _listeners: { [name: string]: Array<() => {}> };
+    _parents: [EventManager]=[];
     
     constructor() {
         this._emittedEventNames = {};
         this._listeners         = {};
         this._waitingPromises   = {};
+    }
+    
+    get emittedEventNames() {
+        return this._emittedEventNames;
+    }
+    
+    addParent(parent: EventManager) {
+        this._parents.push(parent);
+        return this;
     }
     
     /**
@@ -33,16 +43,17 @@ export default class EventManager {
      * @param name
      * @param eventArguments
      */
-    logEvent(name: eventName | Identity, eventArguments: Array = []) {
+    emitEvent(name: eventName | Identity, eventArguments: Array = []) {
         if (name instanceof Identity) name = name.identifier;
-        // console.log(`EMITTING: ${name}`);
         this._emittedEventNames[name] = this._emittedEventNames[name] || [];
-        this._emittedEventNames[name].push({eventArguments});
+        if (!Array.isArray(eventArguments)) eventArguments = [eventArguments];
         
+        this._emittedEventNames[name].push({eventArguments});
         this._resolveName(name, true);
         (this._listeners[name] || []).forEach(callback => {
             callback(...eventArguments)
         });
+        this._parents.forEach(parent => parent.emitEvent(...arguments));
     }
     
     /**
@@ -74,8 +85,6 @@ export default class EventManager {
             
             waitingPromises[name] = waitingPromises[name] || [];
             waitingPromises[name].push(resolutionObject);
-            // console.log(`ABOUT TO CHECK - ${name} WITH ${JSON.stringify(eventArguments)}`);
-            
             if (includePast) this._resolveName(name);
         })
     }
@@ -91,7 +100,7 @@ export default class EventManager {
         if (name instanceof Identity) name = name.identifier;
         return (...args) => {
             const eventArgs = [...eventArguments, ...args];
-            this.logEvent(name, eventArgs)
+            this.emitEvent(name, eventArgs)
         }
     }
     
@@ -129,18 +138,14 @@ export default class EventManager {
             return;
         }
         
-        // console.log('TRYING TO RESOLVE: ' + name);
         for (let i = 0; i < promiseObjects.length; i++) {
             const resolutionObject = promiseObjects[i];
             const eventArguments   = resolutionObject.eventArguments;
             if (resolutionObject.completed) continue;
             
-            // console.log(`USING ${JSON.stringify(eventArguments)}`);
-            
             const matchingEvent = this._checkEvent(name, eventArguments, resolutionObject.after);
             if (!matchingEvent) continue;
             
-            // console.log(`RESOLVING - ${name} WITH ${JSON.stringify(eventArguments)}`);
             resolutionObject.completed = true;
             resolutionObject.resolve(matchingEvent.eventArguments);
         }
@@ -173,7 +178,6 @@ export default class EventManager {
             for (let i = 0; i < eventLogs.length; i++) {
                 
                 if (i < after) {
-                    // console.log('skipping - ' + i);
                     continue;
                 }
                 
@@ -188,7 +192,6 @@ export default class EventManager {
                 if (!expectedNeeds.length || arraysEqual(expectedNeeds, actual)) {
                     return resolutionObj;
                 }
-                // console.log('--', actual, expectedNeeds);
             }
             return false;
         }
@@ -196,3 +199,7 @@ export default class EventManager {
         return true;
     }
 }
+
+export const LIFECYCLE__INIT  = '* * *';
+export const LIFECYCLE__BEGIN = ' + +';
+export const LIFECYCLE__END   = ' - -';

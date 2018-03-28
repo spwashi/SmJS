@@ -1,5 +1,5 @@
 import {PropertyMeta} from "../../property/meta";
-import {CONFIGURATION} from "../../../../configuration/configuration";
+import {CONFIGURATION} from "../../../../configuration/symbols";
 import {Property} from "../../property/property";
 
 export class EntityPropertyMeta extends PropertyMeta {

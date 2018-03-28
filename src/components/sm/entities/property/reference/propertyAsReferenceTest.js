@@ -1,7 +1,7 @@
 import {expect} from "chai"
 import {describe, it} from "mocha";
 import PropertyAsReferenceConfiguration from "./configuration"
-import {PropertyAsReferenceDescriptor} from "./propertyAsReference";
+import {PropertyAsReferenceDescriptor} from "./index";
 import {Model} from "../../model/model";
 import {ModelConfiguration} from "../../model/configuration";
 import {Property} from "../property";

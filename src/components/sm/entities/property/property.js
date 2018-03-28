@@ -2,7 +2,7 @@ import {makeSmEntity, SmEntity} from "../smEntity";
 import {Configurable} from "../../../configuration/types";
 import {SM_ID} from "../../identification";
 import {propertyIdentity} from "./identity";
-import {PropertyAsReferenceDescriptor} from "./reference/propertyAsReference";
+import {PropertyAsReferenceDescriptor} from "./reference/index";
 
 export class Property implements SmEntity, Configurable {
     _datatypes: Set;

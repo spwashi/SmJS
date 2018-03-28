@@ -16,7 +16,7 @@ export const makePropertyOwner = (owner: PropertyOwner | { _propertyMeta: any, _
                                   propertyMeta: typeof PropertyMeta = PropertyMeta) => {
     const _propertyMeta = new propertyMeta;
     const _properties   = {};
-    Object.defineProperties(owner, {
+    Object.defineProperties(owner, ({
         propertyMeta:           {get: () => _propertyMeta},
         properties:             {get: () => _properties},
         createPropertyIdentity: {
@@ -34,5 +34,5 @@ export const makePropertyOwner = (owner: PropertyOwner | { _propertyMeta: any, _
                 return owner
             }
         }
-    })
+    }: PropertyOwner))
 };

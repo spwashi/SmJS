@@ -12,14 +12,20 @@ export interface PropertyOwnerConfig {
 
 export const makePropertyOwnerConfig = (PropertyOwnerConfig: typeof PropertyOwnerConfig | Configuration | Function) => {
     PropertyOwnerConfig.prototype.configureProperty =
-        (originalPropertyName: string, originalPropertyConfig: {}, propertyOwner: PropertyOwner): Promise<Property> => {
+        function (originalPropertyName: string, originalPropertyConfig: {}, propertyOwner: PropertyOwner): Promise<Property> {
             const Property              = PropertyOwnerConfig.Property;
             const PropertyConfig        = PropertyOwnerConfig.PropertyConfig;
             originalPropertyConfig.name = propertyOwner.createPropertyIdentity(originalPropertyName);
-            const property              = new Property;
-            return (new PropertyConfig(originalPropertyConfig))
-                .configure(property)
-                .then(property => propertyOwner.addProperty(originalPropertyName, property))
-                .then(owner => property);
+            const configurationSession  = this;
+            let configureProperty       = () => {
+                const property              = new Property;
+                const propertyConfiguration = new PropertyConfig(originalPropertyConfig,
+                                                                 configurationSession);
+                return propertyConfiguration.configure(property);
+            };
+            return configureProperty().then(property => {
+                propertyOwner.addProperty(originalPropertyName, property);
+                return property;
+            });
         }
 };

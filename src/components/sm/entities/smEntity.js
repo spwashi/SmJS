@@ -17,12 +17,12 @@ const configureSmEntityEventManager = (events: smEntityEventConfig, smEntity: ty
     const _eventManager          = smEntity.eventManager;
     const ITEM_CONFIGURED__EVENT = events.CONFIG_END;
     const onItemConfigured       =
-              (configuredEntity: SmEntity) => {
+              function (configuredEntity: SmEntity) {
                   const smID               = configuredEntity[SM_ID];
                   const configurationEvent = ITEM_CONFIGURED__EVENT.instance(smID);
             
                   // Emit an event specifically for the SmID of the item that was just configured
-                  _eventManager.logEvent(configurationEvent, configuredEntity);
+                  _eventManager.emitEvent(configurationEvent, configuredEntity);
               };
     
     // Add the listener onto the SmEntity

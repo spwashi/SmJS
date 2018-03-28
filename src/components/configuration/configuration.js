@@ -1,151 +1,72 @@
 import {errors} from './constants';
-import {Configurable} from "./types";
-import EventManager from "../event/eventManager";
+import type {configurationHandlerObject, Configuration as ConfigurationInterface} from "./types";
+import {Configurable, ConfigurationSession} from "./types";
+import EventManager, {LIFECYCLE__BEGIN, LIFECYCLE__END, LIFECYCLE__INIT} from "../event/eventManager";
 import Identity, {createIdentityManager} from "../identity/components/identity";
 import * as deepmerge from "deepmerge";
 import type {SmEntity} from "../sm/entities/types";
-
-export const CONFIGURATION = Symbol('configuration for the object');
-
-export interface ConfigurationSession {
-    emitConfig: (configIndex: string, configValue: any, owner: Object, configResult: any, configuration: Configuration,) => {},
-    waitFor: (configIndex: string) => {},
-    /**
-     * An object representing the object that is being configured in this session
-     */
-    configurationObject: {}
-}
-
-export type configurationHandler = (config_value: any, owner: {}, configuration: ConfigurationSession) => {};
-
-export interface configurationHandlerObject {
-    [name: string]: configurationHandler
-}
-
-export const EVENT__CONFIG = ('CONFIGURE');
-
-const createConfigurationSession = (original: Configuration) => {
-    const SESSION_EVENT__CONFIG = original.$EVENTS$.instance(EVENT__CONFIG);
-    const ConfigurationSesssion = class extends original.constructor {
-        constructor() {
-            super();
-            for (let prop in original) {
-                if (!original.hasOwnProperty(prop)) continue;
-                if (this.hasOwnProperty(prop)) continue;
-                
-                this[prop] = original[prop];
-            }
-        }
-        
-        emitConfig(configIndex) {
-            return original.emitConfig(...arguments);
-        }
-        
-        waitFor(configIndex) {
-            const configEvent = SESSION_EVENT__CONFIG.instance(configIndex);
-            return original._eventManager.waitForEvent(configEvent)
-        }
-    };
-    
-    return new ConfigurationSesssion;
-};
+import {CONFIGURATION} from "./symbols";
+import {CONFIGURE__EVENT} from "./events";
+import {createConfigurationSession} from "./session";
 
 /**
  *
  */
-export class Configuration {
+export class Configuration implements ConfigurationInterface {
     _eventManager: EventManager;
     _config: {};
     _identity: Identity;
+    _parent: Configuration;
     handlers: configurationHandlerObject = {};
     
-    constructor(config = {}) {
+    constructor(config = {}, parent: Configuration = null) {
         if (config && typeof config !== "object") {
             throw new Error("Cannot configure non-objects");
         }
+        this._parent       = parent;
         this._eventManager = new EventManager;
-        this._config       = config || {};
-        this._identity     = Configuration.identityManager.identityFor();
-        this.$EVENTS$      = Configuration.$EVENTS$.instance(this._identity);
+        parent && this._eventManager.addParent(parent.eventManager);
+        this._config   = config || {};
+        this._identity = this._createIdentity(config);
+        
+        this.$EVENTS$ = Configuration.$EVENTS$.instance(this.identity);
     }
     
     get config() {return this._config;}
     
+    get eventManager(): EventManager {return this._eventManager}
+    
     get identity(): Identity {return this._identity;}
     
-    emitConfig(configIndex, configValue, owner, configResult, configurationSession: ConfigurationSession) {
-        const emitConfig = this.emitConfig = (...args) => {
-            const [configIndex, configValue, owner, configResult, configurationSession] = args;
-            this._eventManager.logEvent(Configuration.$EVENTS$.instance(EVENT__CONFIG), [...args]);
-            this._eventManager.logEvent(this.$EVENTS$.instance(EVENT__CONFIG), [...args]);
-            
-            this._eventManager.logEvent(Configuration.$EVENTS$.instance(EVENT__CONFIG).instance(configIndex), configResult);
-            this._eventManager.logEvent(this.$EVENTS$.instance(EVENT__CONFIG).instance(configIndex), configResult);
-        };
-        emitConfig(...arguments);
-    }
-    
-    listenFor(eventName, comparison: (expected: Array, actual: Array) => {} | Array, callback) {
-        if (typeof comparison === "function") {
-            this._eventManager
-                .createListener(eventName,
-                                null,
-                                (...args) => {
-                                    if (comparison(args)) callback(...args);
-                                })
-        } else if (!comparison || Array.isArray(comparison)) {
-            this._eventManager
-                .createListener(eventName,
-                                comparison,
-                                callback)
+    _createIdentity(config: { name: string | undefined }): Identity {
+        const identifier = this._getConfiguredIdentifier(config);
+        
+        if (typeof this._parent === "object" && this._parent && this._parent.identity) {
+            return this._parent.identity.component('..' + identifier);
         }
+        return Configuration.identityManager.identityFor('~' + identifier);
     }
     
-    getConfigurationHandlers(owner, configurationObject: {}): Array<Promise | any> {
-        const handlingFunctions = this.handlers;
-        
-        // Proxies the Configuration object to make it easier to define events
-        const configurationSession               = createConfigurationSession(this);
-        configurationSession.configurationObject = configurationObject;
-        
-        // An array of the functions we will run to configure this item
-        const handlers = [];
-        
-        for (let handlerIndex in handlingFunctions) {
-            if (!handlingFunctions.hasOwnProperty(handlerIndex)) continue;
-            
-            const configureValue = handlingFunctions[handlerIndex];
-            
-            if (typeof configureValue !== "function") {
-                continue;
-            }
-            
-            const configValue = configurationObject[handlerIndex];
-            
-            const result = configureValue(configValue, owner, configurationSession);
-            
-            const emitConfigurationEvent = result => {
-                configurationSession.emitConfig(handlerIndex, configValue, owner, result, configurationSession);
-                return result;
-            };
-            
-            handlers.push(Promise.resolve(result)
-                                 .then(emitConfigurationEvent));
-        }
-        
-        return handlers;
+    _getConfiguredIdentifier(config) {
+        return config.name ? `${config.name}` : null;
     }
     
-    /**
-     * Given an object (or whatever, maybe) that refers to the Configuration we intend to use,
-     * return an object representative of what that configuration should be to the object it's being applied to
-     *
-     * @param config
-     * @param owner
-     * @return {Promise.<T>}
-     */
     resolveConfiguration(config, owner: {}): Promise<Object> {
         return Promise.resolve(config);
+    }
+    
+    listenFor(eventName, comparison: (expected: Array, actual: Array) => {} | Array, callback): void {
+        if (typeof comparison === "function") {
+            callback   =
+                (...args) => {
+                    if (comparison(args)) callback(...args);
+                };
+            comparison = null;
+        }
+        
+        if (!comparison || Array.isArray(comparison)) {
+            this._eventManager.createListener(eventName, comparison, callback)
+        }
     }
     
     configure(owner: Configurable): Promise {
@@ -155,21 +76,143 @@ export class Configuration {
         }
         
         const config = this._config;
-        
+        this._emitConfigurationEvent({configIndex: null, configEventName: LIFECYCLE__INIT});
         return this.resolveConfiguration(config, owner)
                    .then(config => {
-                       const configHandlers = this.getConfigurationHandlers(owner, config);
+                       this._emitConfigurationEvent({configIndex: null, configEventName: LIFECYCLE__BEGIN});
+                       const configHandlers = this._getConfigurationHandlers(owner, config);
             
-                       return Promise.all(configHandlers)
+                       return Promise.all(configHandlers.map(fn => fn()))
                                      .then(i => config);
                    })
                    .then(config => {
                        // set the owner's configuration to an object that includes what we just used
                        owner[CONFIGURATION] = {...(owner[CONFIGURATION] || {}), ...config};
-                       const emitEnd        = this._eventManager.createEmitter(Configuration.$EVENTS$.instance(EVENT__CONFIG).END);
-                       emitEnd(owner);
+                       this._emitConfigurationEvent({
+                                                        configEventName: LIFECYCLE__END,
+                                                        eventResult:     owner,
+                                                        doEmitGeneric:   true
+                                                    });
                        return owner;
                    });
+    }
+    
+    /**
+     * Return an array of functions that, once run, will attempt to configure the "owner" of the ConfigurationSession
+     *
+     * @param {Configurable}owner
+     * @param {{}} configuration
+     * @return {Array}
+     *
+     * @private
+     */
+    _getConfigurationHandlers(owner: Configurable, configuration: {}): Array<() => {}> {
+        const handlingFunctions = this.handlers;
+        
+        // Proxies the Configuration object to make it easier to define events
+        const configurationSession               = createConfigurationSession(this);
+        configurationSession.configuredObject    = owner;
+        configurationSession.configurationObject = configuration;
+        
+        // An array of the functions we will run to configure this item
+        const handlers = [];
+        
+        // Iterate through the established "handling" functions and wrap them in a function that
+        //  emits the proper events and enforces that the returned value is a Promise
+        for (let handlerIndex in handlingFunctions) {
+            if (!handlingFunctions.hasOwnProperty(handlerIndex)) {
+                continue;
+            }
+            
+            // The function that would configure this index on the object
+            const configureValueFn = handlingFunctions[handlerIndex];
+            
+            if (typeof configureValueFn !== "function") {
+                continue;
+            }
+            
+            // The function that we run to emit the proper events in the configuration lifecycle
+            const configFn = this._createIndexConfigurationFn(handlerIndex,
+                                                              configuration[handlerIndex],
+                                                              configureValueFn,
+                                                              configurationSession);
+            
+            handlers.push(configFn);
+        }
+        
+        return handlers;
+    }
+    
+    /**
+     * Emit a Configuration event
+     *
+     * @param configIndex
+     * @param configEventName
+     *
+     * @param eventResult
+     * @param configValue
+     * @param configurationSession
+     * @param doEmitGeneric
+     * @private
+     */
+    _emitConfigurationEvent({configIndex, configEventName, eventResult, configValue, configurationSession, doEmitGeneric}): void {
+        
+        const eventManager  = this._eventManager;
+        const $events$Array = [this.$EVENTS$];
+        if (doEmitGeneric) $events$Array.push(Configuration.$EVENTS$);
+        
+        $events$Array
+            .forEach($events$ => {
+                const eventConfig    = $events$.instance(CONFIGURE__EVENT);
+                let configIndexEvent = configIndex ? eventConfig.instance(configIndex) : eventConfig;
+                
+                if (configEventName) {
+                    configIndexEvent = configIndexEvent.instance(configEventName);
+                }
+                
+                eventManager.emitEvent(configIndexEvent, eventResult)
+            });
+    }
+    
+    /**
+     * Create the function we will return
+     * @param handlerIndex
+     * @param configurationValue
+     * @param configureValueFn
+     * @param configurationSession
+     * @return {function()}
+     * @private
+     */
+    _createIndexConfigurationFn(handlerIndex: string,
+                                configurationValue: any,
+                                configureValueFn: Function,
+                                configurationSession: ConfigurationSession & Configuration): () => {} {
+        
+        const owner = configurationSession.configuredObject;
+        
+        // Return a function that would actually configure the index on the owner that we intend
+        return () => {
+            configurationSession._emitConfigurationEvent({
+                                                             configIndex:          handlerIndex,
+                                                             configEventName:      LIFECYCLE__BEGIN,
+                                                             eventResult:          null,
+                                                             configValue:          configurationValue,
+                                                             configurationSession: configurationSession
+                                                         });
+            
+            const configurationResult  = configureValueFn(configurationValue, owner, configurationSession);
+            const resolveConfiguration = Promise.resolve(configurationResult);
+            return resolveConfiguration.then(result => {
+                configurationSession._emitConfigurationEvent({
+                                                                 configIndex:          handlerIndex,
+                                                                 configEventName:      LIFECYCLE__END,
+                                                                 eventResult:          result,
+                                                                 configValue:          configurationValue,
+                                                                 configurationSession: configurationSession
+                                                             });
+                return result;
+            });
+        };
     }
 }
 
@@ -181,7 +224,7 @@ export class Configuration {
  * @param SmEntityProto
  * @return {Promise<{>}
  */
-export const resolveInheritedConfiguration = (config, SmEntityProto: typeof SmEntity): Promise<{}> => {
+export function resolveInheritedConfiguration(config: { inherits: string | Array }, SmEntityProto: typeof SmEntity): Promise<{}> {
     config.inherits = Array.isArray(config.inherits) ? config.inherits : [config.inherits];
     const promises  = [];
     
@@ -197,8 +240,7 @@ export const resolveInheritedConfiguration = (config, SmEntityProto: typeof SmEn
     return Promise.all(promises)
                   .then(configs => deepmerge.all([...configs, config]));
 }
-;
 
-Configuration.identityManager  = createIdentityManager('CONFIGURATION');
-Configuration.$EVENTS$         = Configuration.identityManager.component('$EVENTS$');
-export const CONFIGURATION_END = Configuration.$EVENTS$.instance(EVENT__CONFIG).END;
+Configuration.identityManager  = createIdentityManager('-cfg-');
+Configuration.$EVENTS$         = Configuration.identityManager.component('$events$');
+export const CONFIGURATION_END = Configuration.$EVENTS$.instance(CONFIGURE__EVENT).instance(LIFECYCLE__END);

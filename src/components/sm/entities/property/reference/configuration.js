@@ -1,11 +1,8 @@
 import {Configuration} from "../../../../configuration/configuration";
-import {PropertyAsReferenceDescriptor} from "./propertyAsReference";
-import type {ConfigurationSession} from "../../../../configuration/configuration";
+import {PropertyAsReferenceDescriptor} from "./index";
+import type {ConfigurationSession} from "../../../../configuration/types";
 import type {SmEntity} from "../../types";
-import type {PropertyOwner} from "../owner/owner"
 import Identity from "../../../../identity/components/identity";
-
-const logger = console;
 
 export const handlers = {
     identity:        (identity: Identity | string, descriptor: PropertyAsReferenceDescriptor, configurationSession: ConfigurationSession | PropertyAsReferenceConfig) => {
@@ -15,7 +12,7 @@ export const handlers = {
                                        return descriptor._proxied = smEntity;
                                    })
                                    .catch(err => {
-                                       logger.error(err)
+                                       console.error(err)
                                    });
     },
     hydrationMethod: (hydration: { property: string }, descriptor: PropertyAsReferenceDescriptor, configurationSession: ConfigurationSession | PropertyAsReferenceConfig) => {
@@ -26,8 +23,9 @@ export const handlers = {
         }
         const expectedProperty = hydration.property;
         return configurationSession.waitFor('identity')
-                                   .then((result: PropertyOwner) => {
-                                       const property = result.properties[expectedProperty];
+                                   .then(result => {
+                                       const [propertyOwner] = result;
+                                       const property        = propertyOwner.properties[expectedProperty];
                                        if (!property) {
                                            throw new Error("Configured SmEntity is missing the properties necessary");
                                        }
@@ -53,6 +51,10 @@ class PropertyAsReferenceConfig extends Configuration {
         this._proxiedSmEntityProto = Proto;
     }
     
+    _getConfiguredIdentifier(config) {
+        return 'propertyReference';
+    }
+    
     /**
      * Initialize an SmEntity based on what weve configured
      *
@@ -60,6 +62,7 @@ class PropertyAsReferenceConfig extends Configuration {
      * @return {Promise<SmEntity>}
      */
     initSmEntity(identity: Identity | string): Promise<SmEntity> {
+        if (!this.smEntityProto) throw new Error("No Property Owner was configured for this PropertyAsReference Configuration");
         return this.smEntityProto.init(identity);
     }
 }

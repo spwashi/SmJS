@@ -5,7 +5,7 @@
  */
 import {Property} from "./property";
 import {SM_ID} from "../../identification";
-import {CONFIGURATION} from "../../../configuration/configuration";
+import {CONFIGURATION} from "../../../configuration/symbols";
 
 export class PropertyMeta {
     _indices: { [name: string]: Set | Map };

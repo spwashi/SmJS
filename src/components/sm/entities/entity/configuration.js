@@ -1,7 +1,6 @@
 import {
     Configuration,
     CONFIGURATION_END,
-    configurationHandlerObject,
     resolveInheritedConfiguration
 } from "../../../configuration/configuration";
 import {Entity} from "./entity";
@@ -10,7 +9,7 @@ import {makePropertyOwnerConfig} from "../property/owner/configuration";
 import {EntityProperty} from "./property/property";
 import {EntityPropertyConfig} from "./property/configuration";
 import type {PropertyOwnerConfig} from "../property/owner/configuration";
-import type {ConfigurationSession} from "../../../configuration/configuration";
+import type {configurationHandlerObject, ConfigurationSession} from "../../../configuration/types";
 
 const handlers = {
     name:       (name, entity) => entity[SM_ID] = Entity.identify(name),
@@ -32,7 +31,7 @@ export default class EntityConfiguration extends Configuration implements Proper
                        (configuredItem: Entity) => {
                            const ENTITY_CONFIGURED__EVENT = Entity.events.CONFIG_END;
                            const eventArguments           = [configuredItem];
-                           Entity.eventManager.logEvent(ENTITY_CONFIGURED__EVENT, eventArguments);
+                           Entity.eventManager.emitEvent(ENTITY_CONFIGURED__EVENT, eventArguments);
                        });
     }
     

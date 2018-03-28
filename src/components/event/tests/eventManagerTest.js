@@ -18,15 +18,15 @@ describe('eventManager', () => {
         
         const EVENT__sip_from_glass = 'took a sip from a glass';
         
-        eventManager.logEvent(EVENT__sip_from_glass, ['water']);
-        eventManager.logEvent(EVENT__sip_from_glass, ['coca-cola']);
-        eventManager.logEvent(EVENT__sip_from_glass, ['beer']);
+        eventManager.emitEvent(EVENT__sip_from_glass, ['water']);
+        eventManager.emitEvent(EVENT__sip_from_glass, ['coca-cola']);
+        eventManager.emitEvent(EVENT__sip_from_glass, ['beer']);
         
         eventManager.waitForEvent(EVENT__sip_from_glass, false, ['wine']).then(i => finishInOrder(OF_WINE));
         eventManager.waitForEvent(EVENT__sip_from_glass).then(i => finishInOrder(IN_GENERAL));
         
-        eventManager.logEvent(EVENT__sip_from_glass, ['coca-cola']);
-        eventManager.logEvent(EVENT__sip_from_glass, ['wine']);
+        eventManager.emitEvent(EVENT__sip_from_glass, ['coca-cola']);
+        eventManager.emitEvent(EVENT__sip_from_glass, ['wine']);
     });
     
     it('Can create emitters', done => {
@@ -51,7 +51,7 @@ describe('eventManager', () => {
         const EVENT__do_something = 'do something';
         
         eventManager.createListener(EVENT__do_something, ['argument2'], () => done());
-        eventManager.logEvent(EVENT__do_something, ['argument1']);
-        eventManager.logEvent(EVENT__do_something, ['argument2']);
+        eventManager.emitEvent(EVENT__do_something, ['argument1']);
+        eventManager.emitEvent(EVENT__do_something, ['argument2']);
     })
 });

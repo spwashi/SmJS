@@ -35,6 +35,10 @@ class IdentityManager implements IdentityNode {
         const identifier = createName.ofType(this._identifier, initialIdentifier);
         return initIdentity(identifier, this);
     }
+    
+    toString() {
+        return this._identifier;
+    }
 }
 
 export default class Identity implements IdentityNode {
@@ -61,6 +65,12 @@ export default class Identity implements IdentityNode {
         return initIdentity(identifier)._setParent(this);
     }
     
+    identifiedInstance(name: identifier | Identity): Identity {
+        if (name instanceof Identity) name = name.identifier;
+        const identifier = createName.asIdentifiedInstance(this._identifier, name);
+        return initIdentity(identifier)._setParent(this);
+    }
+    
     instance(name: identifier | Identity): Identity {
         if (name instanceof Identity) name = name.identifier;
         const identifier = createName.asInstance(this._identifier, name);
@@ -79,6 +89,10 @@ export default class Identity implements IdentityNode {
     
     toJSON() {
         return this._identifier
+    }
+    
+    toString() {
+        return this._identifier;
     }
 }
 

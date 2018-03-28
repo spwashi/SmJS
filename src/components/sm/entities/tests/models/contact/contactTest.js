@@ -1,8 +1,8 @@
 import {before, beforeEach, describe, it} from "mocha";
 import {expect} from "chai";
-import * as __modelConfig from '../_/_';
-import * as person_modelConfig from '../person/person';
-import * as contact_modelConfig from '../contact/contact';
+import * as __modelConfig from '../_/index';
+import * as person_modelConfig from '../person/index';
+import * as contact_modelConfig from './index';
 import ModelConfiguration from "../../../model/configuration";
 import {Model} from "../../../model/model";
 
@@ -21,12 +21,15 @@ describe('Contact Model', () => {
     
     it('Has a  "person_id" property that serves allows us to proxy a "Person" Model', done => {
         initializeUnderscoreModel();
-        (new ModelConfiguration(person_modelConfig)).configure(new Model);
-        (new ModelConfiguration(contact_modelConfig)).configure(new Model)
-                                                     .then(ContactModel => {
-                                                         const json__string = JSON.stringify(ContactModel, ' ', 3);
-                                                         console.log(json__string);
-                                                         done();
-                                                     });
+        (new ModelConfiguration(person_modelConfig)).configure(new Model)
+                                                    .catch(e => console.error(e));
+        const contactConfiguration = new ModelConfiguration(contact_modelConfig);
+        contactConfiguration.configure(new Model)
+                            .catch(e => console.error(e))
+                            .then(ContactModel => {
+                                const json__string = JSON.stringify(ContactModel, ' ', 3);
+                                console.log(json__string);
+                                done();
+                            });
     });
 });

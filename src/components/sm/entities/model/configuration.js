@@ -1,7 +1,6 @@
 import {
     Configuration,
     CONFIGURATION_END,
-    configurationHandlerObject,
     resolveInheritedConfiguration
 } from "../../../configuration/configuration";
 import {Model} from "./model";
@@ -11,13 +10,15 @@ import {ModelProperty} from "./property/property";
 import {ModelPropertyConfig} from "./property/configuration";
 import {mappedModelRoleObject, ModelRole} from "./role";
 import type {PropertyOwnerConfig} from "../property/owner/configuration";
-import type {ConfigurationSession} from "../../../configuration/configuration";
+import type {configurationHandlerObject, ConfigurationSession} from "../../../configuration/types";
 
 export const handlers = {
     name:       (name, model) => model[SM_ID] = Model.identify(name),
     properties: (allPropertiesConfig: {} | any, model: Model, configuration: ConfigurationSession & ModelConfiguration) => {
         const entries  = Object.entries(allPropertiesConfig || {});
-        const promises = entries.map(([name, propertyConfig]) => configuration.configureProperty(name, propertyConfig, model));
+        const promises = entries.map(([name, propertyConfig]) => {
+            return configuration.configureProperty(name, propertyConfig, model);
+        });
         return Promise.all(promises);
     },
     map:        (mapConfig, model: Model) => {
@@ -73,8 +74,12 @@ export class ModelConfiguration extends Configuration implements PropertyOwnerCo
                        (configuredItem: Model) => {
                            const MODEL_CONFIGURED__EVENT = Model.events.CONFIG_END;
                            const eventArguments          = [configuredItem];
-                           Model.eventManager.logEvent(MODEL_CONFIGURED__EVENT, eventArguments);
+                           Model.eventManager.emitEvent(MODEL_CONFIGURED__EVENT, eventArguments);
                        });
+    }
+    
+    _getConfiguredIdentifier(config) {
+        return Model.identify(config.name ? `${config.name}` : null);
     }
     
     resolveConfiguration(config, owner: {}): Promise<Object> {

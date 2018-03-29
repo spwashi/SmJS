@@ -59,7 +59,7 @@ export const makeSmEntity = (sm: typeof SmEntity, sm__identity: IdentityManager)
             const event                  = ITEM_CONFIGURED__EVENT.instance(configuredItemIdentity);
             
             return eventManager.waitForEvent(event)
-                               .then(smEntityInstance => smEntityInstance);
+                               .then(([smEntityInstance]) => smEntityInstance);
         };
     
     configureSmEntityEventManager(events, sm);

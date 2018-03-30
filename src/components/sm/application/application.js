@@ -3,17 +3,18 @@ import ModelConfiguration from "../entities/model/configuration";
 import {Model} from "../entities/model/model";
 import {Configurable} from "../../configuration/types";
 import {CONFIGURE__EVENT} from "../../configuration/events";
+import type {ConfigurationSession} from "../../configuration/types";
 
 export class ApplicationConfiguration extends Configuration {
     handlers = {
-        models:    (modelConfigObj, owner) => {
+        models:    (modelConfigObj, owner, configurationSession: ConfigurationSession) => {
             const config          = modelConfigObj;
             const allInitializing = Object.keys(config)
                                           .map(key => {
                                               let modelName: string    = key;
                                               let configurationObj     = config[key];
                                               configurationObj.name    = modelName;
-                                              const modelConfiguration = new ModelConfiguration(configurationObj);
+                                              const modelConfiguration = new ModelConfiguration(configurationObj, configurationSession);
                                               return modelConfiguration.configure(new Model)
                                                                        .then(model => {
                                                                            owner._models[modelName] = model;
@@ -29,7 +30,7 @@ export class ApplicationConfiguration extends Configuration {
         domain:    (domain, app) => app._domain = domain,
         urlPath:   (urlPath, app) => {
             if (typeof urlPath !== "string" || !urlPath.length) return;
-        
+            
             return app._urlPath = urlPath;
         },
     }

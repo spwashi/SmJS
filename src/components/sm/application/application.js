@@ -2,12 +2,11 @@ import {Configuration} from "../../configuration/configuration";
 import ModelConfiguration from "../entities/model/configuration";
 import {Model} from "../entities/model/model";
 import {Configurable} from "../../configuration/types";
-import {CONFIGURE__EVENT} from "../../configuration/events";
 import type {ConfigurationSession} from "../../configuration/types";
 
 export class ApplicationConfiguration extends Configuration {
     handlers = {
-        models:    (modelConfigObj, owner, configurationSession: ConfigurationSession) => {
+        models:      (modelConfigObj, owner: Application, configurationSession: ConfigurationSession) => {
             const config          = modelConfigObj;
             const allInitializing = Object.keys(config)
                                           .map(key => {
@@ -22,16 +21,18 @@ export class ApplicationConfiguration extends Configuration {
                                           });
             return Promise.all(allInitializing)
         },
-        routes:    (routes, owner) => {
+        routes:      (routes, owner: Application) => {
             return owner._routes = routes || {};
         },
-        name:      (name, app) => app._name = name,
-        namespace: (namespace, app) => app._namespace = namespace,
-        domain:    (domain, app) => app._domain = domain,
-        urlPath:   (urlPath, app) => {
+        paths:       (paths, owner: Application) => {
+            return owner._paths = paths || {};
+        },
+        name:        (name, app: Application) => app._name = name,
+        namespace:   (namespace, app: Application) => app._namespace = namespace,
+        baseUrl:     (domain, app: Application) => app._baseUrl = domain,
+        baseUrlPath: (urlPath, app: Application) => {
             if (typeof urlPath !== "string" || !urlPath.length) return;
-            
-            return app._urlPath = urlPath;
+            return app._baseUrlPath = urlPath;
         },
     }
 }
@@ -39,10 +40,13 @@ export class ApplicationConfiguration extends Configuration {
 export class Application implements Configurable {
     _models: {};
     _routes: {};
+    _paths: {
+        'public': string
+    };
     _name: string;
     _namespace: string;
-    _urlPath: string;
-    _domain: string;
+    _baseUrlPath: string;
+    _baseUrl: string;
     
     constructor() {
         this._models = {};
@@ -52,11 +56,9 @@ export class Application implements Configurable {
     
     get namespace() {return this._namespace}
     
-    get urlPath() {return this._urlPath}
+    get baseUrlPath() {return this._baseUrlPath}
     
-    get domain() {return this._domain}
-    
-    get url() {return this._domain + (this.urlPath ? `/${this.urlPath}/` : '')}
+    get baseUrl() {return this._baseUrl + (this.baseUrlPath ? `/${this.baseUrlPath}` : '')}
     
     get models() {
         return this._models;
@@ -71,10 +73,10 @@ export class Application implements Configurable {
         this._name && (obj.name = this._name);
         this._namespace && (obj.namespace = this._namespace);
         this._routes && (obj.routes = this._routes);
+        this._paths && (obj.paths = this._paths);
         this._models && (obj.models = this._models);
-        this._urlPath && (obj.urlPath = this._urlPath);
-        this._domain && (obj.domain = this._domain);
-        this._domain && (obj.url = this.url);
+        this._baseUrlPath && (obj.urlPath = this._baseUrlPath);
+        this._baseUrl && (obj.baseUrl = this.baseUrl);
         return obj
     }
 }

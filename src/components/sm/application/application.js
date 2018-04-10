@@ -25,11 +25,15 @@ export class ApplicationConfiguration extends Configuration {
             return owner._routes = routes || {};
         },
         paths:       (paths, owner: Application) => {
-            return owner._paths = paths || {};
+            paths = Object.assign({},
+                                  {src: null, config: null, 'public': null},
+                                  (paths || {})
+            );
+            return owner._paths = paths;
         },
         name:        (name, app: Application) => app._name = name,
         namespace:   (namespace, app: Application) => app._namespace = namespace,
-        baseUrl:     (domain, app: Application) => app._baseUrl = domain,
+        rootUrl:     (domain, app: Application) => app._rootUrl = domain,
         baseUrlPath: (urlPath, app: Application) => {
             if (typeof urlPath !== "string" || !urlPath.length) return;
             return app._baseUrlPath = urlPath;
@@ -46,7 +50,7 @@ export class Application implements Configurable {
     _name: string;
     _namespace: string;
     _baseUrlPath: string;
-    _baseUrl: string;
+    _rootUrl: string;
     
     constructor() {
         this._models = {};
@@ -56,9 +60,18 @@ export class Application implements Configurable {
     
     get namespace() {return this._namespace}
     
+    get paths() {return this._paths}
+    
     get baseUrlPath() {return this._baseUrlPath}
     
-    get baseUrl() {return this._baseUrl + (this.baseUrlPath ? `/${this.baseUrlPath}` : '')}
+    get baseUrl() {return this._rootUrl + (this.baseUrlPath ? `/${this.baseUrlPath}` : '')}
+    
+    get urls() {
+        return {
+            root: this._rootUrl,
+            base: this.baseUrl
+        }
+    }
     
     get models() {
         return this._models;
@@ -66,6 +79,15 @@ export class Application implements Configurable {
     
     get routes() {
         return this._routes;
+    }
+    
+    toJSON__public() {
+        return {
+            name:      this.name,
+            appDomain: this._rootUrl,
+            appUrl:    this.baseUrl,
+            appPath:   this.baseUrlPath
+        }
     }
     
     toJSON() {
@@ -76,7 +98,7 @@ export class Application implements Configurable {
         this._paths && (obj.paths = this._paths);
         this._models && (obj.models = this._models);
         this._baseUrlPath && (obj.urlPath = this._baseUrlPath);
-        this._baseUrl && (obj.baseUrl = this.baseUrl);
+        obj.urls = this.urls;
         return obj
     }
 }

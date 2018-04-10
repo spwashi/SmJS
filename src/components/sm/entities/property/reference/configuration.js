@@ -9,8 +9,6 @@ export const handlers = {
         if (!identity) return null;
         return configurationSession.initSmEntity(identity)
                                    .then(smEntity => {
-                                       console.log('here');
-                                       console.log(smEntity);
                                        return descriptor._proxied = smEntity;
                                    })
                                    .catch(err => {

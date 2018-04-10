@@ -83,10 +83,11 @@ export class Application implements Configurable {
     
     toJSON__public() {
         return {
-            name:      this.name,
-            appDomain: this._rootUrl,
-            appUrl:    this.baseUrl,
-            appPath:   this.baseUrlPath
+            name:         this.name,
+            appDomain:    this._rootUrl,
+            appUrl:       this.baseUrl,
+            appPath:      this.baseUrlPath,
+            appPublicUrl: this.urls.public
         }
     }
     

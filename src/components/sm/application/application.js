@@ -31,6 +31,13 @@ export class ApplicationConfiguration extends Configuration {
             );
             return owner._paths = paths;
         },
+        urls:        (urls, owner: Application) => {
+            urls = Object.assign({},
+                                 {src: null, config: null, 'public': null},
+                                 (urls || {})
+            );
+            return owner._urls = urls;
+        },
         name:        (name, app: Application) => app._name = name,
         namespace:   (namespace, app: Application) => app._namespace = namespace,
         rootUrl:     (domain, app: Application) => app._rootUrl = domain,
@@ -45,6 +52,9 @@ export class Application implements Configurable {
     _models: {};
     _routes: {};
     _paths: {
+        'public': string
+    };
+    _urls: {
         'public': string
     };
     _name: string;
@@ -67,10 +77,13 @@ export class Application implements Configurable {
     get baseUrl() {return this._rootUrl + (this.baseUrlPath ? `/${this.baseUrlPath}` : '')}
     
     get urls() {
-        return {
-            root: this._rootUrl,
-            base: this.baseUrl
-        }
+        return Object.assign({},
+                             this._urls,
+                             {
+                                 root: this._rootUrl,
+                                 base: this.baseUrl
+                             }
+        )
     }
     
     get models() {

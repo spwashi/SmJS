@@ -9,7 +9,7 @@ import {mappedModelRoleObject, ModelRole} from "./role";
 
 export class Model implements SmEntity, Configurable, PropertyOwner {
     [SM_ID]: Identity;
-    
+    _inherits: [] = [];
     _mappedModelRoles: Object<string, mappedModelRoleObject>;
     _expectedModelRoles: Object<string, ModelRole>;
     
@@ -18,6 +18,7 @@ export class Model implements SmEntity, Configurable, PropertyOwner {
     toJSON() {
         const json_obj = {smID: this[SM_ID]};
         
+        this._inherits.length && (json_obj.inherits = this._inherits);
         !this.propertyMeta.isEmpty() && (json_obj.propertyMeta = this.propertyMeta);
         Object.keys(this.properties).length && (json_obj.properties = this.properties);
         this._mappedModelRoles && (json_obj.mappedModelRoles = this._mappedModelRoles);

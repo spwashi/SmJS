@@ -13,7 +13,11 @@ import type {PropertyOwnerConfig} from "../property/owner/configuration";
 import type {configurationHandlerObject, ConfigurationSession} from "../../../configuration/types";
 
 export const handlers = {
-    name:       (name, model) => model[SM_ID] = Model.identify(name),
+    name:       (name, model) => (model[SM_ID] = Model.identify(name)),
+    inherits:   (inherits, model) => {
+        if (!Array.isArray(inherits)) return;
+        return (model._inherits = inherits.map(item => Model.identify(item)));
+    },
     properties: (allPropertiesConfig: {} | any, model: Model, configuration: ConfigurationSession & ModelConfiguration) => {
         const entries  = Object.entries(allPropertiesConfig || {});
         const promises = entries.map(([name, propertyConfig]) => {

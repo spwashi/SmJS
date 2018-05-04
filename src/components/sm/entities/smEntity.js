@@ -52,11 +52,11 @@ export const makeSmEntity = (sm: typeof SmEntity, sm__identity: IdentityManager)
     sm.identify        = (name: string): Identity => sm__identity.identityFor(name);
     sm.init            =
         (item: string): Promise<Array> => {
-            const configuredItemIdentity = sm.identify(item);
+            const configuredItemIdentity = item.identifier ? item : sm.identify(item);
             const ITEM_CONFIGURED__EVENT = events.CONFIG_END;
             const event                  = ITEM_CONFIGURED__EVENT.instance(configuredItemIdentity);
             
-            return eventManager.waitForEvent(event)
+            return eventManager.waitForEvent(event, true)
                                .then(([smEntityInstance]) => smEntityInstance);
         };
     

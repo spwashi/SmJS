@@ -41,7 +41,7 @@ class IdentityManager implements IdentityNode {
     }
 }
 
-export default class Identity implements IdentityNode {
+const Identity = class Identity implements IdentityNode {
     _identifier: identifier;
     _identityManager: IdentityManager;
     _parent: Identity;
@@ -94,6 +94,7 @@ export default class Identity implements IdentityNode {
     toString() {
         return this._identifier;
     }
-}
+};
+export default Identity
 
 export const createIdentityManager = (identifier: identifier): IdentityManager => new IdentityManager(identifier);

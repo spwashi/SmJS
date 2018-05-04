@@ -16,5 +16,13 @@ describe('Entity', () => {
                         console.log(JSON.stringify(result, ' ', 5));
                     })
                     .catch(e => console.log(e));
+    });
+    it('Can Have a persistedIdentity', () => {
+        const personConfig = new EntityConfiguration(person);
+        personConfig.configure(new Entity)
+                    .then(result => {
+                        console.log(JSON.stringify(result, ' ', 5));
+                    })
+                    .catch(e => console.log(e));
     })
 });

@@ -1,6 +1,6 @@
-import ModelConfiguration from "../../../model/configuration";
-import * as person_email_map from './person_email_map';
-import {Model} from "../../../model/model";
+import ModelConfiguration from "../model/configuration";
+import * as person_email_map from './models/person/person_email_map';
+import {Model} from "../model/model";
 import {describe, it} from "mocha";
 import {expect} from "chai";
 

@@ -51,8 +51,10 @@ interface Configuration {
 }
 
 interface ConfigurationSession extends Configuration {
-    emitConfig: (configIndex: string, configValue: any, owner: Object, configResult: any, configuration: Configuration,) => {},
-    waitFor: (configIndex: string) => {},
+    emitConfig(configIndex: string, configValue: any, owner: Object, configResult: any, configuration: Configuration,),
+    
+    waitFor(configIndex: string): Promise,
+    
     /**
      * An object representing the object that is being configured in this session
      */
@@ -168,10 +170,6 @@ declare module "spwashi-sm" {
         init(name: string | Identity): Promise<SmEntity>
     }
     
-    declare class Property implements SmEntity, Configurable {
-    
-    }
-    
     declare type PropertyOwner:SmEntity = {
         properties: Object<string, Property>,
         addProperty(propertyName: string, property: Property): PropertyOwner,
@@ -179,13 +177,21 @@ declare module "spwashi-sm" {
         identifyProperty(propertyName: string): Identity
     }
     
-    declare class Model implements SmEntity {}
+    declare type Model:SmEntity = {}
+    declare type Entity:SmEntity = {}
+    declare type Property:SmEntity = {}
     
     declare class Entity implements SmEntity, Configurable, PropertyOwner {}
     
+    declare class Property implements SmEntity, Configurable {
+    
+    }
+    
+    declare class Model implements SmEntity {}
+    
     declare export type Sm = {
-        Model: Model,
-        Entity: Entity,
-        Property: Property
+        Model: typeof Model,
+        Entity: typeof Entity,
+        Property: typeof Property
     }
 }

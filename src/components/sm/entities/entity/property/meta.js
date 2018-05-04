@@ -4,11 +4,12 @@ import {Property} from "../../property/property";
 
 export class EntityPropertyMeta extends PropertyMeta {
     
-    get index() {
-        return this.findInIndex('index');
+    get index(): Map {
+        return this.getIndex('index', Map);
     }
     
     toJSON() {
+        if (!this.index || !this.index.size) return null;
         const index = this.toJSON__map(this.index);
         return {index}
     }

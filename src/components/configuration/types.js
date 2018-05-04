@@ -54,8 +54,8 @@ export interface Configuration {
 }
 
 export interface ConfigurationSession extends Configuration {
-    emitConfig: (configIndex: string, configValue: any, owner: Object, configResult: any, configuration: Configuration,) => {},
-    waitFor: (configIndex: string) => {},
+    waitFor(configIndex: string): Promise,
+    
     /**
      * An object representing the object that is being configured in this session
      */

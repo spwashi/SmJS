@@ -21,11 +21,15 @@ export class Property implements SmEntity, Configurable {
         return this._length;
     }
     
+    get reference(): PropertyAsReferenceDescriptor {
+        return this._reference;
+    }
+    
     toJSON() {
         const jsonObj = {
-            datatypes: [...this._datatypes],
-            smID:      this[SM_ID],
+            smID: this[SM_ID],
         };
+        this._datatypes && this._datatypes.size && (jsonObj.datatypes = [...this._datatypes]);
         this._length && (jsonObj.length = this._length);
         this._primary && (jsonObj.primary = this._primary);
         this._unique && (jsonObj.unique = this._unique);

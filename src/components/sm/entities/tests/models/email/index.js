@@ -1,8 +1,10 @@
-import {Model} from "../../../model/model";
 import {INTEGER_, STRING_} from "../datatypes";
+import * as _ from "../_";
+import {Model} from "../helpers";
 
-export const email__identity = Model.identify('emails');
-export const inherits        = '_';
+export const name            = 'email';
+export const email__identity = Model.identify(name);
+export const inherits        = _.name;
 export const properties      = {
     id:    {length: 11, datatypes: [INTEGER_]},
     email: {length: 255, datatypes: [STRING_], unique: true},

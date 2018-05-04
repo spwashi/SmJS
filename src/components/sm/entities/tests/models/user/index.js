@@ -1,30 +1,26 @@
-import {Model} from "../../../model/model";
-import {INTEGER_, NULL_, STRING_} from "../datatypes";
-import {person__identity} from "../person/index";
-import {email__identity} from "../email/index";
+import {STRING_} from "../datatypes";
+import * as _ from "../_";
+import {person__identity} from "../person";
+import {Model} from "../helpers";
 
-export const name     = 'users';
-export const inherits = '_';
-
-export const properties = {
-    person_id:  {
-        length:    11,
-        datatypes: [INTEGER_],
-        unique:    true,
+export const name           = 'user';
+export const user__identity = Model.identify(name);
+export const inherits       = _.name;
+export const properties     = {
+    username:  {
+        length:    40,
+        datatypes: STRING_
     },
-    email:      {
+    email:     {
         length:    255,
-        datatypes: [STRING_],
+        datatypes: STRING_,
         unique:    true,
     },
-    first_name: {
-        length:    50,
-        datatypes: [STRING_, NULL_]
-    },
-    last_name:  {
-        length:    50,
-        datatypes: [STRING_, NULL_]
+    person_id: {
+        length:    11,
+        reference: {
+            identity:        person__identity,
+            hydrationMethod: {property: 'id'}
+        }
     }
 };
-
-export const user__identity = Model.identify(name);

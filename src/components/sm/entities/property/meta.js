@@ -73,11 +73,11 @@ export class PropertyMeta {
         return keySet.has(property) ? keySet : false;
     }
     
-    getIndex(index: string) {
-        return this._indices[index] || this.createIndexType(index, Set);
+    getIndex(index: string, indexType: typeof Map | typeof Set) {
+        return this._indices[index] || this.createIndexType(index, indexType || Set);
     }
     
-    _toJSON__set(set) {
+    toJSON__set(set) {
         return [...set].map(property => property[SM_ID]);
     }
     
@@ -103,7 +103,7 @@ export class PropertyMeta {
             if (indexIterable instanceof Map) {
                 ret[index] = this.toJSON__map(indexIterable)
             } else if (indexIterable instanceof Set) {
-                ret[index] = this._toJSON__set(indexIterable)
+                ret[index] = this.toJSON__set(indexIterable)
             }
         }
         

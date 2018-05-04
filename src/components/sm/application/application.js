@@ -3,23 +3,41 @@ import ModelConfiguration from "../entities/model/configuration";
 import {Model} from "../entities/model/model";
 import {Configurable} from "../../configuration/types";
 import type {ConfigurationSession} from "../../configuration/types";
+import EntityConfiguration from "../entities/entity/configuration";
+import {Entity} from "../entities/tests/entities/helpers";
+
+let batchConfigureSmEntity = function ([SmEntityConfiguration, SmEntityProto],
+                                       smEntityConfig,
+                                       configurationSession,
+                                       onConfigured) {
+    const config          = smEntityConfig;
+    const allInitializing = Object.keys(config)
+                                  .map(key => {
+                                      const smEntityName: string  = key;
+                                      const configurationObj      = config[key];
+                                      configurationObj.name       = smEntityName;
+                                      const smEntityConfiguration = new SmEntityConfiguration(configurationObj, configurationSession);
+                                      return smEntityConfiguration.configure(new SmEntityProto())
+                                                                  .then(smEntity => onConfigured(smEntityName, smEntity));
+                                  });
+    return Promise.all(allInitializing)
+};
 
 export class ApplicationConfiguration extends Configuration {
     handlers = {
-        models:      (modelConfigObj, owner: Application, configurationSession: ConfigurationSession) => {
-            const config          = modelConfigObj;
-            const allInitializing = Object.keys(config)
-                                          .map(key => {
-                                              let modelName: string    = key;
-                                              let configurationObj     = config[key];
-                                              configurationObj.name    = modelName;
-                                              const modelConfiguration = new ModelConfiguration(configurationObj, configurationSession);
-                                              return modelConfiguration.configure(new Model)
-                                                                       .then(model => {
-                                                                           owner._models[modelName] = model;
-                                                                       });
-                                          });
-            return Promise.all(allInitializing)
+        models:      (smEntityConfig, owner: Application, configurationSession: ConfigurationSession) => {
+            const onConfigured = (smEntityName, smEntity) => {owner._models[smEntityName] = smEntity;};
+            return batchConfigureSmEntity([ModelConfiguration, Model],
+                                          smEntityConfig,
+                                          configurationSession,
+                                          onConfigured);
+        },
+        entities:    (smEntityConfig, owner: Application, configurationSession: ConfigurationSession) => {
+            const onConfigured = (smEntityName, smEntity) => {owner._entities[smEntityName] = smEntity;};
+            return batchConfigureSmEntity([EntityConfiguration, Entity],
+                                          smEntityConfig,
+                                          configurationSession,
+                                          onConfigured);
         },
         routes:      (routes, owner: Application) => {
             return owner._routes = routes || {};
@@ -50,6 +68,7 @@ export class ApplicationConfiguration extends Configuration {
 
 export class Application implements Configurable {
     _models: {};
+    _entities: {};
     _routes: {};
     _paths: {
         'public': string
@@ -90,6 +109,10 @@ export class Application implements Configurable {
         return this._models;
     }
     
+    get entities() {
+        return this._entities;
+    }
+    
     get routes() {
         return this._routes;
     }
@@ -111,6 +134,7 @@ export class Application implements Configurable {
         this._routes && (obj.routes = this._routes);
         this._paths && (obj.paths = this._paths);
         this._models && (obj.models = this._models);
+        this._entities && (obj.entities = this._entities);
         this._baseUrlPath && (obj.urlPath = this._baseUrlPath);
         obj.urls = this.urls;
         return obj

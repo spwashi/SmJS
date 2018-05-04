@@ -1,16 +1,11 @@
-import {Model} from "../../../model/model";
-import {INTEGER_, STRING_} from "../datatypes";
+import {STRING_} from "../datatypes";
+import * as _ from "../_";
+import {Model} from "../helpers";
 
-export const name       = 'people';
-export const inherits   = '_';
-export const properties = {
-    id:    {length: 11, datatypes: [INTEGER_]},
-    email: {length: 255, datatypes: [STRING_], unique: true},
-};
-export const contexts   = {
-    "person_*_map": {
-        roleName: 'person'
-    }
-};
-
+export const name             = 'person';
 export const person__identity = Model.identify(name);
+export const inherits         = _.name;
+export const properties       = {
+    first_name: {datatypes: [STRING_], length: 255},
+    last_name:  {datatypes: [STRING_], length: 255},
+};

@@ -1,1 +1,1 @@
-export const CONFIGURATION = Symbol('configuration for the object');
+export const CONFIGURATION = 'cOnfIGG';

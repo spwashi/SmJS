@@ -14,7 +14,7 @@ export class ModelPropertyMeta extends PropertyMeta {
     
     toJSON() {
         return {
-            primary: this._toJSON__set(this.primary),
+            primary: this.toJSON__set(this.primary),
             unique:  this.toJSON__map(this.unique)
         }
     }

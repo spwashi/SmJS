@@ -8,10 +8,14 @@ export class PropertyAsReferenceDescriptor implements Configurable {
     
     constructor() {}
     
+    get hydrationMethod() {
+        return this._hydration && this._hydration.property && this._hydration.property[SM_ID];
+    }
+    
     toJSON() {
         const jsonObj = {};
         if (this._proxied && this._proxied[SM_ID]) jsonObj.identity = this._proxied[SM_ID];
-        if (this._hydration && this._hydration.property) jsonObj.hydrationMethod = this._hydration.property[SM_ID];
+        if (this.hydrationMethod) jsonObj.hydrationMethod = this.hydrationMethod;
         return jsonObj
     }
 }

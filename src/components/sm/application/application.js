@@ -1,10 +1,10 @@
 import {Configuration} from "../../configuration/configuration";
 import ModelConfiguration from "../entities/model/configuration";
 import {Model} from "../entities/model/model";
+import {Entity} from "../entities/entity/entity";
 import {Configurable} from "../../configuration/types";
 import type {ConfigurationSession} from "../../configuration/types";
 import EntityConfiguration from "../entities/entity/configuration";
-import {Entity} from "../entities/tests/entities/helpers";
 
 let batchConfigureSmEntity = function ([SmEntityConfiguration, SmEntityProto],
                                        smEntityConfig,

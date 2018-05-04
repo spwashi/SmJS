@@ -25,14 +25,14 @@ let batchConfigureSmEntity = function ([SmEntityConfiguration, SmEntityProto],
 
 export class ApplicationConfiguration extends Configuration {
     handlers = {
-        models:      (smEntityConfig, owner: Application, configurationSession: ConfigurationSession) => {
+        models:      (smEntityConfig = {}, owner: Application, configurationSession: ConfigurationSession) => {
             const onConfigured = (smEntityName, smEntity) => {owner._models[smEntityName] = smEntity;};
             return batchConfigureSmEntity([ModelConfiguration, Model],
                                           smEntityConfig,
                                           configurationSession,
                                           onConfigured);
         },
-        entities:    (smEntityConfig, owner: Application, configurationSession: ConfigurationSession) => {
+        entities:    (smEntityConfig = {}, owner: Application, configurationSession: ConfigurationSession) => {
             const onConfigured = (smEntityName, smEntity) => {owner._entities[smEntityName] = smEntity;};
             return batchConfigureSmEntity([EntityConfiguration, Entity],
                                           smEntityConfig,

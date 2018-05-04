@@ -82,7 +82,8 @@ export class Application implements Configurable {
     _rootUrl: string;
     
     constructor() {
-        this._models = {};
+        this._models   = {};
+        this._entities = {};
     }
     
     get name() {return this._name}

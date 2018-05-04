@@ -1,11 +1,12 @@
 import {describe, it} from "mocha";
 import {Application, ApplicationConfiguration} from "../application";
-import models from "./models/models";
+import models from "../../entities/tests/models/models";
+import entities from "../../entities/tests/entities";
 
 describe('application', () => {
     it('Can configure Models', () => {
         const app       = new Application;
-        const appConfig = new ApplicationConfiguration({models});
+        const appConfig = new ApplicationConfiguration({models, entities});
         appConfig.configure(app)
                  .then(i => {
                      console.log(JSON.stringify(app, '\t', 2));

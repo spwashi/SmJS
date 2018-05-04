@@ -2,7 +2,7 @@ import Identity from "../../identity/components/identity";
 import EventManager from "../../event/eventManager";
 import {IdentityManager} from "../../identity/types";
 import {SM_ID} from "../identification";
-import {SmEntity} from "./types";
+import type {SmEntity} from "./types";
 import type {smEntityEventConfig} from "./types";
 
 export const getSmEntityEvent =
@@ -42,17 +42,15 @@ const configureSmEntityEventManager = (events: smEntityEventConfig, smEntity: ty
  */
 export const makeSmEntity = (sm: typeof SmEntity, sm__identity: IdentityManager) => {
     
-    const events = {
+    const events       = {
         CONFIG_END: getSmEntityEvent(sm__identity, `CONFIGURED.${sm__identity}`)
     };
-    
     const eventManager = new EventManager;
     sm[SM_ID]          = sm__identity;
     sm.eventManager    = eventManager;
     sm.events          = events;
     sm.identify        = (name: string): Identity => sm__identity.identityFor(name);
-    
-    sm.init =
+    sm.init            =
         (item: string): Promise<Array> => {
             const configuredItemIdentity = sm.identify(item);
             const ITEM_CONFIGURED__EVENT = events.CONFIG_END;
@@ -65,4 +63,4 @@ export const makeSmEntity = (sm: typeof SmEntity, sm__identity: IdentityManager)
     configureSmEntityEventManager(events, sm);
 };
 
-export {SmEntity};
+export type {SmEntity};

@@ -15,7 +15,7 @@ export const makePropertyOwnerConfig = (PropertyOwnerConfig: typeof PropertyOwne
         function (originalPropertyName: string, originalPropertyConfig: {}, propertyOwner: PropertyOwner): Promise<Property> {
             const Property              = PropertyOwnerConfig.Property;
             const PropertyConfig        = PropertyOwnerConfig.PropertyConfig;
-            originalPropertyConfig.name = propertyOwner.createPropertyIdentity(originalPropertyName);
+            originalPropertyConfig.name = propertyOwner.identifyProperty(originalPropertyName);
             const configurationSession  = this;
             let configureProperty       = () => {
                 const property              = new Property;

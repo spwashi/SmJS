@@ -72,7 +72,7 @@ describe('Property As Proxy Test', () => {
                      .then(propertyAsReferenceDescriptor => {
                          const json__string = JSON.stringify(propertyAsReferenceDescriptor, ' ', 3);
             
-                         const propertyName     = cat.createPropertyIdentity(PROPERTY__NAME);
+                         const propertyName     = cat.identifyProperty(PROPERTY__NAME);
                          const propertyIdentity = Property.identify(propertyName);
                          console.log(json__string);
                          const objFromJSON = JSON.parse(json__string);

@@ -3,21 +3,16 @@ import {CONTEXT_TYPES, normalizeContexts} from "../helpers";
 import * as user from "../user";
 import {Entity} from "../helpers";
 
-const getContexts              = () => {
-    const person_context = {
-        self: {
-            name:        'person',
-            title:       'Person',
-            contextType: CONTEXT_TYPES.IDENTITY
-        },
+const getContexts              = i => {
+    const self = {
+        name:        'person',
+        title:       'Person',
+        contextType: CONTEXT_TYPES.IDENTITY
     };
-    const login_process  = {...person_context};
-    const signup_process = {...person_context};
     return normalizeContexts({
-                                 person_context,
-                                 login_process,
-                                 signup_process
-        
+                                 self,
+                                 login_process:  {self},
+                                 signup_process: {self}
                              })
 };
 export const name              = 'person';

@@ -7,7 +7,10 @@ export const identity          = Entity.identify(name);
 // How do we know that this entity is /this/ entity?
 export const persistedIdentity = password__identity;
 export const properties        = {
-    password: true
+    password: {
+        identity: true,
+        role:     'value'
+    }
 };
 export const representations   = {
     inline: {

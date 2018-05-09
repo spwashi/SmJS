@@ -11,9 +11,14 @@ import Identity from "../../../identity/components/identity";
 export class Entity implements SmEntity, Configurable, PropertyOwner {
     _persistedIdentity: Identity;
     _representations: Object;
+    _contexts: Object;
     
     constructor() {
         makePropertyOwner(this, EntityPropertyMeta)
+    }
+    
+    get contexts() {
+        return this._contexts;
     }
     
     get persistedIdentity() {
@@ -28,6 +33,7 @@ export class Entity implements SmEntity, Configurable, PropertyOwner {
         if (this.propertyMeta.toJSON()) entity.propertyMeta = this.propertyMeta;
         if (this._persistedIdentity) entity.persistedIdentity = this._persistedIdentity;
         if (this._representations) entity.representations = this._representations;
+        if (this._contexts) entity.contexts = this._contexts;
         return entity
     }
 }

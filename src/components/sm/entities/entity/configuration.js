@@ -16,7 +16,7 @@ import {ModelProperty} from "../model/property";
 import {CONFIGURATION} from "../../../configuration/symbols";
 import Identity from "../../../identity/components/identity";
 
-let getPersistedIdentityModel = function (configuration) {
+let getPersistedIdentityModel     = function (configuration) {
     if (!configuration.configurationObject.persistedIdentity) {
         console.log(configuration.configurationObject);
         throw new Error("Can only have 'true' properties alongside a persisted identity");
@@ -26,8 +26,7 @@ let getPersistedIdentityModel = function (configuration) {
                             return Model.init(modelIdentity);
                         });
 };
-
-function configureStdInheritedProperty(configuration, name, entity, propertyConfig) {
+let configureStdInheritedProperty = function (configuration, name, entity, propertyConfig) {
     return getPersistedIdentityModel(configuration).then((model: Model) => {
         const properties               = model.properties;
         const property: ModelProperty  = properties[name];
@@ -41,7 +40,6 @@ function configureStdInheritedProperty(configuration, name, entity, propertyConf
                                                entity)
     });
 }
-
 let resolvePropertyDerivation     = function (propertyConfig, identitySmEntity) {
     Object.entries(propertyConfig.derivedFrom)
           .forEach(([name, derivedFrom]) => {
@@ -94,9 +92,32 @@ let configurePropertyWithIdentity = function (propertyConfig, configuration, nam
 };
 const handlers                    = {
     name:              (name, entity) => entity[SM_ID] = Entity.identify(name),
+    contexts:          (contexts, entity: Entity) => {
+        return entity._contexts = Object.entries(contexts || {})
+                                        .map(entry => {
+                                            let [name, context] = entry;
+                                            if (typeof context !== "object" || !context) {
+                                                throw new Error("Malformed context -- " + JSON.stringify(context));
+                                            }
+                                            if (name === "self") return;
+                                            let {self}  = context;
+                                            let newSelf = {title: self.title, name: self.name};
+            
+                                            return {
+                                                name,
+                                                self: newSelf
+                                            };
+                                        })
+                                        .reduce((all, item) => {
+                                                    if (!item) return all;
+                                                    const {name: k, ...v} = item;
+                                                    all[k]                = v;
+                                                    return all;
+                                                },
+                                                {})
+    },
     persistedIdentity: (identity: Identity, entity: Entity) => {
         if (!identity) return;
-        console.log(identity);
         return Model.init(identity)
                     .then((model: Model) => {
                         return entity._persistedIdentity = model[SM_ID];
@@ -151,6 +172,27 @@ export default class EntityConfiguration extends Configuration implements Proper
                            const eventArguments           = [configuredItem];
                            Entity.eventManager.emitEvent(ENTITY_CONFIGURED__EVENT, eventArguments);
                        });
+    }
+    
+    resolvePropertyConfiguration(config): Promise {
+        if (config.contexts) {
+            const session: ConfigurationSession = this;
+            return session.waitFor('contexts')
+                          .then(([contexts = {}]) => {
+                              let expectedContexts = config.contexts;
+                              if (typeof expectedContexts === 'string') expectedContexts = [expectedContexts];
+                              if (!Array.isArray(expectedContexts)) {
+                                  throw new Error("Unsure of what to do with non-array contexts");
+                              }
+                              expectedContexts.forEach(name => {
+                                  if (!contexts[name]) {
+                                      throw new Error("Could not find Context to match " + name)
+                                  }
+                              });
+                              return config;
+                          })
+        }
+        return Promise.resolve(config);
     }
     
     resolveConfiguration(config, owner: {}): Promise<Object> {

@@ -17,7 +17,6 @@ let batchConfigureSmEntity = function ([SmEntityConfiguration, SmEntityProto],
                                       const configurationObj      = config[key];
                                       configurationObj.name       = smEntityName;
                                       const smEntityConfiguration = new SmEntityConfiguration(configurationObj, configurationSession);
-                                      console.log(SmEntityConfiguration.name, SmEntityProto.name);
                                       return smEntityConfiguration.configure(new SmEntityProto())
                                                                   .then(smEntity => onConfigured(smEntityName, smEntity));
                                   });

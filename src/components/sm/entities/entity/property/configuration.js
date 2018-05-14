@@ -10,6 +10,13 @@ export class EntityPropertyConfig extends PropertyConfig {
             if (role !== 'value') throw new Error("The only supported EntityProperty role at the moment is 'value'");
             return entityProperty._role = role;
         },
+        minLength:   (minLength, entityProperty: EntityProperty) => {
+            if (!minLength) return null;
+            
+            if (typeof minLength !== 'number') throw new Error("Can only use numbers to config min lengths");
+            
+            return entityProperty._minLength = minLength;
+        },
         contexts:    (contexts, entityProperty: EntityProperty) => {
             if (!contexts) return [];
             if (!Array.isArray(contexts)) {

@@ -8,8 +8,9 @@ export const identity          = Entity.identify(name);
 export const persistedIdentity = password__identity;
 export const properties        = {
     password: {
-        identity: true,
-        role:     'value'
+        identity:  true,
+        minLength: 10,
+        role:      'value'
     }
 };
 export const representations   = {

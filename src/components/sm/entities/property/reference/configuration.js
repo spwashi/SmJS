@@ -3,6 +3,7 @@ import {PropertyAsReferenceDescriptor} from "./index";
 import type {ConfigurationSession} from "../../../../configuration/types";
 import type {SmEntity} from "../../types";
 import Identity from "../../../../identity/components/identity";
+import {parseSmID} from "../../../utility";
 
 export const handlers = {
     identity:        (identity: Identity | string, descriptor: PropertyAsReferenceDescriptor, configurationSession: ConfigurationSession | PropertyAsReferenceConfig) => {
@@ -17,7 +18,12 @@ export const handlers = {
     },
     hydrationMethod: (hydration: { property: string }, descriptor: PropertyAsReferenceDescriptor, configurationSession: ConfigurationSession | PropertyAsReferenceConfig) => {
         if (!hydration) return null;
-        
+        if (typeof hydration === "string") {
+            const parsed = parseSmID(hydration);
+            if (parsed.manager && parsed.manager.toLowerCase() === 'property') {
+                hydration = {property: parsed.name}
+            }
+        }
         if (typeof  hydration !== "object" || typeof hydration.property !== "string") {
             throw new Error("Can only hydrate based on Properties");
         }
@@ -27,6 +33,7 @@ export const handlers = {
                                        const [propertyOwner] = result;
                                        const property        = propertyOwner.properties[expectedProperty];
                                        if (!property) {
+                                           console.log(Object.keys(propertyOwner.properties), ' -- ', expectedProperty);
                                            throw new Error("Configured SmEntity is missing the properties necessary");
                                        }
             

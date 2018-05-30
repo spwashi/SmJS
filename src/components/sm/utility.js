@@ -1,3 +1,5 @@
+import XRegExp from 'xregexp';
+
 export const parseSmID            = smID => {
     if (typeof smID === "object" && smID) smID = smID.smID;
     

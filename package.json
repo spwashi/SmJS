@@ -3,11 +3,9 @@
   "private": false,
   "version": "0.0.51-b",
   "description": "A framework to assist with PHP web development",
-  "main": "lib/index.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "gulp mocha",
-    "build": "babel src --out-dir lib",
-    "prepublishOnly": "npm run build"
+    "test": "gulp mocha"
   },
   "author": "Sam Washington",
   "license": "MIT",

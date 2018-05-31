@@ -6,7 +6,7 @@ import {Property} from "./property";
 export const handlers = {
     defaultValue: (defaultValue, property: Property) => property._default = defaultValue,
     primary:      (isPrimary, property: Property) => property._primary = isPrimary,
-    isGenerated:  (isGenerated, property: Property) => property._isGenerated = isGenerated,
+    isGenerated:  (isGenerated, property: Property) => property._isGenerated = !!isGenerated,
     unique:       (isUnique, property: Property) => property._unique = isUnique,
     updateValue:  (updateValue, property: Property) => property._updateValue = updateValue,
     length:       (length: number | null, property: Property) => property._length = parseInt(length) || null,

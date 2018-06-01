@@ -5,6 +5,9 @@ import {Entity} from "../entities/entity/entity";
 import {Configurable} from "../../configuration/types";
 import type {ConfigurationSession} from "../../configuration/types";
 import EntityConfiguration from "../entities/entity/configuration";
+import {makeSmEntity} from "../entities/smEntity";
+import modelIdentity from "../entities/model/identity";
+import applicationIdentity from "./identity";
 
 let batchConfigureSmEntity = function ([SmEntityConfiguration, SmEntityProto],
                                        smEntityConfig,
@@ -144,3 +147,5 @@ export class Application implements Configurable {
         return obj
     }
 }
+
+makeSmEntity(Application, applicationIdentity);

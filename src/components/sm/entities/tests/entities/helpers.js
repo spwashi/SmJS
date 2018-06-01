@@ -1,4 +1,4 @@
-import * as Sm from "../../../../sm/";
+import Sm from "../../../../sm/";
 
 const {Model, Entity} = Sm;
 export {Model, Entity};

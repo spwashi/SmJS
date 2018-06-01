@@ -1,7 +1,11 @@
-import {Entity} from "./entities/entity/entity";
-import {Property} from "./entities/property/property";
-import {Model} from "./entities/model/model";
+import "./entities/entity/entity";
+import "./application/application";
+import "./entities/property/property";
+import "./entities/model/model";
 import * as identification from './identification'
-import {Application, ApplicationConfiguration} from "./application/application";
+import {ApplicationConfiguration} from "./application/application";
+import {Sm} from "./entities/smEntity";
 
-export {Entity, Property, Model, identification, Application, ApplicationConfiguration}
+export default Sm;
+Sm.identification           = identification;
+Sm.ApplicationConfiguration = ApplicationConfiguration;

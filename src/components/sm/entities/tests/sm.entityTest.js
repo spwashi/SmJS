@@ -4,7 +4,7 @@ import {models} from './models'
 import ModelConfiguration from "../model/configuration";
 import {Model} from "../model/model";
 import entities from './entities'
-import {Entity} from "../..";
+import {Entity} from "../entity/entity";
 import EntityConfiguration from "../entity/configuration";
 
 let getConfigPromises = function (configurables, entityTypes, allModels, doLog = false) {

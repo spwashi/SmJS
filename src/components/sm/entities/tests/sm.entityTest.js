@@ -6,6 +6,7 @@ import {Model} from "../model/model";
 import entities from './entities'
 import {Entity} from "../entity/entity";
 import EntityConfiguration from "../entity/configuration";
+import './_debug'
 
 let getConfigPromises = function (configurables, entityTypes, allModels, doLog = false) {
     return Object.entries(configurables)
@@ -43,7 +44,7 @@ describe('models', () => {
         const configuredSmEntities = [];
         const allPromises          = getConfigPromises(models,
                                                        [Model, ModelConfiguration],
-                                                       configuredSmEntities, true);
+                                                       configuredSmEntities, false);
         setTimeout(() => console.log(JSON.stringify(configuredSmEntities, ' ', 4)), 1900);
         return Promise.all(allPromises);
     });

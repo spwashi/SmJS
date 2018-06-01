@@ -8,6 +8,7 @@ import {parseSmID} from "../../../utility";
 export const handlers = {
     identity:        (identity: Identity | string, descriptor: PropertyAsReferenceDescriptor, configurationSession: ConfigurationSession | PropertyAsReferenceConfig) => {
         if (!identity) return null;
+        
         return configurationSession.initSmEntity(identity)
                                    .then(smEntity => {
                                        return descriptor._proxied = smEntity;

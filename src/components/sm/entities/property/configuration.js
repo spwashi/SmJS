@@ -26,16 +26,21 @@ export const handlers = {
         const session: ConfigurationSession = configuration;
         return session.waitFor('name')
                       // Use the owner of the property as the manager of the identity?
-                      .then(name => Sm.identify(referenceConfig.identity || parseSmID(`${name}`).owner))
+                      .then(name => Sm.getManagerForSmID(referenceConfig.identifier ? referenceConfig : (referenceConfig.identity || parseSmID(`${name}`).owner)))
                       .then((Manager: SmEntity) => {
                                 const refConfig         = new PropertyAsReferenceConfiguration(referenceConfig, configuration);
                                 refConfig.smEntityProto = Manager;
+            
                                 return refConfig.configure(new PropertyAsReferenceDescriptor)
                                                 .then(descriptor => {
                                                     return owner._reference = descriptor;
                                                 });
                             }
                       )
+                      .catch(e => {
+                          console.log(e, referenceConfig);
+                          throw e;
+                      })
     }
 };
 export default class PropertyConfig extends Configuration {

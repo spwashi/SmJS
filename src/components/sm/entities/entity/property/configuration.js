@@ -1,7 +1,7 @@
 import PropertyConfig, {handlers} from "../../property/configuration";
 import {EntityProperty} from "./property";
 import Identity from "../../../../identity/components/identity";
-import {Sm} from "../../smEntity";
+import {Sm} from "../../sm";
 import {parseSmID} from "../../../utility";
 
 export class EntityPropertyConfig extends PropertyConfig {

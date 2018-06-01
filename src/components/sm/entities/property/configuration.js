@@ -6,18 +6,20 @@ import type {ConfigurationSession} from "../../../configuration/types";
 import {Model} from "../model/model";
 import {PropertyAsReferenceDescriptor} from "./reference";
 import PropertyAsReferenceConfiguration from "./reference/configuration";
-import {Sm, SmEntity} from "../smEntity";
+import {SmEntity} from "../smEntity";
 import {parseSmID} from "../../utility";
+import {Sm} from "../sm";
 
 export const handlers = {
-    defaultValue: (defaultValue, property: Property) => property._default = defaultValue,
-    primary:      (isPrimary, property: Property) => property._primary = isPrimary,
-    isGenerated:  (isGenerated, property: Property) => property._isGenerated = !!isGenerated,
-    unique:       (isUnique, property: Property) => property._unique = isUnique,
-    updateValue:  (updateValue, property: Property) => property._updateValue = updateValue,
-    length:       (length: number | null, property: Property) => property._length = parseInt(length) || null,
+    defaultValue: (defaultValue, property: Property) => typeof defaultValue !== "undefined" && (property._default = defaultValue),
+    primary:      (isPrimary, property: Property) => typeof isPrimary !== "undefined" && (property._primary = isPrimary),
+    isGenerated:  (isGenerated, property: Property) => typeof isGenerated !== "undefined" && (property._isGenerated = !!isGenerated),
+    unique:       (isUnique, property: Property) => typeof isUnique !== "undefined" && (property._unique = isUnique),
+    updateValue:  (updateValue, property: Property) => typeof updateValue !== "undefined" && (property._updateValue = updateValue),
+    length:       (length: number | null, property: Property) => typeof length !== "undefined" && (property._length = parseInt(length) || null),
     name:         (name: string, property: Property) => property[SM_ID] = Property.identify(name),
     datatypes:    (datatype: Array<string> | string, property: Property) => {
+        if (typeof datatype === "undefined") return;
         datatype = Array.isArray(datatype) ? datatype : [datatype];
         return property._datatypes = new Set([...datatype.filter(i => !!i), ...(property._datatypes || [])])
     },

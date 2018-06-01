@@ -4,7 +4,7 @@ import "./entities/property/property";
 import "./entities/model/model";
 import * as identification from './identification'
 import {ApplicationConfiguration} from "./application/application";
-import {Sm} from "./entities/smEntity";
+import {Sm} from "./entities/sm";
 
 export default Sm;
 Sm.identification           = identification;

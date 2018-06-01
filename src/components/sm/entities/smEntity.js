@@ -2,9 +2,8 @@ import Identity from "../../identity/components/identity";
 import EventManager from "../../event/eventManager";
 import {IdentityManager} from "../../identity/types";
 import {SM_ID} from "../identification";
-import type {SmEntity} from "./types";
-import type {smEntityEventConfig} from "./types";
-import {parseSmID} from "../utility";
+import type {SmEntity, smEntityEventConfig} from "./types";
+import {Sm} from "./sm";
 
 export const getSmEntityEvent =
                  (identity: Identity, eventName: string | Identity): Identity => {
@@ -31,23 +30,8 @@ const configureSmEntityEventManager = (events: smEntityEventConfig, smEntity: ty
     
 };
 
-export const Sm = function () {};
 
-Sm.getManagerForSmID = function (smID) {
-    const {manager} = parseSmID(`${smID}`);
-    if (manager && Sm[manager] && Sm[manager].identify) {
-        return Sm[manager];
-    }
-    throw new Error('Could not resolve manager for ' + smID);
-};
-Sm.identify          = (smID: string | Identity) => {
-    const SmEntityManager = Sm.getManagerForSmID(smID);
-    return SmEntityManager.identify(smID);
-};
-Sm.init              = (smID: string | Identity) => {
-    const SmEntityManager = Sm.getManagerForSmID(smID);
-    return SmEntityManager.init(smID);
-};
+
 
 /**
  * Turn an object into an SmEntity by attaching the standard properties that would make it so

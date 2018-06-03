@@ -17,10 +17,10 @@ export class EntityPropertyConfig extends PropertyConfig {
             
             return Sm.init(owner)
                      .then(item => {
-                         item.properties[name] && (entityProperty._reference = item.properties[name]._reference);
-                         item.properties[name] && (entityProperty._datatypes = item.properties[name]._datatypes);
-                         item.properties[name] && (entityProperty._default = item.properties[name]._default);
-                         item.properties[name] && (entityProperty._length = item.properties[name]._length);
+                         item.properties[name]._reference && (entityProperty._reference = entityProperty._reference || item.properties[name]._reference);
+                         item.properties[name]._datatypes && (entityProperty._datatypes = entityProperty._datatypes || item.properties[name]._datatypes);
+                         item.properties[name]._default && (entityProperty._default = entityProperty._default || item.properties[name]._default);
+                         item.properties[name]._length && (entityProperty._length = entityProperty._length || item.properties[name]._length);
                          return entityProperty._derivedFrom = identity;
                      });
         },

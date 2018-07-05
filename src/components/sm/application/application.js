@@ -153,6 +153,7 @@ export class Application implements Configurable {
 			appDomain:    this._rootUrl,
 			appUrl:       this.baseUrl,
 			appPath:      this.baseUrlPath,
+			bootLoader:   this.bootLoader,
 			appPublicUrl: this.urls.public
 		}
 	}

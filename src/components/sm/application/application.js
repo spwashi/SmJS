@@ -38,10 +38,10 @@ export class ApplicationConfiguration extends Configuration {
 			                              configurationSession,
 			                              onConfigured);
 		},
-		connection:  (smEntityConfig = {}, owner: Application, configurationSession: ConfigurationSession) => {
-			if (!smEntityConfig) return null;
-			if (typeof smEntityConfig !== "object") throw new Error("Expected connection info to be an object");
-			return owner._connection = smEntityConfig;
+		connection:  (connection = {}, owner: Application, configurationSession: ConfigurationSession) => {
+			if (!connection) return null;
+			if (typeof connection !== "object") throw new Error("Expected connection info to be an object");
+			return owner._connection = connection;
 		},
 		entities:    (smEntityConfig = {}, owner: Application, configurationSession: ConfigurationSession) => {
 			const onConfigured = (smEntityName, smEntity) => {owner._entities[smEntityName] = smEntity;};
@@ -70,6 +70,18 @@ export class ApplicationConfiguration extends Configuration {
 		name:        (name, app: Application) => app._name = name,
 		namespace:   (namespace, app: Application) => app._namespace = namespace,
 		rootUrl:     (domain, app: Application) => app._rootUrl = domain,
+		bootLoader:  (file_path, app: Application, config: ConfigurationSession | Configuration) => {
+			if (!file_path) {
+				config.waitFor('paths')
+				      .then(paths => {
+					      const config_path = paths.config;
+					      if (!config_path) throw new Error('Unspecified bootloader not found in unspecified config folder');
+					      app._bootLoader = config_path + '/config.php';
+				      });
+			} else {
+				app._bootLoader = file_path;
+			}
+		},
 		baseUrlPath: (urlPath, app: Application) => {
 			if (typeof urlPath !== "string" || !urlPath.length) return;
 			return app._baseUrlPath = urlPath;
@@ -82,6 +94,7 @@ export class Application implements Configurable {
 	_entities: {};
 	_connection: {};
 	_routes: {};
+	_bootLoader: string;
 	_paths: {
 		'public': string
 	};
@@ -101,6 +114,10 @@ export class Application implements Configurable {
 	get name() {return this._name}
 
 	get namespace() {return this._namespace}
+
+	get connection() {return this._connection}
+
+	get bootLoader() {return this._bootLoader}
 
 	get paths() {return this._paths}
 
@@ -146,6 +163,7 @@ export class Application implements Configurable {
 		this._namespace && (obj.namespace = this._namespace);
 		this._routes && (obj.routes = this._routes);
 		this._paths && (obj.paths = this._paths);
+		this._bootLoader && (obj.bootLoader = this._bootLoader);
 		this._models && (obj.models = this._models);
 		this._entities && (obj.entities = this._entities);
 		this._connection && (obj.connection = this._connection);

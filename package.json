@@ -1,7 +1,7 @@
 {
   "name": "spwashi-sm",
   "private": false,
-  "version": "0.0.61-b",
+  "version": "0.0.62-b",
   "description": "A framework to assist with PHP web development",
   "main": "src/index.js",
   "scripts": {

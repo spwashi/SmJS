@@ -73,7 +73,7 @@ export class ApplicationConfiguration extends Configuration {
 		bootLoader:  (file_path, app: Application, config: ConfigurationSession | Configuration) => {
 			if (!file_path) {
 				config.waitFor('paths')
-				      .then(paths => {
+				      .then(([paths]) => {
 					      const config_path = paths.config;
 					      if (!config_path) throw new Error('Unspecified bootloader not found in unspecified config folder');
 					      app._bootLoader = config_path + '/config.php';
